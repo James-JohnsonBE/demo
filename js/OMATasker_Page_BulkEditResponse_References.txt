@@ -1,0 +1,204 @@
+﻿<div id="divLoading" style="color: green">Loading...</div>
+<div id="divLoadSettings" style="display: none">
+  <fieldset>
+    <legend>
+      Edit Responses for Request Number:
+      <span id="divRequestNumber" style="font-weight: bold"></span>
+    </legend>
+    <div style="padding-top: 10px">
+      <a href="javascript:void" id="btnLoadResponses">
+        <span class="ui-icon ui-icon-gear"></span>Refresh Responses (Discards
+        Changes)
+      </a>
+    </div>
+    <div style="padding-top: 10px">
+      <a href="javascript:void" id="btnLoadResponses" style="display: none">
+        Click Here to Display Edited Responses
+      </a>
+    </div>
+  </fieldset>
+</div>
+<div id="divLoadBulkResponsesOutput" style="padding-top: 15px">
+  <table class="tablesorter report">
+    <thead>
+      <tr>
+        <th>Status</th>
+        <th>Sample #</th>
+        <th>Response Title</th>
+        <th>Action Office</th>
+        <th>Status</th>
+        <th>Reject Reason</th>
+      </tr>
+    </thead>
+    <tbody data-bind="foreach: arrResponses">
+      <tr data-bind="">
+        <td data-bind="" rowspan="2">
+          <div data-bind="css: commitStatusClass"></div>
+          <!-- <input type="checkbox" data-bind="checked: returnBool" /> -->
+        </td>
+        <td data-bind="text: sample" rowspan="2"></td>
+        <td data-bind="text: title, css: {mutated: isMutated}" rowspan="2"></td>
+        <td>
+          <select
+            data-bind="value: newActionOfficeTitle, options: $root.arrActionOffices().map(function (ao) {return ao.title}),
+            "
+          ></select>
+        </td>
+        <td>
+          <select
+            data-bind="value: newStatus, options: $root.responseStatusOpts"
+          ></select>
+        </td>
+        <td>
+          <input
+            type="text"
+            data-bind="textInput: newReturnReason"
+            placeholder="Return Reason..."
+            list="returnReasonDl"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td colspan="3">
+          <label
+            >Comment:
+            <textarea
+              class="responseComments"
+              rows="1"
+              data-bind="textInput: newComments"
+            ></textarea>
+          </label>
+        </td>
+      </tr>
+      <!-- <div
+        data-bind="template: {name: 'tmpl_response_item', foreach: arrResponses}"
+      ></div> -->
+    </tbody>
+  </table>
+</div>
+<div style="padding-top: 15px">
+  <a
+    href="javascript:void"
+    id="btnCommitResponses"
+    data-bind="visible: arrMutatedResponses().length"
+    title="Click here to Commit Changes"
+  >
+    <span class="ui-icon ui-icon-disk"></span>Commit Changes
+  </a>
+  <div style="padding-top: 15px">
+    <input
+      id="btnCancel"
+      type="button"
+      class="ms-ButtonHeightWidth"
+      value="Close"
+      title="Close"
+      onclick="SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)"
+    />
+  </div>
+</div>
+
+<style>
+  .mutated {
+    background-color: yellow;
+  }
+
+  .responseComments {
+    width: 97%;
+  }
+</style>
+
+<script type="text/html" id="tmpl_response_item">
+  <tr data-bind="">
+    <td data-bind="">
+      <div data-bind="css: commitStatusClass"></div>
+      <!-- <input type="checkbox" data-bind="checked: returnBool" /> -->
+    </td>
+    <td data-bind="text: title, css: {mutated: isMutated}"></td>
+    <td>
+      <select
+        data-bind="value: newActionOfficeTitle, options: $root.arrActionOffices().map(function (ao) {return ao.title}),
+        "
+      ></select>
+    </td>
+    <td>
+      <select
+        data-bind="value: newStatus, options: $root.responseStatusOpts"
+      ></select>
+    </td>
+    <td>
+      <input
+        type="text"
+        data-bind="textInput: newReturnReason"
+        placeholder="Return Reason..."
+        list="returnReasonDl"
+      />
+    </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td colspan="4">
+      <label
+        >Comment:
+        <textarea
+          class="responseComments"
+          rows="1"
+          data-bind="textInput: newComments"
+        ></textarea>
+      </label>
+    </td>
+  </tr>
+</script>
+<datalist id="returnReasonDl">
+  <option>Incorrect POC</option>
+  <option>Incomplete Document</option>
+</datalist>
+
+<!-- CSS Files -->
+
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="../SiteAssets/css/jqueryui/1.11.3/themes/redmond/jquery-ui.min.css"
+/>
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="../SiteAssets/css/tablesorter/style.css"
+/>
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="../SiteAssets/css/OMATasker_Styles.css"
+/>
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="../SiteAssets/css/OMATasker_Page_Reports.css"
+/>
+
+<!-- Javascript Files -->
+
+<script
+  type="text/javascript"
+  src="../SiteAssets/js/jquery/1.7.2/jquery.min.js"
+></script>
+<script
+  type="text/javascript"
+  src="../SiteAssets/js/jqueryui/1.11.3/jquery-ui.min.js"
+></script>
+<script
+  type="text/javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"
+></script>
+<script
+  type="text/javascript"
+  src="../SiteAssets/js/jquery.tablesorter.min.js"
+></script>
+<script
+  type="text/javascript"
+  src="../SiteAssets/js/OMATasker_Page_Common.js"
+></script>
+<script
+  type="text/javascript"
+  src="../SiteAssets/js/OMATasker_Page_BulkEditResponse.js"
+></script>
