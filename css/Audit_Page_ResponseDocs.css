@@ -1,0 +1,49 @@
+﻿#s4-searcharea,#SearchBox {
+	DISPLAY: none
+}
+.ms-quicklaunchheader {
+	DISPLAY: none
+}
+
+#Ribbon\.Documents\.New\.NewFolder-Large
+{
+	display:none;
+}
+
+#Ribbon\.Documents\.Workflow
+{
+	display:none;
+}
+
+#Ribbon\.Library\.ViewFormat
+{
+	display:none;
+}
+#Ribbon\.Library\.Datasheet
+{
+	display:none;
+}
+#Ribbon\.Library\.Actions
+{
+	display:none;
+}
+#Ribbon\.Documents\.Copies
+{
+	display:none;
+}
+#Ribbon\.Library\.CustomViews
+{
+	display:none;
+}
+#Ribbon\.Documents\.TagsAndNotes
+{
+	display:none;
+}
+#Ribbon\.Library\.CustomizeLibrary
+{
+	display:none;
+}
+#Ribbon\.Library\.Settings
+{
+	display:none;
+}
