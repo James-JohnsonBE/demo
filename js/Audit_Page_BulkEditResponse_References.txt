@@ -24,55 +24,103 @@
       <tr>
         <th>Status</th>
         <th>Sample #</th>
-        <th>Response Title</th>
         <th>Action Office</th>
         <th>Status</th>
         <th>Reject Reason</th>
+        <th>Closed Date</th>
+        <th>Closed By</th>
       </tr>
     </thead>
     <tbody data-bind="foreach: arrResponses">
+      <tr data-bind="css: mutationStatusClass">
+        <th colspan="7" data-bind="text: title"></th>
+      </tr>
       <tr data-bind="">
-        <td data-bind="" rowspan="2">
-          <div data-bind="css: commitStatusClass"></div>
+        <td data-bind="css: mutationStatusClass" rowspan="2">
+          <div
+            data-bind="css: commitStatusClass, attr: {title: commitStatus().text}"
+          ></div>
           <!-- <input type="checkbox" data-bind="checked: returnBool" /> -->
         </td>
-        <td data-bind="text: sample" rowspan="2"></td>
-        <td data-bind="text: title, css: {mutated: isMutated}" rowspan="2"></td>
+        <td data-bind="text: sample"></td>
         <td>
           <select
-            data-bind="value: newActionOfficeTitle, options: $root.arrActionOffices().map(function (ao) {return ao.title}),
-            "
+            data-bind="value: newActionOfficeTitle, 
+            options: $root.arrActionOffices().map(function (ao) {return ao.title}),
+            enable: isEditable"
           ></select>
         </td>
         <td>
           <select
-            data-bind="value: newStatus, options: $root.responseStatusOpts"
+            data-bind="value: newStatus, options: $root.responseStatusOpts,
+            enable: isEditable"
           ></select>
         </td>
         <td>
           <input
             type="text"
-            data-bind="textInput: newReturnReason"
+            data-bind="textInput: newReturnReason, enable: isEditable"
             placeholder="Return Reason..."
             list="returnReasonDl"
           />
         </td>
+        <td>
+          <!-- ko if: isEditable -->
+          <div
+            data-bind="template: {name: 'jquery-datetime', data: newClosedDate}"
+          ></div>
+          <!-- /ko -->
+          <!-- ko ifnot: isEditable -->
+          <p data-bind="text: newClosedDate.formatted()"></p>
+          <!-- /ko -->
+        </td>
+        <td>
+          <!-- ko if: isEditable -->
+          <div
+            data-bind="attr: {'id': 'peoplePickerClosedBy' + sample}, people: newClosedBy.user"
+          ></div>
+          <!-- /ko -->
+          <!-- ko ifnot: isEditable -->
+          <p data-bind="text: newClosedBy.title()"></p>
+          <!-- /ko -->
+        </td>
       </tr>
-      <tr>
+      <tr data-bind="">
         <td colspan="3">
+          <label
+            >POC:
+            <!-- ko if: isEditable -->
+            <div
+              data-bind="attr: {'id': 'peoplePickerPOC' + sample}, people: newPOC.user"
+            ></div>
+            <!-- /ko -->
+            <!-- ko ifnot: isEditable -->
+            <p data-bind="text: newPOC.title()"></p>
+            <!-- /ko --></label
+          >
+          <label
+            >POCCC:
+            <!-- ko if: isEditable -->
+            <div
+              data-bind="attr: {'id': 'peoplePickerPOCCC' + sample}, people: newPOCCC.user"
+            ></div>
+            <!-- /ko -->
+            <!-- ko ifnot: isEditable -->
+            <p data-bind="text: newPOCCC.title()"></p>
+            <!-- /ko -->
+          </label>
+        </td>
+        <td colspan="4">
           <label
             >Comment:
             <textarea
               class="responseComments"
               rows="1"
-              data-bind="textInput: newComments"
+              data-bind="textInput: newComments, enable: isEditable"
             ></textarea>
           </label>
         </td>
       </tr>
-      <!-- <div
-        data-bind="template: {name: 'tmpl_response_item', foreach: arrResponses}"
-      ></div> -->
     </tbody>
   </table>
 </div>
@@ -99,60 +147,69 @@
 
 <style>
   .mutated {
-    background-color: yellow;
+    background-color: lightyellow;
   }
 
+  .pending {
+    background-color: lightsalmon;
+  }
+
+  .committed {
+    background-color: lightgreen;
+  }
+
+  .error {
+    background-color: red;
+  }
   .responseComments {
     width: 97%;
   }
+
+  table p {
+    margin: 0 !important;
+  }
 </style>
 
-<script type="text/html" id="tmpl_response_item">
-  <tr data-bind="">
-    <td data-bind="">
-      <div data-bind="css: commitStatusClass"></div>
-      <!-- <input type="checkbox" data-bind="checked: returnBool" /> -->
-    </td>
-    <td data-bind="text: title, css: {mutated: isMutated}"></td>
-    <td>
-      <select
-        data-bind="value: newActionOfficeTitle, options: $root.arrActionOffices().map(function (ao) {return ao.title}),
-        "
-      ></select>
-    </td>
-    <td>
-      <select
-        data-bind="value: newStatus, options: $root.responseStatusOpts"
-      ></select>
-    </td>
-    <td>
-      <input
-        type="text"
-        data-bind="textInput: newReturnReason"
-        placeholder="Return Reason..."
-        list="returnReasonDl"
-      />
-    </td>
-  </tr>
-  <tr>
-    <td></td>
-    <td colspan="4">
-      <label
-        >Comment:
-        <textarea
-          class="responseComments"
-          rows="1"
-          data-bind="textInput: newComments"
-        ></textarea>
-      </label>
-    </td>
-  </tr>
-</script>
 <datalist id="returnReasonDl">
   <option>Incorrect POC</option>
   <option>Incomplete Document</option>
 </datalist>
 
+<script type="text/html" id="jquery-datetime">
+  <input type="text" data-bind="jqueryDateField: date" />
+  <select data-bind="value: HH">
+    <option value="0">12 AM</option>
+    <option value="1">1 AM</option>
+    <option value="2">2 AM</option>
+    <option value="3">3 AM</option>
+    <option value="4">4 AM</option>
+    <option value="5">5 AM</option>
+    <option value="6">6 AM</option>
+    <option value="7">7 AM</option>
+    <option value="8">8 AM</option>
+    <option value="9">9 AM</option>
+    <option value="10">10 AM</option>
+    <option value="11">11 AM</option>
+    <option value="12">12 PM</option>
+    <option value="13">1 PM</option>
+    <option value="14">2 PM</option>
+    <option value="15">3 PM</option>
+    <option value="16">4 PM</option>
+    <option value="17">5 PM</option>
+    <option value="18">6 PM</option>
+    <option value="19">7 PM</option>
+    <option value="20">8 PM</option>
+    <option value="21">9 PM</option>
+    <option value="22">10 PM</option>
+    <option value="23">11 PM</option>
+  </select>
+  <select data-bind="value: mm">
+    <option value="0">00</option>
+    <option value="15">15</option>
+    <option value="30">30</option>
+    <option value="45">45</option>
+  </select>
+</script>
 <!-- CSS Files -->
 
 <link
@@ -168,15 +225,28 @@
 <link
   rel="stylesheet"
   type="text/css"
-  href="../SiteAssets/css/OMATasker_Styles.css"
+  href="../SiteAssets/css/Audit_Styles.css"
 />
 <link
   rel="stylesheet"
   type="text/css"
-  href="../SiteAssets/css/OMATasker_Page_Reports.css"
+  href="../SiteAssets/css/Audit_Page_Reports.css"
 />
 
 <!-- Javascript Files -->
+<script
+  type="text/javascript"
+  src="../Apps/_layouts/15/clienttemplates.js"
+></script>
+<script
+  type="text/javascript"
+  src="../Apps/_layouts/15/clientforms.js"
+></script>
+<script
+  type="text/javascript"
+  src="../Apps/_layouts/15/clientpeoplepicker.js"
+></script>
+<script type="text/javascript" src="../Apps/_layouts/15/autofill.js"></script>
 
 <script
   type="text/javascript"
@@ -196,9 +266,9 @@
 ></script>
 <script
   type="text/javascript"
-  src="../SiteAssets/js/OMATasker_Page_Common.js"
+  src="../SiteAssets/js/Audit_Page_Common.js"
 ></script>
 <script
   type="text/javascript"
-  src="../SiteAssets/js/OMATasker_Page_BulkEditResponse.js"
+  src="../SiteAssets/js/Audit_Page_BulkEditResponse.js"
 ></script>

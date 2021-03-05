@@ -15,7 +15,7 @@
         position: relative;
         display: -moz-inline-box;
         display: inline-block;
-        background: url(star.gif);
+        background: url("star.gif");
         height: 16px;
         outline: none;
     }
@@ -47,7 +47,7 @@
             }
 
             .rateit .rateit-hover {
-                background: url(star.gif) left -32px;
+                background: url("star.gif") left -32px;
                 color: rgb(239, 197, 41);
             }
 
@@ -56,7 +56,7 @@
             }
 
             .rateit .rateit-selected {
-                background: url(star.gif) left -16px;
+                background: url("star.gif") left -16px;
                 color: rgb(191,66,66);
             }
 
@@ -65,16 +65,16 @@
             }
 
             .rateit .rateit-preset {
-                background: url(star.gif) left -48px;
+                background: url("star.gif") left -48px;
                 color: rgb(239, 107, 34);
             }
 
             .rateit .rateit-preset-rtl {
-                background: url(star.gif) left -48px;
+                background: url("star.gif") left -48px;
             }
 
             .rateit button.rateit-reset {
-                background: url(delete.gif) 0 0;
+                background: url("delete.gif") 0 0;
                 width: 16px;
                 height: 16px;
                 display: -moz-inline-box;

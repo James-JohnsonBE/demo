@@ -495,6 +495,9 @@
 						<div>
 							<a title="Bulk Add Responses" href="javascript:void(0)" data-bind="click: $root.ClickBulkAddResponse"><span class="ui-icon ui-icon-circle-plus"></span>Bulk Add Responses</a>
 						</div>
+						<div data-bind="visible: $root.currentRequest && $root.arrCurrentRequestResponses().length > 0">
+							<a title="Bulk Edit Responses" href="javascript:void(0)" data-bind="click: $root.ClickBulkEditResponse"><span class="ui-icon ui-icon-pencil"></span>Bulk Edit Responses</a>
+						</div>
 					</div>							
 				</div>
 				<div id="divResponsesShowHideFolderPerms" data-bind="visible: currentRequest && arrCurrentRequestResponses().length > 0">
