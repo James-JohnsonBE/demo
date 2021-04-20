@@ -2651,6 +2651,8 @@ Audit.IAReport.NewReportPage = function () {
         arrInternalPastDue.push({
           title: oRequest.number,
           number: oRequest.number,
+          internalDueDate: oRequest.internalDueDate,
+          dueDate: oRequest.dueDate,
         });
       } else if (m_fnIsRequestAlmostDue(oRequest, 0)) {
         internalDueDateStyle =
@@ -2658,17 +2660,29 @@ Audit.IAReport.NewReportPage = function () {
         arrInternalAlmostDue.push({
           title: oRequest.number,
           number: oRequest.number,
+          internalDueDate: oRequest.internalDueDate,
+          dueDate: oRequest.dueDate,
         });
       }
 
       if (m_fnIsRequestPastDue(oRequest, 1)) {
         dueDateStyle =
           ' style="background-color:salmon; font-weight:bold" title="Past Due"';
-        arrPastDue.push({ title: oRequest.number, number: oRequest.number });
+        arrPastDue.push({
+          title: oRequest.number,
+          number: oRequest.number,
+          internalDueDate: oRequest.internalDueDate,
+          dueDate: oRequest.dueDate,
+        });
       } else if (m_fnIsRequestAlmostDue(oRequest, 1)) {
         dueDateStyle =
           ' style="background-color:coral; font-weight:bold" title="Almost Due"';
-        arrAlmostDue.push({ title: oRequest.number, number: oRequest.number });
+        arrAlmostDue.push({
+          title: oRequest.number,
+          number: oRequest.number,
+          internalDueDate: oRequest.internalDueDate,
+          dueDate: oRequest.dueDate,
+        });
       }
 
       if (oRequest.responses.length == 0)
@@ -2879,6 +2893,7 @@ Audit.IAReport.NewReportPage = function () {
 
   function m_fnIsRequestPastDue(oRequest, type) {
     var todayDate = new Date();
+    todayDate.setHours(0, 0, 0, 0);
     var dueDate = null;
     if (type == 0) dueDate = oRequest.internalDueDate;
     else if (type == 1) dueDate = oRequest.dueDate;
@@ -2889,7 +2904,7 @@ Audit.IAReport.NewReportPage = function () {
 
     if (
       (oRequest.status == "Open" || oRequest.status == "ReOpened") &&
-      todayDate.getTime() >= dueDate.getTime()
+      todayDate.getTime() > dueDate.getTime()
     )
       return true;
 
