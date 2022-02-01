@@ -1,359 +1,385 @@
 ﻿var Audit = window.Audit || {};
-Audit.Responses = Audit.Responses|| {};
+Audit.Responses = Audit.Responses || {};
 
 $(document).ready(function () {
-    SP.SOD.executeFunc('sp.js', 'SP.ClientContext', ExecuteOrDelayUntilScriptLoaded(Init, "sp.js"));
+  SP.SOD.executeFunc(
+    "sp.js",
+    "SP.ClientContext",
+    ExecuteOrDelayUntilScriptLoaded(Init, "sp.js")
+  );
+});
 
-})
+function Init() {
+  /*** note: there are 3 people picker fields on this form. do not rearrange them. the script checks their order ***/
 
-function Init() 
-{    
-	/*** note: there are 3 people picker fields on this form. do not rearrange them. the script checks their order ***/
-
-	Audit.Responses.Form = new Audit.Responses.FormEdit();
-	Audit.Responses.Init();
+  Audit.Responses.Form = new Audit.Responses.FormEdit();
+  Audit.Responses.Init();
 }
 
-Audit.Responses.Init = function()
-{
-	Audit.Common.Utilities.GetLookupFormField( "Request Number" ).attr("disabled", "disabled");
-	$("input[title='Title']").attr("disabled", "disabled");
-	$("input[title='Sample Number']").attr("disabled", "disabled");
-}
+Audit.Responses.Init = function () {
+  Audit.Common.Utilities.GetLookupFormField("Request Number").attr(
+    "disabled",
+    "disabled"
+  );
+  $("input[title='Title']").attr("disabled", "disabled");
+  $("input[title='Sample Number']").attr("disabled", "disabled");
+};
 
-Audit.Responses.FormEdit = function ()
-{	
+Audit.Responses.FormEdit = function () {
+  $("[title$=' Required Field']").each(function () {
+    $(this).attr("title", $(this).attr("title").replace(" Required Field", ""));
+  });
 
-	$("[title$=' Required Field']").each(function()
-    {
-        $(this).attr("title",$(this).attr("title").replace(" Required Field",""));
+  //disable the save button until the site groups load
+  $("input[id$=_diidIOSaveItem]").attr("disabled", "disabled");
+
+  var m_siteUrl = _spPageContextInfo.webServerRelativeUrl; //IE11 in sp 2013 does not recognize L_Menu_BaseUrl
+
+  var m_curActionOffice =
+    Audit.Common.Utilities.GetLookupDisplayText("Action Office");
+  var m_curResponseStatus = $("select[title='Response Status']").val();
+
+  /************* FPRA CHECK also 1 other check in PreSaveAction ***********/
+  if (m_curActionOffice.toLowerCase().indexOf("fpra") >= 0) {
+    $(".pocFields").show();
+  }
+
+  var m_ResponseItem = null;
+  var m_ResponseFolder = null;
+  var m_RequestNumber = null;
+  var m_RequestStatus = null;
+  var m_RequestSubject = null;
+  var m_RequestInternalDueDate = null;
+  var m_arrSiteGroups = null;
+  var m_arrAOs = null;
+  var m_bSaveable = false;
+  var m_currentUserEmail = null;
+
+  var currCtx = new SP.ClientContext.get_current();
+  var web = currCtx.get_web();
+
+  var m_groupColl = web.get_siteGroups();
+  currCtx.load(m_groupColl);
+
+  var aoList = web
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetListTitleActionOffices());
+  var aoQuery = new SP.CamlQuery();
+  aoQuery.set_viewXml(
+    '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
+  );
+  m_aoItems = aoList.getItems(aoQuery);
+  currCtx.load(m_aoItems, "Include(ID, Title, UserGroup)");
+
+  var requestList = web
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetListTitleRequests());
+  var requestQuery = new SP.CamlQuery();
+  requestQuery.set_viewXml(
+    '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
+  );
+  m_requestItems = requestList.getItems(requestQuery);
+  currCtx.load(
+    m_requestItems,
+    "Include(ID, Title, ReqStatus, ReqSubject, InternalDueDate, ActionOffice, Modified)"
+  );
+
+  var responseTitle = $("input[title='Title']").val();
+  var responseDocLib = web
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
+  var responseDocQuery = new SP.CamlQuery();
+  responseDocQuery.set_viewXml(
+    "<View><Query><Where><Eq><FieldRef Name='FileLeafRef'/><Value Type='Text'>" +
+      responseTitle +
+      "</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>"
+  );
+  m_responseFolderItems = responseDocLib.getItems(responseDocQuery);
+  currCtx.load(
+    m_responseFolderItems,
+    "Include( DisplayName, Id, EncodedAbsUrl, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+  );
+
+  //get this current response item
+  var curItemID = GetUrlKeyValue("ID");
+  var responseList = web
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetListTitleResponses());
+  var responseQuery = new SP.CamlQuery();
+  responseQuery.set_viewXml(
+    "<View Scope=\"RecursiveAll\"><Query><Where><Eq><FieldRef Name='ID'/><Value Type='Text'>" +
+      curItemID +
+      "</Value></Eq></Where></Query></View>"
+  );
+  m_responseItems = responseList.getItems(responseQuery);
+  currCtx.load(
+    m_responseItems,
+    "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+  );
+
+  m_currentUser = web.get_currentUser();
+  currCtx.load(m_currentUser);
+
+  currCtx.executeQueryAsync(OnSuccess, OnFailure);
+  function OnSuccess(sender, args) {
+    m_fnLoadData();
+  }
+  function OnFailure(sender, args) {
+    statusId = SP.UI.Status.addStatus(
+      "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
+    );
+    SP.UI.Status.setStatusPriColor(statusId, "red");
+  }
+
+  function m_fnLoadData() {
+    Audit.Common.Utilities.LoadSiteGroups(m_groupColl);
+    Audit.Common.Utilities.LoadActionOffices(m_aoItems);
+    LoadResponse();
+    LoadResponseFolder();
+    LoadRequest();
+    LoadUser();
+
+    if (m_curResponseStatus == "7-Closed") {
+      statusId = SP.UI.Status.addStatus(
+        "This Response is Closed. It can only be re-opened from the IA Dashboard"
+      );
+      SP.UI.Status.setStatusPriColor(statusId, "yellow");
+      m_bSaveable = false;
+    } else if (m_RequestStatus != "Open" && m_RequestStatus != "ReOpened") {
+      statusId = SP.UI.Status.addStatus(
+        "The Request with this Response is not Open. It can only be re-opened from the IA Dashboard"
+      );
+      SP.UI.Status.setStatusPriColor(statusId, "yellow");
+      m_bSaveable = false;
+    } else if (
+      m_ResponseItem &&
+      m_ResponseFolder &&
+      m_curResponseStatus != "7-Closed"
+    ) {
+      $("input[id$=_diidIOSaveItem]").removeAttr("disabled");
+      m_bSaveable = true;
+    } else {
+      m_bSaveable = false;
+    }
+
+    if (!m_bSaveable) return;
+
+    function m_fnUpdateClosedByFields(newStatus) {
+      if (newStatus != m_curResponseStatus && newStatus == "7-Closed") {
+        //update closed date
+        var curDate = new Date();
+        var dt = curDate.format("MM/dd/yyyy");
+        var hours = curDate.format("h tt");
+        var mins = curDate.format("mm");
+        mins = mins - (mins % 5);
+        mins = Audit.Common.Utilities.PadDigits(mins, 2);
+
+        $("input[title='Closed Date']").val(dt);
+
+        var dDateID = $(":input[title='Closed Date']").attr("id");
+        $(":input[id='" + dDateID + "Hours" + "']").val(hours);
+        $(":input[id='" + dDateID + "Minutes" + "']").val(mins);
+
+        //update closed by
+        if (m_currentUserEmail != null && m_currentUserEmail != "") {
+          if ($("div[title^='People Picker']:eq(2):empty")) {
+            $("div[title^='People Picker']:eq(2)").text(m_currentUserEmail);
+            $("a[title^='Check Names']").click();
+          }
+        }
+      } else {
+        $("input[title='Closed Date']").val("");
+        $("div[title^='People Picker']:eq(2)").text("");
+        $("a[title^='Check Names']").click();
+      }
+    }
+
+    $("select[title='Response Status']").change(function () {
+      m_fnUpdateClosedByFields($(this).val());
     });
+  }
 
-	//disable the save button until the site groups load
-	$("input[id$=_diidIOSaveItem]").attr("disabled","disabled");
+  function LoadUser() {
+    m_currentUserEmail = m_currentUser.get_email();
+  }
 
-	var m_siteUrl = _spPageContextInfo.webServerRelativeUrl; //IE11 in sp 2013 does not recognize L_Menu_BaseUrl
-	
-	var m_curActionOffice = Audit.Common.Utilities.GetLookupDisplayText( "Action Office" );
-	var m_curResponseStatus = $("select[title='Response Status']").val();
-	
-	
-	/************* FPRA CHECK also 1 other check in PreSaveAction ***********/
-	if( m_curActionOffice.toLowerCase().indexOf("fpra") >= 0 )
-	{
-		$(".pocFields").show();
-	}
-	
-	
-	var m_ResponseItem = null;
-	var m_ResponseFolder = null;
-	var m_RequestNumber = null;
-	var m_RequestStatus = null;
-	var m_RequestSubject = null;
-	var m_RequestInternalDueDate = null;
-	var m_arrSiteGroups = null;
-	var m_arrAOs = null;
-	var m_bSaveable = false;
-	var m_currentUserEmail = null;
-	
-    var currCtx = new SP.ClientContext.get_current();
-  	var web = currCtx.get_web();
-	
-	var m_groupColl = web.get_siteGroups();
-	currCtx.load( m_groupColl );
-	
-	var aoList = web.get_lists().getByTitle( Audit.Common.Utilities.GetListTitleActionOffices() );
-	var aoQuery = new SP.CamlQuery();	
-	aoQuery.set_viewXml('<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>');
-	m_aoItems = aoList.getItems( aoQuery );
-	currCtx.load( m_aoItems, 'Include(ID, Title, UserGroup)');
+  function LoadRequest() {
+    if (m_ResponseItem == null) return;
 
-	var requestList = web.get_lists().getByTitle( Audit.Common.Utilities.GetListTitleRequests() );
-	var requestQuery = new SP.CamlQuery();	
-	requestQuery.set_viewXml('<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>');
-	m_requestItems = requestList.getItems( requestQuery );
-	currCtx.load( m_requestItems, 'Include(ID, Title, ReqStatus, ReqSubject, InternalDueDate, ActionOffice, Modified)');
+    var requestNumber = m_ResponseItem.get_item("ReqNum");
+    if (requestNumber == null) return;
 
-	var responseTitle = $("input[title='Title']").val();
-	var responseDocLib = web.get_lists().getByTitle( Audit.Common.Utilities.GetLibTitleResponseDocs() );
-	var responseDocQuery = new SP.CamlQuery();
-    responseDocQuery.set_viewXml('<View><Query><Where><Eq><FieldRef Name=\'FileLeafRef\'/><Value Type=\'Text\'>' + responseTitle + '</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>');
-    m_responseFolderItems = responseDocLib.getItems( responseDocQuery );
-	currCtx.load(m_responseFolderItems, "Include( DisplayName, Id, EncodedAbsUrl, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))");
+    requestNumber = requestNumber.get_lookupValue();
 
-	//get this current response item
-	var curItemID = GetUrlKeyValue("ID");
-	var responseList = web.get_lists().getByTitle( Audit.Common.Utilities.GetListTitleResponses() );
-	var responseQuery = new SP.CamlQuery();	
-	responseQuery.set_viewXml('<View Scope="RecursiveAll"><Query><Where><Eq><FieldRef Name=\'ID\'/><Value Type=\'Text\'>' + curItemID + '</Value></Eq></Where></Query></View>');
-	m_responseItems = responseList.getItems( responseQuery );
-	currCtx.load( m_responseItems, 'Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))' );
+    var listItemEnumerator = m_requestItems.getEnumerator();
+    while (listItemEnumerator.moveNext()) {
+      var oListItem = listItemEnumerator.get_current();
 
-	m_currentUser = web.get_currentUser();
-	currCtx.load( m_currentUser );
+      var id = oListItem.get_item("ID");
+      var number = oListItem.get_item("Title");
+      var status = oListItem.get_item("ReqStatus");
+      var subject = oListItem.get_item("ReqSubject");
+      var internalDueDate = oListItem.get_item("InternalDueDate");
+      var sensitivity = oListItem.get_item("Sensitivity");
 
-	currCtx.executeQueryAsync(OnSuccess, OnFailure);	
-	function OnSuccess(sender, args)
-	{		
-		m_fnLoadData();	
-	}		
-	function OnFailure(sender, args)
-	{
-		statusId = SP.UI.Status.addStatus("Request failed: "  + args.get_message() + "\n" + args.get_stackTrace());
-		SP.UI.Status.setStatusPriColor(statusId, 'red');
-	}
-	
-	function m_fnLoadData()
-	{
-		Audit.Common.Utilities.LoadSiteGroups( m_groupColl );
-		Audit.Common.Utilities.LoadActionOffices( m_aoItems );
-		LoadResponse();
-		LoadResponseFolder();
-		LoadRequest();
-		LoadUser();
-		
-		if( m_curResponseStatus == "7-Closed" )
-		{
-			statusId = SP.UI.Status.addStatus("This Response is Closed. It can only be re-opened from the IA Dashboard");
-			SP.UI.Status.setStatusPriColor(statusId, 'yellow');
-			m_bSaveable = false;
-		}
-		else if( m_RequestStatus != "Open" && m_RequestStatus != "ReOpened")
-		{
-			statusId = SP.UI.Status.addStatus("The Request with this Response is not Open. It can only be re-opened from the IA Dashboard");
-			SP.UI.Status.setStatusPriColor(statusId, 'yellow');
-			m_bSaveable = false;
-		}
-		else if( m_ResponseItem && m_ResponseFolder && m_curResponseStatus != "7-Closed" )
-		{
-			$("input[id$=_diidIOSaveItem]").removeAttr("disabled");
-			m_bSaveable = true;
-		}
-		else
-		{
-			m_bSaveable = false;
-		}
+      if (requestNumber == number) {
+        m_RequestStatus = status;
+        m_RequestNumber = number;
+        m_Sensitivity = sensitivity;
 
-		if( !m_bSaveable )
-			return;
+        m_RequestSubject = subject;
+        if (m_RequestSubject == null) m_RequestSubject = "";
 
-		function m_fnUpdateClosedByFields( newStatus )
-		{
-			if( newStatus != m_curResponseStatus && newStatus == "7-Closed")
-			{
-				//update closed date
-				var curDate = new Date();
-				var dt = curDate.format("MM/dd/yyyy");
-				var hours = curDate.format("h tt");
-				var mins = curDate.format("mm");
-				mins = mins - ( mins % 5 );
-				mins = Audit.Common.Utilities.PadDigits(mins, 2)
-	
-				$("input[title='Closed Date']").val( dt );
-				
-				var dDateID = $(":input[title='Closed Date']").attr("id");
-				$(":input[id='"+ dDateID + "Hours" +"']").val( hours );
-				$(":input[id='"+ dDateID + "Minutes" +"']").val( mins );
-	
-				//update closed by
-				if( m_currentUserEmail != null && m_currentUserEmail != "")
-				{
-					if( $("div[title^='People Picker']:eq(2):empty") )
-					{
-						$("div[title^='People Picker']:eq(2)").text( m_currentUserEmail );
-						$("a[title^='Check Names']").click();
-					}
-				}
-			}
-			else
-			{
-				$("input[title='Closed Date']").val( "" );
-				$("div[title^='People Picker']:eq(2)").text( "" );
-				$("a[title^='Check Names']").click();
-			}
-		}
-	
-		$("select[title='Response Status']").change(function()
-		{		
-			m_fnUpdateClosedByFields( $(this).val() );	
-		});	
-				
-	}
-	
-	function LoadUser()
-	{
-		m_currentUserEmail = m_currentUser.get_email();		
-	}
+        m_RequestInternalDueDate = internalDueDate;
+        if (internalDueDate != null && internalDueDate != "")
+          m_RequestInternalDueDate = internalDueDate.format("MM/dd/yyyy");
+        else m_RequestInternalDueDate = "";
 
-	function LoadRequest()
-	{			
-		if( m_ResponseItem == null )
-			return;
-			
-		var requestNumber = m_ResponseItem.get_item("ReqNum");
-		if( requestNumber == null )
-			return;
-		
-		requestNumber = requestNumber.get_lookupValue();
-		
-		var listItemEnumerator = m_requestItems.getEnumerator();
-		while(listItemEnumerator.moveNext())
-		{
-			var oListItem = listItemEnumerator.get_current();
-			
-			var id = oListItem.get_item('ID');
-			var number = oListItem.get_item('Title');
-			var status = oListItem.get_item('ReqStatus');
-			var subject = oListItem.get_item('ReqSubject');
-			var internalDueDate = oListItem.get_item('InternalDueDate');
+        break;
+      }
+    }
+  }
 
-			if( requestNumber == number )
-			{
-				m_RequestStatus = status;
-				m_RequestNumber = number;
-				
-				m_RequestSubject = subject;
-				if ( m_RequestSubject == null )
-					m_RequestSubject = "";
-					
-				m_RequestInternalDueDate = internalDueDate;	
-				if( internalDueDate != null && internalDueDate != "")
-					m_RequestInternalDueDate = internalDueDate.format("MM/dd/yyyy");
-				else
-					m_RequestInternalDueDate = "";	
-													
-				break;
-			}					
-		}
-	}
-	
-	function LoadResponse()
-	{
-		var listItemEnumerator = m_responseItems.getEnumerator();
-		while(listItemEnumerator.moveNext())
-		{
-			var oListItem = listItemEnumerator.get_current();
-			
-			m_ResponseItem = oListItem;
-			
-			break;
-		}
-	}
-	function LoadResponseFolder()
-	{
-		m_ResponseFolder = null;
-				
-		var listItemEnumerator = m_responseFolderItems.getEnumerator();
-		while(listItemEnumerator.moveNext())
-		{
-			m_ResponseFolder = listItemEnumerator.get_current();			
-		}
-		if( m_ResponseFolder == null )
-		{
-			statusID = SP.UI.Status.addStatus("Error:", "Unable to Retrieve the Response Folder. Please contact Administrator.");
-	        SP.UI.Status.setStatusPriColor(statusID, 'red');
-		}
-	}
-		
-	var publicMembers = 
-	{
-		GetSiteUrl: function(){ return m_siteUrl; },
-		IsSaveable: function(){ return m_bSaveable; },
-		GetRequestNumber: function() { return m_RequestNumber; },
-		GetRequestSubject: function() { return m_RequestSubject; },
-		GetRequestDueDate: function() { return m_RequestInternalDueDate; },
-		GetResponseItem: function() { return m_ResponseItem; },
-		GetCurrentAO: function(){ return m_curActionOffice; },
-		GetCurrentResponseStatus: function(){ return m_curResponseStatus; }
-	}
-	
-	return publicMembers;
-}
+  function LoadResponse() {
+    var listItemEnumerator = m_responseItems.getEnumerator();
+    while (listItemEnumerator.moveNext()) {
+      var oListItem = listItemEnumerator.get_current();
+
+      m_ResponseItem = oListItem;
+
+      break;
+    }
+  }
+  function LoadResponseFolder() {
+    m_ResponseFolder = null;
+
+    var listItemEnumerator = m_responseFolderItems.getEnumerator();
+    while (listItemEnumerator.moveNext()) {
+      m_ResponseFolder = listItemEnumerator.get_current();
+    }
+    if (m_ResponseFolder == null) {
+      statusID = SP.UI.Status.addStatus(
+        "Error:",
+        "Unable to Retrieve the Response Folder. Please contact Administrator."
+      );
+      SP.UI.Status.setStatusPriColor(statusID, "red");
+    }
+  }
+
+  var publicMembers = {
+    GetSiteUrl: function () {
+      return m_siteUrl;
+    },
+    IsSaveable: function () {
+      return m_bSaveable;
+    },
+    GetRequestNumber: function () {
+      return m_RequestNumber;
+    },
+    GetRequestSubject: function () {
+      return m_RequestSubject;
+    },
+    GetRequestDueDate: function () {
+      return m_RequestInternalDueDate;
+    },
+    GetResponseItem: function () {
+      return m_ResponseItem;
+    },
+    GetCurrentAO: function () {
+      return m_curActionOffice;
+    },
+    GetCurrentResponseStatus: function () {
+      return m_curResponseStatus;
+    },
+  };
+
+  return publicMembers;
+};
 
 //need to update here instead of IA dashboard in case the request/response number changes, we have to create a new response folder or update it. If it doesn't get created or updated, we don't want to save the response
-function PreSaveAction()
-{	
-	if( !Audit.Responses.Form.IsSaveable() )
-	{
-		SP.UI.Notify.addNotification("Unable to save changes");
-		return false;
-	}
-	
-	var requestNum = Audit.Common.Utilities.GetLookupDisplayText( "Request Number" );
-	if( $.trim(requestNum) == "" || requestNum == "(None)" )
-	{
-		SP.UI.Notify.addNotification("Please provide the Request Number");
- 		Audit.Common.Utilities.GetLookupFormField( "Request Number" ).focus();
-		return false;		
-	}
+function PreSaveAction() {
+  if (!Audit.Responses.Form.IsSaveable()) {
+    SP.UI.Notify.addNotification("Unable to save changes");
+    return false;
+  }
 
-	var sampleNumber = $("input[title='Sample Number']").val();
-	if( $.trim(sampleNumber) == "" )
-	{
-		SP.UI.Notify.addNotification("Please provide the Sample Number");
-		$("input[title='Sample Number']").focus();
-		return false;		
-	}
-	
-	var selectedResponseStatus = $("select[title='Response Status']").val();
-	
-	//var actionOffice = Audit.Common.Utilities.GetLookupFieldText( "Action Office" );
-	var actionOffice = Audit.Common.Utilities.GetLookupDisplayText( "Action Office" );
-	if( $.trim(actionOffice) == "" || actionOffice == "(None)" )
-	{
-		SP.UI.Notify.addNotification("Please provide the Action Office");
- 		Audit.Common.Utilities.GetLookupFormField( "Action Office" ).focus();
-		return false;		
-	}
+  var requestNum =
+    Audit.Common.Utilities.GetLookupDisplayText("Request Number");
+  if ($.trim(requestNum) == "" || requestNum == "(None)") {
+    SP.UI.Notify.addNotification("Please provide the Request Number");
+    Audit.Common.Utilities.GetLookupFormField("Request Number").focus();
+    return false;
+  }
 
-	var actionOfficeGroupName = Audit.Common.Utilities.GetAOSPGroupName( actionOffice );	
-	if( actionOfficeGroupName == null || actionOfficeGroupName == "" )
-	{
-		SP.UI.Notify.addNotification("The selected action office does not have an associated SharePoint user Group. Please contact Administrator");
- 		Audit.Common.Utilities.GetLookupFormField( "Action Office" ).focus();
-		return false;		
-	}
-	
-	/************* FPRA CHECK ***********/		
-	if( actionOffice.toLowerCase().indexOf("fpra") < 0 )
-	{
-		//clear the poc and cc field because it currently only applies to fpra 
-		var poc = $.trim($("div[title^='People Picker']:eq(0)").text());
-		var pocCC = $.trim($("div[title^='People Picker']:eq(1)").text());
-		
-		if( poc != "" && pocCC != "" )
-		{
-			SP.UI.Notify.addNotification("Please clear the POC and the CC field");
-			return false;
-		}
-	}
+  var sampleNumber = $("input[title='Sample Number']").val();
+  if ($.trim(sampleNumber) == "") {
+    SP.UI.Notify.addNotification("Please provide the Sample Number");
+    $("input[title='Sample Number']").focus();
+    return false;
+  }
 
-	
-	if( !confirm("Are you sure you would like to update this Response?") )
-		return false;
+  var selectedResponseStatus = $("select[title='Response Status']").val();
 
-	var curResponseTitle = $("input[title='Title']").val();
-	var newResponseFolderTitle = requestNum + "-" + actionOffice + "-" + sampleNumber;
-	//This is hidden in the form
-	$("input[title='Title']").val(newResponseFolderTitle);
-		
-	var actionOfficeGroupObj = Audit.Common.Utilities.GetSPSiteGroup( actionOfficeGroupName );
-	if( actionOfficeGroupObj == null )
-	{
-		alert("Action Office Group Not found");
-		return false;
-	}
+  //var actionOffice = Audit.Common.Utilities.GetLookupFieldText( "Action Office" );
+  var actionOffice =
+    Audit.Common.Utilities.GetLookupDisplayText("Action Office");
+  if ($.trim(actionOffice) == "" || actionOffice == "(None)") {
+    SP.UI.Notify.addNotification("Please provide the Action Office");
+    Audit.Common.Utilities.GetLookupFormField("Action Office").focus();
+    return false;
+  }
 
-	//alert("Check if it's not a duplicated response");
-	
-    //Reenable the disabled field to allow it to be submitted
-	Audit.Common.Utilities.GetLookupFormField( "Request Number" ).removeAttr("disabled");
-	$("input[title='Title']").removeAttr("disabled");
-	$("input[title='Sample Number']").removeAttr("disabled");
+  var actionOfficeGroupName =
+    Audit.Common.Utilities.GetAOSPGroupName(actionOffice);
+  if (actionOfficeGroupName == null || actionOfficeGroupName == "") {
+    SP.UI.Notify.addNotification(
+      "The selected action office does not have an associated SharePoint user Group. Please contact Administrator"
+    );
+    Audit.Common.Utilities.GetLookupFormField("Action Office").focus();
+    return false;
+  }
 
-   	return true;
+  /************* FPRA CHECK ***********/
+  if (actionOffice.toLowerCase().indexOf("fpra") < 0) {
+    //clear the poc and cc field because it currently only applies to fpra
+    var poc = $.trim($("div[title^='People Picker']:eq(0)").text());
+    var pocCC = $.trim($("div[title^='People Picker']:eq(1)").text());
 
-	/*
+    if (poc != "" && pocCC != "") {
+      SP.UI.Notify.addNotification("Please clear the POC and the CC field");
+      return false;
+    }
+  }
+
+  if (!confirm("Are you sure you would like to update this Response?"))
+    return false;
+
+  var curResponseTitle = $("input[title='Title']").val();
+  var newResponseFolderTitle =
+    requestNum + "-" + actionOffice + "-" + sampleNumber;
+  //This is hidden in the form
+  $("input[title='Title']").val(newResponseFolderTitle);
+
+  var actionOfficeGroupObj = Audit.Common.Utilities.GetSPSiteGroup(
+    actionOfficeGroupName
+  );
+  if (actionOfficeGroupObj == null) {
+    alert("Action Office Group Not found");
+    return false;
+  }
+
+  //alert("Check if it's not a duplicated response");
+
+  //Reenable the disabled field to allow it to be submitted
+  Audit.Common.Utilities.GetLookupFormField("Request Number").removeAttr(
+    "disabled"
+  );
+  $("input[title='Title']").removeAttr("disabled");
+  $("input[title='Sample Number']").removeAttr("disabled");
+
+  return true;
+
+  /*
 	
 	//if action office changed, update the permissions
 	var currentAO = Audit.Responses.Form.GetCurrentAO();
@@ -670,4 +696,3 @@ function onQueryFailed(sender, args)
 	}
 	
 	return false;*/
-

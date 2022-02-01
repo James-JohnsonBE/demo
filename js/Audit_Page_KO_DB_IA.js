@@ -1174,18 +1174,20 @@ Audit.IAReport.NewReportPage = function () {
           var bUpdateRequestPermissions = false;
           for (var x = 0; x < oRequest.actionOffices.length; x++) {
             var sActionOfficeGroupNameTitle = oRequest.actionOffices[x].ao;
-            var sActionOfficeGroupName = Audit.Common.Utilities.GetAOSPGroupName(
-              sActionOfficeGroupNameTitle
-            );
+            var sActionOfficeGroupName =
+              Audit.Common.Utilities.GetAOSPGroupName(
+                sActionOfficeGroupNameTitle
+              );
             if (
               sActionOfficeGroupName != null &&
               $.trim(sActionOfficeGroupName) != ""
             ) {
-              var bAOHasAccess = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
-                oRequest.item,
-                sActionOfficeGroupName,
-                SP.PermissionKind.viewListItems
-              );
+              var bAOHasAccess =
+                Audit.Common.Utilities.CheckSPItemHasGroupPermission(
+                  oRequest.item,
+                  sActionOfficeGroupName,
+                  SP.PermissionKind.viewListItems
+                );
               if (!bAOHasAccess) {
                 bUpdateRequestPermissions = true;
                 break;
@@ -1334,16 +1336,14 @@ Audit.IAReport.NewReportPage = function () {
         oListItem.resetRoleInheritance();
         oListItem.breakRoleInheritance(false, false);
 
-        var roleDefBindingCollContribute = SP.RoleDefinitionBindingCollection.newObject(
-          currCtx
-        );
+        var roleDefBindingCollContribute =
+          SP.RoleDefinitionBindingCollection.newObject(currCtx);
         roleDefBindingCollContribute.add(
           web.get_roleDefinitions().getByType(SP.RoleType.contributor)
         );
 
-        var roleDefBindingCollRestrictedRead = SP.RoleDefinitionBindingCollection.newObject(
-          currCtx
-        );
+        var roleDefBindingCollRestrictedRead =
+          SP.RoleDefinitionBindingCollection.newObject(currCtx);
         roleDefBindingCollRestrictedRead.add(
           web.get_roleDefinitions().getByName("Restricted Read")
         );
@@ -1375,9 +1375,8 @@ Audit.IAReport.NewReportPage = function () {
               );
 
               if (actionOfficeGroup != null && actionOfficeGroup != "") {
-                var roleDefBindingCollRestrictedRead = SP.RoleDefinitionBindingCollection.newObject(
-                  currCtx
-                );
+                var roleDefBindingCollRestrictedRead =
+                  SP.RoleDefinitionBindingCollection.newObject(currCtx);
                 roleDefBindingCollRestrictedRead.add(
                   web.get_roleDefinitions().getByName("Restricted Read")
                 );
@@ -1451,30 +1450,26 @@ Audit.IAReport.NewReportPage = function () {
       oNewEmailFolder.resetRoleInheritance();
       oNewEmailFolder.breakRoleInheritance(false, false);
 
-      var roleDefBindingCollAdmin = SP.RoleDefinitionBindingCollection.newObject(
-        currCtx
-      );
+      var roleDefBindingCollAdmin =
+        SP.RoleDefinitionBindingCollection.newObject(currCtx);
       roleDefBindingCollAdmin.add(
         web.get_roleDefinitions().getByType(SP.RoleType.administrator)
       );
 
-      var roleDefBindingCollContribute = SP.RoleDefinitionBindingCollection.newObject(
-        currCtx
-      );
+      var roleDefBindingCollContribute =
+        SP.RoleDefinitionBindingCollection.newObject(currCtx);
       roleDefBindingCollContribute.add(
         web.get_roleDefinitions().getByType(SP.RoleType.contributor)
       );
 
-      var roleDefBindingCollRestrictedRead = SP.RoleDefinitionBindingCollection.newObject(
-        currCtx
-      );
+      var roleDefBindingCollRestrictedRead =
+        SP.RoleDefinitionBindingCollection.newObject(currCtx);
       roleDefBindingCollRestrictedRead.add(
         web.get_roleDefinitions().getByName("Restricted Read")
       );
 
-      var roleDefBindingCollRestrictedContribute = SP.RoleDefinitionBindingCollection.newObject(
-        currCtx
-      );
+      var roleDefBindingCollRestrictedContribute =
+        SP.RoleDefinitionBindingCollection.newObject(currCtx);
       roleDefBindingCollRestrictedContribute.add(
         web.get_roleDefinitions().getByName("Restricted Contribute")
       );
@@ -1731,12 +1726,11 @@ Audit.IAReport.NewReportPage = function () {
             : (closedDate = "");
           responseObject["closedDate"] = closedDate;
 
-          responseObject[
-            "closedBy"
-          ] = Audit.Common.Utilities.GetFriendlyDisplayName(
-            oListItem,
-            "ClosedBy"
-          );
+          responseObject["closedBy"] =
+            Audit.Common.Utilities.GetFriendlyDisplayName(
+              oListItem,
+              "ClosedBy"
+            );
 
           responseObject["sample"] = oListItem.get_item("SampleNumber");
           if (responseObject["sample"] == null) responseObject["sample"] = "";
@@ -1745,9 +1739,8 @@ Audit.IAReport.NewReportPage = function () {
           if (responseObject["actionOffice"] == null)
             responseObject["actionOffice"] = "";
           else
-            responseObject["actionOffice"] = responseObject[
-              "actionOffice"
-            ].get_lookupValue();
+            responseObject["actionOffice"] =
+              responseObject["actionOffice"].get_lookupValue();
 
           responseObject["poc"] = oListItem.get_item("POC");
           if (responseObject["poc"] == null) responseObject["poc"] = "";
@@ -1810,12 +1803,10 @@ Audit.IAReport.NewReportPage = function () {
               if (responseDocObject["title"] == null)
                 responseDocObject["title"] = "";
               responseDocObject["folder"] = oListItem.get_item("FileDirRef");
-              responseDocObject["documentStatus"] = oListItem.get_item(
-                "DocumentStatus"
-              );
-              responseDocObject["rejectReason"] = oListItem.get_item(
-                "RejectReason"
-              );
+              responseDocObject["documentStatus"] =
+                oListItem.get_item("DocumentStatus");
+              responseDocObject["rejectReason"] =
+                oListItem.get_item("RejectReason");
               if (responseDocObject["rejectReason"] == null)
                 responseDocObject["rejectReason"] = "";
               else
@@ -1847,18 +1838,16 @@ Audit.IAReport.NewReportPage = function () {
                   .format("MM/dd/yyyy hh:mm tt");
               responseDocObject["modifiedDate"] = modifiedDate;
 
-              responseDocObject[
-                "modifiedBy"
-              ] = Audit.Common.Utilities.GetFriendlyDisplayName(
-                oListItem,
-                "Editor"
-              );
-              responseDocObject[
-                "checkedOutBy"
-              ] = Audit.Common.Utilities.GetFriendlyDisplayName(
-                oListItem,
-                "CheckoutUser"
-              );
+              responseDocObject["modifiedBy"] =
+                Audit.Common.Utilities.GetFriendlyDisplayName(
+                  oListItem,
+                  "Editor"
+                );
+              responseDocObject["checkedOutBy"] =
+                Audit.Common.Utilities.GetFriendlyDisplayName(
+                  oListItem,
+                  "CheckoutUser"
+                );
 
               if (responseDocObject["checkedOutBy"] != "") {
                 responseDocObject["response"] = oRequest.responses[y];
@@ -1899,9 +1888,8 @@ Audit.IAReport.NewReportPage = function () {
         var responseLength = oRequest.responses.length;
         for (var y = 0; y < responseLength; y++) {
           var responseCount = oRequest.responses[y].responseDocs.length;
-          m_oResponseTitleAndDocCount[
-            oRequest.responses[y].title
-          ] = responseCount;
+          m_oResponseTitleAndDocCount[oRequest.responses[y].title] =
+            responseCount;
 
           var curCount = m_oRequestTitleAndDocCount[oRequest.number];
           if (curCount == null)
@@ -2512,19 +2500,20 @@ Audit.IAReport.NewReportPage = function () {
           if (oResponseDoc.documentStatus == "Marked for Deletion") continue;
 
           oResponseDoc.docIcon = oResponseDoc.docIcon.get_value();
-          oResponseDoc.styleTag = Audit.Common.Utilities.GetResponseDocStyleTag2(
-            oResponseDoc.documentStatus
-          );
+          oResponseDoc.styleTag =
+            Audit.Common.Utilities.GetResponseDocStyleTag2(
+              oResponseDoc.documentStatus
+            );
           oResponseDoc.requestID = oRequest.ID; //needed for view document
           oResponseDoc.responseTitle = oResponse.title; //needed for view document
           oResponseDoc.responseDocOpenInIELink =
             "<a target='_blank' title='Click to Open the document' onmousedown=\"return VerifyHref(this,event,'1','SharePoint.OpenDocuments','')\" " +
             onc +
-            " href='" +
+            ' href="' +
             oResponseDoc.folder +
             "/" +
             oResponseDoc.fileName +
-            "'>" +
+            '">' +
             oResponseDoc.fileName +
             "</a>";
           arrResponseDocs.push(oResponseDoc);
@@ -4573,30 +4562,26 @@ Audit.IAReport.NewReportPage = function () {
     oListItem.resetRoleInheritance();
     oListItem.breakRoleInheritance(false, false);
 
-    var roleDefBindingCollAdmin = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollAdmin =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollAdmin.add(
       web.get_roleDefinitions().getByType(SP.RoleType.administrator)
     );
 
-    var roleDefBindingCollContribute = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollContribute =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollContribute.add(
       web.get_roleDefinitions().getByType(SP.RoleType.contributor)
     );
 
-    var roleDefBindingCollRestrictedRead = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollRestrictedRead =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollRestrictedRead.add(
       web.get_roleDefinitions().getByName("Restricted Read")
     );
 
-    var roleDefBindingCollRestrictedContribute = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollRestrictedContribute =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollRestrictedContribute.add(
       web.get_roleDefinitions().getByName("Restricted Contribute")
     );
@@ -4655,9 +4640,8 @@ Audit.IAReport.NewReportPage = function () {
         for (var x = 0; x < arrActionOffice.length; x++) {
           var actionOfficeName = arrActionOffice[x].get_lookupValue();
 
-          var actionOfficeGroupName = Audit.Common.Utilities.GetAOSPGroupName(
-            actionOfficeName
-          );
+          var actionOfficeGroupName =
+            Audit.Common.Utilities.GetAOSPGroupName(actionOfficeName);
           var actionOfficeGroup = Audit.Common.Utilities.GetSPSiteGroup(
             actionOfficeGroupName
           );
@@ -4668,9 +4652,8 @@ Audit.IAReport.NewReportPage = function () {
             var currCtx2 = new SP.ClientContext.get_current();
             var web2 = currCtx2.get_web();
 
-            var roleDefBindingCollRestrictedRead = SP.RoleDefinitionBindingCollection.newObject(
-              currCtx2
-            );
+            var roleDefBindingCollRestrictedRead =
+              SP.RoleDefinitionBindingCollection.newObject(currCtx2);
             roleDefBindingCollRestrictedRead.add(
               web2.get_roleDefinitions().getByName("Restricted Read")
             );
@@ -4781,30 +4764,26 @@ Audit.IAReport.NewReportPage = function () {
     oListItem.resetRoleInheritance();
     oListItem.breakRoleInheritance(false, false);
 
-    var roleDefBindingCollAdmin = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollAdmin =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollAdmin.add(
       web.get_roleDefinitions().getByType(SP.RoleType.administrator)
     );
 
-    var roleDefBindingCollContribute = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollContribute =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollContribute.add(
       web.get_roleDefinitions().getByType(SP.RoleType.contributor)
     );
 
-    var roleDefBindingCollRestrictedRead = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollRestrictedRead =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollRestrictedRead.add(
       web.get_roleDefinitions().getByName("Restricted Read")
     );
 
-    var roleDefBindingCollRestrictedContribute = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollRestrictedContribute =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollRestrictedContribute.add(
       web.get_roleDefinitions().getByName("Restricted Contribute")
     );
@@ -4836,9 +4815,8 @@ Audit.IAReport.NewReportPage = function () {
           for (var x = 0; x < arrActionOffice.length; x++) {
             var actionOfficeName = arrActionOffice[x].get_lookupValue();
 
-            var actionOfficeGroupName = Audit.Common.Utilities.GetAOSPGroupName(
-              actionOfficeName
-            );
+            var actionOfficeGroupName =
+              Audit.Common.Utilities.GetAOSPGroupName(actionOfficeName);
             var actionOfficeGroup = Audit.Common.Utilities.GetSPSiteGroup(
               actionOfficeGroupName
             );
@@ -4849,9 +4827,8 @@ Audit.IAReport.NewReportPage = function () {
               var currCtx2 = new SP.ClientContext.get_current();
               var web2 = currCtx.get_web();
 
-              var roleDefBindingCollRestrictedContribute = SP.RoleDefinitionBindingCollection.newObject(
-                currCtx2
-              );
+              var roleDefBindingCollRestrictedContribute =
+                SP.RoleDefinitionBindingCollection.newObject(currCtx2);
               roleDefBindingCollRestrictedContribute.add(
                 web2.get_roleDefinitions().getByName("Restricted Contribute")
               );
@@ -4964,9 +4941,8 @@ Audit.IAReport.NewReportPage = function () {
     oListItem.resetRoleInheritance();
     oListItem.breakRoleInheritance(false, false);
 
-    var roleDefBindingCollAdmin = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollAdmin =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollAdmin.add(
       currCtx
         .get_web()
@@ -4974,23 +4950,20 @@ Audit.IAReport.NewReportPage = function () {
         .getByType(SP.RoleType.administrator)
     );
 
-    var roleDefBindingCollContribute = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollContribute =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollContribute.add(
       currCtx.get_web().get_roleDefinitions().getByType(SP.RoleType.contributor)
     );
 
-    var roleDefBindingCollRestrictedRead = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollRestrictedRead =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollRestrictedRead.add(
       currCtx.get_web().get_roleDefinitions().getByName("Restricted Read")
     );
 
-    var roleDefBindingCollRestrictedContribute = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollRestrictedContribute =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollRestrictedContribute.add(
       currCtx.get_web().get_roleDefinitions().getByName("Restricted Contribute")
     );
@@ -5042,9 +5015,8 @@ Audit.IAReport.NewReportPage = function () {
     function onUpdatedCSSucceeded() {
       var currCtx2 = new SP.ClientContext.get_current();
 
-      var roleDefBindingCollRestrictedRead = SP.RoleDefinitionBindingCollection.newObject(
-        currCtx2
-      );
+      var roleDefBindingCollRestrictedRead =
+        SP.RoleDefinitionBindingCollection.newObject(currCtx2);
       roleDefBindingCollRestrictedRead.add(
         currCtx2.get_web().get_roleDefinitions().getByName("Restricted Read")
       );
@@ -5063,18 +5035,16 @@ Audit.IAReport.NewReportPage = function () {
 
       for (var x = 0; x < arrActionOffice.length; x++) {
         var actionOfficeName = arrActionOffice[x].get_lookupValue();
-        var actionOfficeGroupName = Audit.Common.Utilities.GetAOSPGroupName(
-          actionOfficeName
-        );
+        var actionOfficeGroupName =
+          Audit.Common.Utilities.GetAOSPGroupName(actionOfficeName);
         var actionOfficeGroup = Audit.Common.Utilities.GetSPSiteGroup(
           actionOfficeGroupName
         );
         if (actionOfficeGroup != null) {
           oCntCSAOAdd[csID + "toAdd"] = oCntCSAOAdd[csID + "toAdd"] + 1;
 
-          var roleDefBindingCollRestrictedRead = SP.RoleDefinitionBindingCollection.newObject(
-            currCtx2
-          );
+          var roleDefBindingCollRestrictedRead =
+            SP.RoleDefinitionBindingCollection.newObject(currCtx2);
           roleDefBindingCollRestrictedRead.add(
             currCtx2
               .get_web()
@@ -5172,9 +5142,8 @@ Audit.IAReport.NewReportPage = function () {
       SP.PermissionKind.viewListItems
     );
 
-    var roleDefBindingCollAdmin = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollAdmin =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollAdmin.add(
       currCtx
         .get_web()
@@ -5182,23 +5151,20 @@ Audit.IAReport.NewReportPage = function () {
         .getByType(SP.RoleType.administrator)
     );
 
-    var roleDefBindingCollContribute = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollContribute =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollContribute.add(
       currCtx.get_web().get_roleDefinitions().getByType(SP.RoleType.contributor)
     );
 
-    var roleDefBindingCollRestrictedRead = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollRestrictedRead =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollRestrictedRead.add(
       currCtx.get_web().get_roleDefinitions().getByName("Restricted Read")
     );
 
-    var roleDefBindingCollRestrictedContribute = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollRestrictedContribute =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollRestrictedContribute.add(
       currCtx.get_web().get_roleDefinitions().getByName("Restricted Contribute")
     );
@@ -5261,18 +5227,16 @@ Audit.IAReport.NewReportPage = function () {
 
       for (var x = 0; x < arrActionOffice.length; x++) {
         var actionOfficeName = arrActionOffice[x].get_lookupValue();
-        var actionOfficeGroupName = Audit.Common.Utilities.GetAOSPGroupName(
-          actionOfficeName
-        );
+        var actionOfficeGroupName =
+          Audit.Common.Utilities.GetAOSPGroupName(actionOfficeName);
         var actionOfficeGroup = Audit.Common.Utilities.GetSPSiteGroup(
           actionOfficeGroupName
         );
         if (actionOfficeGroup != null) {
           oCntCSAOAdd[csID + "toAdd"] = oCntCSAOAdd[csID + "toAdd"] + 1;
 
-          var roleDefBindingCollRestrictedRead = SP.RoleDefinitionBindingCollection.newObject(
-            currCtx2
-          );
+          var roleDefBindingCollRestrictedRead =
+            SP.RoleDefinitionBindingCollection.newObject(currCtx2);
           roleDefBindingCollRestrictedRead.add(
             currCtx2
               .get_web()
@@ -5396,9 +5360,8 @@ Audit.IAReport.NewReportPage = function () {
       oResponse.responseFolderItem.breakRoleInheritance(false, false);
     }
 
-    var roleDefBindingCollAdmin = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollAdmin =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollAdmin.add(
       currCtx
         .get_web()
@@ -5406,23 +5369,20 @@ Audit.IAReport.NewReportPage = function () {
         .getByType(SP.RoleType.administrator)
     );
 
-    var roleDefBindingCollContribute = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollContribute =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollContribute.add(
       currCtx.get_web().get_roleDefinitions().getByType(SP.RoleType.contributor)
     );
 
-    var roleDefBindingCollRestrictedRead = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollRestrictedRead =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollRestrictedRead.add(
       currCtx.get_web().get_roleDefinitions().getByName("Restricted Read")
     );
 
-    var roleDefBindingCollRestrictedContribute = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollRestrictedContribute =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollRestrictedContribute.add(
       currCtx.get_web().get_roleDefinitions().getByName("Restricted Contribute")
     );
@@ -5535,9 +5495,8 @@ Audit.IAReport.NewReportPage = function () {
     var actionOffice = oResponse.item.get_item("ActionOffice");
     if (actionOffice != null) {
       var actionOfficeName = actionOffice.get_lookupValue();
-      var actionOfficeGroupName = Audit.Common.Utilities.GetAOSPGroupName(
-        actionOfficeName
-      );
+      var actionOfficeGroupName =
+        Audit.Common.Utilities.GetAOSPGroupName(actionOfficeName);
       var actionOfficeGroup = Audit.Common.Utilities.GetSPSiteGroup(
         actionOfficeGroupName
       );
@@ -5656,9 +5615,8 @@ Audit.IAReport.NewReportPage = function () {
     oListItem.resetRoleInheritance();
     oListItem.breakRoleInheritance(false, false);
 
-    var roleDefBindingCollAdmin = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollAdmin =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollAdmin.add(
       currCtx
         .get_web()
@@ -5666,23 +5624,20 @@ Audit.IAReport.NewReportPage = function () {
         .getByType(SP.RoleType.administrator)
     );
 
-    var roleDefBindingCollContribute = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollContribute =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollContribute.add(
       currCtx.get_web().get_roleDefinitions().getByType(SP.RoleType.contributor)
     );
 
-    var roleDefBindingCollRestrictedRead = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollRestrictedRead =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollRestrictedRead.add(
       currCtx.get_web().get_roleDefinitions().getByName("Restricted Read")
     );
 
-    var roleDefBindingCollRestrictedContribute = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollRestrictedContribute =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollRestrictedContribute.add(
       currCtx.get_web().get_roleDefinitions().getByName("Restricted Contribute")
     );
@@ -5700,9 +5655,8 @@ Audit.IAReport.NewReportPage = function () {
     var actionOffice = oListItem.get_item("ActionOffice");
     if (actionOffice != null) {
       var actionOfficeName = actionOffice.get_lookupValue();
-      var actionOfficeGroupName = Audit.Common.Utilities.GetAOSPGroupName(
-        actionOfficeName
-      );
+      var actionOfficeGroupName =
+        Audit.Common.Utilities.GetAOSPGroupName(actionOfficeName);
       var actionOfficeGroup = Audit.Common.Utilities.GetSPSiteGroup(
         actionOfficeGroupName
       );
@@ -5860,9 +5814,8 @@ Audit.IAReport.NewReportPage = function () {
     oListItemFolder.resetRoleInheritance();
     oListItemFolder.breakRoleInheritance(false, false);
 
-    var roleDefBindingCollAdmin = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollAdmin =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollAdmin.add(
       currCtx
         .get_web()
@@ -5870,23 +5823,20 @@ Audit.IAReport.NewReportPage = function () {
         .getByType(SP.RoleType.administrator)
     );
 
-    var roleDefBindingCollContribute = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollContribute =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollContribute.add(
       currCtx.get_web().get_roleDefinitions().getByType(SP.RoleType.contributor)
     );
 
-    var roleDefBindingCollRestrictedRead = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollRestrictedRead =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollRestrictedRead.add(
       currCtx.get_web().get_roleDefinitions().getByName("Restricted Read")
     );
 
-    var roleDefBindingCollRestrictedContribute = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollRestrictedContribute =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollRestrictedContribute.add(
       currCtx.get_web().get_roleDefinitions().getByName("Restricted Contribute")
     );
@@ -5906,9 +5856,8 @@ Audit.IAReport.NewReportPage = function () {
     var actionOffice = oListItemResponse.get_item("ActionOffice");
     if (actionOffice != null) {
       var actionOfficeName = actionOffice.get_lookupValue();
-      var actionOfficeGroupName = Audit.Common.Utilities.GetAOSPGroupName(
-        actionOfficeName
-      );
+      var actionOfficeGroupName =
+        Audit.Common.Utilities.GetAOSPGroupName(actionOfficeName);
       var actionOfficeGroup = Audit.Common.Utilities.GetSPSiteGroup(
         actionOfficeGroupName
       );
@@ -6056,9 +6005,8 @@ Audit.IAReport.NewReportPage = function () {
 
     for (var x = 0; x < arrActionOffice.length; x++) {
       var actionOfficeName = arrActionOffice[x].get_lookupValue();
-      var actionOfficeGroupName = Audit.Common.Utilities.GetAOSPGroupName(
-        actionOfficeName
-      );
+      var actionOfficeGroupName =
+        Audit.Common.Utilities.GetAOSPGroupName(actionOfficeName);
       var actionOfficeGroup = Audit.Common.Utilities.GetSPSiteGroup(
         actionOfficeGroupName
       );
@@ -6069,9 +6017,8 @@ Audit.IAReport.NewReportPage = function () {
         var currCtx2 = new SP.ClientContext.get_current();
         var web = currCtx2.get_web();
 
-        var roleDefBindingCollRestrictedRead = SP.RoleDefinitionBindingCollection.newObject(
-          currCtx2
-        );
+        var roleDefBindingCollRestrictedRead =
+          SP.RoleDefinitionBindingCollection.newObject(currCtx2);
         roleDefBindingCollRestrictedRead.add(
           currCtx2.get_web().get_roleDefinitions().getByName("Restricted Read")
         );
@@ -6313,9 +6260,8 @@ Audit.IAReport.NewReportPage = function () {
       oRequest.item.resetRoleInheritance();
       oRequest.item.breakRoleInheritance(false, false);
 
-      var roleDefBindingCollAdmin = SP.RoleDefinitionBindingCollection.newObject(
-        currCtx
-      );
+      var roleDefBindingCollAdmin =
+        SP.RoleDefinitionBindingCollection.newObject(currCtx);
       roleDefBindingCollAdmin.add(
         currCtx
           .get_web()
@@ -6323,9 +6269,8 @@ Audit.IAReport.NewReportPage = function () {
           .getByType(SP.RoleType.administrator)
       );
 
-      var roleDefBindingCollContribute = SP.RoleDefinitionBindingCollection.newObject(
-        currCtx
-      );
+      var roleDefBindingCollContribute =
+        SP.RoleDefinitionBindingCollection.newObject(currCtx);
       roleDefBindingCollContribute.add(
         currCtx
           .get_web()
@@ -6333,16 +6278,14 @@ Audit.IAReport.NewReportPage = function () {
           .getByType(SP.RoleType.contributor)
       );
 
-      var roleDefBindingCollRestrictedRead = SP.RoleDefinitionBindingCollection.newObject(
-        currCtx
-      );
+      var roleDefBindingCollRestrictedRead =
+        SP.RoleDefinitionBindingCollection.newObject(currCtx);
       roleDefBindingCollRestrictedRead.add(
         currCtx.get_web().get_roleDefinitions().getByName("Restricted Read")
       );
 
-      var roleDefBindingCollRestrictedContribute = SP.RoleDefinitionBindingCollection.newObject(
-        currCtx
-      );
+      var roleDefBindingCollRestrictedContribute =
+        SP.RoleDefinitionBindingCollection.newObject(currCtx);
       roleDefBindingCollRestrictedContribute.add(
         currCtx
           .get_web()
@@ -6551,9 +6494,8 @@ Audit.IAReport.NewReportPage = function () {
       oRequest.item.resetRoleInheritance();
       oRequest.item.breakRoleInheritance(false, false);
 
-      var roleDefBindingCollAdmin = SP.RoleDefinitionBindingCollection.newObject(
-        currCtx
-      );
+      var roleDefBindingCollAdmin =
+        SP.RoleDefinitionBindingCollection.newObject(currCtx);
       roleDefBindingCollAdmin.add(
         currCtx
           .get_web()
@@ -6561,9 +6503,8 @@ Audit.IAReport.NewReportPage = function () {
           .getByType(SP.RoleType.administrator)
       );
 
-      var roleDefBindingCollContribute = SP.RoleDefinitionBindingCollection.newObject(
-        currCtx
-      );
+      var roleDefBindingCollContribute =
+        SP.RoleDefinitionBindingCollection.newObject(currCtx);
       roleDefBindingCollContribute.add(
         currCtx
           .get_web()
@@ -6571,16 +6512,14 @@ Audit.IAReport.NewReportPage = function () {
           .getByType(SP.RoleType.contributor)
       );
 
-      var roleDefBindingCollRestrictedRead = SP.RoleDefinitionBindingCollection.newObject(
-        currCtx
-      );
+      var roleDefBindingCollRestrictedRead =
+        SP.RoleDefinitionBindingCollection.newObject(currCtx);
       roleDefBindingCollRestrictedRead.add(
         currCtx.get_web().get_roleDefinitions().getByName("Restricted Read")
       );
 
-      var roleDefBindingCollRestrictedContribute = SP.RoleDefinitionBindingCollection.newObject(
-        currCtx
-      );
+      var roleDefBindingCollRestrictedContribute =
+        SP.RoleDefinitionBindingCollection.newObject(currCtx);
       roleDefBindingCollRestrictedContribute.add(
         currCtx
           .get_web()
@@ -7438,9 +7377,8 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
           oListFolderItem.breakRoleInheritance(false, false);
 
           //add owner group
-          var roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(
-            currCtx
-          );
+          var roleDefBindingColl =
+            SP.RoleDefinitionBindingCollection.newObject(currCtx);
           roleDefBindingColl.add(
             currCtx
               .get_web()
@@ -7452,9 +7390,8 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
             .add(ownerGroup, roleDefBindingColl);
 
           //add member group
-          var roleDefBindingColl2 = SP.RoleDefinitionBindingCollection.newObject(
-            currCtx
-          );
+          var roleDefBindingColl2 =
+            SP.RoleDefinitionBindingCollection.newObject(currCtx);
           roleDefBindingColl2.add(
             currCtx
               .get_web()
@@ -7466,9 +7403,8 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
             .add(memberGroup, roleDefBindingColl2);
 
           //add visitor group
-          var roleDefBindingColl3 = SP.RoleDefinitionBindingCollection.newObject(
-            currCtx
-          );
+          var roleDefBindingColl3 =
+            SP.RoleDefinitionBindingCollection.newObject(currCtx);
           roleDefBindingColl3.add(
             currCtx.get_web().get_roleDefinitions().getByName("Restricted Read")
           );
@@ -7484,9 +7420,8 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
             actionOfficeGroupName
           );
           if (actionOfficeGroupObj != null) {
-            var roleDefBindingColl4 = SP.RoleDefinitionBindingCollection.newObject(
-              currCtx
-            );
+            var roleDefBindingColl4 =
+              SP.RoleDefinitionBindingCollection.newObject(currCtx);
             roleDefBindingColl4.add(
               currCtx
                 .get_web()
@@ -7604,9 +7539,8 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
           folderPath +
           "</Value></Eq><Eq><FieldRef Name='DocumentStatus'/><Value Type='Text'>Marked for Deletion</Value></Eq></And></Where></Query></View>"
       );
-      responseDocMarkedForDeletionItems = responseDocLib.getItems(
-        responseDocQuery3
-      );
+      responseDocMarkedForDeletionItems =
+        responseDocLib.getItems(responseDocQuery3);
       currCtx.load(
         responseDocMarkedForDeletionItems,
         "Include(ID, DocumentStatus, FileDirRef, Created, FileLeafRef)"
@@ -7769,9 +7703,8 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
               var ao = this.oListItem.get_item("ActionOffice");
               if (ao != null) ao = ao.get_lookupValue();
               else ao = "";
-              var actionOfficeGroupName = Audit.Common.Utilities.GetAOSPGroupName(
-                ao
-              );
+              var actionOfficeGroupName =
+                Audit.Common.Utilities.GetAOSPGroupName(ao);
 
               //if it has a poc, update the TO field and the poc in the email text
               var poc = this.oListItem.get_item("POC");
@@ -7850,7 +7783,8 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
                 function (bDoneBreakingReqPermisions) {
                   var cntForQA = 0;
                   if (responseDocSubmittedItems != null) {
-                    var listItemEnumerator1 = responseDocSubmittedItems.getEnumerator();
+                    var listItemEnumerator1 =
+                      responseDocSubmittedItems.getEnumerator();
                     while (listItemEnumerator1.moveNext()) {
                       var oListItem1 = listItemEnumerator1.get_current();
 
@@ -7868,7 +7802,8 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
                     }
                   }
                   if (responseDocOpenItems != null) {
-                    var listItemEnumerator1 = responseDocOpenItems.getEnumerator();
+                    var listItemEnumerator1 =
+                      responseDocOpenItems.getEnumerator();
                     while (listItemEnumerator1.moveNext()) {
                       var oListItem1 = listItemEnumerator1.get_current();
 
@@ -7886,7 +7821,8 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
                     }
                   }
                   if (responseDocSentToQAItems != null) {
-                    var listItemEnumerator1 = responseDocSentToQAItems.getEnumerator();
+                    var listItemEnumerator1 =
+                      responseDocSentToQAItems.getEnumerator();
                     while (listItemEnumerator1.moveNext()) {
                       var oListItem1 = listItemEnumerator1.get_current();
                       cntForQA++;
@@ -7897,7 +7833,8 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
                   if (responseDocMarkedForDeletionItems != null) {
                     arrItemsToRecyle = new Array();
 
-                    var listItemEnumerator1 = responseDocMarkedForDeletionItems.getEnumerator();
+                    var listItemEnumerator1 =
+                      responseDocMarkedForDeletionItems.getEnumerator();
                     while (listItemEnumerator1.moveNext()) {
                       var oListItem1 = listItemEnumerator1.get_current();
                       arrItemsToRecyle.push(oListItem1);
@@ -7910,7 +7847,8 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
 
                   var cntRejected = 0;
                   if (responseDocRejectedItems != null) {
-                    var listItemEnumerator1 = responseDocRejectedItems.getEnumerator();
+                    var listItemEnumerator1 =
+                      responseDocRejectedItems.getEnumerator();
                     while (listItemEnumerator1.moveNext()) {
                       var oListItem1 = listItemEnumerator1.get_current();
                       oListItem1.set_item("DocumentStatus", "Archived");
