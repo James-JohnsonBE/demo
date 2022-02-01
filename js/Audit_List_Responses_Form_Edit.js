@@ -47,6 +47,7 @@ Audit.Responses.FormEdit = function () {
   var m_ResponseItem = null;
   var m_ResponseFolder = null;
   var m_RequestNumber = null;
+  var m_RequestSensitivity = null;
   var m_RequestStatus = null;
   var m_RequestSubject = null;
   var m_RequestInternalDueDate = null;
@@ -81,7 +82,7 @@ Audit.Responses.FormEdit = function () {
   m_requestItems = requestList.getItems(requestQuery);
   currCtx.load(
     m_requestItems,
-    "Include(ID, Title, ReqStatus, ReqSubject, InternalDueDate, ActionOffice, Modified)"
+    "Include(ID, Title, ReqStatus, ReqSubject, Sensitivity, InternalDueDate, ActionOffice, Modified)"
   );
 
   var responseTitle = $("input[title='Title']").val();
@@ -225,7 +226,7 @@ Audit.Responses.FormEdit = function () {
       if (requestNumber == number) {
         m_RequestStatus = status;
         m_RequestNumber = number;
-        m_Sensitivity = sensitivity;
+        m_RequestSensitivity = sensitivity;
 
         m_RequestSubject = subject;
         if (m_RequestSubject == null) m_RequestSubject = "";
@@ -278,6 +279,9 @@ Audit.Responses.FormEdit = function () {
     },
     GetRequestSubject: function () {
       return m_RequestSubject;
+    },
+    GetRequestSensitivity: function () {
+      return m_RequestSensitivity;
     },
     GetRequestDueDate: function () {
       return m_RequestInternalDueDate;
@@ -353,6 +357,21 @@ function PreSaveAction() {
 
   if (!confirm("Are you sure you would like to update this Response?"))
     return false;
+
+  /************* Sensitivity CHECK ***********/
+
+  var currentResponseSensitivity = Audit.Responses.Form.GetRequestSensitivity();
+  if (
+    selectedResponseStatus == "4-Approved for QA" &&
+    currentResponseSensitivity == "None"
+  ) {
+    if (
+      !confirm(
+        "Warning: Approving for QA without setting request sensitivity, continue?"
+      )
+    )
+      return false;
+  }
 
   var curResponseTitle = $("input[title='Title']").val();
   var newResponseFolderTitle =

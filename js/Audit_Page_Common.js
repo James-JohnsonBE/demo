@@ -398,30 +398,26 @@ Audit.Common.NewUtilities = function () {
     oNewEmailFolder.resetRoleInheritance();
     oNewEmailFolder.breakRoleInheritance(false, false);
 
-    var roleDefBindingCollAdmin = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollAdmin =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollAdmin.add(
       web.get_roleDefinitions().getByType(SP.RoleType.administrator)
     );
 
-    var roleDefBindingCollContribute = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollContribute =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollContribute.add(
       web.get_roleDefinitions().getByType(SP.RoleType.contributor)
     );
 
-    var roleDefBindingCollRestrictedRead = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollRestrictedRead =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollRestrictedRead.add(
       web.get_roleDefinitions().getByName("Restricted Read")
     );
 
-    var roleDefBindingCollRestrictedContribute = SP.RoleDefinitionBindingCollection.newObject(
-      currCtx
-    );
+    var roleDefBindingCollRestrictedContribute =
+      SP.RoleDefinitionBindingCollection.newObject(currCtx);
     roleDefBindingCollRestrictedContribute.add(
       web.get_roleDefinitions().getByName("Restricted Contribute")
     );
@@ -464,9 +460,8 @@ Audit.Common.NewUtilities = function () {
         for (var x = 0; x < arrActionOffice.length; x++) {
           var actionOfficeName = arrActionOffice[x].get_lookupValue();
 
-          var actionOfficeGroupName = Audit.Common.Utilities.GetAOSPGroupName(
-            actionOfficeName
-          );
+          var actionOfficeGroupName =
+            Audit.Common.Utilities.GetAOSPGroupName(actionOfficeName);
           var actionOfficeGroup = Audit.Common.Utilities.GetSPSiteGroup(
             actionOfficeGroupName
           );
@@ -477,9 +472,8 @@ Audit.Common.NewUtilities = function () {
             var currCtx2 = new SP.ClientContext.get_current();
             var web2 = currCtx2.get_web();
 
-            var roleDefBindingCollRestrictedContribute = SP.RoleDefinitionBindingCollection.newObject(
-              currCtx2
-            );
+            var roleDefBindingCollRestrictedContribute =
+              SP.RoleDefinitionBindingCollection.newObject(currCtx2);
             roleDefBindingCollRestrictedContribute.add(
               web2.get_roleDefinitions().getByName("Restricted Contribute")
             );
@@ -993,6 +987,20 @@ Audit.Common.NewUtilities = function () {
     return str;
   }
 
+  function m_fnUpdateUrlParam(param, newval) {
+    var search = window.location.search;
+    //var urlParams = new URLSearchParams(queryString);
+
+    var regex = new RegExp("([?;&])" + param + "[^&;]*[;&]?");
+    var query = search.replace(regex, "$1").replace(/&$/, "");
+
+    urlParams =
+      (query.length > 2 ? query + "&" : "?") +
+      (newval ? param + "=" + newval : "");
+
+    window.history.pushState({}, "", urlParams.toString());
+  }
+
   var publicMembers = {
     GetSiteUrl: function () {
       if (m_siteUrl == "/") return "";
@@ -1172,6 +1180,7 @@ Audit.Common.NewUtilities = function () {
       return m_fnSortResponseObjectNoCase(a, b);
     },
     SortResponseTitles: m_fnSortResponseTitleNoCase,
+    UpdateUrlParam: m_fnUpdateUrlParam,
   };
 
   return publicMembers;

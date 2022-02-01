@@ -1075,6 +1075,7 @@ Audit.IAReport.NewReportPage = function () {
 
   function m_fnRefresh(requestNumber) {
     var curPath = location.pathname;
+    var section = GetUrlKeyValue("Sect");
 
     if (!requestNumber) {
       var tabIndex = $("#tabs").tabs("option", "active");
@@ -1085,11 +1086,14 @@ Audit.IAReport.NewReportPage = function () {
         if (responseName != null && responseName != "")
           curPath += "&ResNum=" + responseName;
       } else if (tabIndex == 2) {
+        var section = GetUrlKeyValue("Sect");
+        if (section) curPath += "&Sect=" + section;
         var requestNum = $("#ddlReqNum").val();
         if (requestNum != null && requestNum != "")
           curPath += "&ReqNum=" + requestNum;
       }
-      location.href = curPath;
+      //curPath += window.location.hash;
+      //location.href = curPath;
     } else {
       var curPath = location.pathname;
 
@@ -1099,8 +1103,9 @@ Audit.IAReport.NewReportPage = function () {
       if (requestNumber != null && requestNumber != "")
         curPath += "&ReqNum=" + requestNumber;
 
-      location.href = curPath;
+      //curPath += window.location.hash;
     }
+    location.href = curPath;
   }
 
   function m_fnLoadData() {
@@ -1247,6 +1252,13 @@ Audit.IAReport.NewReportPage = function () {
     }
     function OnFailure(sender, args) {}
     currCtx.executeQueryAsync(OnSuccess, OnFailure);
+  }
+
+  function RequestFinishedLoading() {
+    var paramSection = GetUrlKeyValue("Sect");
+    if (paramSection) {
+      document.getElementById(paramSection).scrollIntoView(true);
+    }
   }
 
   function m_fnLoadRemainder() {
@@ -2478,6 +2490,8 @@ Audit.IAReport.NewReportPage = function () {
 
     if (bHasResponseDoc) {
       currCtx.executeQueryAsync(OnSuccess, OnFailure);
+    } else {
+      RequestFinishedLoading();
     }
 
     function RenderResponses(oRequest) {
@@ -2533,6 +2547,7 @@ Audit.IAReport.NewReportPage = function () {
       );
       _myViewModel.arrCurrentRequestResponseDocs.valueHasMutated();
       _myViewModel.cntResponseDocs(cnt);
+      RequestFinishedLoading();
     }
   }
 
@@ -7465,6 +7480,8 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
     m_countCSUpdatedOnEditResponse = 0;
 
     if (result === SP.UI.DialogResult.OK) {
+      Audit.Common.Utilities.UpdateUrlParam("Sect", "divResponses");
+      // window.location.hash = "divResponses";
       document.body.style.cursor = "wait";
       notifyId = SP.UI.Notify.addNotification("Please wait... ", false);
 
