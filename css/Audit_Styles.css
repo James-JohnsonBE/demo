@@ -151,6 +151,10 @@ TABLE.tablesorter THEAD TR .header {
   padding-bottom: 5px;
 }
 
+.commentChain .comment .remove {
+  cursor: pointer;
+}
+
 /*remove the background on notifications*/
 .s4-noti-in2 {
   background: none;

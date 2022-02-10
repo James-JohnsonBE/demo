@@ -64,7 +64,7 @@ Audit.IAReport.NewReportPage = function () {
   var m_sResponseStatusToFilterOn = "1-Open";
   var m_sRequestStatusToFilterOn = "Open";
 
-  function CommentChain({
+  function CommentChainField({
     requestId,
     requestListTitle,
     columnName,
@@ -87,16 +87,27 @@ Audit.IAReport.NewReportPage = function () {
     var requestId = requestId;
 
     function onSubmit() {
-      var currCtx = new SP.ClientContext.get_current();
-      var web = currCtx.get_web();
-
       var comment = {
+        id: Math.ceil(Math.random() * 1000000).toString(16),
         text: newCommentText(),
         author: _spPageContextInfo.userLoginName,
         timestamp: new Date(),
       };
       comments.push(comment);
+      commitChanges();
+    }
 
+    function onRemove(commentToRemove) {
+      if (confirm("Are you sure you want to delete this item?")) {
+        var commentIndex = comments.indexOf(commentToRemove);
+        comments.splice(commentIndex, 1);
+        commitChanges();
+      }
+    }
+
+    function commitChanges() {
+      var currCtx = new SP.ClientContext.get_current();
+      var web = currCtx.get_web();
       //Now push to the request item:
       var requestList = web.get_lists().getByTitle(requestListTitle);
       oListItem = requestList.getItemById(requestId);
@@ -107,11 +118,11 @@ Audit.IAReport.NewReportPage = function () {
 
       currCtx.executeQueryAsync(
         function onSuccess() {
-          console.log("updated comments");
+          // console.log("Updated comments");
           newCommentText("");
         },
-        function onFailure() {
-          console.error("Failed to upload comments.");
+        function onFailure(args, sender) {
+          console.error("Failed to commit changes.", args);
         }
       );
     }
@@ -120,6 +131,108 @@ Audit.IAReport.NewReportPage = function () {
       comments,
       newCommentText,
       onSubmit,
+      onRemove,
+    };
+
+    return publicMembers;
+  }
+
+  function ActiveViewersField({
+    requestId,
+    requestListTitle,
+    columnName,
+    initialValue,
+  }) {
+    var arrInitialViewers = [];
+    // If we have comments here, try to parse them.
+    if (initialValue) {
+      try {
+        arrInitialViewers = JSON.parse(initialValue);
+        arrInitialViewers.forEach(function (viewer) {
+          viewer.timestamp = new Date(viewer.timestamp);
+        });
+      } catch (e) {
+        console.error("could not parse internal status comments.");
+      }
+    }
+    var viewers = ko.observableArray(arrInitialViewers);
+
+    function pushCurrentUser() {
+      pushUser(_spPageContextInfo.userLoginName);
+    }
+
+    function pushUser(loginName) {
+      // Check if our viewer is listed
+      var filteredViewers = viewers().filter(function (viewer) {
+        return viewer.viewer != loginName;
+      });
+
+      viewers(filteredViewers);
+
+      var viewer = {
+        id: Math.ceil(Math.random() * 1000000).toString(16),
+        viewer: loginName,
+        timestamp: new Date(),
+      };
+      viewers.push(viewer);
+      commitChanges();
+    }
+
+    function removeCurrentuser() {
+      removeUserByLogin(_spPageContextInfo.userLoginName);
+    }
+
+    function removeUserByLogin(loginName) {
+      // Check if our viewer is listed
+      var viewerToRemove = viewers().find(function (viewer) {
+        return viewer.viewer == loginName;
+      });
+
+      if (viewerToRemove) {
+        removeUser(viewerToRemove);
+      }
+    }
+
+    function onRemove(viewerToRemove) {
+      if (confirm("Are you sure you want to delete this item?")) {
+        removeUser(viewerToRemove);
+      }
+    }
+
+    function removeUser(viewerToRemove) {
+      var viewerIndex = viewers.indexOf(viewerToRemove);
+      viewers.splice(viewerIndex, 1);
+      commitChanges();
+    }
+
+    function commitChanges() {
+      var currCtx = new SP.ClientContext.get_current();
+      var web = currCtx.get_web();
+      //Now push to the request item:
+      var requestList = web.get_lists().getByTitle(requestListTitle);
+      oListItem = requestList.getItemById(requestId);
+      oListItem.set_item(columnName, JSON.stringify(viewers()));
+      oListItem.update();
+
+      currCtx.load(oListItem);
+
+      currCtx.executeQueryAsync(
+        function onSuccess() {
+          console.log("Added User");
+        },
+        function onFailure(args, sender) {
+          console.error("Failed to commit changes - " + columnName, args);
+        }
+      );
+    }
+
+    var publicMembers = {
+      viewers,
+      pushCurrentUser,
+      pushUser,
+      removeCurrentuser,
+      removeUserByLogin,
+      onRemove,
     };
 
     return publicMembers;
@@ -929,7 +1042,26 @@ Audit.IAReport.NewReportPage = function () {
       }
     });
 
+    var unloadEventHandler = (oRequest) => (event) => {
+      console.log("unloading", oRequest);
+      oRequest.activeViewers.removeCurrentuser();
+    };
+    var currentEventHandler;
     /* 3rd tab */
+    // Before Change
+    self.filterRequestInfoTabRequestName.subscribe(
+      function (oldValue) {
+        var oRequest = m_bigMap["request-" + oldValue];
+        if (oRequest) {
+          oRequest.activeViewers.removeCurrentuser();
+          window.removeEventListener("beforeunload", currentEventHandler);
+        }
+      },
+      null,
+      "beforeChange"
+    );
+
+    // After Change
     self.filterRequestInfoTabRequestName.subscribe(function (newValue) {
       self.currentRequest(null);
       self.arrCurrentRequestRequestDocs([]);
@@ -949,6 +1081,9 @@ Audit.IAReport.NewReportPage = function () {
 
       var oRequest = m_bigMap["request-" + newValue];
       if (oRequest) {
+        oRequest.activeViewers.pushCurrentUser();
+        currentEventHandler = unloadEventHandler(oRequest);
+        window.addEventListener("beforeunload", currentEventHandler);
         m_fnRequeryRequest(oRequest);
       } else {
       }
@@ -1021,7 +1156,7 @@ Audit.IAReport.NewReportPage = function () {
     //currCtx.load( m_requestItems, 'Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))');
     currCtx.load(
       m_requestItems,
-      "Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, InternalStatus, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
+      "Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, InternalStatus, ActiveViewers, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
     );
 
     var responseList = web
@@ -1688,11 +1823,17 @@ Audit.IAReport.NewReportPage = function () {
         }
 
         var comments = oListItem.get_item("Comments");
-        var internalStatus = new CommentChain({
+        var internalStatus = new CommentChainField({
           requestId: id,
           requestListTitle: Audit.Common.Utilities.GetListTitleRequests(),
           columnName: "InternalStatus",
           initialValue: oListItem.get_item("InternalStatus"),
+        });
+        var activeViewers = new ActiveViewersField({
+          requestId: id,
+          requestListTitle: Audit.Common.Utilities.GetListTitleRequests(),
+          columnName: "ActiveViewers",
+          initialValue: oListItem.get_item("ActiveViewers"),
         });
         var emailSent = oListItem.get_item("EmailSent");
         var reviewer = oListItem.get_item("Reviewer");
@@ -1729,6 +1870,7 @@ Audit.IAReport.NewReportPage = function () {
         requestObject["emailActionOffices"] = arrEmailAOs;
         requestObject["comments"] = comments;
         requestObject["internalStatus"] = internalStatus;
+        requestObject["activeViewers"] = activeViewers;
         requestObject["emailSent"] = emailSent;
         requestObject["closedDate"] = closedDate;
         requestObject["closedBy"] = closedBy;

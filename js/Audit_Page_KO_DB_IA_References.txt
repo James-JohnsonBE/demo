@@ -266,6 +266,17 @@
 		<div id="divRequestInfo" data-bind="with: currentRequest">
 			<fieldset>
 				<legend>Request Information</legend>
+				<div id="divRequestActiveViewers" data-bind="visible: activeViewers.viewers().length, with: activeViewers">
+					<fieldset>
+						<legend><span class='ui-icon ui-icon-alert'></span><span data-bind="text: viewers().length"></span> Active Viewers</legend>
+						<ul data-bind="foreach: viewers">
+							<li>
+								<span data-bind="text: viewer + ' Last Active: ' + timestamp.toLocaleString()"></span>
+								<span style="cursor: pointer" data-bind="click: $parent.onRemove">x</span>
+							</li>
+						</ul>
+					</fieldset>
+				</div>
 				<table id="tblRequestInfo" class="tablesorter">
 					<tbody>
 						<tr>
@@ -340,10 +351,11 @@
 								<div class="comment">
 									<div data-bind="text: text"></div>
 									<span data-bind="text: author + ' @ ' + timestamp.toLocaleString()"></span>
+									<span class="remove" data-bind="click: $parent.onRemove">x</span>
 								</div>
 								<!-- /ko -->
 								<div class="newComment">
-									<textarea data-bind="value: newCommentText"></textarea>
+									<textarea cols="50" data-bind="value: newCommentText"></textarea>
 									<button type="button" data-bind="click: onSubmit">Submit</button>
 								</div>
 							</div>
