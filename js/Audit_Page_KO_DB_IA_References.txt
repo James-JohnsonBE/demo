@@ -333,6 +333,23 @@
 							<td><span id="requestInfoComments" data-bind="html: comments"></span></td>
 						</tr>
 						<tr>
+							<td>Internal Status Comments</td>
+							<td data-bind="with: internalStatus">
+								<div class="commentChain">
+								<!-- ko foreach: comments -->
+								<div class="comment">
+									<div data-bind="text: text"></div>
+									<span data-bind="text: author + ' @ ' + timestamp.toLocaleString()"></span>
+								</div>
+								<!-- /ko -->
+								<div class="newComment">
+									<textarea data-bind="value: newCommentText"></textarea>
+									<button type="button" data-bind="click: onSubmit">Submit</button>
+								</div>
+							</div>
+							</td>
+						</tr>
+						<tr>
 							<td>Action Office(s)</td>
 							<td>
 								<span id="requestInfoActionOffice">

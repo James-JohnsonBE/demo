@@ -1,188 +1,187 @@
-﻿.ms-formbody{
-	background-color: #EEEEF1;
+﻿.ms-formbody {
+  background-color: #eeeef1;
 }
-.ms-formlabel{
-	background-color: #EEEEF1;
-	color:black;
-}
-
-.hiddenRow{
-	display:none; 
-	font-weight:bold; 
-	padding-bottom:5px; 
-	width:800px;
-	text-align:center;
+.ms-formlabel {
+  background-color: #eeeef1;
+  color: black;
 }
 
-.tablesorter
-{
-	border-collapse: collapse !important;
-}
-.tablesorter th
-{
-	border: 1px DarkGray solid !important;
-	background-color: Gainsboro;
+.hiddenRow {
+  display: none;
+  font-weight: bold;
+  padding-bottom: 5px;
+  width: 800px;
+  text-align: center;
 }
 
-table.tablesorter td
-{
-	border: 1px DarkGray solid !important;
-	vertical-align:top;
-	color: #595959 !important;  
-	vertical-align:top;
+.tablesorter {
+  border-collapse: collapse !important;
+}
+.tablesorter th {
+  border: 1px DarkGray solid !important;
+  background-color: Gainsboro;
 }
 
-.report tfoot th
-{
-	text-align:left;
+table.tablesorter td {
+  border: 1px DarkGray solid !important;
+  vertical-align: top;
+  color: #595959 !important;
+  vertical-align: top;
 }
-table.tablesorter tbody td:hover
-{
-   /* works background-color: blue !important; */
+
+.report tfoot th {
+  text-align: left;
+}
+table.tablesorter tbody td:hover {
+  /* works background-color: blue !important; */
 }
 
 table.tablesorter tbody tr:hover {
-	/*background-color:lemonchiffon !important ;*/
+  /*background-color:lemonchiffon !important ;*/
 }
-TABLE.tablesorter THEAD TR .header
-{
-	padding-right: 10px !important;
-}
-
-.request-item
-{
-	display:none; /* hide by default... the filtering will reshow*/
-	white-space:nowrap;
+TABLE.tablesorter THEAD TR .header {
+  padding-right: 10px !important;
 }
 
-.request-item:hover
-{
-	background-color:lemonchiffon !important;
+.request-item {
+  display: none; /* hide by default... the filtering will reshow*/
+  white-space: nowrap;
 }
 
-#tblResponses tr:hover
-{
-	background-color:lemonchiffon !important;
+.request-item:hover {
+  background-color: lemonchiffon !important;
 }
 
-.clear { /* generic container (i.e. div) for floating buttons */
-    overflow: hidden;
-    width: 100%;
+#tblResponses tr:hover {
+  background-color: lemonchiffon !important;
 }
 
-.ui-icon
-{
-	margin-bottom:2px;
-	padding-top: 0px;
-	padding-bottom: 0px;
-	
-	display: inline-block !important;
-	white-space: normal !important;
-	/*zoom: 1.25;*/
-	vertical-align: middle !important;
+.clear {
+  /* generic container (i.e. div) for floating buttons */
+  overflow: hidden;
+  width: 100%;
 }
 
-.filteredMsg
-{
-	color:green;
-	font-weight:bold;
+.ui-icon {
+  margin-bottom: 2px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+
+  display: inline-block !important;
+  white-space: normal !important;
+  /*zoom: 1.25;*/
+  vertical-align: middle !important;
 }
 
-.unhighlighted
-{
-	background-color:white !important;
+.filteredMsg {
+  color: green;
+  font-weight: bold;
 }
 
-.highlighted
-{
-	background-color:lightyellow !important;
+.unhighlighted {
+  background-color: white !important;
 }
 
-.Upcoming
-{	
-	background-color:LightGreen;
+.highlighted {
+  background-color: lightyellow !important;
 }
 
-.Canceled
-{	
-	/*font-style:italic;*/
-	background-color:PeachPuff;
+.Upcoming {
+  background-color: LightGreen;
 }
 
-.Completed
-{	
-	/*font-style:italic;*/
-	background-color:Gainsboro;
+.Canceled {
+  /*font-style:italic;*/
+  background-color: PeachPuff;
 }
 
-.Hidden
-{
-	display:none;
+.Completed {
+  /*font-style:italic;*/
+  background-color: Gainsboro;
+}
+
+.Hidden {
+  display: none;
 }
 
 .button {
-	color:white !important;
-	display: inline-block;
-	zoom: 1; /* zoom and *display = ie7 hack for display:inline-block */
-	*display: inline;
-	vertical-align: baseline;
-	margin: 0 2px;
-	outline: none;
-	cursor: pointer;
-	text-align: center;
-	text-decoration: none;
-	font: 14px/100% Arial, Helvetica, sans-serif;
-	padding: .5em 2em .55em;
-	text-shadow: 0 1px 1px rgba(0,0,0,.3);
-	-webkit-border-radius: .5em; 
-	-moz-border-radius: .5em;
-	border-radius: .5em;
-	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);
-	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
-	box-shadow: 0 1px 2px rgba(0,0,0,.2);
+  color: white !important;
+  display: inline-block;
+  zoom: 1; /* zoom and *display = ie7 hack for display:inline-block */
+  *display: inline;
+  vertical-align: baseline;
+  margin: 0 2px;
+  outline: none;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  font: 14px/100% Arial, Helvetica, sans-serif;
+  padding: 0.5em 2em 0.55em;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+  -webkit-border-radius: 0.5em;
+  -moz-border-radius: 0.5em;
+  border-radius: 0.5em;
+  -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 .button:hover {
-	text-decoration: none;
+  text-decoration: none;
 }
 .button:active {
-	position: relative;
-	top: 1px;
+  position: relative;
+  top: 1px;
 }
 
 .bigrounded {
-	-webkit-border-radius: 2em;
-	-moz-border-radius: 2em;
-	border-radius: 2em;
+  -webkit-border-radius: 2em;
+  -moz-border-radius: 2em;
+  border-radius: 2em;
 }
 .medium {
-	font-size: 12px;
-	padding: .4em 1.5em .42em;
+  font-size: 12px;
+  padding: 0.4em 1.5em 0.42em;
 }
 .small {
-	font-size: 11px;
-	padding: .2em 1em .275em;
+  font-size: 11px;
+  padding: 0.2em 1em 0.275em;
 }
 
+.commentChain .comment {
+  padding-bottom: 5px;
+}
 
 /*remove the background on notifications*/
-.s4-noti-in2
-{
-	background: none;
-	background-color: yellow;
+.s4-noti-in2 {
+  background: none;
+  background-color: yellow;
 }
 
+@media print {
+  a {
+    text-decoration: none;
+  }
+  body {
+    font-family: Arial;
+  }
 
-@media print
-{
-	a {text-decoration:none;} 
-	body {font-family:Arial;}
-	
-	tfoot {display: table-footer-group;}
-	thead {display: table-header-group;}
-	
-	#s4-ribbonrow{display:none;}
-	#s4-titlerow{display:none !important}
-	.s4-title{display:none;}
-	.hideOnPrint{display:none;}
+  tfoot {
+    display: table-footer-group;
+  }
+  thead {
+    display: table-header-group;
+  }
+
+  #s4-ribbonrow {
+    display: none;
+  }
+  #s4-titlerow {
+    display: none !important;
+  }
+  .s4-title {
+    display: none;
+  }
+  .hideOnPrint {
+    display: none;
+  }
 }
-

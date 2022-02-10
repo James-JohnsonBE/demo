@@ -64,6 +64,67 @@ Audit.IAReport.NewReportPage = function () {
   var m_sResponseStatusToFilterOn = "1-Open";
   var m_sRequestStatusToFilterOn = "Open";
 
+  function CommentChain({
+    requestId,
+    requestListTitle,
+    columnName,
+    initialValue,
+  }) {
+    var arrInitialComments = [];
+    // If we have comments here, try to parse them.
+    if (initialValue) {
+      try {
+        arrInitialComments = JSON.parse(initialValue);
+        arrInitialComments.forEach(function (comment) {
+          comment.timestamp = new Date(comment.timestamp);
+        });
+      } catch (e) {
+        console.error("could not parse internal status comments.");
+      }
+    }
+    var comments = ko.observableArray(arrInitialComments);
+    var newCommentText = ko.observable();
+    var requestId = requestId;
+
+    function onSubmit() {
+      var currCtx = new SP.ClientContext.get_current();
+      var web = currCtx.get_web();
+
+      var comment = {
+        text: newCommentText(),
+        author: _spPageContextInfo.userLoginName,
+        timestamp: new Date(),
+      };
+      comments.push(comment);
+
+      //Now push to the request item:
+      var requestList = web.get_lists().getByTitle(requestListTitle);
+      oListItem = requestList.getItemById(requestId);
+      oListItem.set_item(columnName, JSON.stringify(comments()));
+      oListItem.update();
+
+      currCtx.load(oListItem);
+
+      currCtx.executeQueryAsync(
+        function onSuccess() {
+          console.log("updated comments");
+          newCommentText("");
+        },
+        function onFailure() {
+          console.error("Failed to upload comments.");
+        }
+      );
+    }
+
+    var publicMembers = {
+      comments,
+      newCommentText,
+      onSubmit,
+    };
+
+    return publicMembers;
+  }
+
   ko.bindingHandlers.downloadLink = {
     update: function (
       element,
@@ -960,7 +1021,7 @@ Audit.IAReport.NewReportPage = function () {
     //currCtx.load( m_requestItems, 'Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))');
     currCtx.load(
       m_requestItems,
-      "Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
+      "Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, InternalStatus, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
     );
 
     var responseList = web
@@ -1141,12 +1202,12 @@ Audit.IAReport.NewReportPage = function () {
       $(".response-permissions").hide(); //resets this in case it was toggled to show
       currCtx.load(
         m_aRequestItem,
-        "Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+        "Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, InternalStatus, EmailSent, ClosedDate, ClosedBy, Modified, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
       );
     } else
       currCtx.load(
         m_aRequestItem,
-        "Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified)"
+        "Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, InternalStatus, EmailSent, ClosedDate, ClosedBy, Modified)"
       );
 
     function OnSuccess(sender, args) {
@@ -1250,7 +1311,9 @@ Audit.IAReport.NewReportPage = function () {
       LoadTabRequestInfoCoverSheets(oRequest);
       LoadTabRequestInfoResponses(oRequest);
     }
-    function OnFailure(sender, args) {}
+    function OnFailure(sender, args) {
+      console.error("Unable to requery request: " + oRequest.number);
+    }
     currCtx.executeQueryAsync(OnSuccess, OnFailure);
   }
 
@@ -1625,6 +1688,12 @@ Audit.IAReport.NewReportPage = function () {
         }
 
         var comments = oListItem.get_item("Comments");
+        var internalStatus = new CommentChain({
+          requestId: id,
+          requestListTitle: Audit.Common.Utilities.GetListTitleRequests(),
+          columnName: "InternalStatus",
+          initialValue: oListItem.get_item("InternalStatus"),
+        });
         var emailSent = oListItem.get_item("EmailSent");
         var reviewer = oListItem.get_item("Reviewer");
         var owner = oListItem.get_item("Owner");
@@ -1632,6 +1701,7 @@ Audit.IAReport.NewReportPage = function () {
         var actionItems = oListItem.get_item("ActionItems");
 
         if (comments == null) comments = "";
+        if (internalStatus == null) internalStatus = "";
         if (reviewer == null) reviewer = "";
         if (owner == null) owner = "";
         if (relatedAudit == null) relatedAudit = "";
@@ -1658,6 +1728,7 @@ Audit.IAReport.NewReportPage = function () {
         requestObject["actionOffices"] = arrAOs;
         requestObject["emailActionOffices"] = arrEmailAOs;
         requestObject["comments"] = comments;
+        requestObject["internalStatus"] = internalStatus;
         requestObject["emailSent"] = emailSent;
         requestObject["closedDate"] = closedDate;
         requestObject["closedBy"] = closedBy;
