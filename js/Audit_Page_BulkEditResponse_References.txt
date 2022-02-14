@@ -8,7 +8,7 @@
     <div style="padding-top: 10px">
       <a href="javascript:void" id="btnLoadResponses">
         <span class="ui-icon ui-icon-gear"></span>Refresh Responses (Discards
-        Changes)
+        Uncommitted Changes)
       </a>
     </div>
     <div style="padding-top: 10px">
@@ -38,7 +38,7 @@
       <tr data-bind="">
         <td data-bind="css: mutationStatusClass" rowspan="2">
           <div
-            data-bind="css: commitStatusClass, attr: {title: commitStatus().text}"
+            data-bind="css: commitStatusIcon, attr: {title: commitStatus().text}"
           ></div>
           <!-- <input type="checkbox" data-bind="checked: returnBool" /> -->
         </td>

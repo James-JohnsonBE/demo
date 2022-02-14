@@ -23,10 +23,12 @@ Audit.BulkEditResponse.Load = function () {
     pendingClose: {
       text: "Pending Close - Date, Closed By Required",
       icon: "ui-icon ui-icon-notice",
+      class: "pending",
     },
     pendingReturnToAO: {
       text: "Pending Return to AO, Reject Reason Required",
       icon: "ui-icon ui-icon-notice",
+      class: "pending",
     },
     staged: {
       text: "Staged - Ready to Commit",
@@ -43,10 +45,12 @@ Audit.BulkEditResponse.Load = function () {
     committed: {
       text: "Changes Committed",
       icon: "ui-icon ui-icon-circle-check",
+      class: "committed",
     },
     error: {
       text: "Error",
       icon: "ui-icon ui-icon-alert",
+      class: "error",
     },
   };
 
@@ -434,22 +438,15 @@ Audit.BulkEditResponse.Load = function () {
     });
 
     self.mutationStatusClass = ko.pureComputed(function () {
-      switch (self.commitStatus()) {
-        case commitStatusOpts.pendingClose:
-        case commitStatusOpts.pendingReturnToAO:
-          return "pending";
-        case commitStatusOpts.committed:
-          return "committed";
-        case commitStatusOpts.error:
-          return "error";
-        case "":
-          return "";
-        default:
-          return "mutated";
+      if (!self.commitStatus()) {
+        return "";
       }
+      var commitClass = self.commitStatus()["class"];
+
+      return commitClass ? commitClass : "mutated";
     });
 
-    self.commitStatusClass = ko.pureComputed(function () {
+    self.commitStatusIcon = ko.pureComputed(function () {
       return self.commitStatus() && self.commitStatus()["icon"];
     });
 
@@ -916,12 +913,12 @@ Audit.BulkEditResponse.Load = function () {
     );
   }
 
-  var m_countCSToUpdateOnEditResponse = 0;
-  var m_countCSUpdatedOnEditResponse = 0;
+  // var m_countCSToUpdateOnEditResponse = 0;
+  // var m_countCSUpdatedOnEditResponse = 0;
 
   function OnCallbackCommitResponseAudit(response) {
-    m_countCSToUpdateOnEditResponse = 0;
-    m_countCSUpdatedOnEditResponse = 0;
+    response.m_countCSToUpdateOnEditResponse = 0;
+    response.m_countCSUpdatedOnEditResponse = 0;
 
     document.body.style.cursor = "wait";
     var notifyId = SP.UI.Notify.addNotification("Please wait... ", false);
@@ -1370,7 +1367,7 @@ Audit.BulkEditResponse.Load = function () {
                       response.commitStatus(commitStatusOpts.committed);
                     } else {
                       for (var x = 0; x < oRequest.coversheets.length; x++) {
-                        m_countCSToUpdateOnEditResponse++;
+                        response.m_countCSToUpdateOnEditResponse++;
 
                         //give QA access to the coversheet
                         var bDoneBreakingCSOnEditResponse = false;
@@ -1379,11 +1376,11 @@ Audit.BulkEditResponse.Load = function () {
                           true,
                           false,
                           function () {
-                            m_countCSUpdatedOnEditResponse++;
+                            response.m_countCSUpdatedOnEditResponse++;
 
                             if (
-                              m_countCSToUpdateOnEditResponse ==
-                              m_countCSUpdatedOnEditResponse
+                              response.m_countCSToUpdateOnEditResponse ==
+                              response.m_countCSUpdatedOnEditResponse
                             ) {
                               document.body.style.cursor = "default";
                               response.commitStatus(commitStatusOpts.committed);
@@ -1633,6 +1630,11 @@ Audit.BulkEditResponse.Load = function () {
     this.memberGroup = web.get_associatedMemberGroup();
     this.visitorGroup = web.get_associatedVisitorGroup();
 
+    var qaHasRead = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
+      oListItemFolder,
+      Audit.Common.Utilities.GetGroupNameQA(),
+      SP.PermissionKind.viewListItems
+    );
     var special1HasRead = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
       oListItemFolder,
       Audit.Common.Utilities.GetGroupNameSpecialPerm1(),
@@ -1714,6 +1716,32 @@ Audit.BulkEditResponse.Load = function () {
           oListItemFolder
             .get_roleAssignments()
             .add(actionOfficeGroup, roleDefBindingCollRestrictedRead);
+      }
+    }
+
+    if (
+      qaHasRead ||
+      oListItemResponse.get_item("ResStatus") == "4-Approved for QA" ||
+      oListItemResponse.get_item("ResStatus") == "6-Reposted After Rejection"
+    ) {
+      //make sure qa gets read if it had access
+      var spGroupQA = Audit.Common.Utilities.GetSPSiteGroup(
+        Audit.Common.Utilities.GetGroupNameQA()
+      );
+      if (spGroupQA != null) {
+        if (
+          bCheckStatus &&
+          (oListItemResponse.get_item("ResStatus") == "4-Approved for QA" ||
+            oListItemResponse.get_item("ResStatus") ==
+              "6-Reposted After Rejection")
+        )
+          oListItemFolder
+            .get_roleAssignments()
+            .add(spGroupQA, roleDefBindingCollRestrictedContribute);
+        else
+          oListItemFolder
+            .get_roleAssignments()
+            .add(spGroupQA, roleDefBindingCollRestrictedRead);
       }
     }
 
