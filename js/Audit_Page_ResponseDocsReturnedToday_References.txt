@@ -15,7 +15,6 @@
   style="display: none; padding-top: 10px; font-style: italic"
 >
   <span class="ui-icon ui-icon-info"></span>Found 0 Documents that were returned
-  today
 </div>
 
 <div id="divOutput" style="display: none">
@@ -23,7 +22,7 @@
     <thead>
       <tr>
         <th class="sorter-false" nowrap="nowrap" colspan="4">
-          Response Documents Returned Today
+          Response Documents Returned to GFS
         </th>
       </tr>
       <tr>

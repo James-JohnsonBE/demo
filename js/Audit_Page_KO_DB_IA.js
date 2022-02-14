@@ -70,6 +70,12 @@ Audit.IAReport.NewReportPage = function () {
     columnName,
     initialValue,
   }) {
+    var showHistoryBool = ko.observable(false);
+
+    var toggleShowHistory = function () {
+      showHistoryBool(!showHistoryBool());
+    };
+
     var arrInitialComments = [];
     // If we have comments here, try to parse them.
     if (initialValue) {
@@ -132,6 +138,8 @@ Audit.IAReport.NewReportPage = function () {
       newCommentText,
       onSubmit,
       onRemove,
+      toggleShowHistory,
+      showHistoryBool,
     };
 
     return publicMembers;
@@ -218,7 +226,7 @@ Audit.IAReport.NewReportPage = function () {
 
       currCtx.executeQueryAsync(
         function onSuccess() {
-          console.log("Added User");
+          // console.log("Added User");
         },
         function onFailure(args, sender) {
           console.error("Failed to commit changes - " + columnName, args);
@@ -3079,6 +3087,14 @@ Audit.IAReport.NewReportPage = function () {
     window.open(
       Audit.Common.Utilities.GetSiteUrl() +
         "/pages/AuditUnSubmittedResponseDocuments.aspx",
+      "_blank"
+    );
+  }
+
+  function m_fnViewReturnedDocs() {
+    window.open(
+      Audit.Common.Utilities.GetSiteUrl() +
+        "/Pages/AuditReturnedResponses.aspx",
       "_blank"
     );
   }
@@ -8503,6 +8519,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
     ViewPermissions: m_fnViewPermissions,
     ViewLateRequests: m_fnViewLateRequests,
     ViewResponseDocsToday: m_fnViewResponseDocsToday,
+    ViewReturnedDocs: m_fnViewReturnedDocs,
     GoToRequest: function (requestNum, responseTitle) {
       m_fnGoToRequest(requestNum, responseTitle);
     }, //used in jsrender template

@@ -45,8 +45,6 @@ Audit.ResponseDocsReport.NewReportPage = function () {
       .get_lists()
       .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
     var responseDocsQuery = new SP.CamlQuery();
-    // var camlq = '<View Scope="RecursiveAll"><Query><Where><And><Eq><FieldRef Name="Created"/><Value Type="DateTime" IncludeTimeValue="FALSE"><Today /></Value></Eq><Eq><FieldRef Name="ContentType"/><Value Type="Text">Document</Value></Eq></And></Where></Query></View>'
-    // var camlq ='<View Scope="RecursiveAll"><Query><Where><And><Eq><FieldRef Name="DocumentStatus"/><Value Type="Text">Rejected</Value></Eq><Eq><FieldRef Name="ContentType"/><Value Type="Text">Document</Value></Eq></And></Where></Query></View>'
     var camlq =
       '<View Scope="RecursiveAll"><Query><Where><And><Eq><FieldRef Name="DocumentStatus"/><Value Type="Text">Rejected</Value></Eq><Eq><FieldRef Name="FSObjType"/><Value Type="int">0</Value></Eq></And></Where></Query></View>';
 
