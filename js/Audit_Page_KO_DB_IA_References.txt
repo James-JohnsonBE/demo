@@ -1274,6 +1274,7 @@
               <th class="sorter-false response-permissions" nowrap="nowrap">
                 Response Folder Permissions
               </th>
+              <th class="sorter-false" nowrap="nowrap">Active Viewers</th>
               <th class="sorter-false" nowrap="nowrap">Action</th>
               <th class="sorter-false" nowrap="nowrap">Documents</th>
             </tr>
@@ -1337,6 +1338,36 @@
               <td class="response-permissions">
                 <span data-bind="html: groupPerms"></span>
               </td>
+              <td class="response-viewers">
+                <div
+                  data-bind="visible: activeViewers.viewers().length, with: activeViewers"
+                >
+                  <fieldset>
+                    <legend>
+                      <span class="ui-icon ui-icon-alert"></span
+                      ><span data-bind="text: viewers().length"></span> Active
+                      Viewers
+                    </legend>
+                    <ul data-bind="foreach: viewers">
+                      <li>
+                        <div class="active-viewer">
+                          <div>
+                            <div data-bind="text: viewer"></div>
+                            <div
+                              data-bind="text: 'Last Active: ' + timestamp.toLocaleString()"
+                            ></div>
+                          </div>
+                          <div
+                            style="cursor: pointer"
+                            data-bind="click: $parent.onRemove"
+                            class="ui-icon ui-icon-closethick"
+                          ></div>
+                        </div>
+                      </li>
+                    </ul>
+                  </fieldset>
+                </div>
+              </td>
               <td class="response-action">
                 <a
                   title="View Response"
@@ -1349,6 +1380,14 @@
                   href="javascript:void(0)"
                   data-bind="visible: resStatus != '7-Closed' && $parent.status != 'Closed' && $parent.status != 'Canceled', click: $root.ClickEditResponse"
                   ><span class="ui-icon ui-icon-pencil">Edit Response</span></a
+                >
+                <a
+                  title="Reviewing Response"
+                  href="javascript:void(0)"
+                  data-bind="visible: resStatus != '7-Closed' && $parent.status != 'Closed' && $parent.status != 'Canceled', click: $root.ClickReviewingResponse"
+                  ><span class="ui-icon ui-icon-flag"
+                    >Reviewing Response</span
+                  ></a
                 >
               </td>
               <td class="response-responseDocs">

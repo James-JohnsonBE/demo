@@ -815,6 +815,12 @@ Audit.IAReport.NewReportPage = function () {
         );
     };
 
+    self.ClickReviewingResponse = function (oResponse) {
+      var oRequest = self.currentRequest();
+      if (oRequest && oRequest.number && oResponse)
+        m_fnReviewingResponse(oResponse.activeViewers);
+    };
+
     self.ClickReOpenResponse = function (oResponse) {
       var oRequest = self.currentRequest();
       if (oRequest && oRequest.number && oResponse)
@@ -2484,12 +2490,12 @@ Audit.IAReport.NewReportPage = function () {
     if (m_bIsSiteOwner)
       currCtx.load(
         m_subsetResponseItems,
-        "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, Comments, Modified, ClosedDate, ClosedBy, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+        "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, Comments, ActiveViewers, Modified, ClosedDate, ClosedBy, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
       );
     else
       currCtx.load(
         m_subsetResponseItems,
-        "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, Comments, Modified, ClosedDate, ClosedBy)"
+        "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, Comments, ActiveViewers, Modified, ClosedDate, ClosedBy)"
       );
 
     var responseDocsLibFolderslist = currCtx
@@ -2614,6 +2620,12 @@ Audit.IAReport.NewReportPage = function () {
         oResponse["specialPerms"] = specialPerms;
         oResponse["styleTag"] = styleTag;
         oResponse["toolTip"] = toolTip;
+        oResponse["activeViewers"] = new ActiveViewersField({
+          requestId: oResponse.ID,
+          requestListTitle: Audit.Common.Utilities.GetListTitleResponses(),
+          columnName: "ActiveViewers",
+          initialValue: oResponse.item.get_item("ActiveViewers"),
+        });
 
         arrResponses.push(oResponse);
       }
@@ -3567,6 +3579,19 @@ Audit.IAReport.NewReportPage = function () {
       GetSourceUrlForForms();
 
     SP.UI.ModalDialog.showModalDialog(options);
+  }
+
+  function m_fnReviewingResponse(activeViewers) {
+    if (!m_bIsSiteOwner) {
+      SP.UI.Notify.addNotification(
+        "You do not have access to perform this action...",
+        false
+      );
+      return;
+    }
+
+    alert("Reviewing!");
+    activeViewers.pushCurrentUser();
   }
 
   function m_fnViewResponseDoc(id, requestID, responseID) {

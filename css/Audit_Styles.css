@@ -155,6 +155,10 @@ TABLE.tablesorter THEAD TR .header {
   cursor: pointer;
 }
 
+.active-viewer {
+  display: flex;
+}
+
 /*remove the background on notifications*/
 .s4-noti-in2 {
   background: none;
