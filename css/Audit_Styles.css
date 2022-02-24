@@ -157,6 +157,7 @@ TABLE.tablesorter THEAD TR .header {
 
 .active-viewer {
   display: flex;
+  align-items: center;
 }
 
 /*remove the background on notifications*/
