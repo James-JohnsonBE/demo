@@ -124,7 +124,7 @@
     </tbody>
   </table>
 </div>
-<div id="divMutatingResponses" style="display: none">
+<div id="divMutatingResponses" class="tablesorter report" style="display: none">
   <table>
     <thead>
       <tr><th>Response</th>
