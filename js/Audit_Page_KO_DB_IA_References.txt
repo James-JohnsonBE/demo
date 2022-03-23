@@ -668,14 +668,16 @@
             </legend>
             <ul data-bind="foreach: viewers">
               <li>
-                <span
-                  data-bind="text: viewer + ' Last Active: ' + timestamp.toLocaleString()"
-                ></span>
-                <span
-                  style="cursor: pointer"
-                  data-bind="click: $parent.onRemove"
-                  >x</span
-                >
+                <div class="active-viewer">
+                  <div
+                    data-bind="text: viewer + ' @ ' + timestamp.toLocaleString()"
+                  ></div>
+                  <div
+                    style="cursor: pointer"
+                    data-bind="click: $parent.onRemove"
+                    class="ui-icon ui-icon-closethick"
+                  ></div>
+                </div>
               </li>
             </ul>
           </fieldset>

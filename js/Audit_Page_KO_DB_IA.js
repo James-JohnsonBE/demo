@@ -64,12 +64,11 @@ Audit.IAReport.NewReportPage = function () {
   var m_sResponseStatusToFilterOn = "1-Open";
   var m_sRequestStatusToFilterOn = "Open";
 
-  function CommentChainField({
-    requestId,
-    requestListTitle,
-    columnName,
-    initialValue,
-  }) {
+  function CommentChainField(requestId, props) {
+    var requestListTitle = props.requestListTitle;
+    var columnName = props.columnName;
+    var initialValue = props.initialValue;
+
     var showHistoryBool = ko.observable(false);
 
     var toggleShowHistory = function () {
@@ -90,7 +89,7 @@ Audit.IAReport.NewReportPage = function () {
     }
     var comments = ko.observableArray(arrInitialComments);
     var newCommentText = ko.observable();
-    var requestId = requestId;
+    // var requestId = requestId;
 
     function onSubmit() {
       var comment = {
@@ -1837,8 +1836,7 @@ Audit.IAReport.NewReportPage = function () {
         }
 
         var comments = oListItem.get_item("Comments");
-        var internalStatus = new CommentChainField({
-          requestId: id,
+        var internalStatus = new CommentChainField(id, {
           requestListTitle: Audit.Common.Utilities.GetListTitleRequests(),
           columnName: "InternalStatus",
           initialValue: oListItem.get_item("InternalStatus"),
