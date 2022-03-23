@@ -489,6 +489,13 @@ Audit.BulkEditResponse.Load = function () {
 
     self.arrMutatedResponses = ko.pureComputed(function () {
       return self.arrResponses().filter(function (response) {
+        return response.isMutated();
+        // return response.commitStatus() === commitStatusOpts.committed;
+      });
+    });
+
+    self.arrStagedResponses = ko.pureComputed(function () {
+      return self.arrResponses().filter(function (response) {
         return (
           response.isMutated() &&
           response.commitStatus() == commitStatusOpts.staged
@@ -647,6 +654,7 @@ Audit.BulkEditResponse.Load = function () {
     currCtx.executeQueryAsync(OnSuccess, OnFailure);
     function OnSuccess(sender, args) {
       $("#divLoadSettings").show();
+      $("#divLoadBulkResponsesOutput").show();
       $("#divLoading").hide();
 
       m_listViewId = m_view.get_id();
@@ -834,7 +842,7 @@ Audit.BulkEditResponse.Load = function () {
 
     // If any of our responses are destined for QA, break the permissions on the request
     // first.
-    var responsesForQA = vm.arrMutatedResponses().filter(function (response) {
+    var responsesForQA = vm.arrStagedResponses().filter(function (response) {
       return response.newStatus() == responseStatusOptKeys.approvedForQA;
     });
 
@@ -847,17 +855,21 @@ Audit.BulkEditResponse.Load = function () {
         responseStatusOptKeys.approvedForQA,
         function (bDoneBreakingReqPermisions) {
           // commit all after breaking permissions.
-          vm.arrMutatedResponses().forEach(function (response) {
-            m_fnCommitResponse(response);
-          });
+          m_fnRunCommitLoop();
         }
       );
     } else {
       // go ahead and commit all.
-      vm.arrMutatedResponses().forEach(function (response) {
-        m_fnCommitResponse(response);
-      });
+      m_fnRunCommitLoop();
     }
+  }
+
+  function m_fnRunCommitLoop() {
+    $("#divMutatingResponses").show();
+
+    vm.arrStagedResponses().forEach(function (response) {
+      m_fnCommitResponse(response);
+    });
   }
 
   function m_fnCommitResponse(response) {

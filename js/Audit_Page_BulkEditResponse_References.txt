@@ -18,7 +18,7 @@
     </div>
   </fieldset>
 </div>
-<div id="divLoadBulkResponsesOutput" style="padding-top: 15px">
+<div id="divLoadBulkResponsesOutput" style="padding-top: 15px; display: none">
   <table class="tablesorter report">
     <thead>
       <tr>
@@ -124,11 +124,25 @@
     </tbody>
   </table>
 </div>
+<div id="divMutatingResponses" style="display: none">
+  <table>
+    <thead>
+      <tr><th>Response</th>
+      <th>Status</th></tr>
+      <tbody data-bind="foreach: arrMutatedResponses">
+        <tr data-bind="css: mutationStatusClass">
+          <td data-bind="text: title + '...'"></td>
+          <td data-bind="text: commitStatus().text"></td>
+        </tr>
+      </tbody>
+    </thead>
+  </table>
+</div>
 <div style="padding-top: 15px">
   <a
     href="javascript:void"
     id="btnCommitResponses"
-    data-bind="visible: arrMutatedResponses().length"
+    data-bind="visible: arrStagedResponses().length"
     title="Click here to Commit Changes"
   >
     <span class="ui-icon ui-icon-disk"></span>Commit Changes
