@@ -133,12 +133,12 @@ Audit.IAReport.NewReportPage = function () {
     }
 
     var publicMembers = {
-      comments,
-      newCommentText,
-      onSubmit,
-      onRemove,
-      toggleShowHistory,
-      showHistoryBool,
+      comments: comments,
+      newCommentText: newCommentText,
+      onSubmit: onSubmit,
+      onRemove: onRemove,
+      toggleShowHistory: toggleShowHistory,
+      showHistoryBool: showHistoryBool,
     };
 
     return publicMembers;
@@ -232,12 +232,12 @@ Audit.IAReport.NewReportPage = function () {
     }
 
     var publicMembers = {
-      viewers,
-      pushCurrentUser,
-      pushUser,
-      removeCurrentuser,
-      removeUserByLogin,
-      onRemove,
+      viewers: viewers,
+      pushCurrentUser: pushCurrentUser,
+      pushUser: pushUser,
+      removeCurrentuser: removeCurrentuser,
+      removeUserByLogin: removeUserByLogin,
+      onRemove: onRemove,
     };
 
     return publicMembers;
@@ -1053,9 +1053,11 @@ Audit.IAReport.NewReportPage = function () {
       }
     });
 
-    var unloadEventHandler = (oRequest) => (event) => {
-      console.log("unloading", oRequest);
-      oRequest.activeViewers.removeCurrentuser();
+    var unloadEventHandler = function (oRequest) {
+      return function (event) {
+        console.log("unloading", oRequest);
+        oRequest.activeViewers.removeCurrentuser();
+      };
     };
     var currentEventHandler;
     /* 3rd tab */
