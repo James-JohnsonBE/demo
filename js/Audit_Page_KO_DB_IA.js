@@ -189,12 +189,12 @@ Audit.IAReport.NewReportPage = function () {
 
     function removeUserByLogin(loginName) {
       // Check if our viewer is listed
-      var viewerToRemove = viewers().find(function (viewer) {
+      var viewerToRemove = viewers().filter(function (viewer) {
         return viewer.viewer == loginName;
       });
 
-      if (viewerToRemove) {
-        removeUser(viewerToRemove);
+      if (viewerToRemove.length) {
+        removeUser(viewerToRemove[0]);
       }
     }
 
@@ -1055,7 +1055,7 @@ Audit.IAReport.NewReportPage = function () {
 
     var unloadEventHandler = function (oRequest) {
       return function (event) {
-        console.log("unloading", oRequest);
+        // console.log("unloading", oRequest);
         oRequest.activeViewers.removeCurrentuser();
       };
     };
