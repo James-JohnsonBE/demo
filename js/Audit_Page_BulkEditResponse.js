@@ -584,7 +584,7 @@ Audit.BulkEditResponse.Load = function () {
       .getByTitle(Audit.Common.Utilities.GetListTitleResponses());
     var responseQuery = new SP.CamlQuery();
     responseQuery.set_viewXml(
-      '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="ReqNum"/></OrderBy>' +
+      '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="SampleNumber"/></OrderBy>' +
         '<Where><Eq><FieldRef Name="ReqNum"/><Value Type="Text">' +
         m_reqNum +
         "</Value></Eq></Where>" +
@@ -832,9 +832,32 @@ Audit.BulkEditResponse.Load = function () {
   function m_fnCommitResponses() {
     window.parent.document.getElementById("divRanBulkUpdate").innerText = 1;
 
-    vm.arrMutatedResponses().forEach(function (response) {
-      m_fnCommitResponse(response);
+    // If any of our responses are destined for QA, break the permissions on the request
+    // first.
+    var responsesForQA = vm.arrMutatedResponses().filter(function (response) {
+      return response.newStatus() == responseStatusOptKeys.approvedForQA;
     });
+
+    if (responsesForQA.length) {
+      var oRequest = m_fnGetRequestByNumber(m_requestNum);
+
+      m_fnBreakRequestPermissions(
+        oRequest.item,
+        false,
+        responseStatusOptKeys.approvedForQA,
+        function (bDoneBreakingReqPermisions) {
+          // commit all after breaking permissions.
+          vm.arrMutatedResponses().forEach(function (response) {
+            m_fnCommitResponse(response);
+          });
+        }
+      );
+    } else {
+      // go ahead and commit all.
+      vm.arrMutatedResponses().forEach(function (response) {
+        m_fnCommitResponse(response);
+      });
+    }
   }
 
   function m_fnCommitResponse(response) {
@@ -1229,178 +1252,171 @@ Audit.BulkEditResponse.Load = function () {
             var oRequest = m_fnGetRequestByNumber(m_requestNum);
 
             var bDoneBreakingReqPermisions = false;
-            m_fnBreakRequestPermissions(
-              oRequest.item,
-              false,
-              this.oListItem.get_item("ResStatus"),
-              function (bDoneBreakingReqPermisions) {
-                var cntForQA = 0;
-                if (responseDocSubmittedItems != null) {
-                  var listItemEnumerator1 =
-                    responseDocSubmittedItems.getEnumerator();
-                  while (listItemEnumerator1.moveNext()) {
-                    var oListItem1 = listItemEnumerator1.get_current();
 
-                    oListItem1.set_item(
-                      "FileLeafRef",
-                      m_fnGetNewResponseDocTitle(
-                        oListItem1,
-                        newResponseFolderTitle,
-                        oRequest.sensitivity
-                      )
-                    );
-                    oListItem1.set_item("DocumentStatus", "Sent to QA");
-                    oListItem1.update();
-                    cntForQA++;
-                  }
-                }
-                if (responseDocOpenItems != null) {
-                  var listItemEnumerator1 =
-                    responseDocOpenItems.getEnumerator();
-                  while (listItemEnumerator1.moveNext()) {
-                    var oListItem1 = listItemEnumerator1.get_current();
+            var cntForQA = 0;
+            if (responseDocSubmittedItems != null) {
+              var listItemEnumerator1 =
+                responseDocSubmittedItems.getEnumerator();
+              while (listItemEnumerator1.moveNext()) {
+                var oListItem1 = listItemEnumerator1.get_current();
 
-                    oListItem1.set_item(
-                      "FileLeafRef",
-                      m_fnGetNewResponseDocTitle(
-                        oListItem1,
-                        newResponseFolderTitle,
-                        oRequest.sensitivity
-                      )
-                    );
-                    oListItem1.set_item("DocumentStatus", "Sent to QA");
-                    oListItem1.update();
-                    cntForQA++;
-                  }
-                }
-                if (responseDocSentToQAItems != null) {
-                  var listItemEnumerator1 =
-                    responseDocSentToQAItems.getEnumerator();
-                  while (listItemEnumerator1.moveNext()) {
-                    var oListItem1 = listItemEnumerator1.get_current();
-                    cntForQA++;
-                  }
-                }
-
-                //these are the documents that are marked for deletion by the AO
-                if (responseDocMarkedForDeletionItems != null) {
-                  arrItemsToRecyle = new Array();
-
-                  var listItemEnumerator1 =
-                    responseDocMarkedForDeletionItems.getEnumerator();
-                  while (listItemEnumerator1.moveNext()) {
-                    var oListItem1 = listItemEnumerator1.get_current();
-                    arrItemsToRecyle.push(oListItem1);
-                  }
-
-                  for (var x = 0; x < arrItemsToRecyle.length; x++) {
-                    arrItemsToRecyle[x].deleteObject(); //change this to delete to remove from recycle bin
-                  }
-                }
-
-                var cntRejected = 0;
-                if (responseDocRejectedItems != null) {
-                  var listItemEnumerator1 =
-                    responseDocRejectedItems.getEnumerator();
-                  while (listItemEnumerator1.moveNext()) {
-                    var oListItem1 = listItemEnumerator1.get_current();
-                    oListItem1.set_item("DocumentStatus", "Archived");
-                    oListItem1.update();
-                    cntRejected++;
-                  }
-                }
-
-                var requestNumber = oRequest.number;
-                var requestSubject = oRequest.subject;
-                var internalDueDate = oRequest.internalDueDate;
-
-                var emailSubject =
-                  "Your Approval Has Been Requested for Response Number: " +
-                  newResponseFolderTitle;
-                var emailText =
-                  "<div>Audit Request Reference: <b>" +
-                  m_requestNum +
-                  "</b></div>" +
-                  "<div>Audit Request Subject: <b>" +
-                  requestSubject +
-                  "</b></div>" +
-                  "<div>Audit Request Due Date: <b>" +
-                  internalDueDate +
-                  "</b></div><br/>" +
-                  "<div>Response: <b><ul><li>" +
-                  newResponseFolderTitle +
-                  "</li></ul></b></div><br/>" +
-                  "<div>Please review: <b>" +
-                  cntForQA +
-                  "</b> documents.</div><br/>";
-
-                var itemCreateInfo = new SP.ListItemCreationInformation();
-                itemCreateInfo.set_folderUrl(
-                  location.protocol +
-                    "//" +
-                    location.host +
-                    Audit.Common.Utilities.GetSiteUrl() +
-                    "/Lists/" +
-                    Audit.Common.Utilities.GetListNameEmailHistory() +
-                    "/" +
-                    m_requestNum
+                oListItem1.set_item(
+                  "FileLeafRef",
+                  m_fnGetNewResponseDocTitle(
+                    oListItem1,
+                    newResponseFolderTitle,
+                    oRequest.sensitivity
+                  )
                 );
-                oListItemEmail = emailList.addItem(itemCreateInfo);
-                oListItemEmail.set_item("Title", emailSubject);
-                oListItemEmail.set_item("Body", emailText);
-                oListItemEmail.set_item(
-                  "To",
-                  Audit.Common.Utilities.GetGroupNameQA()
+                oListItem1.set_item("DocumentStatus", "Sent to QA");
+                oListItem1.update();
+                cntForQA++;
+              }
+            }
+            if (responseDocOpenItems != null) {
+              var listItemEnumerator1 = responseDocOpenItems.getEnumerator();
+              while (listItemEnumerator1.moveNext()) {
+                var oListItem1 = listItemEnumerator1.get_current();
+
+                oListItem1.set_item(
+                  "FileLeafRef",
+                  m_fnGetNewResponseDocTitle(
+                    oListItem1,
+                    newResponseFolderTitle,
+                    oRequest.sensitivity
+                  )
                 );
-                oListItemEmail.set_item("NotificationType", "QA Notification");
-                oListItemEmail.set_item("ReqNum", m_requestNum);
-                oListItemEmail.set_item("ResID", newResponseFolderTitle);
-                oListItemEmail.update();
+                oListItem1.set_item("DocumentStatus", "Sent to QA");
+                oListItem1.update();
+                cntForQA++;
+              }
+            }
+            if (responseDocSentToQAItems != null) {
+              var listItemEnumerator1 =
+                responseDocSentToQAItems.getEnumerator();
+              while (listItemEnumerator1.moveNext()) {
+                var oListItem1 = listItemEnumerator1.get_current();
+                cntForQA++;
+              }
+            }
 
-                currCtx2.executeQueryAsync(
-                  function () {
-                    if (
-                      oRequest.coversheets == null ||
-                      oRequest.coversheets.length == 0
-                    ) {
-                      document.body.style.cursor = "default";
-                      response.commitStatus(commitStatusOpts.committed);
-                    } else {
-                      for (var x = 0; x < oRequest.coversheets.length; x++) {
-                        response.m_countCSToUpdateOnEditResponse++;
+            //these are the documents that are marked for deletion by the AO
+            if (responseDocMarkedForDeletionItems != null) {
+              arrItemsToRecyle = new Array();
 
-                        //give QA access to the coversheet
-                        var bDoneBreakingCSOnEditResponse = false;
-                        liftedFunctions.m_fnBreakCoversheetPermissions(
-                          oRequest.coversheets[x].item,
-                          true,
-                          false,
-                          function () {
-                            response.m_countCSUpdatedOnEditResponse++;
+              var listItemEnumerator1 =
+                responseDocMarkedForDeletionItems.getEnumerator();
+              while (listItemEnumerator1.moveNext()) {
+                var oListItem1 = listItemEnumerator1.get_current();
+                arrItemsToRecyle.push(oListItem1);
+              }
 
-                            if (
-                              response.m_countCSToUpdateOnEditResponse ==
-                              response.m_countCSUpdatedOnEditResponse
-                            ) {
-                              document.body.style.cursor = "default";
-                              response.commitStatus(commitStatusOpts.committed);
-                            }
-                          }
-                        );
+              for (var x = 0; x < arrItemsToRecyle.length; x++) {
+                arrItemsToRecyle[x].deleteObject(); //change this to delete to remove from recycle bin
+              }
+            }
+
+            var cntRejected = 0;
+            if (responseDocRejectedItems != null) {
+              var listItemEnumerator1 =
+                responseDocRejectedItems.getEnumerator();
+              while (listItemEnumerator1.moveNext()) {
+                var oListItem1 = listItemEnumerator1.get_current();
+                oListItem1.set_item("DocumentStatus", "Archived");
+                oListItem1.update();
+                cntRejected++;
+              }
+            }
+
+            var requestNumber = oRequest.number;
+            var requestSubject = oRequest.subject;
+            var internalDueDate = oRequest.internalDueDate;
+
+            var emailSubject =
+              "Your Approval Has Been Requested for Response Number: " +
+              newResponseFolderTitle;
+            var emailText =
+              "<div>Audit Request Reference: <b>" +
+              m_requestNum +
+              "</b></div>" +
+              "<div>Audit Request Subject: <b>" +
+              requestSubject +
+              "</b></div>" +
+              "<div>Audit Request Due Date: <b>" +
+              internalDueDate +
+              "</b></div><br/>" +
+              "<div>Response: <b><ul><li>" +
+              newResponseFolderTitle +
+              "</li></ul></b></div><br/>" +
+              "<div>Please review: <b>" +
+              cntForQA +
+              "</b> documents.</div><br/>";
+
+            var itemCreateInfo = new SP.ListItemCreationInformation();
+            itemCreateInfo.set_folderUrl(
+              location.protocol +
+                "//" +
+                location.host +
+                Audit.Common.Utilities.GetSiteUrl() +
+                "/Lists/" +
+                Audit.Common.Utilities.GetListNameEmailHistory() +
+                "/" +
+                m_requestNum
+            );
+            oListItemEmail = emailList.addItem(itemCreateInfo);
+            oListItemEmail.set_item("Title", emailSubject);
+            oListItemEmail.set_item("Body", emailText);
+            oListItemEmail.set_item(
+              "To",
+              Audit.Common.Utilities.GetGroupNameQA()
+            );
+            oListItemEmail.set_item("NotificationType", "QA Notification");
+            oListItemEmail.set_item("ReqNum", m_requestNum);
+            oListItemEmail.set_item("ResID", newResponseFolderTitle);
+            oListItemEmail.update();
+
+            currCtx2.executeQueryAsync(
+              function () {
+                if (
+                  oRequest.coversheets == null ||
+                  oRequest.coversheets.length == 0
+                ) {
+                  document.body.style.cursor = "default";
+                  response.commitStatus(commitStatusOpts.committed);
+                } else {
+                  for (var x = 0; x < oRequest.coversheets.length; x++) {
+                    response.m_countCSToUpdateOnEditResponse++;
+
+                    //give QA access to the coversheet
+                    var bDoneBreakingCSOnEditResponse = false;
+                    liftedFunctions.m_fnBreakCoversheetPermissions(
+                      oRequest.coversheets[x].item,
+                      true,
+                      false,
+                      function () {
+                        response.m_countCSUpdatedOnEditResponse++;
+
+                        if (
+                          response.m_countCSToUpdateOnEditResponse ==
+                          response.m_countCSUpdatedOnEditResponse
+                        ) {
+                          document.body.style.cursor = "default";
+                          response.commitStatus(commitStatusOpts.committed);
+                        }
                       }
-                    }
-                  },
-                  function (sender, args) {
-                    alert(
-                      "Request failed: " +
-                        args.get_message() +
-                        "\n" +
-                        args.get_stackTrace()
                     );
-                    response.commitStatus(commitStatusOpts.error);
-                    document.body.style.cursor = "default";
                   }
+                }
+              },
+              function (sender, args) {
+                alert(
+                  "Request failed: " +
+                    args.get_message() +
+                    "\n" +
+                    args.get_stackTrace()
                 );
+                response.commitStatus(commitStatusOpts.error);
+                document.body.style.cursor = "default";
               }
             );
           } else {
