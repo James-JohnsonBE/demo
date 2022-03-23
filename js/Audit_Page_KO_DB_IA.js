@@ -144,12 +144,10 @@ Audit.IAReport.NewReportPage = function () {
     return publicMembers;
   }
 
-  function ActiveViewersField({
-    requestId,
-    requestListTitle,
-    columnName,
-    initialValue,
-  }) {
+  function ActiveViewersField(requestId, props) {
+    var requestListTitle = props.requestListTitle;
+    var columnName = props.columnName;
+    var initialValue = props.initialValue;
     var arrInitialViewers = [];
     // If we have comments here, try to parse them.
     if (initialValue) {
@@ -1841,8 +1839,7 @@ Audit.IAReport.NewReportPage = function () {
           columnName: "InternalStatus",
           initialValue: oListItem.get_item("InternalStatus"),
         });
-        var activeViewers = new ActiveViewersField({
-          requestId: id,
+        var activeViewers = new ActiveViewersField(id, {
           requestListTitle: Audit.Common.Utilities.GetListTitleRequests(),
           columnName: "ActiveViewers",
           initialValue: oListItem.get_item("ActiveViewers"),
@@ -2618,8 +2615,7 @@ Audit.IAReport.NewReportPage = function () {
         oResponse["specialPerms"] = specialPerms;
         oResponse["styleTag"] = styleTag;
         oResponse["toolTip"] = toolTip;
-        oResponse["activeViewers"] = new ActiveViewersField({
-          requestId: oResponse.ID,
+        oResponse["activeViewers"] = new ActiveViewersField(oResponse.ID, {
           requestListTitle: Audit.Common.Utilities.GetListTitleResponses(),
           columnName: "ActiveViewers",
           initialValue: oResponse.item.get_item("ActiveViewers"),
