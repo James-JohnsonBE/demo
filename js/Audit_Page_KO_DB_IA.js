@@ -3456,6 +3456,8 @@ Audit.IAReport.NewReportPage = function () {
     options.args = {
       bigMap: m_bigMap,
       m_fnBreakCoversheetPermissions: m_fnBreakCoversheetPermissions,
+      m_fnBreakResponsePermissions: m_fnBreakResponsePermissions,
+      m_fnBreakResponseFolderPermissions: m_fnBreakResponseFolderPermissions,
     };
     options.url =
       Audit.Common.Utilities.GetSiteUrl() +
@@ -5848,10 +5850,10 @@ Audit.IAReport.NewReportPage = function () {
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
 
-    this.currentUser = currCtx.get_web().get_currentUser();
-    this.ownerGroup = web.get_associatedOwnerGroup();
-    this.memberGroup = web.get_associatedMemberGroup();
-    this.visitorGroup = web.get_associatedVisitorGroup();
+    var currentUser = currCtx.get_web().get_currentUser();
+    var ownerGroup = web.get_associatedOwnerGroup();
+    var memberGroup = web.get_associatedMemberGroup();
+    var visitorGroup = web.get_associatedVisitorGroup();
 
     //check QA before resetting
     var permissionsToCheck = SP.PermissionKind.viewListItems;
@@ -6049,10 +6051,10 @@ Audit.IAReport.NewReportPage = function () {
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
 
-    this.currentUser = currCtx.get_web().get_currentUser();
-    this.ownerGroup = web.get_associatedOwnerGroup();
-    this.memberGroup = web.get_associatedMemberGroup();
-    this.visitorGroup = web.get_associatedVisitorGroup();
+    var currentUser = currCtx.get_web().get_currentUser();
+    var ownerGroup = web.get_associatedOwnerGroup();
+    var memberGroup = web.get_associatedMemberGroup();
+    var visitorGroup = web.get_associatedVisitorGroup();
 
     var qaHasRead = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
       oListItemFolder,

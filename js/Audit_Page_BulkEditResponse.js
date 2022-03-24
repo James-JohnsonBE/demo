@@ -42,6 +42,26 @@ Audit.BulkEditResponse.Load = function () {
       text: "Breaking Permissions",
       icon: "ui-icon ui-icon-key",
     },
+    folderPermissions: {
+      text: "Breaking Folder Permissions",
+      icon: "ui-icon ui-icon-key",
+    },
+    coversheetPermissions: {
+      text: "Breaking Coversheet Permissions",
+      icon: "ui-icon ui-icon-key",
+    },
+    returningToAO: {
+      text: "Returning to AO",
+      icon: "ui-icon ui-icon-arrowreturn-1-w",
+    },
+    approvingForQA: {
+      text: "Approving for QA",
+      icon: "ui-icon ui-icon-transferthick-e-w",
+    },
+    sendingEmail: {
+      text: "Sending Email",
+      icon: "ui-icon ui-icon-mail-open",
+    },
     committed: {
       text: "Changes Committed",
       icon: "ui-icon ui-icon-circle-check",
@@ -416,6 +436,15 @@ Audit.BulkEditResponse.Load = function () {
         if (isMutated) {
           // Now check our conditionals
           // if closed, we need date + closedby
+          // switch(self.newStatus()) {
+          //   case responseStatusOptKeys.closed:
+          //     if (!self.newClosedDate.datetime() || !self.newClosedBy.userId()) {
+          //       self.commitStatus(commitStatusOpts.pendingClose);
+          //     } else {
+          //       self.commitStatus(commitStatusOpts.staged);
+          //     }
+          //     break;
+          // }
           if (self.newStatus() === responseStatusOptKeys.closed) {
             if (!self.newClosedDate.datetime() || !self.newClosedBy.userId()) {
               self.commitStatus(commitStatusOpts.pendingClose);
@@ -1093,6 +1122,7 @@ Audit.BulkEditResponse.Load = function () {
 
         var responseFolder = null;
         var listItemEnumerator = responseFolderItems.getEnumerator();
+        response.commitStatus(commitStatusOpts.folderPermissions);
         while (listItemEnumerator.moveNext()) {
           responseFolder = listItemEnumerator.get_current();
           m_fnBreakResponseFolderPermissions(
@@ -1119,6 +1149,7 @@ Audit.BulkEditResponse.Load = function () {
               "3-Returned to Action Office" &&
             m_responseStatus != this.oListItem.get_item("ResStatus")
           ) {
+            response.commitStatus(commitStatusOpts.returningToAO);
             //status changed
             var oRequest = m_fnGetRequestByNumber(m_requestNum);
 
@@ -1126,54 +1157,20 @@ Audit.BulkEditResponse.Load = function () {
               "Please Update your Response for Request Number: " + m_requestNum;
             var emailText = "";
 
-            if (
-              this.oListItem.get_item("ResStatus") ==
-              "3-Returned to Action Office"
-            ) {
-              emailText =
-                "<div>Audit Request Reference: <b>{REQUEST_NUMBER}</b></div>" +
-                "<div>Audit Request Subject: <b>{REQUEST_SUBJECT}</b></div>" +
-                "<div>Audit Request Due Date: <b>{REQUEST_DUEDATE}</b></div>" +
-                "{POC}" +
-                "<div>{RETURN_REASON}</div><br/>" +
-                "<div>Please provide responses for the following Sample(s): </div><br/>" +
-                "<div>{RESPONSE_TITLES}</div>";
+            emailText =
+              "<div>Audit Request Reference: <b>{REQUEST_NUMBER}</b></div>" +
+              "<div>Audit Request Subject: <b>{REQUEST_SUBJECT}</b></div>" +
+              "<div>Audit Request Due Date: <b>{REQUEST_DUEDATE}</b></div>" +
+              "{POC}" +
+              "<div>{RETURN_REASON}</div><br/>" +
+              "<div>Please provide responses for the following Sample(s): </div><br/>" +
+              "<div>{RESPONSE_TITLES}</div>";
 
-              var returnReason = this.oListItem.get_item("ReturnReason");
-              if (returnReason == null) returnReason = "";
-              else returnReason = "Return Reason: " + returnReason;
+            var returnReason = this.oListItem.get_item("ReturnReason");
+            if (returnReason == null) returnReason = "";
+            else returnReason = "Return Reason: " + returnReason;
 
-              emailText = emailText.replace("{RETURN_REASON}", returnReason);
-            } else {
-              emailText =
-                "<div>Audit Request Reference: <b>{REQUEST_NUMBER}</b></div>" +
-                "<div>Audit Request Subject: <b>{REQUEST_SUBJECT}</b></div>" +
-                "<div>Audit Request Due Date: <b>{REQUEST_DUEDATE}</b></div>" +
-                "{POC}" +
-                "{REQUEST_RELATEDAUDIT}<br/>" +
-                "<div>Below are the listed action items that have been requested for the Audit: </div>" +
-                "<div>{REQUEST_ACTIONITEMS}<br/></div>" +
-                "<div>Please provide responses for the following Sample(s): </div><br/>" +
-                "<div>{RESPONSE_TITLES}</div>";
-
-              emailText = emailText.replace(
-                "{REQUEST_ACTIONITEMS}",
-                oRequest.actionItems
-              );
-
-              if (oRequest.relatedAudit == null || oRequest.relatedAudit == "")
-                emailText = emailText.replace(
-                  "{REQUEST_RELATEDAUDIT}",
-                  "<div>This is a new request, not similar to previous audit cycles.</div>"
-                );
-              else
-                emailText = emailText.replace(
-                  "{REQUEST_RELATEDAUDIT}",
-                  "<div>This request is similar to this previous cycle audit: " +
-                    oRequest.relatedAudit +
-                    "</div>"
-                );
-            }
+            emailText = emailText.replace("{RETURN_REASON}", returnReason);
 
             emailText = emailText.replace("{REQUEST_NUMBER}", m_requestNum);
             emailText = emailText.replace(
@@ -1260,6 +1257,8 @@ Audit.BulkEditResponse.Load = function () {
                 "6-Reposted After Rejection") &&
             m_responseStatus != this.oListItem.get_item("ResStatus")
           ) {
+            response.commitStatus(commitStatusOpts.approvingForQA);
+
             //status changed
             var oRequest = m_fnGetRequestByNumber(m_requestNum);
 
@@ -1314,7 +1313,7 @@ Audit.BulkEditResponse.Load = function () {
 
             //these are the documents that are marked for deletion by the AO
             if (responseDocMarkedForDeletionItems != null) {
-              arrItemsToRecyle = new Array();
+              var arrItemsToRecyle = new Array();
 
               var listItemEnumerator1 =
                 responseDocMarkedForDeletionItems.getEnumerator();
@@ -1340,53 +1339,55 @@ Audit.BulkEditResponse.Load = function () {
               }
             }
 
-            var requestNumber = oRequest.number;
-            var requestSubject = oRequest.subject;
-            var internalDueDate = oRequest.internalDueDate;
+            response.commitStatus(commitStatusOpts.sendingEmail);
+            {
+              var requestNumber = oRequest.number;
+              var requestSubject = oRequest.subject;
+              var internalDueDate = oRequest.internalDueDate;
 
-            var emailSubject =
-              "Your Approval Has Been Requested for Response Number: " +
-              newResponseFolderTitle;
-            var emailText =
-              "<div>Audit Request Reference: <b>" +
-              m_requestNum +
-              "</b></div>" +
-              "<div>Audit Request Subject: <b>" +
-              requestSubject +
-              "</b></div>" +
-              "<div>Audit Request Due Date: <b>" +
-              internalDueDate +
-              "</b></div><br/>" +
-              "<div>Response: <b><ul><li>" +
-              newResponseFolderTitle +
-              "</li></ul></b></div><br/>" +
-              "<div>Please review: <b>" +
-              cntForQA +
-              "</b> documents.</div><br/>";
+              var emailSubject =
+                "Your Approval Has Been Requested for Response Number: " +
+                newResponseFolderTitle;
+              var emailText =
+                "<div>Audit Request Reference: <b>" +
+                m_requestNum +
+                "</b></div>" +
+                "<div>Audit Request Subject: <b>" +
+                requestSubject +
+                "</b></div>" +
+                "<div>Audit Request Due Date: <b>" +
+                internalDueDate +
+                "</b></div><br/>" +
+                "<div>Response: <b><ul><li>" +
+                newResponseFolderTitle +
+                "</li></ul></b></div><br/>" +
+                "<div>Please review: <b>" +
+                cntForQA +
+                "</b> documents.</div><br/>";
 
-            var itemCreateInfo = new SP.ListItemCreationInformation();
-            itemCreateInfo.set_folderUrl(
-              location.protocol +
-                "//" +
-                location.host +
-                Audit.Common.Utilities.GetSiteUrl() +
-                "/Lists/" +
-                Audit.Common.Utilities.GetListNameEmailHistory() +
-                "/" +
-                m_requestNum
-            );
-            oListItemEmail = emailList.addItem(itemCreateInfo);
-            oListItemEmail.set_item("Title", emailSubject);
-            oListItemEmail.set_item("Body", emailText);
-            oListItemEmail.set_item(
-              "To",
-              Audit.Common.Utilities.GetGroupNameQA()
-            );
-            oListItemEmail.set_item("NotificationType", "QA Notification");
-            oListItemEmail.set_item("ReqNum", m_requestNum);
-            oListItemEmail.set_item("ResID", newResponseFolderTitle);
-            oListItemEmail.update();
-
+              var itemCreateInfo = new SP.ListItemCreationInformation();
+              itemCreateInfo.set_folderUrl(
+                location.protocol +
+                  "//" +
+                  location.host +
+                  Audit.Common.Utilities.GetSiteUrl() +
+                  "/Lists/" +
+                  Audit.Common.Utilities.GetListNameEmailHistory() +
+                  "/" +
+                  m_requestNum
+              );
+              oListItemEmail = emailList.addItem(itemCreateInfo);
+              oListItemEmail.set_item("Title", emailSubject);
+              oListItemEmail.set_item("Body", emailText);
+              oListItemEmail.set_item(
+                "To",
+                Audit.Common.Utilities.GetGroupNameQA()
+              );
+              oListItemEmail.set_item("NotificationType", "QA Notification");
+              oListItemEmail.set_item("ReqNum", m_requestNum);
+              oListItemEmail.set_item("ResID", newResponseFolderTitle);
+              oListItemEmail.update();
+            }
             currCtx2.executeQueryAsync(
               function () {
                 if (
@@ -1398,7 +1399,9 @@ Audit.BulkEditResponse.Load = function () {
                 } else {
                   for (var x = 0; x < oRequest.coversheets.length; x++) {
                     response.m_countCSToUpdateOnEditResponse++;
-
+                    response.commitStatus(
+                      commitStatusOpts.coversheetPermissions
+                    );
                     //give QA access to the coversheet
                     var bDoneBreakingCSOnEditResponse = false;
                     liftedFunctions.m_fnBreakCoversheetPermissions(
@@ -1499,12 +1502,18 @@ Audit.BulkEditResponse.Load = function () {
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
 
-    this.currentUser = currCtx.get_web().get_currentUser();
-    this.ownerGroup = web.get_associatedOwnerGroup();
-    this.memberGroup = web.get_associatedMemberGroup();
-    this.visitorGroup = web.get_associatedVisitorGroup();
+    var currentUser = currCtx.get_web().get_currentUser();
+    var ownerGroup = web.get_associatedOwnerGroup();
+    var memberGroup = web.get_associatedMemberGroup();
+    var visitorGroup = web.get_associatedVisitorGroup();
 
+    //check QA before resetting
     var permissionsToCheck = SP.PermissionKind.viewListItems;
+    var qaHasRead = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
+      oListItem,
+      Audit.Common.Utilities.GetGroupNameQA(),
+      permissionsToCheck
+    );
     var special1HasRead = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
       oListItem,
       Audit.Common.Utilities.GetGroupNameSpecialPerm1(),
@@ -1517,6 +1526,7 @@ Audit.BulkEditResponse.Load = function () {
     );
 
     if (!oListItem.get_hasUniqueRoleAssignments()) {
+      qaHasRead = false;
       special1HasRead = false;
       special2HasRead = false;
     }
@@ -1586,7 +1596,37 @@ Audit.BulkEditResponse.Load = function () {
       }
     }
 
-    if (special1HasRead && oListItem.get_item("ResStatus") == "7-Closed") {
+    if (
+      qaHasRead ||
+      oListItem.get_item("ResStatus") == "4-Approved for QA" ||
+      oListItem.get_item("ResStatus") == "6-Reposted After Rejection"
+    ) {
+      //make sure qa gets read if it had access
+      var spGroupQA = Audit.Common.Utilities.GetSPSiteGroup(
+        Audit.Common.Utilities.GetGroupNameQA()
+      );
+      if (spGroupQA != null) {
+        if (
+          (oListItem.get_item("ResStatus") == "4-Approved for QA" ||
+            oListItem.get_item("ResStatus") == "6-Reposted After Rejection") &&
+          checkStatus
+        )
+          oListItem
+            .get_roleAssignments()
+            .add(spGroupQA, roleDefBindingCollRestrictedContribute);
+        else
+          oListItem
+            .get_roleAssignments()
+            .add(spGroupQA, roleDefBindingCollRestrictedRead);
+      }
+    }
+
+    if (
+      special1HasRead &&
+      (oListItem.get_item("ResStatus") == "4-Approved for QA" ||
+        oListItem.get_item("ResStatus") == "6-Reposted After Rejection" ||
+        oListItem.get_item("ResStatus") == "7-Closed")
+    ) {
       var group1SpecialPerm = Audit.Common.Utilities.GetSPSiteGroup(
         Audit.Common.Utilities.GetGroupNameSpecialPerm1()
       );
@@ -1596,7 +1636,12 @@ Audit.BulkEditResponse.Load = function () {
           .add(group1SpecialPerm, roleDefBindingCollRestrictedRead);
     }
 
-    if (special2HasRead && oListItem.get_item("ResStatus") == "7-Closed") {
+    if (
+      special2HasRead &&
+      (oListItem.get_item("ResStatus") == "4-Approved for QA" ||
+        oListItem.get_item("ResStatus") == "6-Reposted After Rejection" ||
+        oListItem.get_item("ResStatus") == "7-Closed")
+    ) {
       var group2SpecialPerm = Audit.Common.Utilities.GetSPSiteGroup(
         Audit.Common.Utilities.GetGroupNameSpecialPerm2()
       );
