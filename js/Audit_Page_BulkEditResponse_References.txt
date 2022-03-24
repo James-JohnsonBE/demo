@@ -124,14 +124,16 @@
     </tbody>
   </table>
 </div>
-<div id="divMutatingResponses" class="tablesorter report" style="display: none">
+<div id="divMutatingResponses" class="tablesorter report" >
   <table>
     <thead>
       <tr><th>Response</th>
-      <th>Status</th></tr>
+        <th>New Status</th>
+      <th>Commit Status</th></tr>
       <tbody data-bind="foreach: arrMutatedResponses">
         <tr data-bind="css: mutationStatusClass">
-          <td data-bind="text: title + '...'"></td>
+          <td data-bind="text: title"></td>
+          <td data-bind="text: newStatus"></td>
           <td data-bind="text: commitStatus().text"></td>
         </tr>
       </tbody>

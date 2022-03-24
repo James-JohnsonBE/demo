@@ -30,6 +30,11 @@ Audit.BulkEditResponse.Load = function () {
       icon: "ui-icon ui-icon-notice",
       class: "pending",
     },
+    pendingApproveForQA: {
+      text: "Pending Approval for QA, No Sensitivity Set",
+      icon: "ui-icon ui-icon-notice",
+      class: "pending",
+    },
     staged: {
       text: "Staged - Ready to Commit",
       icon: "ui-icon ui-icon-pencil",
@@ -436,28 +441,33 @@ Audit.BulkEditResponse.Load = function () {
         if (isMutated) {
           // Now check our conditionals
           // if closed, we need date + closedby
-          // switch(self.newStatus()) {
-          //   case responseStatusOptKeys.closed:
-          //     if (!self.newClosedDate.datetime() || !self.newClosedBy.userId()) {
-          //       self.commitStatus(commitStatusOpts.pendingClose);
-          //     } else {
-          //       self.commitStatus(commitStatusOpts.staged);
-          //     }
-          //     break;
-          // }
-          if (self.newStatus() === responseStatusOptKeys.closed) {
-            if (!self.newClosedDate.datetime() || !self.newClosedBy.userId()) {
-              self.commitStatus(commitStatusOpts.pendingClose);
-            } else {
+          switch (self.newStatus()) {
+            case responseStatusOptKeys.closed:
+              if (
+                !self.newClosedDate.datetime() ||
+                !self.newClosedBy.userId()
+              ) {
+                self.commitStatus(commitStatusOpts.pendingClose);
+              } else {
+                self.commitStatus(commitStatusOpts.staged);
+              }
+              break;
+            case responseStatusOptKeys.returnedToAO:
+              if (!self.newReturnReason()) {
+                self.commitStatus(commitStatusOpts.pendingReturnToAO);
+              } else {
+                self.commitStatus(commitStatusOpts.staged);
+              }
+              break;
+            case responseStatusOptKeys.approvedForQA:
+              if (m_oRequest.sensitivity == "None") {
+                self.commitStatus(commitStatusOpts.pendingApproveForQA);
+              } else {
+                self.commitStatus(commitStatusOpts.staged);
+              }
+              break;
+            default:
               self.commitStatus(commitStatusOpts.staged);
-            }
-          } else if (
-            self.newStatus() === responseStatusOptKeys.returnedToAO &&
-            !self.newReturnReason()
-          ) {
-            self.commitStatus(commitStatusOpts.pendingReturnToAO);
-          } else {
-            self.commitStatus(commitStatusOpts.staged);
           }
         } else {
           self.commitStatus("");
@@ -612,7 +622,7 @@ Audit.BulkEditResponse.Load = function () {
     //request status has internal name as response status in the request list
     currCtx.load(
       m_requestItems,
-      "Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice)"
+      "Include(ID, Title, ReqSubject, ReqStatus, IsSample, Sensitivity, ReqDueDate, InternalDueDate, ActionOffice, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
     );
 
     var responseList = web
@@ -747,6 +757,7 @@ Audit.BulkEditResponse.Load = function () {
       var number = oListItem.get_item("Title");
       if (number != m_reqNum) continue;
       var status = oListItem.get_item("ReqStatus");
+      var sensitivity = oListItem.get_item("Sensitivity");
 
       var sample = oListItem.get_item("IsSample");
       var arrActionOffice = oListItem.get_item("ActionOffice");
@@ -760,6 +771,7 @@ Audit.BulkEditResponse.Load = function () {
       requestObject["ID"] = id;
       requestObject["number"] = number;
       requestObject["status"] = status;
+      requestObject["sensitivity"] = sensitivity;
       requestObject["sample"] = sample;
       requestObject["responses"] = new Array();
       requestObject["actionOffice"] = actionOffice;
@@ -877,25 +889,26 @@ Audit.BulkEditResponse.Load = function () {
 
     if (responsesForQA.length) {
       var oRequest = m_fnGetRequestByNumber(m_requestNum);
-
       m_fnBreakRequestPermissions(
-        oRequest.item,
+        m_oRequest.item,
         false,
         responseStatusOptKeys.approvedForQA,
-        function (bDoneBreakingReqPermisions) {
-          // commit all after breaking permissions.
-          m_fnRunCommitLoop();
-        }
+        m_fnRunCommitLoop
       );
     } else {
       // go ahead and commit all.
-      m_fnRunCommitLoop();
+      m_fnRunCommitLoop(true);
     }
   }
 
-  function m_fnRunCommitLoop() {
-    $("#divMutatingResponses").show();
-
+  function m_fnRunCommitLoop(bDoneBreakingPermissions) {
+    if (!bDoneBreakingPermissions) {
+      alert("error breaking request permissions");
+      setTimeout(function () {
+        m_fnRefresh();
+      }, 500);
+      return;
+    }
     vm.arrStagedResponses().forEach(function (response) {
       m_fnCommitResponse(response);
     });
@@ -1899,10 +1912,10 @@ Audit.BulkEditResponse.Load = function () {
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
 
-    this.currentUser = web.get_currentUser();
-    this.ownerGroup = web.get_associatedOwnerGroup();
-    this.memberGroup = web.get_associatedMemberGroup();
-    this.visitorGroup = web.get_associatedVisitorGroup();
+    var currentUser = web.get_currentUser();
+    var ownerGroup = web.get_associatedOwnerGroup();
+    var memberGroup = web.get_associatedMemberGroup();
+    var visitorGroup = web.get_associatedVisitorGroup();
 
     var qaHasRead = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
       oListItem,
@@ -1941,13 +1954,7 @@ Audit.BulkEditResponse.Load = function () {
       web.get_roleDefinitions().getByName("Restricted Read")
     );
 
-    var roleDefBindingCollRestrictedContribute =
-      SP.RoleDefinitionBindingCollection.newObject(currCtx);
-    roleDefBindingCollRestrictedContribute.add(
-      web.get_roleDefinitions().getByName("Restricted Contribute")
-    );
-
-    //add site associated groups
+    // add site associated groups
     oListItem.get_roleAssignments().add(ownerGroup, roleDefBindingCollAdmin);
     oListItem
       .get_roleAssignments()
@@ -2100,6 +2107,7 @@ Audit.BulkEditResponse.Load = function () {
       oListItem: oListItem,
       OnComplete: OnComplete,
     };
+
     currCtx.executeQueryAsync(
       Function.createDelegate(data, onUpdateReqPermsSucceeed),
       Function.createDelegate(data, onUpdateReqPermsFailed)
