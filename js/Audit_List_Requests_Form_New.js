@@ -25,6 +25,18 @@ Audit.Requests.FormNew = function () {
 
   $(".ms-RadioText").find("input[type='checkbox']").attr("Checked", "checked");
 
+  // Add our event listeners for the action office select
+  // $("select[title='Action Office selected values']").change(function () {
+  //   console.log("change is due");
+  // });
+
+  // newOpt = document.createElement('option')
+  // newOpt.value = '320'
+  // newOpt.title = 'CST'
+  // newOpt.innerHTML = 'CST'
+
+  // document.querySelector("select[title='Action Office selected values']").appendChild(newOpt)
+
   var publicMembers = {
     GetSiteUrl: function () {
       return m_siteUrl;

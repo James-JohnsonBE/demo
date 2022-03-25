@@ -790,6 +790,11 @@ Audit.IAReport.NewReportPage = function () {
         m_fnViewEmailHistoryFolder(oRequest.number);
     };
 
+    self.ClickSyncEmailActionOffices = function () {
+      var oRequest = self.currentRequest();
+      if (oRequest && oRequest.ID) m_fnSyncEmailActionOffices(oRequest.ID);
+    };
+
     self.ClickViewResponse = function (oResponse) {
       var oRequest = self.currentRequest();
       if (oRequest && oRequest.number && oResponse)
@@ -3453,6 +3458,8 @@ Audit.IAReport.NewReportPage = function () {
     options.dialogReturnValueCallback = OnCallbackFormBulkEditResponse;
     options.height = 850;
     options.width = 1100;
+    options.allowMaximize = true;
+    options.allowResize = true;
     options.args = {
       bigMap: m_bigMap,
       m_fnBreakCoversheetPermissions: m_fnBreakCoversheetPermissions,
@@ -4113,6 +4120,69 @@ Audit.IAReport.NewReportPage = function () {
           "</div>"
       );
     return emailText;
+  }
+
+  // Synchronize email action offices with AO's
+  function m_fnSyncEmailActionOffices(requestID) {
+    if (!m_bIsSiteOwner) {
+      SP.UI.Notify.addNotification(
+        "You do not have access to perform this action...",
+        false
+      );
+      return;
+    }
+
+    if (
+      confirm(
+        "Are you sure you would like to replace all Email Action Offices with current Action Offices?"
+      )
+    ) {
+      m_bIsTransactionExecuting = true;
+
+      var currCtx = new SP.ClientContext.get_current();
+      var web = currCtx.get_web();
+
+      oRequest = m_fnGetRequestByID(requestID);
+
+      if (oRequest == null) {
+        alert("Error occurred");
+        return;
+      }
+
+      if (oRequest.status != "Open" && oRequest.status != "ReOpened") {
+        SP.UI.Notify.addNotification("This request is not Open.", false);
+        return;
+      }
+
+      //var arrActionOffice = new Array();
+      var emailActionOffices = oRequest.item.get_item("ActionOffice");
+
+      var requestList = web
+        .get_lists()
+        .getByTitle(Audit.Common.Utilities.GetListTitleRequests());
+      oListItem = requestList.getItemById(requestID);
+
+      oListItem.set_item("EmailActionOffice", emailActionOffices);
+      oListItem.update();
+
+      currCtx.executeQueryAsync(
+        function () {
+          SP.UI.Notify.addNotification("Email Action Offices Set. ", false);
+          setTimeout(function () {
+            m_fnRefresh();
+          }, 1000);
+        },
+        function (sender, args) {
+          alert(
+            "Request failed: " +
+              args.get_message() +
+              "\n" +
+              args.get_stackTrace()
+          );
+          m_fnRefresh();
+        }
+      );
+    }
   }
 
   var m_emailCount = 0;

@@ -962,6 +962,15 @@
                       History</a
                     >
                   </div>
+                  <div id="divSyncEmailActionOffices" style="padding-top: 5px">
+                    <a
+                      title="Synchronize Email Action Offices"
+                      href="javascript:void(0)"
+                      data-bind="click: $root.ClickSyncEmailActionOffices"
+                      ><span class="ui-icon ui-icon-transferthick-e-w"></span>Synchronize
+                      Email Action Offices</a
+                    >
+                  </div>
                 </fieldset>
               </td>
             </tr>
