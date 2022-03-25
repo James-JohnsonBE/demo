@@ -5850,10 +5850,10 @@ Audit.IAReport.NewReportPage = function () {
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
 
-    var currentUser = currCtx.get_web().get_currentUser();
-    var ownerGroup = web.get_associatedOwnerGroup();
-    var memberGroup = web.get_associatedMemberGroup();
-    var visitorGroup = web.get_associatedVisitorGroup();
+    this.currentUser = currCtx.get_web().get_currentUser();
+    this.ownerGroup = web.get_associatedOwnerGroup();
+    this.memberGroup = web.get_associatedMemberGroup();
+    this.visitorGroup = web.get_associatedVisitorGroup();
 
     //check QA before resetting
     var permissionsToCheck = SP.PermissionKind.viewListItems;
@@ -6051,10 +6051,10 @@ Audit.IAReport.NewReportPage = function () {
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
 
-    var currentUser = currCtx.get_web().get_currentUser();
-    var ownerGroup = web.get_associatedOwnerGroup();
-    var memberGroup = web.get_associatedMemberGroup();
-    var visitorGroup = web.get_associatedVisitorGroup();
+    this.currentUser = currCtx.get_web().get_currentUser();
+    this.ownerGroup = web.get_associatedOwnerGroup();
+    this.memberGroup = web.get_associatedMemberGroup();
+    this.visitorGroup = web.get_associatedVisitorGroup();
 
     var qaHasRead = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
       oListItemFolder,

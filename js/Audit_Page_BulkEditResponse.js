@@ -19,6 +19,35 @@ function InitBulk() {
 Audit.BulkEditResponse.Init = function () {};
 var vm = {};
 Audit.BulkEditResponse.Load = function () {
+  var permStatusOpts = {
+    none: {
+      text: "No",
+      class: "",
+    },
+    unchanged: {
+      text: "Unchanged",
+      class: "",
+    },
+    pending: {
+      text: "Pending",
+      class: "mutated",
+    },
+    breaking: {
+      text: "Breaking",
+      class: "pending",
+      allowRetry: true,
+    },
+    success: {
+      text: "Success",
+      class: "committed",
+    },
+    error: {
+      text: "Error",
+      class: "error",
+      allowRetry: true,
+    },
+  };
+
   var commitStatusOpts = {
     pendingClose: {
       text: "Pending Close - Date, Closed By Required",
@@ -42,30 +71,37 @@ Audit.BulkEditResponse.Load = function () {
     saving: {
       text: "Saving Changes",
       icon: "ui-icon ui-icon-transfer-e-w",
+      allowRetry: true,
     },
     permissions: {
       text: "Breaking Permissions",
       icon: "ui-icon ui-icon-key",
+      allowRetry: true,
     },
     folderPermissions: {
       text: "Breaking Folder Permissions",
       icon: "ui-icon ui-icon-key",
+      allowRetry: true,
     },
     coversheetPermissions: {
       text: "Breaking Coversheet Permissions",
       icon: "ui-icon ui-icon-key",
+      allowRetry: true,
     },
     returningToAO: {
       text: "Returning to AO",
       icon: "ui-icon ui-icon-arrowreturn-1-w",
+      allowRetry: true,
     },
     approvingForQA: {
       text: "Approving for QA",
       icon: "ui-icon ui-icon-transferthick-e-w",
+      allowRetry: true,
     },
     sendingEmail: {
       text: "Sending Email",
       icon: "ui-icon ui-icon-mail-open",
+      allowRetry: true,
     },
     committed: {
       text: "Changes Committed",
@@ -76,6 +112,7 @@ Audit.BulkEditResponse.Load = function () {
       text: "Error",
       icon: "ui-icon ui-icon-alert",
       class: "error",
+      allowRetry: true,
     },
   };
 
@@ -380,6 +417,7 @@ Audit.BulkEditResponse.Load = function () {
     self.number = "";
     self.title = "";
     self.item = {};
+    self.folder = {};
     self.sample = "";
     self.actionOffice = {};
     self.status = "";
@@ -406,6 +444,131 @@ Audit.BulkEditResponse.Load = function () {
     self.newClosedBy = new PeopleField();
     self.newPOC = new PeopleField();
     self.newPOCCC = new PeopleField();
+
+    self.responseItemPermissionsStatus = ko.observable(permStatusOpts.pending);
+    self.responseFolderPermissionsStatus = ko.observable(
+      permStatusOpts.pending
+    );
+
+    self.commit = function () {
+      m_fnCommitResponse(self);
+    };
+
+    self.breakResponseItemPermissions = function () {
+      var response = self;
+
+      var currCtx = new SP.ClientContext.get_current();
+      var web = currCtx.get_web();
+
+      //get the response that was edited
+      var responseList = web
+        .get_lists()
+        .getByTitle(Audit.Common.Utilities.GetListTitleResponses());
+      var responseQuery = new SP.CamlQuery();
+      responseQuery.set_viewXml(
+        "<View><Query><FieldRef Name=\"Modified\" Ascending=\"FALSE\"/><Where><Eq><FieldRef Name='ID'/><Value Type='Text'>" +
+          response.ID +
+          "</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>"
+      );
+      var responseItems = responseList.getItems(responseQuery);
+      currCtx.load(
+        responseItems,
+        "Include(ID, Title, ActionOffice, POC, POCCC, ReturnReason, ResStatus, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+      );
+
+      currCtx.executeQueryAsync(
+        function () {
+          var oListItem = null;
+          var listItemEnumerator = responseItems.getEnumerator();
+          while (listItemEnumerator.moveNext()) {
+            oListItem = listItemEnumerator.get_current();
+            response.item = oListItem;
+            response.responseItemPermissionsStatus(permStatusOpts.breaking);
+            m_fnBreakResponsePermissions(
+              oListItem,
+              false,
+              true,
+              function () {
+                response.responseItemPermissionsStatus(permStatusOpts.success);
+              },
+              function () {
+                response.responseItemPermissionsStatus(permStatusOpts.error);
+              }
+            );
+            break;
+          }
+        },
+        function (sender, args) {
+          response.responseItemPermissionsStatus(permStatusOpts.error);
+          //handle error
+          alert(
+            "Request failed: " +
+              args.get_message() +
+              "\n" +
+              args.get_stackTrace()
+          );
+        }
+      );
+    };
+
+    self.breakResponseFolderPermissions = function () {
+      var response = self;
+
+      var currCtx = new SP.ClientContext.get_current();
+      var web = currCtx.get_web();
+
+      var responseDocLib = web
+        .get_lists()
+        .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
+      var responseDocQuery = new SP.CamlQuery();
+      responseDocQuery.set_viewXml(
+        "<View><Query><Where><Eq><FieldRef Name='FileLeafRef'/><Value Type='Text'>" +
+          response.title +
+          "</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>"
+      );
+      var responseFolderItems = responseDocLib.getItems(responseDocQuery);
+      currCtx.load(
+        responseFolderItems,
+        "Include( Title, DisplayName, Id, EncodedAbsUrl, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+      );
+
+      currCtx.executeQueryAsync(
+        function () {
+          var responseFolder = null;
+          var listItemEnumerator = responseFolderItems.getEnumerator();
+          while (listItemEnumerator.moveNext()) {
+            responseFolder = listItemEnumerator.get_current();
+            response.folder = responseFolder;
+            response.responseFolderPermissionsStatus(permStatusOpts.breaking);
+            m_fnBreakResponseFolderPermissions(
+              responseFolder,
+              response.item,
+              false,
+              true,
+              function () {
+                response.responseFolderPermissionsStatus(
+                  permStatusOpts.success
+                );
+              },
+              function () {
+                response.responseFolderPermissionsStatus(permStatusOpts.error);
+              }
+            );
+            break;
+          }
+        },
+        function (sender, args) {
+          response.responseFolderPermissionsStatus(permStatusOpts.error);
+          //handle error
+          alert(
+            "Request failed: " +
+              args.get_message() +
+              "\n" +
+              args.get_stackTrace()
+          );
+        }
+      );
+    };
 
     self.mutations = ko.observableArray([]);
 
@@ -523,6 +686,10 @@ Audit.BulkEditResponse.Load = function () {
     var self = this;
 
     self.requestNum = ko.observable();
+    // Track our status
+    self.requestItemPermissionsStatus = ko.observable(permStatusOpts.unchanged);
+    self.requestItemPermissionsWillBreak = ko.observable(permStatusOpts.none);
+
     self.arrActionOffices = ko.observable();
     self.arrResponses = ko.observableArray();
 
@@ -541,6 +708,22 @@ Audit.BulkEditResponse.Load = function () {
         );
         // return response.commitStatus() === commitStatusOpts.committed;
       });
+    });
+
+    // Check if we're breaking the request permissions
+    self.arrStagedResponses.subscribe(function (stagedResponses) {
+      var breakingRequestPermissions = false;
+      stagedResponses.forEach(function (response) {
+        if (response.newStatus() == responseStatusOptKeys.approvedForQA) {
+          breakingRequestPermissions = true;
+          return;
+        }
+      });
+      self.requestItemPermissionsWillBreak(
+        breakingRequestPermissions
+          ? permStatusOpts.pending
+          : permStatusOpts.none
+      );
     });
 
     self.responseStatusOpts = ko.pureComputed(function () {
@@ -889,11 +1072,18 @@ Audit.BulkEditResponse.Load = function () {
 
     if (responsesForQA.length) {
       var oRequest = m_fnGetRequestByNumber(m_requestNum);
+      vm.requestItemPermissionsStatus(permStatusOpts.breaking);
       m_fnBreakRequestPermissions(
         m_oRequest.item,
         false,
         responseStatusOptKeys.approvedForQA,
-        m_fnRunCommitLoop
+        function () {
+          vm.requestItemPermissionsStatus(permStatusOpts.success);
+          m_fnRunCommitLoop();
+        },
+        function () {
+          vm.requestItemPermissionsStatus(permStatusOpts.error);
+        }
       );
     } else {
       // go ahead and commit all.
@@ -901,14 +1091,7 @@ Audit.BulkEditResponse.Load = function () {
     }
   }
 
-  function m_fnRunCommitLoop(bDoneBreakingPermissions) {
-    if (!bDoneBreakingPermissions) {
-      alert("error breaking request permissions");
-      setTimeout(function () {
-        m_fnRefresh();
-      }, 500);
-      return;
-    }
+  function m_fnRunCommitLoop() {
     vm.arrStagedResponses().forEach(function (response) {
       m_fnCommitResponse(response);
     });
@@ -1124,7 +1307,19 @@ Audit.BulkEditResponse.Load = function () {
         while (listItemEnumerator.moveNext()) {
           oListItem = listItemEnumerator.get_current();
           newResponseFolderTitle = oListItem.get_item("Title");
-          m_fnBreakResponsePermissions(oListItem, false, true);
+          response.responseItemPermissionsStatus(permStatusOpts.breaking);
+          // TODO: add the response status updates on failure and success in below functions
+          m_fnBreakResponsePermissions(
+            oListItem,
+            false,
+            true,
+            function () {
+              response.responseItemPermissionsStatus(permStatusOpts.success);
+            },
+            function () {
+              response.responseItemPermissionsStatus(permStatusOpts.error);
+            }
+          );
           break;
         }
 
@@ -1133,16 +1328,25 @@ Audit.BulkEditResponse.Load = function () {
           return;
         }
 
+        response.commitStatus(commitStatusOpts.folderPermissions);
+
         var responseFolder = null;
         var listItemEnumerator = responseFolderItems.getEnumerator();
-        response.commitStatus(commitStatusOpts.folderPermissions);
         while (listItemEnumerator.moveNext()) {
           responseFolder = listItemEnumerator.get_current();
+          response.folder = responseFolder;
+          response.responseFolderPermissionsStatus(permStatusOpts.breaking);
           m_fnBreakResponseFolderPermissions(
             responseFolder,
             oListItem,
             false,
-            true
+            true,
+            function () {
+              response.responseFolderPermissionsStatus(permStatusOpts.success);
+            },
+            function () {
+              response.responseFolderPermissionsStatus(permStatusOpts.error);
+            }
           );
           break;
         }
@@ -1510,7 +1714,9 @@ Audit.BulkEditResponse.Load = function () {
   function m_fnBreakResponsePermissions(
     oListItem,
     refreshPageOnUpdate,
-    checkStatus
+    checkStatus,
+    onBreakResponsePermissionsSuccess,
+    onBreakResponsePermissionsFailure
   ) {
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
@@ -1670,8 +1876,11 @@ Audit.BulkEditResponse.Load = function () {
       title: oListItem.get_item("Title"),
       refreshPage: refreshPageOnUpdate,
       item: oListItem,
+      onBreakResponsePermissionsSuccess: onBreakResponsePermissionsSuccess,
+      onBreakResponsePermissionsFailure: onBreakResponsePermissionsFailure,
     };
     function onUpdateResponsePermsSucceeed() {
+      onBreakResponsePermissionsSuccess();
       if (this.refreshPage) {
         SP.UI.Notify.addNotification(
           "Updated permissions on Response: " + this.title,
@@ -1682,6 +1891,7 @@ Audit.BulkEditResponse.Load = function () {
     }
 
     function onUpdateResponsePermsFailed(sender, args) {
+      onBreakResponsePermissionsFailure();
       if (this.refreshPage) {
         SP.UI.Notify.addNotification(
           "Failed to update permissions on Response: " +
@@ -1706,7 +1916,8 @@ Audit.BulkEditResponse.Load = function () {
     oListItemResponse,
     refreshPageOnUpdate,
     bCheckStatus,
-    OnComplete
+    OnComplete,
+    OnFail
   ) {
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
@@ -1866,6 +2077,7 @@ Audit.BulkEditResponse.Load = function () {
       title: oListItemResponse.get_item("Title"),
       refreshPage: refreshPageOnUpdate,
       OnComplete: OnComplete,
+      OnFail: OnFail,
     };
     function onUpdateResponseFolderPermsSucceeed() {
       if (this.refreshPage) {
@@ -1892,8 +2104,8 @@ Audit.BulkEditResponse.Load = function () {
         setTimeout(function () {
           m_fnRefresh();
         }, 200);
-      } else if (this.OnComplete) {
-        this.OnComplete(true);
+      } else if (this.OnFail) {
+        this.OnFail();
       }
     }
 
@@ -1907,7 +2119,8 @@ Audit.BulkEditResponse.Load = function () {
     oListItem,
     refreshPageOnUpdate,
     responseStatus,
-    OnComplete
+    OnComplete,
+    OnFail
   ) {
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
@@ -2034,22 +2247,21 @@ Audit.BulkEditResponse.Load = function () {
               m_CntRequestAOsAdded++;
 
               if (m_CntRequestAOsAdded == m_CntRequestAOsToAdd) {
-                if (this.refreshPage) m_fnRefresh();
-                else if (this.OnComplete) this.OnComplete(true);
+                if (this.OnComplete) this.OnComplete(true);
               }
             }
             function onUpdatedReqAOFailed(sender, args) {
               m_CntRequestAOsAdded++;
 
               if (m_CntRequestAOsAdded == m_CntRequestAOsToAdd) {
-                if (this.refreshPage) m_fnRefresh();
-                else if (this.OnComplete) this.OnComplete(true); //return true to continue executing
+                if (this.OnFail) this.OnFail(false); //return true to continue executing
               }
             }
 
             var data = {
               refreshPage: this.refreshPage,
               OnComplete: this.OnComplete,
+              OnFail: this.OnFail,
             };
             currCtx2.executeQueryAsync(
               Function.createDelegate(data, onUpdatedReqAOSucceeded),
@@ -2058,38 +2270,13 @@ Audit.BulkEditResponse.Load = function () {
           }
         }
       } else {
-        if (this.refreshPage) {
-          setTimeout(function () {
-            m_fnRefresh();
-          }, 500);
-        } else if (this.OnComplete) this.OnComplete(true);
+        if (this.OnComplete) this.OnComplete(true);
       }
     }
 
     function onUpdateReqPermsFailed(sender, args) {
-      if (this.OnComplete) {
-        this.OnComplete(true); //continue execution
-        SP.UI.Notify.addNotification(
-          "Failed to update permissions on Request: " +
-            this.title +
-            args.get_message() +
-            "\n" +
-            args.get_stackTrace(),
-          false
-        );
-      } else if (this.refreshPage) {
-        SP.UI.Notify.addNotification(
-          "Failed to update Request: " +
-            this.title +
-            args.get_message() +
-            "\n" +
-            args.get_stackTrace(),
-          false
-        );
-        setTimeout(function () {
-          m_fnRefresh();
-        }, 500);
-      } else {
+      if (this.OnFail) {
+        this.OnFail(false); //continue execution
         SP.UI.Notify.addNotification(
           "Failed to update permissions on Request: " +
             this.title +
@@ -2106,6 +2293,7 @@ Audit.BulkEditResponse.Load = function () {
       refreshPage: refreshPageOnUpdate,
       oListItem: oListItem,
       OnComplete: OnComplete,
+      OnFail: OnFail,
     };
 
     currCtx.executeQueryAsync(

@@ -124,20 +124,93 @@
     </tbody>
   </table>
 </div>
-<div id="divMutatingResponses" class="tablesorter report" >
-  <table>
+<div id="divMutatingResponses">
+  <table
+    class="tablesorter report"
+    style="padding-top: 15px; width: fit-content"
+  >
     <thead>
-      <tr><th>Response</th>
-        <th>New Status</th>
-      <th>Commit Status</th></tr>
-      <tbody data-bind="foreach: arrMutatedResponses">
-        <tr data-bind="css: mutationStatusClass">
-          <td data-bind="text: title"></td>
-          <td data-bind="text: newStatus"></td>
-          <td data-bind="text: commitStatus().text"></td>
-        </tr>
-      </tbody>
+      <tr>
+        <th>Modify Request Permissions</th>
+        <th>Update Status</th>
+      </tr>
     </thead>
+    <tbody>
+      <tr>
+        <td
+          data-bind="text: requestItemPermissionsWillBreak().text,
+          css: requestItemPermissionsWillBreak().class"
+        ></td>
+        <td
+          data-bind="text: requestItemPermissionsStatus().text,
+          css: requestItemPermissionsStatus().class"
+        ></td>
+      </tr>
+    </tbody>
+  </table>
+  <table
+    id="tblCommitStatus"
+    class="tablesorter report"
+    style="padding-top: 15px"
+  >
+    <thead>
+      <tr>
+        <th>Response</th>
+        <th>New Status</th>
+        <th>Commit Status</th>
+        <th>Update Response Permissions</th>
+        <th>Update Response Docs Permissions</th>
+      </tr>
+    </thead>
+    <tbody data-bind="">
+      <!-- ko foreach: arrMutatedResponses -->
+      <tr data-bind="css: mutationStatusClass">
+        <td data-bind="text: title"></td>
+        <td data-bind="text: newStatus"></td>
+        <td data-bind="">
+          <span
+            ><div data-bind="text: commitStatus().text"></div>
+            <!-- ko if: commitStatus().allowRetry -->
+            <a href="javascript:void(0)" data-bind="click: commit.bind()"
+              >Retry</a
+            >
+            <!-- /ko -->
+          </span>
+        </td>
+        <td data-bind="css: responseItemPermissionsStatus().class">
+          <span
+            ><div data-bind="text: responseItemPermissionsStatus().text"></div>
+            <!-- ko if: responseItemPermissionsStatus().allowRetry -->
+            <a
+              href="javascript:void(0)"
+              data-bind="click: breakResponseItemPermissions.bind()"
+              >Retry</a
+            >
+            <!-- /ko -->
+          </span>
+        </td>
+        <td data-bind="css: responseFolderPermissionsStatus().class">
+          <span
+            ><div
+              data-bind="text: responseFolderPermissionsStatus().text"
+            ></div>
+            <!-- ko if: responseFolderPermissionsStatus().allowRetry -->
+            <a
+              href="javascript:void(0)"
+              data-bind="click: breakResponseFolderPermissions.bind()"
+              >Retry</a
+            >
+            <!-- /ko -->
+          </span>
+        </td>
+      </tr>
+      <!-- /ko -->
+      <!-- ko if: !arrMutatedResponses().length -->
+      <tr>
+        <td colspan="5">No staged changes</td>
+      </tr>
+      <!-- /ko -->
+    </tbody>
   </table>
 </div>
 <div style="padding-top: 15px">

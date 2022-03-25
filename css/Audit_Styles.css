@@ -29,6 +29,14 @@ table.tablesorter td {
   vertical-align: top;
 }
 
+#tblCommitStatus td span {
+  display: flex;
+}
+
+#tblCommitStatus td span > * {
+  padding-right: 3px;
+}
+
 .report tfoot th {
   text-align: left;
 }
