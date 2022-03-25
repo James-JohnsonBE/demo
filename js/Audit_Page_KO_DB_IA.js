@@ -3449,7 +3449,7 @@ Audit.IAReport.NewReportPage = function () {
     m_bIsTransactionExecuting = true;
 
     var options = SP.UI.$create_DialogOptions();
-    options.title = "Bulk Add Responses (" + id + ")";
+    options.title = "Bulk Edit Responses (" + id + ")";
     options.dialogReturnValueCallback = OnCallbackFormBulkEditResponse;
     options.height = 850;
     options.width = 1100;
