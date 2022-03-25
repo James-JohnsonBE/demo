@@ -445,6 +445,8 @@ Audit.BulkEditResponse.Load = function () {
     self.newPOC = new PeopleField();
     self.newPOCCC = new PeopleField();
 
+    self.advancedEdit = ko.observable(false);
+
     self.responseItemPermissionsStatus = ko.observable(permStatusOpts.pending);
     self.responseFolderPermissionsStatus = ko.observable(
       permStatusOpts.pending
@@ -725,6 +727,15 @@ Audit.BulkEditResponse.Load = function () {
           : permStatusOpts.none
       );
     });
+
+    self.toggleExpandAllResponse = ko.observable(false);
+    self.toggleExpandAllResponse.subscribe(function (value) {
+      self.arrResponses().map(function (response) {
+        response.advancedEdit(value);
+      });
+    });
+
+    self.responseStatusOptKeys = responseStatusOptKeys;
 
     self.responseStatusOpts = ko.pureComputed(function () {
       keys = Object.keys(responseStatusOptKeys);

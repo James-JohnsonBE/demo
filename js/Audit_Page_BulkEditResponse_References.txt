@@ -19,24 +19,29 @@
   </fieldset>
 </div>
 <div id="divLoadBulkResponsesOutput" style="padding-top: 15px; display: none">
+  <div>
+    <label
+      >Toggle expand all:
+      <input type="checkbox" data-bind="checked: toggleExpandAllResponse" />
+    </label>
+  </div>
   <table class="tablesorter report">
     <thead>
       <tr>
         <th>Status</th>
         <th>Sample #</th>
-        <th>Action Office</th>
         <th>Status</th>
-        <th>Reject Reason</th>
-        <th>Closed Date</th>
-        <th>Closed By</th>
+        <th>Action Office</th>
+        <th>Status Actions</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody data-bind="foreach: arrResponses">
       <tr data-bind="css: mutationStatusClass">
-        <th colspan="7" data-bind="text: title"></th>
+        <th colspan="6" data-bind="text: title"></th>
       </tr>
       <tr data-bind="">
-        <td data-bind="css: mutationStatusClass" rowspan="2">
+        <td data-bind="css: mutationStatusClass">
           <div
             data-bind="css: commitStatusIcon, attr: {title: commitStatus().text}"
           ></div>
@@ -45,72 +50,110 @@
         <td data-bind="text: sample"></td>
         <td>
           <select
+            data-bind="value: newStatus, options: $root.responseStatusOpts,
+            enable: isEditable"
+          ></select>
+        </td>
+        <td>
+          <select
             data-bind="value: newActionOfficeTitle, 
             options: $root.arrActionOffices().map(function (ao) {return ao.title}),
             enable: isEditable"
           ></select>
         </td>
         <td>
-          <select
-            data-bind="value: newStatus, options: $root.responseStatusOpts,
-            enable: isEditable"
-          ></select>
+          <!-- ko if: newStatus() == $root.responseStatusOptKeys.returnedToAO -->
+          <label
+            >Reject Reason:
+            <input
+              type="text"
+              data-bind="textInput: newReturnReason, enable: isEditable"
+              placeholder="Return Reason..."
+              list="returnReasonDl"
+            />
+          </label>
+          <!-- /ko -->
+          <!-- ko if: newStatus() == $root.responseStatusOptKeys.closed -->
+          <div>
+            <div>
+              <div>Closed Date</div>
+              <!-- ko if: isEditable -->
+              <div
+                data-bind="template: {name: 'jquery-datetime', data: newClosedDate}"
+              ></div>
+              <!-- /ko -->
+              <!-- ko ifnot: isEditable -->
+              <p data-bind="text: newClosedDate.formatted()"></p>
+              <!-- /ko -->
+            </div>
+            <div>
+              <div>Closed By</div>
+              <!-- ko if: isEditable -->
+              <div
+                data-bind="attr: {'id': 'peoplePickerClosedBy' + sample}, people: newClosedBy.user"
+              ></div>
+              <!-- /ko -->
+              <!-- ko ifnot: isEditable -->
+              <p data-bind="text: newClosedBy.title()"></p>
+              <!-- /ko -->
+            </div>
+          </div>
+          <!-- /ko -->
         </td>
         <td>
-          <input
-            type="text"
-            data-bind="textInput: newReturnReason, enable: isEditable"
-            placeholder="Return Reason..."
-            list="returnReasonDl"
-          />
-        </td>
-        <td>
-          <!-- ko if: isEditable -->
-          <div
-            data-bind="template: {name: 'jquery-datetime', data: newClosedDate}"
-          ></div>
-          <!-- /ko -->
-          <!-- ko ifnot: isEditable -->
-          <p data-bind="text: newClosedDate.formatted()"></p>
-          <!-- /ko -->
-        </td>
-        <td>
-          <!-- ko if: isEditable -->
-          <div
-            data-bind="attr: {'id': 'peoplePickerClosedBy' + sample}, people: newClosedBy.user"
-          ></div>
-          <!-- /ko -->
-          <!-- ko ifnot: isEditable -->
-          <p data-bind="text: newClosedBy.title()"></p>
-          <!-- /ko -->
+          <label
+            >Advanced:
+
+            <input type="checkbox" data-bind="checked: advancedEdit" />
+          </label>
         </td>
       </tr>
+      <!-- ko if: advancedEdit -->
       <tr data-bind="">
+        <td>
+          <div>Reset Permissions:</div>
+          <!-- Break item permissions -->
+          <i
+            title="Break Item Permissions"
+            class="ui-icon ui-icon-document"
+            style="cursor: pointer"
+            data-bind="click: breakResponseItemPermissions,
+              css: responseItemPermissionsStatus().class"
+          ></i>
+          <!-- Break Folder permissions -->
+          <i
+            title="Break Folder Permissions"
+            class="ui-icon ui-icon-folder-collapsed"
+            style="cursor: pointer"
+            data-bind="click: breakResponseFolderPermissions,
+              css: responseFolderPermissionsStatus().class"
+          ></i>
+        </td>
         <td colspan="3">
           <label
             >POC:
-            <!-- ko if: isEditable -->
+            <!-- ko if: isEditable-->
             <div
               data-bind="attr: {'id': 'peoplePickerPOC' + sample}, people: newPOC.user"
             ></div>
             <!-- /ko -->
             <!-- ko ifnot: isEditable -->
             <p data-bind="text: newPOC.title()"></p>
-            <!-- /ko --></label
-          >
+            <!-- /ko -->
+          </label>
           <label
             >POCCC:
-            <!-- ko if: isEditable -->
+            <!-- ko if: isEditable() -->
             <div
               data-bind="attr: {'id': 'peoplePickerPOCCC' + sample}, people: newPOCCC.user"
             ></div>
             <!-- /ko -->
-            <!-- ko ifnot: isEditable -->
+            <!-- ko ifnot: isEditable  -->
             <p data-bind="text: newPOCCC.title()"></p>
             <!-- /ko -->
           </label>
         </td>
-        <td colspan="4">
+        <td colspan="2">
           <label
             >Comment:
             <textarea
@@ -121,6 +164,7 @@
           </label>
         </td>
       </tr>
+      <!-- /ko -->
     </tbody>
   </table>
 </div>
