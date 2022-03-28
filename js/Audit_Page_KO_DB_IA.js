@@ -1058,7 +1058,7 @@ Audit.IAReport.NewReportPage = function () {
       }
     });
 
-    var unloadEventHandler = function (oRequest) {
+    var requestUnloadEventHandler = function (oRequest) {
       return function (event) {
         // console.log("unloading", oRequest);
         oRequest.activeViewers.removeCurrentuser();
@@ -1101,7 +1101,7 @@ Audit.IAReport.NewReportPage = function () {
       if (oRequest) {
         if (oRequest.activeViewers) {
           oRequest.activeViewers.pushCurrentUser();
-          currentEventHandler = unloadEventHandler(oRequest);
+          currentEventHandler = requestUnloadEventHandler(oRequest);
           window.addEventListener("beforeunload", currentEventHandler);
         }
         m_fnRequeryRequest(oRequest);

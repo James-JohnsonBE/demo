@@ -365,12 +365,9 @@ function PreSaveAction() {
     selectedResponseStatus == "4-Approved for QA" &&
     currentResponseSensitivity == "None"
   ) {
-    if (
-      !confirm(
-        "Warning: Approving for QA without setting request sensitivity, continue?"
-      )
-    )
-      return false;
+    alert("Request Sensitivity not set; cannot submit to QA.");
+
+    return false;
   }
 
   var curResponseTitle = $("input[title='Title']").val();
