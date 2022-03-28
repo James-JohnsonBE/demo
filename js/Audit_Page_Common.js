@@ -14,6 +14,9 @@ Audit.Common.NewUtilities = function () {
   var m_listTitleRequests = "AuditRequests";
   var m_listNameRequests = "AuditRequests";
 
+  var m_listTitleRequestsInternal = "AuditRequestsInternal";
+  var m_listNameRequestsInternal = "AuditRequestsInternal";
+
   var m_listTitleResponses = "AuditResponses";
   var m_listNameResponses = "AuditResponses";
 
@@ -1011,6 +1014,12 @@ Audit.Common.NewUtilities = function () {
     },
     GetListNameRequests: function () {
       return m_listNameRequests;
+    },
+    GetListTitleRequestsInternal: function () {
+      return m_listTitleRequestsInternal;
+    },
+    GetListNameRequestsInternal: function () {
+      return m_listNameRequestsInternal;
     },
     GetListTitleResponses: function () {
       return m_listTitleResponses;

@@ -1070,7 +1070,7 @@ Audit.IAReport.NewReportPage = function () {
     self.filterRequestInfoTabRequestName.subscribe(
       function (oldValue) {
         var oRequest = m_bigMap["request-" + oldValue];
-        if (oRequest) {
+        if (oRequest && oRequest.activeViewers) {
           oRequest.activeViewers.removeCurrentuser();
           window.removeEventListener("beforeunload", currentEventHandler);
         }
@@ -1099,9 +1099,11 @@ Audit.IAReport.NewReportPage = function () {
 
       var oRequest = m_bigMap["request-" + newValue];
       if (oRequest) {
-        oRequest.activeViewers.pushCurrentUser();
-        currentEventHandler = unloadEventHandler(oRequest);
-        window.addEventListener("beforeunload", currentEventHandler);
+        if (oRequest.activeViewers) {
+          oRequest.activeViewers.pushCurrentUser();
+          currentEventHandler = unloadEventHandler(oRequest);
+          window.addEventListener("beforeunload", currentEventHandler);
+        }
         m_fnRequeryRequest(oRequest);
       } else {
       }
@@ -1174,7 +1176,20 @@ Audit.IAReport.NewReportPage = function () {
     //currCtx.load( m_requestItems, 'Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))');
     currCtx.load(
       m_requestItems,
-      "Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, InternalStatus, ActiveViewers, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
+      "Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
+    );
+
+    var requestInternalList = web
+      .get_lists()
+      .getByTitle(Audit.Common.Utilities.GetListTitleRequestsInternal());
+    var requestInternalQuery = new SP.CamlQuery();
+    requestInternalQuery.set_viewXml(
+      '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
+    );
+    m_requestInternalItems = requestInternalList.getItems(requestInternalQuery);
+    currCtx.load(
+      m_requestInternalItems,
+      "Include(ID, Title, ReqNum, InternalStatus, ActiveViewers)"
     );
 
     var responseList = web
@@ -1841,16 +1856,6 @@ Audit.IAReport.NewReportPage = function () {
         }
 
         var comments = oListItem.get_item("Comments");
-        var internalStatus = new CommentChainField(id, {
-          requestListTitle: Audit.Common.Utilities.GetListTitleRequests(),
-          columnName: "InternalStatus",
-          initialValue: oListItem.get_item("InternalStatus"),
-        });
-        var activeViewers = new ActiveViewersField(id, {
-          requestListTitle: Audit.Common.Utilities.GetListTitleRequests(),
-          columnName: "ActiveViewers",
-          initialValue: oListItem.get_item("ActiveViewers"),
-        });
         var emailSent = oListItem.get_item("EmailSent");
         var reviewer = oListItem.get_item("Reviewer");
         var owner = oListItem.get_item("Owner");
@@ -1858,7 +1863,6 @@ Audit.IAReport.NewReportPage = function () {
         var actionItems = oListItem.get_item("ActionItems");
 
         if (comments == null) comments = "";
-        if (internalStatus == null) internalStatus = "";
         if (reviewer == null) reviewer = "";
         if (owner == null) owner = "";
         if (relatedAudit == null) relatedAudit = "";
@@ -1885,8 +1889,6 @@ Audit.IAReport.NewReportPage = function () {
         requestObject["actionOffices"] = arrAOs;
         requestObject["emailActionOffices"] = arrEmailAOs;
         requestObject["comments"] = comments;
-        requestObject["internalStatus"] = internalStatus;
-        requestObject["activeViewers"] = activeViewers;
         requestObject["emailSent"] = emailSent;
         requestObject["closedDate"] = closedDate;
         requestObject["closedBy"] = closedBy;
@@ -1902,6 +1904,39 @@ Audit.IAReport.NewReportPage = function () {
         m_arrRequests.push(requestObject);
 
         m_bigMap["request-" + number] = requestObject;
+      }
+    } catch (err) {
+      alert(err);
+    }
+
+    // Also load our Internal Request Status here and bolt these objects onto the requests
+    try {
+      var listItemEnumerator = m_requestInternalItems.getEnumerator();
+      while (listItemEnumerator.moveNext()) {
+        var oListItem = listItemEnumerator.get_current();
+
+        var id = oListItem.get_item("ID");
+        var reqNum = oListItem.get_item("ReqNum");
+
+        if (!reqNum || !reqNum.get_lookupValue()) {
+          console.warn("Unaffiliated Internal Status ID:", id);
+          continue;
+        }
+
+        var requestObject = m_bigMap["request-" + reqNum.get_lookupValue()];
+
+        requestObject.internalStatus = new CommentChainField(id, {
+          requestListTitle:
+            Audit.Common.Utilities.GetListTitleRequestsInternal(),
+          columnName: "InternalStatus",
+          initialValue: oListItem.get_item("InternalStatus"),
+        });
+        requestObject.activeViewers = new ActiveViewersField(id, {
+          requestListTitle:
+            Audit.Common.Utilities.GetListTitleRequestsInternal(),
+          columnName: "ActiveViewers",
+          initialValue: oListItem.get_item("ActiveViewers"),
+        });
       }
     } catch (err) {
       alert(err);
@@ -7057,6 +7092,8 @@ Audit.IAReport.NewReportPage = function () {
           }
 
           if (oListItem) {
+            m_fnCreateRequestInternalItem(oListItem.get_item("ID"));
+
             if (!oListItem.get_hasUniqueRoleAssignments()) {
               var bDoneBreakingReqPermisions = false;
               m_fnBreakRequestPermissions(
@@ -7096,6 +7133,28 @@ Audit.IAReport.NewReportPage = function () {
         }
       );
     }
+  }
+
+  function m_fnCreateRequestInternalItem(requestNumber) {
+    var currCtx = new SP.ClientContext.get_current();
+    var web = currCtx.get_web();
+
+    var requestInternalList = web
+      .get_lists()
+      .getByTitle(Audit.Common.Utilities.GetListTitleRequestsInternal());
+
+    var itemCreateInfo = new SP.ListItemCreationInformation();
+    var newRequestInternalItem = requestInternalList.addItem(itemCreateInfo);
+    newRequestInternalItem.set_item("ReqNum", requestNumber);
+    newRequestInternalItem.update();
+
+    currCtx.executeQueryAsync(
+      function () {},
+      function (sender, args) {
+        alert("error creating internal request item", args);
+        console.error(sender, args);
+      }
+    );
   }
 
   function m_fnUpdateAllResponsePermissions(
@@ -8620,6 +8679,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
       return m_bIsTransactionExecuting;
     },
     Refresh: m_fnRefresh,
+    CreateInternalRequestItem: m_fnCreateRequestInternalItem,
   };
 
   return publicMembers;

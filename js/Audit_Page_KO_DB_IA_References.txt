@@ -657,6 +657,7 @@
     <div id="divRequestInfo" data-bind="with: currentRequest">
       <fieldset>
         <legend>Request Information</legend>
+        <!-- ko if: typeof(activeViewers) != 'undefined' -->
         <div
           id="divRequestActiveViewers"
           data-bind="visible: activeViewers.viewers().length, with: activeViewers"
@@ -682,6 +683,7 @@
             </ul>
           </fieldset>
         </div>
+        <!-- /ko -->
         <table id="tblRequestInfo" class="tablesorter">
           <tbody>
             <tr>
@@ -811,6 +813,7 @@
             </tr>
             <tr>
               <td>Internal Status Comments</td>
+              <!-- ko if: typeof(internalStatus) != 'undefined' -->
               <td data-bind="with: internalStatus">
                 <div class="commentChain">
                   <a
@@ -862,6 +865,7 @@
                   </div>
                 </div>
               </td>
+              <!-- /ko -->
             </tr>
             <tr>
               <td>Action Office(s)</td>
@@ -967,8 +971,8 @@
                       title="Synchronize Email Action Offices"
                       href="javascript:void(0)"
                       data-bind="click: $root.ClickSyncEmailActionOffices"
-                      ><span class="ui-icon ui-icon-transferthick-e-w"></span>Synchronize
-                      Email Action Offices</a
+                      ><span class="ui-icon ui-icon-transferthick-e-w"></span
+                      >Synchronize Email Action Offices</a
                     >
                   </div>
                 </fieldset>
