@@ -1,0 +1,25 @@
+{
+  "deploy.reloaded": {
+    "packages": [
+      {
+        "name": "Version 2.0",
+        "description": "Package version 2.0",
+        "files": ["lib/**", "src/**"],
+        "exclude": ["**.md", "**.json"],
+
+        "deployOnSave": ["Audits Style Library"],
+        "removeOnChange": ["Audits Style Library"],
+        "syncWhenOpen": true
+      }
+    ],
+    "targets": [
+      {
+        "type": "local",
+        "name": "Audits Style Library",
+        "description": "Style Library of http://cgfs16index1dev:31000/",
+
+        "dir": "Q:/Style Library/apps/audit"
+      }
+    ]
+  }
+}
