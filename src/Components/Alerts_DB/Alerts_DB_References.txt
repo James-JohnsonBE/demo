@@ -1,0 +1,6 @@
+﻿<div id="divAlerts"></div>
+
+<script
+  type="text/javascript"
+  src="/sites/CGFS/Style Library/apps/audit/src/Components/Alerts_DB/Alerts_DB.js"
+></script>

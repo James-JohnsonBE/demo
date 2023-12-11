@@ -1677,50 +1677,7 @@
 
 <div id="divTest"></div>
 
-<link
-  rel="stylesheet"
-  type="text/css"
-  href="../SiteAssets/css/jqueryui/1.11.3/themes/redmond/jquery-ui.min.css"
-/>
-<link
-  rel="stylesheet"
-  type="text/css"
-  href="../SiteAssets/css/tablesorter/style.css"
-/>
-<link
-  rel="stylesheet"
-  type="text/css"
-  href="../SiteAssets/css/Audit_Styles.css"
-/>
-<link
-  rel="stylesheet"
-  type="text/css"
-  href="../SiteAssets/css/Audit_Page_Reports.css"
-/>
-
 <script
   type="text/javascript"
-  src="../SiteAssets/js/jquery/1.7.2/jquery.min.js"
-></script>
-<script
-  type="text/javascript"
-  src="../SiteAssets/js/jqueryui/1.11.3/jquery-ui.min.js"
-></script>
-<script
-  type="text/javascript"
-  src="../SiteAssets/js/jquery.tablesorter.min.js"
-></script>
-<script type="text/javascript" src="../SiteAssets/js/jsrender.min.js"></script>
-<script
-  type="text/javascript"
-  src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"
-></script>
-
-<script
-  type="text/javascript"
-  src="../SiteAssets/js/Audit_Page_Common.js"
-></script>
-<script
-  type="text/javascript"
-  src="../SiteAssets/js/Audit_Page_KO_DB_IA.js"
+  src="/sites/CGFS/Style Library/apps/audit/src/Pages/IA_DB/IA_DB.js"
 ></script>
