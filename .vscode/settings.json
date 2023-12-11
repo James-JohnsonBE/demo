@@ -16,7 +16,7 @@
       {
         "type": "local",
         "name": "Audits Style Library",
-        "description": "Style Library of http://cgfs16index1dev:31000/",
+        "description": "Style Library of http://cgfs16index1dev:31000/sites/CGFS",
 
         "dir": "Q:/Style Library/apps/audit"
       }
