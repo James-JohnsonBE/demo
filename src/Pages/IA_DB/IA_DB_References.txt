@@ -1678,6 +1678,6 @@
 <div id="divTest"></div>
 
 <script
-  type="text/javascript"
+  type="module"
   src="/sites/CGFS/Style Library/apps/audit/src/Pages/IA_DB/IA_DB.js"
 ></script>

@@ -42,10 +42,26 @@ Audit.IAReport.NewReportPage = function () {
   var m_libRequestDocsLibraryGUID = null; //set below
   var m_libResponseDocsLibraryGUID = null; //set below
 
+  var m_coversheetDocsLibrary = null;
+  var m_requestDocsLibrary = null;
+  var m_responseDocsLibrary = null;
+
   var m_bigMap = new Object();
   var m_arrRequests = new Array();
   var m_arrRequestsToClose = new Array();
   var m_arrPermissionsResponseFolders = new Array();
+
+  var m_requestItems = null;
+  var m_requestInternalItems = null;
+
+  var m_responseItems = null;
+  var m_ResponseDocsItems = null;
+  var m_ResponseDocsFoldersItems = null;
+
+  var m_groupColl = null;
+  var m_aoItems = null;
+  var m_userPermissionAccess = null;
+  var m_PageItems = null;
 
   var m_itemID = null;
   var m_requestNum = null;
@@ -54,6 +70,7 @@ Audit.IAReport.NewReportPage = function () {
 
   var m_bIsTransactionExecuting = false;
   var m_statusId = null;
+  var notifyId = null;
 
   var m_bIsSiteOwner = true;
   var m_sGoToResponseTitle = null;
@@ -1266,7 +1283,7 @@ Audit.IAReport.NewReportPage = function () {
         emailListQuery.set_viewXml(
           '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><And><Eq><FieldRef Name="Title"/><Value Type="Text">EANotifications</Value></Eq><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></And></Where></Query></View>'
         );
-        emailListFolderItemsEA = emailList.getItems(emailListQuery);
+        var emailListFolderItemsEA = emailList.getItems(emailListQuery);
         currCtx.load(emailListFolderItemsEA, "Include(ID, Title, DisplayName)");
 
         function OnSuccessLoadPages(sender, args) {
@@ -1365,7 +1382,7 @@ Audit.IAReport.NewReportPage = function () {
         oRequest.ID +
         "</Value></Eq></Where></Query></View>"
     );
-    m_aRequestItem = requestList.getItems(requestQuery);
+    var m_aRequestItem = requestList.getItems(requestQuery);
     if (m_bIsSiteOwner) {
       $(".response-permissions").hide(); //resets this in case it was toggled to show
       currCtx.load(
@@ -1395,7 +1412,7 @@ Audit.IAReport.NewReportPage = function () {
 
         //07/06/2017 - if the permissions on the request are inheriting for any reason, then reset the permissions and refresh the page
         if (!oRequest.item.get_hasUniqueRoleAssignments()) {
-          m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+          const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
             "Information",
             "Please wait... Updating Request permissions",
             200,
@@ -1430,7 +1447,7 @@ Audit.IAReport.NewReportPage = function () {
           }
 
           if (bUpdateRequestPermissions) {
-            m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+            const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
               "Information",
               "Please wait... Updating Request permissions",
               200,
@@ -2050,14 +2067,14 @@ Audit.IAReport.NewReportPage = function () {
   function LoadResponseDocs() {
     _myViewModel.arrResponseDocsCheckedOut([]);
     _myViewModel.arrResponseDocsCheckedOut.valueHasMutated();
-    arrResponseDocsCheckedOut = new Array();
+    var arrResponseDocsCheckedOut = new Array();
 
     try {
       var listItemEnumerator = m_ResponseDocsItems.getEnumerator();
       while (listItemEnumerator.moveNext()) {
         var oListItem = listItemEnumerator.get_current();
 
-        responseDocID = oListItem.get_item("ID");
+        var responseDocID = oListItem.get_item("ID");
 
         var requestNumber = oListItem.get_item("ReqNum");
         if (requestNumber != null)
@@ -2281,7 +2298,7 @@ Audit.IAReport.NewReportPage = function () {
         oRequest.number +
         "</Value></Eq></Where></Query></View>"
     );
-    m_RequestDocItems = requestDocLib.getItems(requestDocQuery);
+    var m_RequestDocItems = requestDocLib.getItems(requestDocQuery);
     currCtx.load(
       m_RequestDocItems,
       "Include(ID, Title, ReqNum, FileLeafRef, FileDirRef)"
@@ -2341,7 +2358,7 @@ Audit.IAReport.NewReportPage = function () {
         oRequest.number +
         "</Value></Eq></Where></Query></View>"
     );
-    m_CoverSheetItems = coverSheetLib.getItems(coverSheetQuery);
+    var m_CoverSheetItems = coverSheetLib.getItems(coverSheetQuery);
     if (m_bIsSiteOwner)
       currCtx.load(
         m_CoverSheetItems,
@@ -2505,7 +2522,7 @@ Audit.IAReport.NewReportPage = function () {
     _myViewModel.arrCurrentRequestResponses.valueHasMutated();
 
     document.body.style.cursor = "wait";
-    m_notifyIDLoadingResponses = SP.UI.Notify.addNotification(
+    var m_notifyIDLoadingResponses = SP.UI.Notify.addNotification(
       "Loading Responses...",
       true
     );
@@ -2522,7 +2539,7 @@ Audit.IAReport.NewReportPage = function () {
         oRequest.number +
         "</Value></Eq></Where></Query></View>"
     );
-    m_subsetResponseItems = responseList.getItems(responseQuery);
+    var m_subsetResponseItems = responseList.getItems(responseQuery);
     //need to check permissions because of granting/removing special perms
     if (m_bIsSiteOwner)
       currCtx.load(
@@ -2601,7 +2618,8 @@ Audit.IAReport.NewReportPage = function () {
         var groupPerms = "";
         for (var x = 0; x < m_arrPermissionsResponseFolders.length; x++) {
           if (m_arrPermissionsResponseFolders[x].ItemName == oResponse.title) {
-            arrGroupPerms = m_arrPermissionsResponseFolders[x].GroupPermissions;
+            const arrGroupPerms =
+              m_arrPermissionsResponseFolders[x].GroupPermissions;
 
             var grouppermissionsArr = arrGroupPerms.sort();
             grouppermissionsArr.sort(function (a, b) {
@@ -4017,7 +4035,7 @@ Audit.IAReport.NewReportPage = function () {
 
         oRequest.item.update();
 
-        m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+        const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
           "Information",
           "Please wait... updating permissions on the Request",
           100,
@@ -4364,7 +4382,7 @@ Audit.IAReport.NewReportPage = function () {
         return;
       }
 
-      m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+      const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
         "Sending Emails",
         "Please wait... sending email notifications to Action Offices",
         100,
@@ -4910,10 +4928,10 @@ Audit.IAReport.NewReportPage = function () {
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
 
-    this.currentUser = web.get_currentUser();
-    this.ownerGroup = web.get_associatedOwnerGroup();
-    this.memberGroup = web.get_associatedMemberGroup();
-    this.visitorGroup = web.get_associatedVisitorGroup();
+    const currentUser = web.get_currentUser();
+    const ownerGroup = web.get_associatedOwnerGroup();
+    const memberGroup = web.get_associatedMemberGroup();
+    const visitorGroup = web.get_associatedVisitorGroup();
 
     var qaHasRead = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
       oListItem,
@@ -5003,8 +5021,8 @@ Audit.IAReport.NewReportPage = function () {
     oListItem.get_roleAssignments().getByPrincipal(currentUser).deleteObject();
 
     function onUpdateReqPermsSucceeed() {
-      m_CntRequestAOsToAdd = 0;
-      m_CntRequestAOsAdded = 0;
+      let m_CntRequestAOsToAdd = 0;
+      let m_CntRequestAOsAdded = 0;
 
       //add action offices
       var arrActionOffice = oListItem.get_item("ActionOffice");
@@ -5690,10 +5708,10 @@ Audit.IAReport.NewReportPage = function () {
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
 
-    this.currentUser = currCtx.get_web().get_currentUser();
-    this.ownerGroup = web.get_associatedOwnerGroup();
-    this.memberGroup = web.get_associatedMemberGroup();
-    this.visitorGroup = web.get_associatedVisitorGroup();
+    const currentUser = currCtx.get_web().get_currentUser();
+    const ownerGroup = web.get_associatedOwnerGroup();
+    const memberGroup = web.get_associatedMemberGroup();
+    const visitorGroup = web.get_associatedVisitorGroup();
 
     var qaHasRead = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
       oResponse.item,
@@ -5955,10 +5973,10 @@ Audit.IAReport.NewReportPage = function () {
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
 
-    this.currentUser = currCtx.get_web().get_currentUser();
-    this.ownerGroup = web.get_associatedOwnerGroup();
-    this.memberGroup = web.get_associatedMemberGroup();
-    this.visitorGroup = web.get_associatedVisitorGroup();
+    const currentUser = currCtx.get_web().get_currentUser();
+    const ownerGroup = web.get_associatedOwnerGroup();
+    const memberGroup = web.get_associatedMemberGroup();
+    const visitorGroup = web.get_associatedVisitorGroup();
 
     //check QA before resetting
     var permissionsToCheck = SP.PermissionKind.viewListItems;
@@ -6156,10 +6174,10 @@ Audit.IAReport.NewReportPage = function () {
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
 
-    this.currentUser = currCtx.get_web().get_currentUser();
-    this.ownerGroup = web.get_associatedOwnerGroup();
-    this.memberGroup = web.get_associatedMemberGroup();
-    this.visitorGroup = web.get_associatedVisitorGroup();
+    const currentUser = currCtx.get_web().get_currentUser();
+    const ownerGroup = web.get_associatedOwnerGroup();
+    const memberGroup = web.get_associatedMemberGroup();
+    const visitorGroup = web.get_associatedVisitorGroup();
 
     var qaHasRead = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
       oListItemFolder,
@@ -6600,7 +6618,7 @@ Audit.IAReport.NewReportPage = function () {
           ") Responses?"
       )
     ) {
-      m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+      const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
         "Information",
         "Please wait... granting Special Permissions to Request and Responses <div id='divGrantCntr'></div>",
         200,
@@ -6616,10 +6634,11 @@ Audit.IAReport.NewReportPage = function () {
 
       var currCtx = SP.ClientContext.get_current();
       var web = currCtx.get_web();
-      this.currentUser = web.get_currentUser();
-      this.ownerGroup = web.get_associatedOwnerGroup();
-      this.memberGroup = web.get_associatedMemberGroup();
-      this.visitorGroup = web.get_associatedVisitorGroup();
+
+      const currentUser = web.get_currentUser();
+      const ownerGroup = web.get_associatedOwnerGroup();
+      const memberGroup = web.get_associatedMemberGroup();
+      const visitorGroup = web.get_associatedVisitorGroup();
 
       var qaHasRead = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
         oRequest.item,
@@ -6835,7 +6854,7 @@ Audit.IAReport.NewReportPage = function () {
           ") Responses?"
       )
     ) {
-      m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+      const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
         "Information",
         "Please wait... removing Special Permissions on Request and Responses <div id='divGrantCntr'></div>",
         200,
@@ -6845,10 +6864,10 @@ Audit.IAReport.NewReportPage = function () {
       var currCtx = SP.ClientContext.get_current();
       var web = currCtx.get_web();
 
-      this.currentUser = web.get_currentUser();
-      this.ownerGroup = web.get_associatedOwnerGroup();
-      this.memberGroup = web.get_associatedMemberGroup();
-      this.visitorGroup = web.get_associatedVisitorGroup();
+      const currentUser = web.get_currentUser();
+      const ownerGroup = web.get_associatedOwnerGroup();
+      const memberGroup = web.get_associatedMemberGroup();
+      const visitorGroup = web.get_associatedVisitorGroup();
 
       var qaHasRead = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
         oRequest.item,
@@ -7047,7 +7066,7 @@ Audit.IAReport.NewReportPage = function () {
 
   function OnCallbackFormNewRequest(result, value) {
     if (result === SP.UI.DialogResult.OK) {
-      m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+      const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
         "Information",
         "Please wait... Updating Request Permissions",
         200,
@@ -7434,7 +7453,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
 
           if (m_requestNum == oListItem.get_item("Title")) {
             //if request number hasn't changed
-            m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+            const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
               "Information",
               "Please wait... Updating Request and Response permissions <div id='divMsgEditRequest'></div>",
               200,
@@ -7487,7 +7506,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
             );
           } //if request number changed, update responses; otherwise it will refresh and not hit this
           else {
-            m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+            const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
               "Renaming Responses",
               "Please wait... Renaming Responses",
               200,
@@ -7641,7 +7660,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
           }
 
           if (oListItem) {
-            m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+            const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
               "Information",
               "Please wait... Updating permissions on Coversheet",
               200,
@@ -7728,7 +7747,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
       responseQuery.set_viewXml(
         '<View><Query><OrderBy><FieldRef Name="ID" Ascending="FALSE"/></OrderBy></Query><RowLimit>1</RowLimit></View>'
       );
-      responseItems = responseList.getItems(responseQuery);
+      const responseItems = responseList.getItems(responseQuery);
       currCtx.load(
         responseItems,
         "Include(ID, Title, ActionOffice, ReqNum, ResStatus, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
@@ -7752,10 +7771,10 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
           var responseTitle = oListItem.get_item("Title");
           var requestNum = oListItem.get_item("ReqNum").get_lookupValue();
 
-          this.currentUser = currCtx.get_web().get_currentUser();
-          this.ownerGroup = currCtx.get_web().get_associatedOwnerGroup();
-          this.memberGroup = currCtx.get_web().get_associatedMemberGroup();
-          this.visitorGroup = currCtx.get_web().get_associatedVisitorGroup();
+          const currentUser = currCtx.get_web().get_currentUser();
+          const ownerGroup = currCtx.get_web().get_associatedOwnerGroup();
+          const memberGroup = currCtx.get_web().get_associatedMemberGroup();
+          const visitorGroup = currCtx.get_web().get_associatedVisitorGroup();
 
           var responseDocLib = currCtx
             .get_web()
@@ -7766,7 +7785,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
             SP.FileSystemObjectType.folder
           );
           itemCreateInfo.set_leafName(responseTitle);
-          oListFolderItem = responseDocLib.addItem(itemCreateInfo);
+          const oListFolderItem = responseDocLib.addItem(itemCreateInfo);
           oListFolderItem.set_item("Title", responseTitle);
           oListFolderItem.update();
 
@@ -7879,7 +7898,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
           m_itemID +
           "</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>"
       );
-      responseItems = responseList.getItems(responseQuery);
+      const responseItems = responseList.getItems(responseQuery);
       currCtx.load(
         responseItems,
         "Include(ID, Title, ActionOffice, POC, POCCC, ReturnReason, ResStatus, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"

@@ -1,185 +1,178 @@
-﻿#s4-searcharea,#SearchBox {
-	DISPLAY: none
+﻿#s4-searcharea,
+#SearchBox {
+  display: none;
 }
 .ms-quicklaunchheader {
-	DISPLAY: none
+  display: none;
 }
 
-fieldset
-{
-	margin-bottom:10px;
-	/*border-color:lightsteelblue;*/
-	border-width:2px;
-	padding-left: 5px;
-	padding-right: 5px;
-	padding-bottom:10px;
-}
-legend
-{
-	color:green;
-	padding-bottom:5px;
+#sideNavBox {
+  display: none;
 }
 
-.colorRedLegend
-{
-	color:red;
-	border: 1px solid red !important;	
+#contentBox {
+  margin-left: 20px;
 }
 
-.tablesorter tbody
-{
-	/*text-align:center !important;*/
+fieldset {
+  margin-bottom: 10px;
+  /*border-color:lightsteelblue;*/
+  border-width: 2px;
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-bottom: 10px;
+}
+legend {
+  color: green;
+  padding-bottom: 5px;
 }
 
-.tablesorter tbody td
-{
-	text-align:left;
-	padding-left:5px;
-	padding-right:5px;
+.colorRedLegend {
+  color: red;
+  border: 1px solid red !important;
 }
 
-.tablesorter tfoot th, .tablesorter thead th
-{
-	text-align:left;
-	padding-left:5px;
+.tablesorter tbody {
+  /*text-align:center !important;*/
 }
 
+.tablesorter tbody td {
+  text-align: left;
+  padding-left: 5px;
+  padding-right: 5px;
+}
 
-table.tablesorter tbody td:hover
-{
-   /* works background-color: blue !important; */
+.tablesorter tfoot th,
+.tablesorter thead th {
+  text-align: left;
+  padding-left: 5px;
+}
+
+table.tablesorter tbody td:hover {
+  /* works background-color: blue !important; */
 }
 
 #tblRequests tbody tr:hover {
-	background-color:lemonchiffon !important;
+  background-color: lemonchiffon !important;
 }
 
-
-#tblRequestInfo tbody td
-{
-	color:green;
-	width: 300px;
+#tblRequestInfo tbody td {
+  color: green;
+  width: 300px;
 }
 
-#tblRequestInfo span 
-{
-	color:green;
+#tblRequestInfo span {
+  color: green;
 }
 
-#tblCoverSheets tbody td
-{
-	width: 300px;
+#tblCoverSheets tbody td {
+  width: 300px;
 }
 
 table.tablesorter thead tr .header {
-    background-position: left center;
-    padding-left: 20px;
-}​
-
-.request
-{
-	background-color: lightblue;
-	font-weight:bold;
+  background-position: left center;
+  padding-left: 20px;
 }
-.response-header
-{
-	/*background-color: lightgreen;*/
-	font-weight:bold;
+​ .request {
+  background-color: lightblue;
+  font-weight: bold;
 }
-.request-subject
-{
-	text-align:left !important;
+.response-header {
+  /*background-color: lightgreen;*/
+  font-weight: bold;
 }
-.coversheet-header
-{
-	background-color: lightyellow;
-	font-weight:bold;
+.request-subject {
+  text-align: left !important;
+}
+.coversheet-header {
+  background-color: lightyellow;
+  font-weight: bold;
 }
 
-.response-header-title, .response-title, .response-returnReason, .response-header-action, .response-documents 
-{
-	white-space:nowrap;
+.response-header-title,
+.response-title,
+.response-returnReason,
+.response-header-action,
+.response-documents {
+  white-space: nowrap;
 }
 
-.response-action, .response-doc-action, .coversheet-action, .request-action
-{
-	white-space:nowrap;
-	text-align:left !important;
+.response-action,
+.response-doc-action,
+.coversheet-action,
+.request-action {
+  white-space: nowrap;
+  text-align: left !important;
 }
-.response-title,.response-action, .response-sample,.response-returnReason, .response-documents, .response-documents span
-{
-	/*background-color: #CCFFCC;*/
-}
-
-.response-resStatus
-{
-	/*background-color: #CCFFCC;*/
-	white-space:nowrap;
-}
-
-.response-permissions
-{
-	white-space:nowrap;
-	/*this is toggled on IA dashboard*/
-	display:none;
+.response-title,
+.response-action,
+.response-sample,
+.response-returnReason,
+.response-documents,
+.response-documents span {
+  /*background-color: #CCFFCC;*/
 }
 
-.requestInfo-response-doc
-{
-	background-color:lightsteelblue;
-}
-.requestInfo-response-doc, .requestInfo-response-doc-title, .requestInfo-response-doc-modified, .requestInfo-response-doc-modifiedBy
-{
-	white-space:nowrap;
-}
-.requestInfo-response-doc-title
-{
-	padding-left:30px;
-}
-.requestInfo-response-doc img
-{
-	padding-right: 3px;
-}
-.requestInfo-response-doc img:hover
-{
-    cursor: pointer;
+.response-resStatus {
+  /*background-color: #CCFFCC;*/
+  white-space: nowrap;
 }
 
-
-
-.sr2-response-modified, .sr-response-modified
-{
-	white-space:nowrap;
+.response-permissions {
+  white-space: nowrap;
+  /*this is toggled on IA dashboard*/
+  display: none;
 }
 
-.response-item
-{
+.requestInfo-response-doc {
+  background-color: lightsteelblue;
 }
-.request-number, .request-subject
-{
-	white-space:nowrap;
+.requestInfo-response-doc,
+.requestInfo-response-doc-title,
+.requestInfo-response-doc-modified,
+.requestInfo-response-doc-modifiedBy {
+  white-space: nowrap;
 }
-.coversheet-header-title, .coversheet-title
-{
-	text-align:left !important;
+.requestInfo-response-doc-title {
+  padding-left: 30px;
 }
-
-.collapsed
-{
-	display:none;
+.requestInfo-response-doc img {
+  padding-right: 3px;
 }
-
-.auditAlert
-{
-	font-size:11pt;
-	font-weight:bold;
-	color:green;
-	border:1px solid lightgray;
-	margin-bottom:20px;
+.requestInfo-response-doc img:hover {
+  cursor: pointer;
 }
 
-.auditAlert div{
-	font-size:9pt;
-	font-weight:normal;
-	padding-top:5px;
+.sr2-response-modified,
+.sr-response-modified {
+  white-space: nowrap;
+}
+
+.response-item {
+}
+.request-number,
+.request-subject {
+  white-space: nowrap;
+}
+.coversheet-header-title,
+.coversheet-title {
+  text-align: left !important;
+}
+
+.collapsed {
+  display: none;
+}
+
+.auditAlert {
+  font-size: 11pt;
+  font-weight: bold;
+  color: green;
+  border: 1px solid lightgray;
+  margin-bottom: 20px;
+}
+
+.auditAlert div {
+  font-size: 9pt;
+  font-weight: normal;
+  padding-top: 5px;
 }
