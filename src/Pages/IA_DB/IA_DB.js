@@ -132,7 +132,7 @@ Audit.IAReport.NewReportPage = function () {
       var web = currCtx.get_web();
       //Now push to the request item:
       var requestList = web.get_lists().getByTitle(requestListTitle);
-      oListItem = requestList.getItemById(requestId);
+      const oListItem = requestList.getItemById(requestId);
       oListItem.set_item(columnName, JSON.stringify(comments()));
       oListItem.update();
 
@@ -232,7 +232,7 @@ Audit.IAReport.NewReportPage = function () {
       var web = currCtx.get_web();
       //Now push to the request item:
       var requestList = web.get_lists().getByTitle(requestListTitle);
-      oListItem = requestList.getItemById(requestId);
+      const oListItem = requestList.getItemById(requestId);
       oListItem.set_item(columnName, JSON.stringify(viewers()));
       oListItem.update();
 
