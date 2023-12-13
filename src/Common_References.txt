@@ -35,10 +35,6 @@
 ></script>
 <script
   type="text/javascript"
-  src="/sites/CGFS/Style Library/apps/audit/lib/jsrender.min.js"
-></script>
-<script
-  type="text/javascript"
   src="/sites/CGFS/Style Library/apps/audit/lib/knockout-3.5.1.js"
 ></script>
 

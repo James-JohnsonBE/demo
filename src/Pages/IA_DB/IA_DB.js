@@ -2936,18 +2936,16 @@ Audit.IAReport.NewReportPage = function () {
 
       var internalDueDateStyle = "";
       var dueDateStyle = "";
-      if (m_fnIsRequestPastDue(oRequest, 0)) {
-        internalDueDateStyle =
-          ' style="background-color:salmon; font-weight:bold" title="Past Due"';
+      if (m_fnIsRequestPastDue(oRequest, oRequest.internalDueDate)) {
+        internalDueDateStyle = "past-due";
         arrInternalPastDue.push({
           title: oRequest.number,
           number: oRequest.number,
           internalDueDate: oRequest.internalDueDate,
           dueDate: oRequest.dueDate,
         });
-      } else if (m_fnIsRequestAlmostDue(oRequest, 0)) {
-        internalDueDateStyle =
-          ' style="background-color:coral; font-weight:bold" title="Almost Due"';
+      } else if (m_fnIsRequestAlmostDue(oRequest, oRequest.internalDueDate)) {
+        internalDueDateStyle = "almost-due";
         arrInternalAlmostDue.push({
           title: oRequest.number,
           number: oRequest.number,
@@ -2956,18 +2954,16 @@ Audit.IAReport.NewReportPage = function () {
         });
       }
 
-      if (m_fnIsRequestPastDue(oRequest, 1)) {
-        dueDateStyle =
-          ' style="background-color:salmon; font-weight:bold" title="Past Due"';
+      if (m_fnIsRequestPastDue(oRequest, oRequest.dueDate)) {
+        dueDateStyle = "past-due";
         arrPastDue.push({
           title: oRequest.number,
           number: oRequest.number,
           internalDueDate: oRequest.internalDueDate,
           dueDate: oRequest.dueDate,
         });
-      } else if (m_fnIsRequestAlmostDue(oRequest, 1)) {
-        dueDateStyle =
-          ' style="background-color:coral; font-weight:bold" title="Almost Due"';
+      } else if (m_fnIsRequestAlmostDue(oRequest, oRequest.dueDate)) {
+        dueDateStyle = "almost-due";
         arrAlmostDue.push({
           title: oRequest.number,
           number: oRequest.number,
@@ -3020,13 +3016,7 @@ Audit.IAReport.NewReportPage = function () {
     }
 
     ko.utils.arrayPushAll(_myViewModel.arrRequests, requestArr);
-    _myViewModel.arrRequests.valueHasMutated(); //not doing this because we're using jsrender
-
-    //do this after push all because this takes some time
-    var requestTemplateOutput = $("#requestTemplate").render(requestArr);
-    $("#" + fbody)
-      .html(requestTemplateOutput)
-      .show();
+    _myViewModel.arrRequests.valueHasMutated();
 
     ko.utils.arrayPushAll(
       _myViewModel.arrRequestsInternalAlmostDue(),
@@ -3120,10 +3110,10 @@ Audit.IAReport.NewReportPage = function () {
       _myViewModel.arrResponses.valueHasMutated(); //not doing this because we're using jsrender
 
       //do this after push all because this takes some time
-      var responseOutput = $("#responseTemplate").render(responseArr);
-      $("#" + fbody)
-        .html(responseOutput)
-        .show();
+      // var responseOutput = $("#responseTemplate").render(responseArr);
+      // $("#" + fbody)
+      //   .html(responseOutput)
+      //   .show();
     }
     _myViewModel.doSort(true);
 
@@ -3165,11 +3155,8 @@ Audit.IAReport.NewReportPage = function () {
     );
   }
 
-  function m_fnIsRequestAlmostDue(oRequest, type) {
+  function m_fnIsRequestAlmostDue(oRequest, dueDate) {
     var todayDate = new Date();
-    var dueDate = null;
-    if (type == 0) dueDate = oRequest.internalDueDate;
-    else if (type == 1) dueDate = oRequest.dueDate;
 
     if (dueDate == null || dueDate == "") return false;
 
@@ -3190,12 +3177,9 @@ Audit.IAReport.NewReportPage = function () {
     return false;
   }
 
-  function m_fnIsRequestPastDue(oRequest, type) {
+  function m_fnIsRequestPastDue(oRequest, dueDate = null) {
     var todayDate = new Date();
     todayDate.setHours(0, 0, 0, 0);
-    var dueDate = null;
-    if (type == 0) dueDate = oRequest.internalDueDate;
-    else if (type == 1) dueDate = oRequest.dueDate;
 
     if (dueDate == null || dueDate == "") return false;
 
@@ -8439,7 +8423,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
   }
 
   function BindActionOfficeHandler() {
-    //keep because jsrender on request tab needs this
+    // Toggle 'View Action Offices' on requests table
     $(".actionOfficeContainer").click(function () {
       $(this)
         .parent()
@@ -8693,7 +8677,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
     ViewReturnedDocs: m_fnViewReturnedDocs,
     GoToRequest: function (requestNum, responseTitle) {
       m_fnGoToRequest(requestNum, responseTitle);
-    }, //used in jsrender template
+    },
     IsTransactionExecuting: function () {
       return m_bIsTransactionExecuting;
     },

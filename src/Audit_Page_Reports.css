@@ -1,4 +1,5 @@
-﻿#s4-searcharea,
+﻿/* Fix SharePoint Page Styles */
+#s4-searcharea,
 #SearchBox {
   display: none;
 }
@@ -12,6 +13,27 @@
 
 #contentBox {
   margin-left: 20px;
+}
+
+.welcome-content {
+  display: none;
+}
+.ms-webpartzone-cell {
+  margin: 0px;
+}
+
+/* Main Layout */
+
+.audit-body {
+  display: flex;
+}
+
+.audit-body .quick-info {
+  width: 275px;
+}
+
+.audit-body .quick-links {
+  display: flex;
 }
 
 fieldset {
@@ -175,4 +197,14 @@ table.tablesorter thead tr .header {
   font-size: 9pt;
   font-weight: normal;
   padding-top: 5px;
+}
+
+.sr1-request-item .almost-due {
+  background-color: coral;
+  font-weight: bold;
+}
+
+.sr1-request-item .past-due {
+  background-color: salmon;
+  font-weight: bold;
 }
