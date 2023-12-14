@@ -25,10 +25,17 @@
   type="text/javascript"
   src="/sites/CGFS/Style Library/apps/audit/lib/jquery-3.7.1.min.js"
 ></script>
+
+<!-- to remove -->
 <script
   type="text/javascript"
   src="/sites/CGFS/Style Library/apps/audit/lib/jquery-ui-1.13.2/jquery-ui.min.js"
 ></script>
+
+<!-- <script type="text/javascript" src="../SiteAssets/js/jsrender.min.js"></script> -->
+
+<!-- /to remove -->
+
 <script
   type="text/javascript"
   src="/sites/CGFS/Style Library/apps/audit/lib/tablesorter-2.31.3/js/jquery.tablesorter.min.js"

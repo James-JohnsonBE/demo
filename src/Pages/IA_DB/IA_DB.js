@@ -7067,21 +7067,21 @@ Audit.IAReport.NewReportPage = function () {
       requestQuery.set_viewXml(
         '<View><Query><OrderBy><FieldRef Name="ID" Ascending="FALSE"/></OrderBy></Query><RowLimit>1</RowLimit></View>'
       );
-      requestItems = requestList.getItems(requestQuery);
+      const requestItems = requestList.getItems(requestQuery);
       //request status has internal name as response status in the request list
       currCtx.load(
         requestItems,
         "Include(ID, Title, ActionOffice, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
       );
 
-      emailList = web
+      const emailList = web
         .get_lists()
         .getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory());
       var emailListQuery = new SP.CamlQuery();
       emailListQuery.set_viewXml(
         '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
       );
-      emailListFolderItems = emailList.getItems(emailListQuery);
+      const emailListFolderItems = emailList.getItems(emailListQuery);
       currCtx.load(emailListFolderItems, "Include(ID, Title, DisplayName)");
 
       currCtx.executeQueryAsync(
@@ -7377,7 +7377,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
           m_itemID +
           "</Value></Eq></Where></Query></View>"
       );
-      requestItems = requestList.getItems(requestQuery);
+      const requestItems = requestList.getItems(requestQuery);
       //request status has internal name as response status in the request list
       currCtx.load(
         requestItems,
@@ -7391,7 +7391,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
       emailListQuery.set_viewXml(
         '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
       );
-      emailListFolderItems = emailList.getItems(emailListQuery);
+      const emailListFolderItems = emailList.getItems(emailListQuery);
       currCtx.load(emailListFolderItems, "Include(ID, Title, DisplayName)");
 
       var eaList = web
@@ -7401,7 +7401,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
       eaListQuery.set_viewXml(
         '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
       );
-      eaListFolderItems = eaList.getItems(eaListQuery);
+      const eaListFolderItems = eaList.getItems(eaListQuery);
       currCtx.load(eaListFolderItems, "Include(ID, Title, DisplayName)");
 
       function onSuccess() {
