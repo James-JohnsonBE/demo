@@ -60,6 +60,18 @@ Audit.AOReport.NewReportPage = function () {
   var m_arrPermissions = new Array();
   var m_IA_SPGroupName = null;
 
+  var ownerGroup,
+    memberGroup,
+    visitorGroup = null;
+  var m_groupColl = null;
+
+  var m_requestItems = null;
+  var m_responseItems = null;
+  var m_ResponseDocsItems = null;
+  var m_aoItems = null;
+
+  var m_responseDocsLibrary = null;
+
   var m_statusToFilterOn = "";
   var m_curResponseSelectedIsEditableByAO = false;
 
@@ -447,7 +459,7 @@ Audit.AOReport.NewReportPage = function () {
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
 
-    m_currentUser = web.get_currentUser();
+    const m_currentUser = web.get_currentUser();
     currCtx.load(m_currentUser);
 
     var requestList = web
@@ -528,7 +540,7 @@ Audit.AOReport.NewReportPage = function () {
       $("#divRefresh").hide();
       $("#divLoading").hide();
 
-      statusId = SP.UI.Status.addStatus(
+      const statusId = SP.UI.Status.addStatus(
         "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
       );
       SP.UI.Status.setStatusPriColor(statusId, "red");
@@ -542,7 +554,7 @@ Audit.AOReport.NewReportPage = function () {
 
     if (memberGroup != null) m_IA_SPGroupName = memberGroup.get_title();
     if (m_IA_SPGroupName == null || m_IA_SPGroupName == "") {
-      statusId = SP.UI.Status.addStatus(
+      const statusId = SP.UI.Status.addStatus(
         "Unable to retrieve the IA SharePoint Group. Please contact the Administrator"
       );
       SP.UI.Status.setStatusPriColor(statusId, "red");
@@ -716,7 +728,7 @@ Audit.AOReport.NewReportPage = function () {
     while (listItemEnumerator.moveNext()) {
       var oListItem = listItemEnumerator.get_current();
 
-      responseDocID = oListItem.get_item("ID");
+      const responseDocID = oListItem.get_item("ID");
 
       var requestNumber = oListItem.get_item("ReqNum");
       if (requestNumber != null)
@@ -880,7 +892,7 @@ Audit.AOReport.NewReportPage = function () {
         oResponse.request.number +
         "</Value></Eq></Where></Query></View>"
     );
-    m_subsetCoverSheetItems = coverSheetLib.getItems(coverSheetQuery);
+    const m_subsetCoverSheetItems = coverSheetLib.getItems(coverSheetQuery);
     currCtx.load(
       m_subsetCoverSheetItems,
       "Include(ID, Title, ReqNum, ActionOffice, FileLeafRef, FileDirRef)"
@@ -958,7 +970,7 @@ Audit.AOReport.NewReportPage = function () {
       RenderResponses(oResponse);
     }
     function OnFailure(sender, args) {
-      statusId = SP.UI.Status.addStatus(
+      const statusId = SP.UI.Status.addStatus(
         "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
       );
       SP.UI.Status.setStatusPriColor(statusId, "red");
@@ -1029,7 +1041,7 @@ Audit.AOReport.NewReportPage = function () {
         oResponse.resStatus == "3-Returned to Action Office"
       ) {
         if (m_curResponseSelectedIsEditableByAO && cntAddedByAO > 0) {
-          notifyId = SP.UI.Notify.addNotification(
+          const notifyId = SP.UI.Notify.addNotification(
             "<div style='text-align:left'>Response documents have been added. <br/><br/>Your package <span style='font-weight:bold; color:red'>has not yet been submitted</span>. <br></br>Please review your documents and click on the link <b>SUBMIT this Response Package</b> below</div>",
             false
           );
@@ -1048,7 +1060,7 @@ Audit.AOReport.NewReportPage = function () {
             resetColor();
           }, 2000);
         } else if (m_curResponseSelectedIsEditableByAO && cntAddedByAO == 0) {
-          notifyId = SP.UI.Notify.addNotification(
+          const notifyId = SP.UI.Notify.addNotification(
             "<div style='text-align:left'>Please review the Response Information and any CoverSheets/Supplemental Documents. <br/><br/>Then, click the link to <span style='font-weight:bold; color:gree'>Upload Response Documents</span> pertaining to this Response</div>",
             false
           );
@@ -1133,7 +1145,7 @@ Audit.AOReport.NewReportPage = function () {
     ) {
       m_bIsTransactionExecuting = true;
 
-      m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+      const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
         "Submitting Response",
         "Please wait... Submitting Response",
         200,
@@ -1158,7 +1170,7 @@ Audit.AOReport.NewReportPage = function () {
           folderPath +
           "</Value></Eq><Eq><FieldRef Name='DocumentStatus'/><Value Type='Text'>Open</Value></Eq></And></Where></Query></View>"
       );
-      responseDocOpenItems = responseDocLib.getItems(responseDocQuery);
+      const responseDocOpenItems = responseDocLib.getItems(responseDocQuery);
       currCtx.load(
         responseDocOpenItems,
         "Include(ID, DocumentStatus, FileDirRef)"
@@ -1171,7 +1183,7 @@ Audit.AOReport.NewReportPage = function () {
       emailListQuery.set_viewXml(
         '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
       );
-      emailListFolderItems = emailList.getItems(emailListQuery);
+      const emailListFolderItems = emailList.getItems(emailListQuery);
       currCtx.load(emailListFolderItems, "Include(ID, Title, DisplayName)");
 
       function OnSuccessLoadedResponseDocs(sender, args) {
@@ -1187,7 +1199,7 @@ Audit.AOReport.NewReportPage = function () {
         }
 
         if (ctOpenResponseDocs == 0) {
-          notifyId = SP.UI.Notify.addNotification(
+          const notifyId = SP.UI.Notify.addNotification(
             "Please upload a Response document.",
             false
           );
@@ -1199,7 +1211,7 @@ Audit.AOReport.NewReportPage = function () {
         try {
           var bigMapItem = m_bigMap["response-" + responseToSubmit];
           var indexOfArrResponses = bigMapItem.arrIndex;
-          oResponse = m_arrResponses[indexOfArrResponses];
+          const oResponse = m_arrResponses[indexOfArrResponses];
           if (oResponse) {
             oRequest = oResponse.request;
 
@@ -1207,7 +1219,7 @@ Audit.AOReport.NewReportPage = function () {
               .get_web()
               .get_lists()
               .getByTitle(Audit.Common.Utilities.GetListTitleResponses());
-            responseItem = responseList.getItemById(oResponse.ID);
+            const responseItem = responseList.getItemById(oResponse.ID);
             responseItem.set_item("ResStatus", "2-Submitted");
             responseItem.update();
           }
@@ -1256,7 +1268,7 @@ Audit.AOReport.NewReportPage = function () {
         }
         function OnFailureUpdateResponse(sender, args) {
           m_waitDialog.close();
-          statusId = SP.UI.Status.addStatus(
+          const statusId = SP.UI.Status.addStatus(
             "Request failed: " +
               args.get_message() +
               "\n" +
@@ -1273,7 +1285,7 @@ Audit.AOReport.NewReportPage = function () {
 
       function OnFailureLoadedResponseDocs(sender, args) {
         m_waitDialog.close();
-        statusId = SP.UI.Status.addStatus(
+        const statusId = SP.UI.Status.addStatus(
           "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
         );
         SP.UI.Status.setStatusPriColor(statusId, "red");
@@ -1296,7 +1308,7 @@ Audit.AOReport.NewReportPage = function () {
         .get_lists()
         .getByTitle(Audit.Common.Utilities.GetLibNameResponseDocs());
 
-      oListItem = responseDocsLib.getItemById(itemID);
+      const oListItem = responseDocsLib.getItemById(itemID);
       oListItem.set_item("DocumentStatus", "Marked for Deletion");
       oListItem.update();
 
@@ -1304,7 +1316,7 @@ Audit.AOReport.NewReportPage = function () {
         Audit.Common.Utilities.Refresh();
       }
       function OnFailure(sender, args) {
-        statusId = SP.UI.Status.addStatus(
+        const statusId = SP.UI.Status.addStatus(
           "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
         );
         SP.UI.Status.setStatusPriColor(statusId, "red");
