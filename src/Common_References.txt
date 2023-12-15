@@ -49,3 +49,11 @@
   type="text/javascript"
   src="/sites/CGFS/Style Library/apps/audit/src/Common/Utilities.js"
 ></script>
+
+<!-- TODO: Break these out into their individual files! -->
+
+<template id="componentUploadDoc">
+  <p>Hello from upload doc!</p>
+  <input type="file" data-bind="files: files" />
+  <button type="button" data-bind="click: submit">Submit</button>
+</template>

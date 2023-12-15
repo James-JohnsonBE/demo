@@ -374,6 +374,9 @@
               <legend>Response Documents</legend>
 
               <div class="divUpload" data-bind="visible: showUpload()">
+                <div
+                  data-bind="component: {name: 'upload-doc-component', params: {response: currentResponse}}"
+                ></div>
                 <a
                   title="Upload Response Documents"
                   href="javascript:void(0)"

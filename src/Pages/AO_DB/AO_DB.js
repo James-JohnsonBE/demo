@@ -1,4 +1,6 @@
-﻿var Audit = window.Audit || {};
+﻿import UploadDocModule from "../../Components/UploadDoc/UploadDocModule.js";
+
+var Audit = window.Audit || {};
 Audit.AOReport = Audit.AOReport || {};
 
 $(document).ready(function () {
