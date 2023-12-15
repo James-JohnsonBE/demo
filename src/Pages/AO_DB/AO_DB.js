@@ -852,13 +852,13 @@ Audit.AOReport.NewReportPage = function () {
         m_statusToFilterOn = m_responseStatus2;
 
       _myViewModel.cntPendingReview(count);
-      $("#tabs").tabs().show();
+      $("#tabs").tabs(); //.show();
 
       ko.utils.arrayPushAll(_myViewModel.arrResponses, responseArr);
 
       //do this after push all because this takes some time
-      var output = $("#responseTemplate").render(responseArr);
-      $("#" + fbody).html(output);
+      // var output = $("#responseTemplate").render(responseArr);
+      // $("#" + fbody).html(output);
     }
 
     //aleways calls this even if 0 responses

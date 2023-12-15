@@ -361,7 +361,7 @@ Audit.IAReport.NewReportPage = function () {
 
       const tabReportElements = document
         .getElementById(elementId)
-        .querySelectorAll(".ui-tab");
+        .querySelectorAll(".ui-tab-panel");
 
       tabReportElements.forEach((tab) => {
         tab.classList.toggle("active", tab.id == newTab.dataset.controls);
@@ -1117,7 +1117,7 @@ Audit.IAReport.NewReportPage = function () {
           if (paramTabIndex != null && paramTabIndex != "") {
             self.tabs.selectTabByTabId(paramTabIndex);
           } else {
-            self.tabs.selectTabByTabId(self.tabs.Tabs.Requests.tabId)
+            self.tabs.selectTabByTabId(self.tabs.Tabs.Requests.tabId);
           }
 
           if (paramRequestNum != null && paramRequestNum != "") {

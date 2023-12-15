@@ -375,7 +375,7 @@
           </li>
         </ul>
 
-        <div id="requestStatusReport" class="ui-tab">
+        <div id="requestStatusReport" class="ui-tab-panel">
           <div id="divStatusReportRequests">
             <table id="tblStatusReportRequests" class="tablesorter report">
               <thead>
@@ -384,58 +384,58 @@
                   class="rowFilters"
                   data-bind="visible: arrRequests().length > 0"
                 >
-                  <th class="sorter-false" nowrap="nowrap">
+                  <th class="sorter-false filter" nowrap="nowrap">
                     <select
                       id="ddlRequestRequestID"
                       data-bind="options: $root.ddOptionsRequestTabRequestID, value: filterRequestTabRequestID, optionsCaption: '-Select-'"
                     ></select>
                   </th>
-                  <th class="sorter-false no-sort" nowrap="nowrap"></th>
-                  <th class="sorter-false" nowrap="nowrap">
+                  <th class="sorter-false" nowrap="nowrap"></th>
+                  <th class="sorter-false filter" nowrap="nowrap">
                     <select
                       id="ddlRequestSensitivity"
                       data-bind="options: $root.ddOptionsRequestTabRequestSensitivity, value: filterRequestTabRequestSensitivity, optionsCaption: '-Select-'"
                     ></select>
                   </th>
-                  <th class="sorter-false" nowrap="nowrap">
+                  <th class="sorter-false filter" nowrap="nowrap">
                     <select
                       id="ddlRequestStatus"
                       data-bind="options: $root.ddOptionsRequestTabRequestStatus, value: filterRequestTabRequestStatus, optionsCaption: '-Select-'"
                     ></select>
                   </th>
-                  <th class="sorter-false" nowrap="nowrap">
+                  <th class="sorter-false filter" nowrap="nowrap">
                     <select
                       id="ddlRequestInternalDueDate"
                       data-bind="options: $root.ddOptionsRequestTabRequestInternalDueDate, value: filterRequestTabRequestInternalDueDate, optionsCaption: '-Select-'"
                     ></select>
                   </th>
-                  <th class="sorter-false" nowrap="nowrap">
+                  <th class="sorter-false filter" nowrap="nowrap">
                     <select
                       id="ddlRequestDueDate"
                       data-bind="options: $root.ddOptionsRequestTabRequestDueDate, value: filterRequestTabRequestDueDate, optionsCaption: '-Select-'"
                     ></select>
                   </th>
-                  <th class="sorter-false" nowrap="nowrap">
+                  <th class="sorter-false filter" nowrap="nowrap">
                     <select
                       id="ddlRequestSample"
                       data-bind="options: $root.ddOptionsRequestTabRequestSample, value: filterRequestTabRequestSample, optionsCaption: '-Select-'"
                     ></select>
                   </th>
-                  <th class="sorter-false" nowrap="nowrap">
+                  <th class="sorter-false filter" nowrap="nowrap">
                     <select
                       id="ddlRequestSentEmail"
                       data-bind="options: $root.ddOptionsRequestTabRequestSentEmail, value: filterRequestTabRequestSentEmail, optionsCaption: '-Select-'"
                     ></select>
                   </th>
-                  <th class="sorter-false" nowrap="nowrap">
+                  <th class="sorter-false filter" nowrap="nowrap">
                     <select
                       id="ddlRequestAO"
                       data-bind="options: $root.ddOptionsRequestTabRequestAO, value: filterRequestTabRequestAO, optionsCaption: '-Select-'"
                     ></select>
                   </th>
-                  <th class="sorter-false no-sort" nowrap="nowrap"></th>
-                  <th class="sorter-false no-sort" nowrap="nowrap"></th>
-                  <th class="sorter-false no-sort" nowrap="nowrap"></th>
+                  <th class="sorter-false" nowrap="nowrap"></th>
+                  <th class="sorter-false" nowrap="nowrap"></th>
+                  <th class="sorter-false" nowrap="nowrap"></th>
                 </tr>
                 <tr valign="top">
                   <th class="sorter-true" nowrap="nowrap">Request #</th>
@@ -486,31 +486,31 @@
             </table>
           </div>
           <div
-          style="padding-top: 3px"
-          data-bind="visible: arrRequests().length > 0"
-        >
-          <a
-            id="btnPrint1"
-            title="Click here to Print"
-            href="javascript:void(0)"
-            class="hideOnPrint"
-            ><span class="ui-icon ui-icon-print">Print</span></a
+            style="padding-top: 3px"
+            data-bind="visible: arrRequests().length > 0"
           >
-          <a class="export1 hideOnPrint" title="Export to CSV" href="#"
-            ><span class="ui-icon ui-icon-disk">Export to CSV</span></a
-          >
-          <a
-            id="btnViewAllRequests"
-            title="Clear All Filters and View All Requests"
-            href="javascript:void(0)"
-            data-bind="visible: arrFilteredRequestsCount() < arrRequests().length, click: ClearFiltersRequestTab"
-            ><span class="ui-icon ui-icon-circle-zoomout"></span>View All
-            Requests</a
-          >
-        </div>
+            <a
+              id="btnPrint1"
+              title="Click here to Print"
+              href="javascript:void(0)"
+              class="hideOnPrint"
+              ><span class="ui-icon ui-icon-print">Print</span></a
+            >
+            <a class="export1 hideOnPrint" title="Export to CSV" href="#"
+              ><span class="ui-icon ui-icon-disk">Export to CSV</span></a
+            >
+            <a
+              id="btnViewAllRequests"
+              title="Clear All Filters and View All Requests"
+              href="javascript:void(0)"
+              data-bind="visible: arrFilteredRequestsCount() < arrRequests().length, click: ClearFiltersRequestTab"
+              ><span class="ui-icon ui-icon-circle-zoomout"></span>View All
+              Requests</a
+            >
+          </div>
         </div>
 
-        <div id="responseStatusReport" class="ui-tab">
+        <div id="responseStatusReport" class="ui-tab-panel">
           <div
             id="divButtons"
             style="padding-top: 3px"
@@ -659,7 +659,7 @@
           </div>
         </div>
 
-        <div id="requestDetailReport" class="ui-tab">
+        <div id="requestDetailReport" class="ui-tab-panel">
           <div style="padding-bottom: 15px">
             <span>Request: </span
             ><select
