@@ -27,6 +27,8 @@ export default class UploadDocModule {
     this.response = response;
     console.log("hello from response", response());
     response.subscribe(this.responseChangeHandler);
+
+    this.files.subscribe(this.filesChangeHandler);
   }
 
   files = ko.observable();
@@ -43,16 +45,28 @@ export default class UploadDocModule {
     console.log("hello from response", this.response());
   };
 
-  submit = () => {
-    console.log("Submitting to Response:", this.response()?.title);
-    this.uploadResponseDocs();
+  filesChangeHandler = (newFiles) => {
+    this.uploadResponseDocs(newFiles);
   };
 
-  uploadResponseDocs = async () => {
+  submit = () => {
+    console.log("Submitting to Response:", this.response()?.title);
     const files = this.files();
+    this.uploadResponseDocs(files);
+  };
+
+  uploadResponseDocs = async (files) => {
     for (let file of files) {
       const result = await this.uploadFile(file, file.name, this.folderPath());
-      await updateFileMetadata(result);
+      await this.updateFileMetadata(result, {
+        Title: "Still Working 3",
+        ReqNumId: this.response().request.ID,
+        ResIDId: this.response().ID,
+      });
+
+      // TODO: Clear uploaded files from control
+      // TODO: Show uploading bar
+      // TODO: Let host know that upload has completed/push to relevent host array?
     }
   };
 
@@ -65,7 +79,7 @@ export default class UploadDocModule {
         credentials: "same-origin",
         body: file,
         headers: {
-          Accept: "application/json; odata=nometadata",
+          Accept: "application/json; odata=verbose",
           "Content-Type": "application/json;odata=nometadata",
           "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value,
         },
@@ -79,10 +93,32 @@ export default class UploadDocModule {
       return response.json();
     });
 
-    return result;
+    return result.d;
   };
 
-  updateFileMetadata = async (fileResult) => {};
+  updateFileMetadata = async (fileResult, payload) => {
+    var result = await fetch(fileResult.ListItemAllFields.__deferred.uri, {
+      method: "POST",
+      credentials: "same-origin",
+      body: JSON.stringify(payload),
+      headers: {
+        Accept: "application/json; odata=nometadata",
+        "Content-Type": "application/json;odata=nometadata",
+        "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value,
+        "X-HTTP-Method": "MERGE",
+        "If-Match": "*",
+      },
+    }).then((response) => {
+      if (!response.ok) {
+        console.error("Error Updating File", response);
+        return;
+      }
+
+      return response;
+    });
+
+    return result;
+  };
 
   readFile = (file) => {
     var reader = new FileReader();
