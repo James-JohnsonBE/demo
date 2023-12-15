@@ -359,41 +359,23 @@
           >
         </div>
       </div>
-      <div
-        id="tabs"
-        style="display: none; margin-top: 20px"
-        class="ui-tabs ui-widget"
-      >
-        <ul class="ui-tabs-nav">
-          <li><a href="#tabs-0">Request Status Report</a></li>
-          <li><a href="#tabs-1">Response Status Report</a></li>
-          <li><a href="#tabs-2">Request Information</a></li>
+      <div id="tabs" style="margin-top: 20px" class="ui-tabs ui-widget">
+        <ul class="ui-tabs-nav" data-bind="">
+          <li data-tab-id="request-report" data-controls="requestStatusReport">
+            Request Status Report
+          </li>
+          <li
+            data-tab-id="response-report"
+            data-controls="responseStatusReport"
+          >
+            Response Status Report
+          </li>
+          <li data-tab-id="request-detail" data-controls="requestDetailReport">
+            Request Information
+          </li>
         </ul>
 
-        <div id="tabs-0">
-          <div
-            style="padding-top: 3px"
-            data-bind="visible: arrRequests().length > 0"
-          >
-            <a
-              id="btnPrint1"
-              title="Click here to Print"
-              href="javascript:void(0)"
-              class="hideOnPrint"
-              ><span class="ui-icon ui-icon-print">Print</span></a
-            >
-            <a class="export1 hideOnPrint" title="Export to CSV" href="#"
-              ><span class="ui-icon ui-icon-disk">Export to CSV</span></a
-            >
-            <a
-              id="btnViewAllRequests"
-              title="Clear All Filters and View All Requests"
-              href="javascript:void(0)"
-              data-bind="visible: arrFilteredRequestsCount() < arrRequests().length, click: ClearFiltersRequestTab"
-              ><span class="ui-icon ui-icon-circle-zoomout"></span>View All
-              Requests</a
-            >
-          </div>
+        <div id="requestStatusReport" class="ui-tab">
           <div id="divStatusReportRequests">
             <table id="tblStatusReportRequests" class="tablesorter report">
               <thead>
@@ -408,7 +390,7 @@
                       data-bind="options: $root.ddOptionsRequestTabRequestID, value: filterRequestTabRequestID, optionsCaption: '-Select-'"
                     ></select>
                   </th>
-                  <th class="sorter-false" nowrap="nowrap"></th>
+                  <th class="sorter-false no-sort" nowrap="nowrap"></th>
                   <th class="sorter-false" nowrap="nowrap">
                     <select
                       id="ddlRequestSensitivity"
@@ -451,9 +433,9 @@
                       data-bind="options: $root.ddOptionsRequestTabRequestAO, value: filterRequestTabRequestAO, optionsCaption: '-Select-'"
                     ></select>
                   </th>
-                  <th class="sorter-false" nowrap="nowrap"></th>
-                  <th class="sorter-false" nowrap="nowrap"></th>
-                  <th class="sorter-false" nowrap="nowrap"></th>
+                  <th class="sorter-false no-sort" nowrap="nowrap"></th>
+                  <th class="sorter-false no-sort" nowrap="nowrap"></th>
+                  <th class="sorter-false no-sort" nowrap="nowrap"></th>
                 </tr>
                 <tr valign="top">
                   <th class="sorter-true" nowrap="nowrap">Request #</th>
@@ -503,9 +485,32 @@
               </tfoot>
             </table>
           </div>
+          <div
+          style="padding-top: 3px"
+          data-bind="visible: arrRequests().length > 0"
+        >
+          <a
+            id="btnPrint1"
+            title="Click here to Print"
+            href="javascript:void(0)"
+            class="hideOnPrint"
+            ><span class="ui-icon ui-icon-print">Print</span></a
+          >
+          <a class="export1 hideOnPrint" title="Export to CSV" href="#"
+            ><span class="ui-icon ui-icon-disk">Export to CSV</span></a
+          >
+          <a
+            id="btnViewAllRequests"
+            title="Clear All Filters and View All Requests"
+            href="javascript:void(0)"
+            data-bind="visible: arrFilteredRequestsCount() < arrRequests().length, click: ClearFiltersRequestTab"
+            ><span class="ui-icon ui-icon-circle-zoomout"></span>View All
+            Requests</a
+          >
+        </div>
         </div>
 
-        <div id="tabs-1" style="display: none">
+        <div id="responseStatusReport" class="ui-tab">
           <div
             id="divButtons"
             style="padding-top: 3px"
@@ -654,7 +659,7 @@
           </div>
         </div>
 
-        <div id="tabs-2" style="display: none">
+        <div id="requestDetailReport" class="ui-tab">
           <div style="padding-bottom: 15px">
             <span>Request: </span
             ><select

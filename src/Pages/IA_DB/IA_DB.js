@@ -316,8 +316,86 @@ Audit.IAReport.NewReportPage = function () {
     },
   };
 
+  function Tabs(elementId) {
+    const self = this;
+    const Tabs = {
+      Requests: {
+        urlKey: 0,
+        tabId: "request-report",
+        tabText: "Request Status Report",
+      },
+      Responses: {
+        urlKey: 1,
+        tabId: "response-report",
+        tabText: "Response Status Report",
+      },
+      RequestDetail: {
+        urlKey: 2,
+        tabId: "request-detail",
+        tabText: "Request Information",
+      },
+    };
+
+    const selectedTab = ko.observable();
+
+    function clickTab(e) {
+      selectTab(e.target);
+    }
+
+    function selectTabByTabId(tabId) {
+      const tabElem = document.querySelector(`li[data-tab-id="${tabId}"]`);
+      if (tabElem) selectTab(tabElem);
+    }
+
+    function selectTab(newTab) {
+      if (!(newTab instanceof HTMLLIElement)) return;
+
+      const tabOptElements = document
+        .getElementById(elementId)
+        .querySelectorAll(".ui-tabs-nav li");
+
+      tabOptElements.forEach((tab) => {
+        if (tab !== newTab) tab.classList.remove("active");
+        else tab.classList.add("active");
+      });
+
+      const tabReportElements = document
+        .getElementById(elementId)
+        .querySelectorAll(".ui-tab");
+
+      tabReportElements.forEach((tab) => {
+        tab.classList.toggle("active", tab.id == newTab.dataset.controls);
+      });
+
+      selectedTab(newTab);
+    }
+
+    function tabChangedHandler(newTab) {
+      // TODO: push tab to window history
+    }
+
+    selectedTab.subscribe(tabChangedHandler);
+
+    function bindTabs() {
+      document
+        .getElementById(elementId)
+        .querySelector(`.ui-tabs-nav`)
+        .addEventListener("click", clickTab);
+    }
+
+    return {
+      Tabs,
+      selectedTab,
+      clickTab,
+      selectTabByTabId,
+      bindTabs,
+    };
+  }
+
   function ViewModel() {
     var self = this;
+
+    self.tabs = new Tabs("tabs");
 
     self.debugMode = ko.observable(false);
     self.siteUrl = Audit.Common.Utilities.GetSiteUrl();
@@ -1036,23 +1114,33 @@ Audit.IAReport.NewReportPage = function () {
           var paramRequestNum = GetUrlKeyValue("ReqNum");
           var paramResNum = GetUrlKeyValue("ResNum");
 
-          if (paramTabIndex != null && paramTabIndex != "")
-            $("#tabs").tabs("option", "active", paramTabIndex);
+          if (paramTabIndex != null && paramTabIndex != "") {
+            self.tabs.selectTabByTabId(paramTabIndex);
+          } else {
+            self.tabs.selectTabByTabId(self.tabs.Tabs.Requests.tabId)
+          }
 
           if (paramRequestNum != null && paramRequestNum != "") {
-            if (paramTabIndex == 1)
+            if (paramTabIndex == _myViewModel.tabs.Tabs.Responses.tabId)
               self.filterRequestTabRequestID(paramRequestNum);
-            else if (paramTabIndex == 2)
+            else if (
+              paramTabIndex == _myViewModel.tabs.Tabs.RequestDetail.tabId
+            )
               self.filterRequestInfoTabRequestName(paramRequestNum);
           }
           /**Note: on the jsrender of the request/response tables, I set the rows to display none; the filters below show the rows I want **/
           self.filterRequestTabRequestStatus(m_sRequestStatusToFilterOn);
 
-          if (paramResNum != null && paramResNum != "" && paramTabIndex == 1) {
+          if (
+            paramResNum != null &&
+            paramResNum != "" &&
+            paramTabIndex == _myViewModel.tabs.Tabs.Responses.tabId
+          ) {
             self.filterResponseTabResponseName(paramResNum);
           } else if (
-            paramTabIndex != 1 ||
-            (paramTabIndex == 1 && (paramResNum == null || paramResNum == ""))
+            paramTabIndex != _myViewModel.tabs.Tabs.Responses.tabId ||
+            (paramTabIndex == _myViewModel.tabs.Tabs.Responses.tabId &&
+              (paramResNum == null || paramResNum == ""))
           )
             //dont filter here because IA has received a link to the response and we don't want the status to be filtered
             self.filterResponseTabResponseStatus(m_sResponseStatusToFilterOn);
@@ -1322,34 +1410,24 @@ Audit.IAReport.NewReportPage = function () {
   function m_fnRefresh(requestNumber) {
     var curPath = location.pathname;
     var section = GetUrlKeyValue("Sect");
+    const tabIndex = _myViewModel.tabs.selectedTab()?.dataset.tabId ?? "";
+    curPath += "?Tab=" + tabIndex;
 
     if (!requestNumber) {
-      var tabIndex = $("#tabs").tabs("option", "active");
-      curPath += "?Tab=" + tabIndex;
-
-      if (tabIndex == 1) {
+      if (tabIndex == _myViewModel.tabs.Tabs.Responses.tabId) {
         var responseName = $("#ddlResponseName").val();
         if (responseName != null && responseName != "")
           curPath += "&ResNum=" + responseName;
-      } else if (tabIndex == 2) {
+      } else if (tabIndex == _myViewModel.tabs.Tabs.RequestDetail.tabId) {
         var section = GetUrlKeyValue("Sect");
         if (section) curPath += "&Sect=" + section;
         var requestNum = $("#ddlReqNum").val();
         if (requestNum != null && requestNum != "")
           curPath += "&ReqNum=" + requestNum;
       }
-      //curPath += window.location.hash;
-      //location.href = curPath;
     } else {
-      var curPath = location.pathname;
-
-      var tabIndex = $("#tabs").tabs("option", "active");
-      curPath += "?Tab=" + tabIndex;
-
       if (requestNumber != null && requestNumber != "")
         curPath += "&ReqNum=" + requestNumber;
-
-      //curPath += window.location.hash;
     }
     location.href = curPath;
   }
@@ -3104,7 +3182,6 @@ Audit.IAReport.NewReportPage = function () {
     //if( bLoadTest )
     //	_myViewModel.debugMode( true );
 
-    $("#tabs").tabs().show();
     if (responseArr.length > 0) {
       ko.utils.arrayPushAll(_myViewModel.arrResponses, responseArr);
       _myViewModel.arrResponses.valueHasMutated(); //not doing this because we're using jsrender
@@ -7027,7 +7104,8 @@ Audit.IAReport.NewReportPage = function () {
   function GetSourceUrlForForms() {
     var curPath = location.pathname;
 
-    var tabIndex = $("#tabs").tabs("option", "active");
+    var tabIndex = _myViewModel.tabs.selectedTab()?.dataset.tabId ?? "";
+
     curPath += "?Tab=" + tabIndex;
 
     var requestNum = $("#ddlReqNum").val();
@@ -7110,7 +7188,9 @@ Audit.IAReport.NewReportPage = function () {
                     oListItem.get_item("Title"),
                     oListItem,
                     function (bDoneCreatingEmailFolder) {
-                      $("#tabs").tabs("option", "active", 2);
+                      _myViewModel.tabs.selectTabByTabId(
+                        _myViewModel.tabs.Tabs.RequestDetail.tabId
+                      );
                       m_fnRefresh(oListItem.get_item("Title"));
                     }
                   );
@@ -7123,7 +7203,9 @@ Audit.IAReport.NewReportPage = function () {
                 oListItem.get_item("Title"),
                 oListItem,
                 function (bDoneCreatingEmailFolder) {
-                  $("#tabs").tabs("option", "active", 2);
+                  _myViewModel.tabs.selectTabByTabId(
+                    _myViewModel.tabs.Tabs.RequestDetail.tabId
+                  );
                   m_fnRefresh(oListItem.get_item("Title"));
                 }
               );
@@ -8412,7 +8494,9 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
     if (responseTitle != null && responseTitle != "")
       m_sGoToResponseTitle = responseTitle;
 
-    $("#tabs").tabs({ active: 2 });
+    _myViewModel.tabs.selectTabByTabId(
+      _myViewModel.tabs.Tabs.RequestDetail.tabId
+    );
 
     if ($("#ddlReqNum").val() != requestNumber) {
       _myViewModel.filterRequestInfoTabRequestName(requestNumber);
@@ -8438,6 +8522,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
       $(this).parent().toggleClass("colorRedLegend");
     });
     BindActionOfficeHandler();
+    _myViewModel.tabs.bindTabs();
 
     $("#linkSubmitNewReq").click(function () {
       m_fnCreateRequest();
