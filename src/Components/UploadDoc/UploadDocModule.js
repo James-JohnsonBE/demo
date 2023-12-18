@@ -23,8 +23,9 @@ var result = {
 };
 
 export default class UploadDocModule {
-  constructor({ response, newUploadCallback }) {
+  constructor({ label, response, newUploadCallback }) {
     this.response = response;
+    this.label = label;
     console.log("hello from response", response());
     response.subscribe(this.responseChangeHandler);
 
@@ -57,37 +58,6 @@ export default class UploadDocModule {
       .filter((file) => file.status == "added")
       .map((file) => file.value);
     this.uploadResponseDocs(newFiles);
-  };
-
-  silenceEvent = (data, event) => {
-    event.preventDefault();
-    event.stopPropagation();
-  };
-
-  // TODO: These should probably all be registered in the files binding
-  dragOver = (data, event) => {
-    event.preventDefault();
-    event.stopPropagation();
-  };
-
-  dragEnter = (data, event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDraggingOver(true);
-  };
-
-  dragLeave = (data, event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDraggingOver(false);
-  };
-
-  dropFiles = (data, event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    let dt = event.originalEvent.dataTransfer;
-    let files = dt.files;
-    this.files([...files]);
   };
 
   submit = () => {

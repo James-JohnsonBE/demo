@@ -58,7 +58,7 @@
   <!-- /ko -->
   <!-- ko ifnot: isUploading -->
   <label class="file-upload-field">
-    Upload Documents
+    <span data-bind="text: label"></span>
     <div class="dropzone" data-bind="">Drop Files Here</div>
     <input class="file-upload" type="file" multiple data-bind="files: files" />
   </label>

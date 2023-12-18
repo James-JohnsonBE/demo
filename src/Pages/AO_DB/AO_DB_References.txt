@@ -373,19 +373,6 @@
             <fieldset>
               <legend>Response Documents</legend>
 
-              <div class="divUpload" data-bind="visible: showUpload()">
-                <div
-                  data-bind="component: {name: 'upload-doc-component', 
-                    params: {response: currentResponse, newUploadCallback: onNewResponseDocCallback}}"
-                ></div>
-                <a
-                  title="Upload Response Documents"
-                  href="javascript:void(0)"
-                  data-bind="click:ClickUploadResponseDoc"
-                  ><span class="ui-icon ui-icon-circle-arrow-n"></span>Upload
-                  Response Document</a
-                >
-              </div>
               <table
                 id="tblResponseDocs"
                 class="tablesorter report"
@@ -475,18 +462,14 @@
                   </tr>
                 </tfoot>
               </table>
-
-              <div
-                class="divUpload"
-                data-bind="visible: showUpload() && cntResponseDocs() > 0"
-              >
-                <a
-                  title="Upload Response Documents"
-                  href="javascript:void(0)"
-                  data-bind="click:ClickUploadResponseDoc"
-                  ><span class="ui-icon ui-icon-circle-arrow-n"></span>Upload
-                  Response Document</a
-                >
+              <div class="divUpload" data-bind="visible: showUpload()">
+                <div
+                  data-bind="component: {name: 'upload-doc-component', 
+                    params: {
+                      label: 'Upload Response Documents',
+                      response: currentResponse, 
+                      newUploadCallback: onNewResponseDocCallback}}"
+                ></div>
               </div>
             </fieldset>
           </div>
