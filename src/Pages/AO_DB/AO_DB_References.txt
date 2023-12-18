@@ -375,7 +375,8 @@
 
               <div class="divUpload" data-bind="visible: showUpload()">
                 <div
-                  data-bind="component: {name: 'upload-doc-component', params: {response: currentResponse}}"
+                  data-bind="component: {name: 'upload-doc-component', 
+                    params: {response: currentResponse, newUploadCallback: onNewResponseDocCallback}}"
                 ></div>
                 <a
                   title="Upload Response Documents"

@@ -316,3 +316,16 @@ table.tablesorter thead tr .header {
   background-color: salmon;
   font-weight: bold;
 }
+
+.dropzone {
+  color: gray;
+  font-size: 1.25rem;
+  font-weight: bold;
+  text-align: center;
+  padding: 1.5rem;
+  border: 2px dashed lightgray;
+}
+
+.file-upload-field.dragging .dropzone {
+  border: 2px dashed gray;
+}

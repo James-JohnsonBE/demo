@@ -174,6 +174,8 @@ Audit.AOReport.NewReportPage = function () {
     self.showUpload = ko.observable(false);
     self.showSubmit = ko.observable(false);
 
+    self.onNewResponseDocCallback = Audit.Common.Utilities.Refresh;
+
     self.selectedFiltersResponseTab = ko.computed(function () {
       var requestIntDueDate = self.filterResponseTabRequestIntDueDate();
       var responseName = self.filterResponseTabResponseName();

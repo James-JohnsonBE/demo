@@ -23,15 +23,21 @@ var result = {
 };
 
 export default class UploadDocModule {
-  constructor({ response }) {
+  constructor({ response, newUploadCallback }) {
     this.response = response;
     console.log("hello from response", response());
     response.subscribe(this.responseChangeHandler);
 
-    this.files.subscribe(this.filesChangeHandler);
+    this.newUploadCallback = newUploadCallback;
+
+    this.files.subscribe(this.filesChangeHandler, this, "arrayChange");
   }
 
-  files = ko.observable();
+  files = ko.observableArray();
+  message = ko.observable();
+  isUploading = ko.observable();
+
+  isDraggingOver = ko.observable(false);
 
   folderPath = ko.pureComputed(() => {
     return (
@@ -45,8 +51,43 @@ export default class UploadDocModule {
     console.log("hello from response", this.response());
   };
 
-  filesChangeHandler = (newFiles) => {
+  filesChangeHandler = (fileChanges) => {
+    // this.uploadResponseDocs(newFiles);
+    const newFiles = fileChanges
+      .filter((file) => file.status == "added")
+      .map((file) => file.value);
     this.uploadResponseDocs(newFiles);
+  };
+
+  silenceEvent = (data, event) => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
+  // TODO: These should probably all be registered in the files binding
+  dragOver = (data, event) => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
+  dragEnter = (data, event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDraggingOver(true);
+  };
+
+  dragLeave = (data, event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDraggingOver(false);
+  };
+
+  dropFiles = (data, event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    let dt = event.originalEvent.dataTransfer;
+    let files = dt.files;
+    this.files([...files]);
   };
 
   submit = () => {
@@ -56,18 +97,28 @@ export default class UploadDocModule {
   };
 
   uploadResponseDocs = async (files) => {
+    this.isUploading(true);
+    const promises = [];
     for (let file of files) {
       const result = await this.uploadFile(file, file.name, this.folderPath());
-      await this.updateFileMetadata(result, {
-        Title: "Still Working 3",
-        ReqNumId: this.response().request.ID,
-        ResIDId: this.response().ID,
-      });
-
-      // TODO: Clear uploaded files from control
-      // TODO: Show uploading bar
-      // TODO: Let host know that upload has completed/push to relevent host array?
+      promises.push(
+        this.updateFileMetadata(result, {
+          Title: file.name,
+          ReqNumId: this.response().request.ID,
+          ResIDId: this.response().ID,
+        })
+      );
     }
+    await Promise.all(promises);
+
+    this.files.removeAll();
+    this.message(`${files.length} files uploaded!`);
+    this.isUploading(false);
+    this.newUploadCallback();
+
+    // TODO: Clear uploaded files from control
+    // TODO: Show uploading bar
+    // TODO: Let host know that upload has completed/push to relevent host array?
   };
 
   uploadFile = async (file, fileName, relFolderPath) => {
@@ -134,20 +185,85 @@ export default class UploadDocModule {
   static componentName = "upload-doc-component";
 }
 
+ko.bindingHandlers.files = {
+  init: function (element, valueAccessor) {
+    function addFiles(fileList) {
+      var value = valueAccessor();
+      if (!fileList.length) {
+        value.removeAll();
+        return;
+      }
+
+      const existingFiles = ko.unwrap(value);
+      const newFileList = [];
+      for (let file of fileList) {
+        if (!existingFiles.find((exFile) => exFile.name == file.name))
+          newFileList.push(file);
+      }
+      ko.utils.arrayPushAll(value, newFileList);
+      // value.valueHasMutated();
+      return;
+    }
+
+    ko.utils.registerEventHandler(element, "change", function () {
+      addFiles(element.files);
+    });
+
+    const label = element.closest("label");
+    if (!label) return;
+
+    ko.utils.registerEventHandler(label, "dragover", function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    });
+
+    ko.utils.registerEventHandler(label, "dragenter", function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      label.classList.add("dragging");
+    });
+
+    ko.utils.registerEventHandler(label, "dragleave", function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      label.classList.remove("dragging");
+    });
+
+    ko.utils.registerEventHandler(label, "drop", function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      let dt = event.originalEvent.dataTransfer;
+      let files = dt.files;
+      addFiles(files);
+    });
+  },
+  update: function (
+    element,
+    valueAccessor,
+    allBindings,
+    viewModel,
+    bindingContext
+  ) {
+    const value = valueAccessor();
+    if (!value.length && element.files.length) {
+      // clear all files
+      element.value = null;
+      return;
+    }
+
+    // const newFiles = ko.unwrap(value);
+    // // need to differentiate
+    // for (let file of element.files) {
+
+    // }
+    return;
+  },
+};
+
 ko.components.register(UploadDocModule.componentName, {
   viewModel: UploadDocModule,
   template: { element: "componentUploadDoc" },
 });
-
-ko.bindingHandlers.files = {
-  init: function (element, valueAccessor) {
-    ko.utils.registerEventHandler(element, "change", function () {
-      var value = valueAccessor();
-      value(element.files);
-      return;
-    });
-  },
-};
 
 var m_siteUrl = _spPageContextInfo.webServerRelativeUrl; //IE11 in sp 2013 does not recognize L_Menu_BaseUrl
 var m_selectedRequestNumber = null;
