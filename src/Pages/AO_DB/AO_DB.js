@@ -1,8 +1,11 @@
 ﻿import UploadDocModule from "../../Components/UploadDoc/UploadDocModule.js";
 import { TabsModule, Tab } from "../../Components/Tabs/TabsModule.js";
+import { setUrlParam } from "../../Common/Router.js";
 
 var Audit = window.Audit || {};
 Audit.AOReport = Audit.AOReport || {};
+
+const responseParam = "ResNum";
 
 $(document).ready(function () {
   SP.SOD.executeFunc(
@@ -188,6 +191,10 @@ Audit.AOReport.NewReportPage = function () {
 
     self.onNewResponseDocCallback = Audit.Common.Utilities.Refresh;
 
+    self.currentResponse.subscribe((newResponse) => {
+      if (!newResponse) return;
+      setUrlParam(responseParam, newResponse.title);
+    });
     self.selectedFiltersResponseTab = ko.computed(function () {
       var requestIntDueDate = self.filterResponseTabRequestIntDueDate();
       var responseName = self.filterResponseTabResponseName();
