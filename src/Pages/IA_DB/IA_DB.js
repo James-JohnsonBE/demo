@@ -1,12 +1,11 @@
 ﻿import { TabsModule, Tab } from "../../Components/Tabs/TabsModule.js";
 import { setUrlParam } from "../../Common/Router.js";
 
-const SP = window.SP;
-const ko = window.ko;
-const $ = window.$;
-
 var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
+
+const requestParam = "ReqNum";
+const responseParam = "ResNum";
 
 $(document).ready(function () {
   SP.SOD.executeFunc(
@@ -342,6 +341,8 @@ Audit.IAReport.NewReportPage = function () {
     };
 
     self.tabs = new TabsModule(Object.values(self.tabOpts));
+
+    self.refresh = () => window.location.reload();
 
     self.debugMode = ko.observable(false);
     self.siteUrl = Audit.Common.Utilities.GetSiteUrl();
@@ -1158,6 +1159,16 @@ Audit.IAReport.NewReportPage = function () {
       }
     });
 
+    window.addEventListener("popstate", (event) => {
+      // Handle our window history state change.
+      if (event.state && event.state[requestParam]) {
+        self.filterRequestInfoTabRequestName(event.state[requestParam]);
+      }
+    });
+    self.currentRequest.subscribe((request) => {
+      if (request) setUrlParam(requestParam, request.number);
+    });
+
     /**Other**/
     self.GetDDVals = function (oObjectProperties) {
       var arr = self.arrRequests();
@@ -1352,28 +1363,7 @@ Audit.IAReport.NewReportPage = function () {
   }
 
   function m_fnRefresh(requestNumber) {
-    var curPath = location.pathname;
-    var section = GetUrlKeyValue("Sect");
-    const tabIndex = _myViewModel.tabs.selectedTab()?.id ?? "";
-    curPath += "?Tab=" + tabIndex;
-
-    if (!requestNumber) {
-      if (tabIndex == _myViewModel.tabOpts.Responses.id) {
-        var responseName = $("#ddlResponseName").val();
-        if (responseName != null && responseName != "")
-          curPath += "&ResNum=" + responseName;
-      } else if (tabIndex == _myViewModel.tabOpts.RequestDetail.id) {
-        var section = GetUrlKeyValue("Sect");
-        if (section) curPath += "&Sect=" + section;
-        var requestNum = $("#ddlReqNum").val();
-        if (requestNum != null && requestNum != "")
-          curPath += "&ReqNum=" + requestNum;
-      }
-    } else {
-      if (requestNumber != null && requestNumber != "")
-        curPath += "&ReqNum=" + requestNumber;
-    }
-    location.href = curPath;
+    window.location.reload();
   }
 
   function m_fnLoadData() {
@@ -8444,7 +8434,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
   }
 
   function m_fnGoToRequest(requestNumber, responseTitle) {
-    notifyId = SP.UI.Notify.addNotification(
+    const notifyId = SP.UI.Notify.addNotification(
       "Displaying Request (" + requestNumber + ")",
       false
     );

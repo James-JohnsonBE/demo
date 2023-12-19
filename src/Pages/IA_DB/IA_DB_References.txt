@@ -307,7 +307,7 @@
           <a
             title="Refresh this page"
             href="javascript:void(0)"
-            onclick="Audit.IAReport.Report.Refresh()"
+            data-bind="click: refresh"
             ><span class="ui-icon ui-icon-refresh"></span>Refresh</a
           >
         </div>
