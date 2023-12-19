@@ -1,5 +1,7 @@
 ﻿import { TabsModule, Tab } from "../../Components/Tabs/TabsModule.js";
 import { setUrlParam } from "../../Common/Router.js";
+import CommentChainModule from "../../Components/CommentChain/CommentChainModule.js";
+import ActiveViewersModule from "../../Components/ActiveViewers/ActiveViewersModule.js";
 
 var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
@@ -86,241 +88,6 @@ Audit.IAReport.NewReportPage = function () {
 
   var m_sResponseStatusToFilterOn = "1-Open";
   var m_sRequestStatusToFilterOn = "Open";
-
-  function CommentChainField(requestId, props) {
-    var requestListTitle = props.requestListTitle;
-    var columnName = props.columnName;
-    var initialValue = props.initialValue;
-
-    var showHistoryBool = ko.observable(false);
-
-    var toggleShowHistory = function () {
-      showHistoryBool(!showHistoryBool());
-    };
-
-    var arrInitialComments = [];
-    // If we have comments here, try to parse them.
-    if (initialValue) {
-      try {
-        arrInitialComments = JSON.parse(initialValue);
-        arrInitialComments.forEach(function (comment) {
-          comment.timestamp = new Date(comment.timestamp);
-        });
-      } catch (e) {
-        console.error("could not parse internal status comments.");
-      }
-    }
-    var comments = ko.observableArray(arrInitialComments);
-    var newCommentText = ko.observable();
-    // var requestId = requestId;
-
-    function onSubmit() {
-      var comment = {
-        id: Math.ceil(Math.random() * 1000000).toString(16),
-        text: newCommentText(),
-        author: _spPageContextInfo.userLoginName,
-        timestamp: new Date(),
-      };
-      comments.push(comment);
-      commitChanges();
-    }
-
-    function onRemove(commentToRemove) {
-      if (confirm("Are you sure you want to delete this item?")) {
-        var commentIndex = comments.indexOf(commentToRemove);
-        comments.splice(commentIndex, 1);
-        commitChanges();
-      }
-    }
-
-    function commitChanges() {
-      var currCtx = new SP.ClientContext.get_current();
-      var web = currCtx.get_web();
-      //Now push to the request item:
-      var requestList = web.get_lists().getByTitle(requestListTitle);
-      const oListItem = requestList.getItemById(requestId);
-      oListItem.set_item(columnName, JSON.stringify(comments()));
-      oListItem.update();
-
-      currCtx.load(oListItem);
-
-      currCtx.executeQueryAsync(
-        function onSuccess() {
-          // console.log("Updated comments");
-          newCommentText("");
-        },
-        function onFailure(args, sender) {
-          console.error("Failed to commit changes.", args);
-        }
-      );
-    }
-
-    var publicMembers = {
-      comments: comments,
-      newCommentText: newCommentText,
-      onSubmit: onSubmit,
-      onRemove: onRemove,
-      toggleShowHistory: toggleShowHistory,
-      showHistoryBool: showHistoryBool,
-    };
-
-    return publicMembers;
-  }
-
-  function ActiveViewersField(requestId, props) {
-    var requestListTitle = props.requestListTitle;
-    var columnName = props.columnName;
-    var initialValue = props.initialValue;
-    var arrInitialViewers = [];
-    // If we have comments here, try to parse them.
-    if (initialValue) {
-      try {
-        arrInitialViewers = JSON.parse(initialValue);
-        arrInitialViewers.forEach(function (viewer) {
-          viewer.timestamp = new Date(viewer.timestamp);
-        });
-      } catch (e) {
-        console.error("could not parse internal status comments.");
-      }
-    }
-    var viewers = ko.observableArray(arrInitialViewers);
-
-    function pushCurrentUser() {
-      pushUser(_spPageContextInfo.userLoginName);
-    }
-
-    function pushUser(loginName) {
-      // Check if our viewer is listed
-      var filteredViewers = viewers().filter(function (viewer) {
-        return viewer.viewer != loginName;
-      });
-
-      viewers(filteredViewers);
-
-      var viewer = {
-        id: Math.ceil(Math.random() * 1000000).toString(16),
-        viewer: loginName,
-        timestamp: new Date(),
-      };
-      viewers.push(viewer);
-      commitChanges();
-    }
-
-    function removeCurrentuser() {
-      removeUserByLogin(_spPageContextInfo.userLoginName);
-    }
-
-    function removeUserByLogin(loginName) {
-      // Check if our viewer is listed
-      var viewerToRemove = viewers().filter(function (viewer) {
-        return viewer.viewer == loginName;
-      });
-
-      if (viewerToRemove.length) {
-        removeUser(viewerToRemove[0]);
-      }
-    }
-
-    function onRemove(viewerToRemove) {
-      if (confirm("Are you sure you want to delete this item?")) {
-        removeUser(viewerToRemove);
-      }
-    }
-
-    function removeUser(viewerToRemove) {
-      var viewerIndex = viewers.indexOf(viewerToRemove);
-      viewers.splice(viewerIndex, 1);
-      commitChanges();
-    }
-
-    function commitChanges() {
-      var currCtx = new SP.ClientContext.get_current();
-      var web = currCtx.get_web();
-      //Now push to the request item:
-      var requestList = web.get_lists().getByTitle(requestListTitle);
-      const oListItem = requestList.getItemById(requestId);
-      oListItem.set_item(columnName, JSON.stringify(viewers()));
-      oListItem.update();
-
-      currCtx.load(oListItem);
-
-      currCtx.executeQueryAsync(
-        function onSuccess() {
-          // console.log("Added User");
-        },
-        function onFailure(args, sender) {
-          console.error("Failed to commit changes - " + columnName, args);
-        }
-      );
-    }
-
-    var publicMembers = {
-      viewers: viewers,
-      pushCurrentUser: pushCurrentUser,
-      pushUser: pushUser,
-      removeCurrentuser: removeCurrentuser,
-      removeUserByLogin: removeUserByLogin,
-      onRemove: onRemove,
-    };
-
-    return publicMembers;
-  }
-
-  ko.bindingHandlers.downloadLink = {
-    update: function (
-      element,
-      valueAccessor,
-      allBindings,
-      viewModel,
-      bindingContext
-    ) {
-      var path = valueAccessor();
-      var replaced = path.replace(/:([A-Za-z_]+)/g, function (_, token) {
-        return ko.unwrap(viewModel[token]);
-      });
-      element.href = replaced;
-      //alert( replaced );
-    },
-  };
-
-  ko.bindingHandlers.toggleClick = {
-    init: function (element, valueAccessor, allBindings) {
-      var value = valueAccessor();
-
-      ko.utils.registerEventHandler(element, "click", function () {
-        var classToToggle = allBindings.get("toggleClass");
-        var classContainer = allBindings.get("classContainer");
-        var containerType = allBindings.get("containerType");
-
-        if (containerType && containerType == "sibling") {
-          $(element)
-            .nextUntil(classContainer)
-            .each(function () {
-              $(this).toggleClass(classToToggle);
-            });
-        } else if (containerType && containerType == "doc") {
-          var curIcon = $(element).attr("src");
-          if (curIcon == "/_layouts/images/minus.gif")
-            $(element).attr("src", "/_layouts/images/plus.gif");
-          else $(element).attr("src", "/_layouts/images/minus.gif");
-
-          if ($(element).parent() && $(element).parent().parent()) {
-            $(element)
-              .parent()
-              .parent()
-              .nextUntil(classContainer)
-              .each(function () {
-                $(this).toggleClass(classToToggle);
-              });
-          }
-        } else if (containerType && containerType == "any") {
-          if ($("." + classToToggle).is(":visible"))
-            $("." + classToToggle).hide();
-          else $("." + classToToggle).show();
-        } else $(element).find(classContainer).toggleClass(classToToggle);
-      });
-    },
-  };
 
   function ViewModel() {
     var self = this;
@@ -1954,18 +1721,19 @@ Audit.IAReport.NewReportPage = function () {
 
         var requestObject = m_bigMap["request-" + reqNum.get_lookupValue()];
 
-        requestObject.internalStatus = new CommentChainField(id, {
+        requestObject.internalStatus = new CommentChainModule(id, {
           requestListTitle:
             Audit.Common.Utilities.GetListTitleRequestsInternal(),
           columnName: "InternalStatus",
           initialValue: oListItem.get_item("InternalStatus"),
         });
-        requestObject.activeViewers = new ActiveViewersField(id, {
+        requestObject.activeViewers = new ActiveViewersModule(id, {
           requestListTitle:
             Audit.Common.Utilities.GetListTitleRequestsInternal(),
           columnName: "ActiveViewers",
           initialValue: oListItem.get_item("ActiveViewers"),
         });
+        break;
       }
     } catch (err) {
       alert(err);
@@ -2687,7 +2455,7 @@ Audit.IAReport.NewReportPage = function () {
         oResponse["specialPerms"] = specialPerms;
         oResponse["styleTag"] = styleTag;
         oResponse["toolTip"] = toolTip;
-        oResponse["activeViewers"] = new ActiveViewersField(oResponse.ID, {
+        oResponse["activeViewers"] = new ActiveViewersModule(oResponse.ID, {
           requestListTitle: Audit.Common.Utilities.GetListTitleResponses(),
           columnName: "ActiveViewers",
           initialValue: oResponse.item.get_item("ActiveViewers"),

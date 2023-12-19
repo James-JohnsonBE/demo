@@ -47,6 +47,10 @@
 
 <script
   type="text/javascript"
+  src="/sites/CGFS/Style Library/apps/audit/src/Common/KnockoutExtensions.js"
+></script>
+<script
+  type="text/javascript"
   src="/sites/CGFS/Style Library/apps/audit/src/Common/Utilities.js"
 ></script>
 
