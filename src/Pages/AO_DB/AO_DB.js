@@ -189,9 +189,8 @@ Audit.AOReport.NewReportPage = function () {
     self.showUpload = ko.observable(false);
     self.showSubmit = ko.observable(false);
 
-    self.onNewResponseDocCallback = Audit.Common.Utilities.Refresh;
-
     self.refresh = () => window.location.reload();
+    self.onNewResponseDocCallback = self.refresh;
 
     self.currentResponse.subscribe((newResponse) => {
       if (!newResponse) return;
