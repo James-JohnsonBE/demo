@@ -7892,8 +7892,6 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
     m_countCSUpdatedOnEditResponse = 0;
 
     if (result === SP.UI.DialogResult.OK) {
-      Audit.Common.Utilities.UpdateUrlParam("Sect", "divResponses");
-      // window.location.hash = "divResponses";
       document.body.style.cursor = "wait";
       notifyId = SP.UI.Notify.addNotification("Please wait... ", false);
 

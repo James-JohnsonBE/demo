@@ -990,20 +990,6 @@ Audit.Common.NewUtilities = function () {
     return str;
   }
 
-  function m_fnUpdateUrlParam(param, newval) {
-    var search = window.location.search;
-    //var urlParams = new URLSearchParams(queryString);
-
-    var regex = new RegExp("([?;&])" + param + "[^&;]*[;&]?");
-    var query = search.replace(regex, "$1").replace(/&$/, "");
-
-    urlParams =
-      (query.length > 2 ? query + "&" : "?") +
-      (newval ? param + "=" + newval : "");
-
-    window.history.pushState({}, "", urlParams.toString());
-  }
-
   var publicMembers = {
     GetSiteUrl: function () {
       if (m_siteUrl == "/") return "";
@@ -1189,7 +1175,6 @@ Audit.Common.NewUtilities = function () {
       return m_fnSortResponseObjectNoCase(a, b);
     },
     SortResponseTitles: m_fnSortResponseTitleNoCase,
-    UpdateUrlParam: m_fnUpdateUrlParam,
   };
 
   return publicMembers;
