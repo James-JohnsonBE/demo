@@ -354,7 +354,10 @@
           >
         </div>
         <div style="padding-top: 3px">
-          <a id="linkSubmitNewReq" href="javascript:void(0)"
+          <a
+            id="linkSubmitNewReq"
+            href="javascript:void(0)"
+            data-bind="click: clickNewRequestHandler"
             ><span class="ui-icon ui-icon-plus"></span>Create a New Request</a
           >
         </div>
@@ -1680,6 +1683,12 @@
     class="sr1-request-responseDocCount"
     data-bind="text: responseDocCount"
   ></td>
+</script>
+
+<script id="newRequestTemplate" type="text/html">
+  <div
+    data-bind="component: {name: components.new, params: {Entity: $data}}"
+  ></div>
 </script>
 
 <div id="divTest"></div>

@@ -1,70 +1,45 @@
 import { SPList } from "./SAL.js";
-import { Assignment } from "../entities/Assignment.js";
-import { Notification } from "../entities/Notification.js";
-import { RequestEntity } from "../entities/Request.js";
-import { Holiday } from "../entities/Holiday.js";
-import { PipelineStage } from "../entities/PipelineStage.js";
-import { RequestOrg } from "../entities/RequestOrg.js";
-import { ServiceType } from "../entities/ServiceType.js";
-import { Action } from "../entities/Action.js";
-import { Attachment } from "../entities/Attachment.js";
-import { Comment } from "../entities/Comment.js";
+import { AuditOrganizations } from "../Entities/AuditOrganizations.js";
 
 const DEBUG = false;
 
-let context = null;
+// let context = null;
 
-export function CreateAppContext() {
-  if (context) {
-    return;
-  }
-  context = new ApplicationDbContext();
-}
+// export function CreateAppContext() {
+//   if (context) {
+//     return;
+//   }
+//   context = new ApplicationDbContext();
+// }
 
-export function getAppContext() {
-  return context;
-}
+// export function getAppContext() {
+//   return context;
+// }
 
-export const lookupType = {
-  value: "LookupValue",
-  id: "LookupID",
-};
-
-const virtualSets = new Map();
+// export const lookupType = {
+//   value: "LookupValue",
+//   id: "LookupID",
+// };
 
 export default class ApplicationDbContext {
   constructor() {}
 
-  Actions = new EntitySet(Action);
+  AuditOrganizations = new EntitySet(AuditOrganizations);
 
-  Assignments = new EntitySet(Assignment);
+  virtualSets = new Map();
 
-  Attachments = new EntitySet(Attachment);
-
-  Comments = new EntitySet(Comment);
-
-  Notifications = new EntitySet(Notification);
-
-  Requests = new EntitySet(RequestEntity);
-
-  ConfigHolidays = new EntitySet(Holiday);
-
-  ConfigRequestOrgs = new EntitySet(RequestOrg);
-
-  ConfigPipelines = new EntitySet(PipelineStage);
-
-  ConfigServiceTypes = new EntitySet(ServiceType);
-
-  static Set = (listDef) => {
+  Set = (listDef) => {
     const key = listDef.name;
-    if (!virtualSets.has(key)) {
+    if (!this.virtualSets.has(key)) {
       const newSet = new EntitySet(listDef);
-      virtualSets.set(key, newSet);
+      this.virtualSets.set(key, newSet);
       return newSet;
     }
-    return virtualSets.get(key);
+    return this.virtualSets.get(key);
   };
 }
+
+export const appContext = new ApplicationDbContext();
 
 class EntitySet {
   constructor(entityType) {

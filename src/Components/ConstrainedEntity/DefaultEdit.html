@@ -1,0 +1,10 @@
+<div>
+  <div class="row mb-2" data-bind="foreach: FormFields">
+    <div
+      class="col pb-3"
+      data-bind="component: {
+        name: components.edit, params: $data}, 
+        class: width"
+    ></div>
+  </div>
+</div>

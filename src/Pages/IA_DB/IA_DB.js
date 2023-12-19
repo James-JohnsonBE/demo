@@ -1,4 +1,5 @@
-﻿import { TabsModule, Tab } from "../../Components/Tabs/TabsModule.js";
+﻿import { InitSal } from "../../infrastructure/SAL.js";
+import { TabsModule, Tab } from "../../Components/Tabs/TabsModule.js";
 import { setUrlParam } from "../../Common/Router.js";
 import CommentChainModule from "../../Components/CommentChain/CommentChainModule.js";
 import ActiveViewersModule from "../../Components/ActiveViewers/ActiveViewersModule.js";
@@ -19,8 +20,10 @@ $(document).ready(function () {
   );
 });
 
-function InitReport() {
+async function InitReport() {
   /*********NOTE: the Contribute permission level needs to have manage permissions turned on ************/
+
+  await InitSal();
 
   Audit.IAReport.Report = new Audit.IAReport.NewReportPage();
   Audit.IAReport.Init();
@@ -107,11 +110,19 @@ Audit.IAReport.NewReportPage = function () {
         id: "requestDetailTemplate",
         data: self,
       }),
+      NewRequest: new Tab("new-request", "New Request", {
+        id: "newRequestTemplate",
+        data: new NewRequestForm()
+      })
     };
 
     self.tabs = new TabsModule(Object.values(self.tabOpts));
 
     self.refresh = () => window.location.reload();
+
+    self.clickNewRequestHandler = () => {
+      const newRequest = new NewRequestForm();
+    };
 
     self.debugMode = ko.observable(false);
     self.siteUrl = Audit.Common.Utilities.GetSiteUrl();
@@ -8238,9 +8249,9 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
     });
     BindActionOfficeHandler();
 
-    $("#linkSubmitNewReq").click(function () {
-      m_fnCreateRequest();
-    });
+    // $("#linkSubmitNewReq").click(function () {
+    //   m_fnCreateRequest();
+    // });
 
     $(".linkHelpResponseDocs").click(function () {
       m_fnDisplayHelpResponseDocs();

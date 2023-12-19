@@ -1,4 +1,4 @@
-import ApplicationDbContext from "../infrastructure/ApplicationDbContext.js";
+import { appContext } from "../infrastructure/ApplicationDbContext.js";
 import { registerFieldComponent } from "../infrastructure/RegisterComponents.js";
 import BaseField from "./BaseField.js";
 
@@ -30,7 +30,7 @@ export default class LookupField extends BaseField {
     this.Value = multiple ? ko.observableArray() : ko.observable();
 
     this.entityType = entityType;
-    this.entitySet = ApplicationDbContext.Set(entityType);
+    this.entitySet = appContext.Set(entityType);
     this.lookupCol = lookupCol ?? "Title";
     this.optionsText = optionsText ?? ((item) => item[this.lookupCol]);
   }

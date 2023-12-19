@@ -1,6 +1,6 @@
 import { AuditOrganizations } from "../../Entities/AuditOrganizations.js";
 import TextField from "../../Fields/TextField.js";
-import DateField from "../../Fields/DateField.js";
+import DateField, { dateFieldTypes } from "../../Fields/DateField.js";
 import SelectField from "../../Fields/SelectField.js";
 import CheckboxField from "../../Fields/CheckboxField.js";
 import TextAreaField from "../../Fields/TextAreaField.js";
@@ -11,8 +11,8 @@ export default class NewRequestForm extends BaseForm {
     super(params);
   }
 
-  fieldMap = {
-    ...this.fieldMap,
+  FieldMap = {
+    ...this.FieldMap,
     Title: new TextField({
       displayName: "Request Number",
       isRequired: true,
@@ -71,6 +71,7 @@ export default class NewRequestForm extends BaseForm {
         "3 Days Past Due",
         "7 Days Past Due",
       ],
+      multiple: true,
     }),
     Sensitivity: new SelectField({
       displayName: "Sensitivity",
