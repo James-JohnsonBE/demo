@@ -1,4 +1,11 @@
-﻿var Audit = window.Audit || {};
+﻿import { TabsModule, Tab } from "../../Components/Tabs/TabsModule.js";
+import { setUrlParam } from "../../Common/Router.js";
+
+const SP = window.SP;
+const ko = window.ko;
+const $ = window.$;
+
+var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
 
 $(document).ready(function () {
@@ -316,86 +323,25 @@ Audit.IAReport.NewReportPage = function () {
     },
   };
 
-  function Tabs(elementId) {
-    const self = this;
-    const Tabs = {
-      Requests: {
-        urlKey: 0,
-        tabId: "request-report",
-        tabText: "Request Status Report",
-      },
-      Responses: {
-        urlKey: 1,
-        tabId: "response-report",
-        tabText: "Response Status Report",
-      },
-      RequestDetail: {
-        urlKey: 2,
-        tabId: "request-detail",
-        tabText: "Request Information",
-      },
-    };
-
-    const selectedTab = ko.observable();
-
-    function clickTab(e) {
-      selectTab(e.target);
-    }
-
-    function selectTabByTabId(tabId) {
-      const tabElem = document.querySelector(`li[data-tab-id="${tabId}"]`);
-      if (tabElem) selectTab(tabElem);
-    }
-
-    function selectTab(newTab) {
-      if (!(newTab instanceof HTMLLIElement)) return;
-
-      const tabOptElements = document
-        .getElementById(elementId)
-        .querySelectorAll(".ui-tabs-nav li");
-
-      tabOptElements.forEach((tab) => {
-        if (tab !== newTab) tab.classList.remove("active");
-        else tab.classList.add("active");
-      });
-
-      const tabReportElements = document
-        .getElementById(elementId)
-        .querySelectorAll(".ui-tab-panel");
-
-      tabReportElements.forEach((tab) => {
-        tab.classList.toggle("active", tab.id == newTab.dataset.controls);
-      });
-
-      selectedTab(newTab);
-    }
-
-    function tabChangedHandler(newTab) {
-      // TODO: push tab to window history
-    }
-
-    selectedTab.subscribe(tabChangedHandler);
-
-    function bindTabs() {
-      document
-        .getElementById(elementId)
-        .querySelector(`.ui-tabs-nav`)
-        .addEventListener("click", clickTab);
-    }
-
-    return {
-      Tabs,
-      selectedTab,
-      clickTab,
-      selectTabByTabId,
-      bindTabs,
-    };
-  }
-
   function ViewModel() {
     var self = this;
 
-    self.tabs = new Tabs("tabs");
+    self.tabOpts = {
+      Requests: new Tab("request-report", "Request Status Report", {
+        id: "requestStatusReportTemplate",
+        data: self,
+      }),
+      Responses: new Tab("response-report", "Response Status Report", {
+        id: "responseStatusReportTemplate",
+        data: self,
+      }),
+      RequestDetail: new Tab("request-detail", "Request Information", {
+        id: "requestDetailTemplate",
+        data: self,
+      }),
+    };
+
+    self.tabs = new TabsModule(Object.values(self.tabOpts));
 
     self.debugMode = ko.observable(false);
     self.siteUrl = Audit.Common.Utilities.GetSiteUrl();
@@ -845,7 +791,7 @@ Audit.IAReport.NewReportPage = function () {
     self.ClickEditCoversheet = function (oCS) {
       var oRequest = self.currentRequest();
       if (oCS && oCS.ID && oCS.number && oRequest && oRequest.number)
-        m_fnEditCoverSheet(oCS.ID, oCS.number, oRequest.number);
+        m_fnEditCoverSheet(oCS.ID, oRequest.number);
     };
 
     self.ClickCloseRequest = function () {
@@ -1115,17 +1061,15 @@ Audit.IAReport.NewReportPage = function () {
           var paramResNum = GetUrlKeyValue("ResNum");
 
           if (paramTabIndex != null && paramTabIndex != "") {
-            self.tabs.selectTabByTabId(paramTabIndex);
+            self.tabs.selectById(paramTabIndex);
           } else {
-            self.tabs.selectTabByTabId(self.tabs.Tabs.Requests.tabId);
+            self.tabs.selectTab(self.tabOpts.Requests);
           }
 
           if (paramRequestNum != null && paramRequestNum != "") {
-            if (paramTabIndex == _myViewModel.tabs.Tabs.Responses.tabId)
+            if (paramTabIndex == self.tabOpts.Responses.id)
               self.filterRequestTabRequestID(paramRequestNum);
-            else if (
-              paramTabIndex == _myViewModel.tabs.Tabs.RequestDetail.tabId
-            )
+            else if (paramTabIndex == self.tabOpts.RequestDetail.id)
               self.filterRequestInfoTabRequestName(paramRequestNum);
           }
           /**Note: on the jsrender of the request/response tables, I set the rows to display none; the filters below show the rows I want **/
@@ -1134,12 +1078,12 @@ Audit.IAReport.NewReportPage = function () {
           if (
             paramResNum != null &&
             paramResNum != "" &&
-            paramTabIndex == _myViewModel.tabs.Tabs.Responses.tabId
+            paramTabIndex == self.tabOpts.Responses.id
           ) {
             self.filterResponseTabResponseName(paramResNum);
           } else if (
-            paramTabIndex != _myViewModel.tabs.Tabs.Responses.tabId ||
-            (paramTabIndex == _myViewModel.tabs.Tabs.Responses.tabId &&
+            paramTabIndex != self.tabOpts.Responses.id ||
+            (paramTabIndex == self.tabOpts.Responses.id &&
               (paramResNum == null || paramResNum == ""))
           )
             //dont filter here because IA has received a link to the response and we don't want the status to be filtered
@@ -1399,7 +1343,7 @@ Audit.IAReport.NewReportPage = function () {
     }
     function OnFailure(sender, args) {
       $("#divLoading").hide();
-      statusId = SP.UI.Status.addStatus(
+      const statusId = SP.UI.Status.addStatus(
         "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
       );
       SP.UI.Status.setStatusPriColor(statusId, "red");
@@ -1410,15 +1354,15 @@ Audit.IAReport.NewReportPage = function () {
   function m_fnRefresh(requestNumber) {
     var curPath = location.pathname;
     var section = GetUrlKeyValue("Sect");
-    const tabIndex = _myViewModel.tabs.selectedTab()?.dataset.tabId ?? "";
+    const tabIndex = _myViewModel.tabs.selectedTab()?.id ?? "";
     curPath += "?Tab=" + tabIndex;
 
     if (!requestNumber) {
-      if (tabIndex == _myViewModel.tabs.Tabs.Responses.tabId) {
+      if (tabIndex == _myViewModel.tabOpts.Responses.id) {
         var responseName = $("#ddlResponseName").val();
         if (responseName != null && responseName != "")
           curPath += "&ResNum=" + responseName;
-      } else if (tabIndex == _myViewModel.tabs.Tabs.RequestDetail.tabId) {
+      } else if (tabIndex == _myViewModel.tabOpts.RequestDetail.id) {
         var section = GetUrlKeyValue("Sect");
         if (section) curPath += "&Sect=" + section;
         var requestNum = $("#ddlReqNum").val();
@@ -1583,7 +1527,7 @@ Audit.IAReport.NewReportPage = function () {
   function RequestFinishedLoading() {
     var paramSection = GetUrlKeyValue("Sect");
     if (paramSection) {
-      document.getElementById(paramSection).scrollIntoView(true);
+      document.getElementById(paramSection)?.scrollIntoView(true);
     }
   }
 
@@ -1613,7 +1557,7 @@ Audit.IAReport.NewReportPage = function () {
       LoadLibGUIDS();
     }
     function OnFailure(sender, args) {
-      statusId = SP.UI.Status.addStatus(
+      const statusId = SP.UI.Status.addStatus(
         "Failed loading: " + args.get_message() + "\n" + args.get_stackTrace()
       );
       SP.UI.Status.setStatusPriColor(statusId, "red");
@@ -1689,17 +1633,17 @@ Audit.IAReport.NewReportPage = function () {
         //add site associated groups
         oListItem
           .get_roleAssignments()
-          .add(ownerGroup, roleDefBindingCollContribute);
+          .add(this.ownerGroup, roleDefBindingCollContribute);
         oListItem
           .get_roleAssignments()
-          .add(memberGroup, roleDefBindingCollContribute);
+          .add(this.memberGroup, roleDefBindingCollContribute);
         oListItem
           .get_roleAssignments()
-          .add(visitorGroup, roleDefBindingCollRestrictedRead);
+          .add(this.visitorGroup, roleDefBindingCollRestrictedRead);
 
         oListItem
           .get_roleAssignments()
-          .getByPrincipal(currentUser)
+          .getByPrincipal(this.currentUser)
           .deleteObject();
 
         //Need to break up adding AOs because it exceeds the resource limit (request uses too many resources)
@@ -1737,7 +1681,7 @@ Audit.IAReport.NewReportPage = function () {
         }
 
         function onUpdatAOPageFailed(sender, args) {
-          statusId = SP.UI.Status.addStatus(
+          const statusId = SP.UI.Status.addStatus(
             "Request failed: " +
               args.get_message() +
               "\n" +
@@ -1776,7 +1720,7 @@ Audit.IAReport.NewReportPage = function () {
       var itemCreateInfo = new SP.ListItemCreationInformation();
       itemCreateInfo.set_underlyingObjectType(SP.FileSystemObjectType.folder);
       itemCreateInfo.set_leafName("EANotifications");
-      oNewEmailFolder = emailList.addItem(itemCreateInfo);
+      const oNewEmailFolder = emailList.addItem(itemCreateInfo);
       oNewEmailFolder.set_item("Title", "EANotifications");
       oNewEmailFolder.update();
 
@@ -1815,13 +1759,13 @@ Audit.IAReport.NewReportPage = function () {
       //add associated site groups
       oNewEmailFolder
         .get_roleAssignments()
-        .add(ownerGroup, roleDefBindingCollAdmin);
+        .add(this.ownerGroup, roleDefBindingCollAdmin);
       oNewEmailFolder
         .get_roleAssignments()
-        .add(memberGroup, roleDefBindingCollContribute);
+        .add(this.memberGroup, roleDefBindingCollContribute);
       oNewEmailFolder
         .get_roleAssignments()
-        .add(visitorGroup, roleDefBindingCollRestrictedRead);
+        .add(this.visitorGroup, roleDefBindingCollRestrictedRead);
 
       var spGroupQA = Audit.Common.Utilities.GetSPSiteGroup(
         Audit.Common.Utilities.GetGroupNameQA()
@@ -1833,7 +1777,7 @@ Audit.IAReport.NewReportPage = function () {
 
       oNewEmailFolder
         .get_roleAssignments()
-        .getByPrincipal(currentUser)
+        .getByPrincipal(this.currentUser)
         .deleteObject();
 
       //Need to break up adding AOs because it exceeds the resource limit (request uses too many resources)
@@ -1842,7 +1786,7 @@ Audit.IAReport.NewReportPage = function () {
       }
 
       function onUpdatePermsFailed(sender, args) {
-        statusId = SP.UI.Status.addStatus(
+        const statusId = SP.UI.Status.addStatus(
           "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
         );
       }
@@ -2515,7 +2459,7 @@ Audit.IAReport.NewReportPage = function () {
         responseTitle +
         "</Value></Eq></Where></Query></View>"
     );
-    m_aResponseItem = responseList.getItems(responseQuery);
+    const m_aResponseItem = responseList.getItems(responseQuery);
     //need to check permissions because of granting/removing special perms
     currCtx.load(
       m_aResponseItem,
@@ -2561,7 +2505,7 @@ Audit.IAReport.NewReportPage = function () {
         break;
       }
 
-      LoadResponseDocFolders(oResponseItem); //really, this only runs through the one response and we're only doing this to set the response item's folder so that we can query the permissions on it
+      LoadResponseDocFolders(); //really, this only runs through the one response and we're only doing this to set the response item's folder so that we can query the permissions on it
 
       OnComplete(true);
     }
@@ -2778,7 +2722,7 @@ Audit.IAReport.NewReportPage = function () {
       LoadTabRequestInfoResponseDocs(oRequest);
     }
     function OnFailure(sender, args) {
-      statusId = SP.UI.Status.addStatus(
+      const statusId = SP.UI.Status.addStatus(
         "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
       );
       SP.UI.Status.setStatusPriColor(statusId, "red");
@@ -2819,7 +2763,7 @@ Audit.IAReport.NewReportPage = function () {
       RenderResponses(oRequest);
     }
     function OnFailure(sender, args) {
-      statusId = SP.UI.Status.addStatus(
+      const statusId = SP.UI.Status.addStatus(
         "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
       );
       SP.UI.Status.setStatusPriColor(statusId, "red");
@@ -2941,6 +2885,8 @@ Audit.IAReport.NewReportPage = function () {
           var lastClosedBy = null;
           var lastResponseId = null;
           var oResponse = null;
+          var sLastClosedDate = "";
+
           for (var y = 0; y < oRequest.responses.length; y++) {
             var closedDate = oRequest.responses[y].item.get_item("ClosedDate");
             if (lastClosedDate == null || lastClosedDate < closedDate) {
@@ -2949,7 +2895,7 @@ Audit.IAReport.NewReportPage = function () {
               lastResponseId = oRequest.responses[y].title;
               oResponse = oRequest.responses[y];
 
-              var sLastClosedDate = ""; //used in ko databinding
+              //used in ko databinding
               if (lastClosedDate != null && lastClosedDate != "")
                 sLastClosedDate = lastClosedDate.format("MM/dd/yyyy hh:mm tt");
             }
@@ -3260,11 +3206,11 @@ Audit.IAReport.NewReportPage = function () {
 
     if (dueDate == null || dueDate == "") return false;
 
-    dueDate = new Date(dueDate);
+    const dueDateD = new Date(dueDate);
 
     if (
       (oRequest.status == "Open" || oRequest.status == "ReOpened") &&
-      todayDate.getTime() > dueDate.getTime()
+      todayDate.getTime() > dueDateD.getTime()
     )
       return true;
 
@@ -3924,7 +3870,7 @@ Audit.IAReport.NewReportPage = function () {
         m_fnRefresh();
       }
       function OnFailure(sender, args) {
-        statusId = SP.UI.Status.addStatus(
+        const statusId = SP.UI.Status.addStatus(
           "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
         );
         SP.UI.Status.setStatusPriColor(statusId, "red");
@@ -3964,7 +3910,7 @@ Audit.IAReport.NewReportPage = function () {
         m_fnRefresh();
       }
       function OnFailure(sender, args) {
-        statusId = SP.UI.Status.addStatus(
+        const statusId = SP.UI.Status.addStatus(
           "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
         );
         SP.UI.Status.setStatusPriColor(statusId, "red");
@@ -4256,7 +4202,7 @@ Audit.IAReport.NewReportPage = function () {
       var currCtx = new SP.ClientContext.get_current();
       var web = currCtx.get_web();
 
-      oRequest = m_fnGetRequestByID(requestID);
+      const oRequest = m_fnGetRequestByID(requestID);
 
       if (oRequest == null) {
         alert("Error occurred");
@@ -4274,7 +4220,7 @@ Audit.IAReport.NewReportPage = function () {
       var requestList = web
         .get_lists()
         .getByTitle(Audit.Common.Utilities.GetListTitleRequests());
-      oListItem = requestList.getItemById(requestID);
+      const oListItem = requestList.getItemById(requestID);
 
       oListItem.set_item("EmailActionOffice", emailActionOffices);
       oListItem.update();
@@ -4319,7 +4265,7 @@ Audit.IAReport.NewReportPage = function () {
       var currCtx = new SP.ClientContext.get_current();
       var web = currCtx.get_web();
 
-      oRequest = m_fnGetRequestByID(requestID);
+      const oRequest = m_fnGetRequestByID(requestID);
 
       if (oRequest == null) {
         alert("Error occurred");
@@ -4460,7 +4406,7 @@ Audit.IAReport.NewReportPage = function () {
       emailListQuery.set_viewXml(
         '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
       );
-      emailListFolderItems = emailList.getItems(emailListQuery);
+      const emailListFolderItems = emailList.getItems(emailListQuery);
       currCtx.load(emailListFolderItems, "Include(ID, Title, DisplayName)");
 
       function OnSuccess(sender, args) {
@@ -4487,7 +4433,7 @@ Audit.IAReport.NewReportPage = function () {
               "/" +
               oRequest.number
           );
-          oListItem = emailList.addItem(itemCreateInfo);
+          const oListItem = emailList.addItem(itemCreateInfo);
           oListItem.set_item("Title", emailSubject);
           oListItem.set_item("Body", emailText);
           oListItem.set_item("To", arrEmails[y].actionOffice);
@@ -4504,7 +4450,7 @@ Audit.IAReport.NewReportPage = function () {
                 var requestList = web
                   .get_lists()
                   .getByTitle(Audit.Common.Utilities.GetListTitleRequests());
-                oListItem = requestList.getItemById(requestID);
+                const oListItem = requestList.getItemById(requestID);
                 oListItem.set_item("EmailSent", 1);
                 oListItem.update();
 
@@ -4578,7 +4524,7 @@ Audit.IAReport.NewReportPage = function () {
         requestNumber +
         '</Value></Eq><Eq><FieldRef Name="ContentType"/><Value Type="Text">Document</Value></Eq></And></Where></Query></View>'
     );
-    responseDocsItems = responseDocsLib.getItems(responseDocsQuery);
+    const responseDocsItems = responseDocsLib.getItems(responseDocsQuery);
     currCtx.load(
       responseDocsItems,
       "Include(ID, ReqNum, ResID, DocumentStatus, FileLeafRef, Created )"
@@ -4593,7 +4539,7 @@ Audit.IAReport.NewReportPage = function () {
         requestNumber +
         '</Value></Eq><Eq><FieldRef Name="ContentType"/><Value Type="Text">Document</Value></Eq></And></Where></Query></View>'
     );
-    earesponseDocsItems = earesponseDocsLib.getItems(earesponseDocsQuery);
+    const earesponseDocsItems = earesponseDocsLib.getItems(earesponseDocsQuery);
     currCtx.load(
       earesponseDocsItems,
       "Include(ID, RequestNumber, ResponseID, FileLeafRef)"
@@ -4608,7 +4554,7 @@ Audit.IAReport.NewReportPage = function () {
         requestNumber +
         "</Value></Eq></Where></Query></View>"
     );
-    requestDocItems = requestDocLib.getItems(requestDocQuery);
+    const requestDocItems = requestDocLib.getItems(requestDocQuery);
     currCtx.load(
       requestDocItems,
       "Include(ID, Title, ReqNum, FileLeafRef, FileDirRef)"
@@ -4623,7 +4569,7 @@ Audit.IAReport.NewReportPage = function () {
         requestNumber +
         "</Value></Eq></Where></Query></View>"
     );
-    coverSheetItems = coverSheetLib.getItems(coverSheetQuery);
+    const coverSheetItems = coverSheetLib.getItems(coverSheetQuery);
     currCtx.load(
       coverSheetItems,
       "Include(ID, Title, ReqNum, ActionOffice, FileLeafRef, FileDirRef)"
@@ -4906,7 +4852,7 @@ Audit.IAReport.NewReportPage = function () {
       }
     }
     function OnFailureUpdateSensiLoadDocs(sender, args) {
-      statusId = SP.UI.Status.addStatus(
+      const statusId = SP.UI.Status.addStatus(
         "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
       );
       SP.UI.Status.setStatusPriColor(statusId, "red");
@@ -5240,13 +5186,15 @@ Audit.IAReport.NewReportPage = function () {
     );
 
     //add site associated groups
-    oListItem.get_roleAssignments().add(ownerGroup, roleDefBindingCollAdmin);
     oListItem
       .get_roleAssignments()
-      .add(memberGroup, roleDefBindingCollContribute);
+      .add(this.ownerGroup, roleDefBindingCollAdmin);
     oListItem
       .get_roleAssignments()
-      .add(visitorGroup, roleDefBindingCollRestrictedRead);
+      .add(this.memberGroup, roleDefBindingCollContribute);
+    oListItem
+      .get_roleAssignments()
+      .add(this.visitorGroup, roleDefBindingCollRestrictedRead);
 
     var spGroupQA = Audit.Common.Utilities.GetSPSiteGroup(
       Audit.Common.Utilities.GetGroupNameQA()
@@ -5256,7 +5204,10 @@ Audit.IAReport.NewReportPage = function () {
         .get_roleAssignments()
         .add(spGroupQA, roleDefBindingCollRestrictedContribute);
 
-    oListItem.get_roleAssignments().getByPrincipal(currentUser).deleteObject();
+    oListItem
+      .get_roleAssignments()
+      .getByPrincipal(this.currentUser)
+      .deleteObject();
 
     function onUpdateEmailFolderPermsSucceeed() {
       if (this.oRequestItem) {
@@ -5621,13 +5572,15 @@ Audit.IAReport.NewReportPage = function () {
     );
 
     //add associated site groups
-    oListItem.get_roleAssignments().add(ownerGroup, roleDefBindingCollAdmin);
     oListItem
       .get_roleAssignments()
-      .add(memberGroup, roleDefBindingCollContribute);
+      .add(this.ownerGroup, roleDefBindingCollAdmin);
     oListItem
       .get_roleAssignments()
-      .add(visitorGroup, roleDefBindingCollRestrictedRead);
+      .add(this.memberGroup, roleDefBindingCollContribute);
+    oListItem
+      .get_roleAssignments()
+      .add(this.visitorGroup, roleDefBindingCollRestrictedRead);
 
     if (qaHasRead) {
       //make sure qa gets read if it had access
@@ -5659,7 +5612,10 @@ Audit.IAReport.NewReportPage = function () {
           .add(group2SpecialPerm, roleDefBindingCollRestrictedRead);
     }
 
-    oListItem.get_roleAssignments().getByPrincipal(currentUser).deleteObject();
+    oListItem
+      .get_roleAssignments()
+      .getByPrincipal(this.currentUser)
+      .deleteObject();
 
     function onUpdatedCSSPSucceeded() {
       var currCtx2 = new SP.ClientContext.get_current();
@@ -7102,11 +7058,11 @@ Audit.IAReport.NewReportPage = function () {
   }
 
   function GetSourceUrlForForms() {
-    var curPath = location.pathname;
+    var curPath = location.pathname + "?";
 
-    var tabIndex = _myViewModel.tabs.selectedTab()?.dataset.tabId ?? "";
+    // var tabIndex = _myViewModel.tabs.selectedTab()?.id;
 
-    curPath += "?Tab=" + tabIndex;
+    // curPath += "?Tab=" + tabIndex;
 
     var requestNum = $("#ddlReqNum").val();
     if (requestNum != "") curPath += "%26ReqNum=" + requestNum;
@@ -7188,8 +7144,8 @@ Audit.IAReport.NewReportPage = function () {
                     oListItem.get_item("Title"),
                     oListItem,
                     function (bDoneCreatingEmailFolder) {
-                      _myViewModel.tabs.selectTabByTabId(
-                        _myViewModel.tabs.Tabs.RequestDetail.tabId
+                      _myViewModel.tabs.selectTab(
+                        _myViewModel.tabOpts.RequestDetail
                       );
                       m_fnRefresh(oListItem.get_item("Title"));
                     }
@@ -7203,8 +7159,8 @@ Audit.IAReport.NewReportPage = function () {
                 oListItem.get_item("Title"),
                 oListItem,
                 function (bDoneCreatingEmailFolder) {
-                  _myViewModel.tabs.selectTabByTabId(
-                    _myViewModel.tabs.Tabs.RequestDetail.tabId
+                  _myViewModel.tabs.selectTab(
+                    _myViewModel.tabOpts.RequestDetail
                   );
                   m_fnRefresh(oListItem.get_item("Title"));
                 }
@@ -7236,7 +7192,7 @@ Audit.IAReport.NewReportPage = function () {
     currCtx.executeQueryAsync(
       function () {},
       function (sender, args) {
-        alert("error creating internal request item", args);
+        alert("error creating internal request item");
         console.error(sender, args);
       }
     );
@@ -7650,7 +7606,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
       requestDocQuery.set_viewXml(
         '<View><Query><OrderBy><FieldRef Name="Modified" Ascending="FALSE"/></OrderBy></Query><RowLimit>1</RowLimit></View>'
       );
-      requestDocItems = requestDocLib.getItems(requestDocQuery);
+      const requestDocItems = requestDocLib.getItems(requestDocQuery);
       currCtx.load(requestDocItems, "Include(ID, Title, FileLeafRef)");
 
       currCtx.executeQueryAsync(
@@ -7708,7 +7664,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
       coversheetQuery.set_viewXml(
         '<View><Query><OrderBy><FieldRef Name="Modified" Ascending="FALSE"/></OrderBy></Query><RowLimit>1</RowLimit></View>'
       );
-      coversheetItems = coversheetList.getItems(coversheetQuery);
+      const coversheetItems = coversheetList.getItems(coversheetQuery);
       currCtx.load(
         coversheetItems,
         "Include(ID, Title, ActionOffice, FileLeafRef, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
@@ -7980,7 +7936,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
           m_responseTitle +
           "</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>"
       );
-      responseFolderItems = responseDocLib.getItems(responseDocQuery);
+      const responseFolderItems = responseDocLib.getItems(responseDocQuery);
       currCtx.load(
         responseFolderItems,
         "Include( Title, DisplayName, Id, EncodedAbsUrl, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
@@ -7998,7 +7954,8 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
           folderPath +
           "</Value></Eq><Eq><FieldRef Name='DocumentStatus'/><Value Type='Text'>Submitted</Value></Eq></And></Where></Query></View>"
       );
-      responseDocSubmittedItems = responseDocLib.getItems(responseDocQuery2);
+      const responseDocSubmittedItems =
+        responseDocLib.getItems(responseDocQuery2);
       currCtx.load(
         responseDocSubmittedItems,
         "Include(ID, DocumentStatus, FileDirRef, Created, FileLeafRef)"
@@ -8010,7 +7967,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
           folderPath +
           "</Value></Eq><Eq><FieldRef Name='DocumentStatus'/><Value Type='Text'>Open</Value></Eq></And></Where></Query></View>"
       );
-      responseDocOpenItems = responseDocLib.getItems(responseDocQuery6);
+      const responseDocOpenItems = responseDocLib.getItems(responseDocQuery6);
       currCtx.load(
         responseDocOpenItems,
         "Include(ID, DocumentStatus, FileDirRef, Created, FileLeafRef)"
@@ -8022,7 +7979,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
           folderPath +
           "</Value></Eq><Eq><FieldRef Name='DocumentStatus'/><Value Type='Text'>Marked for Deletion</Value></Eq></And></Where></Query></View>"
       );
-      responseDocMarkedForDeletionItems =
+      const responseDocMarkedForDeletionItems =
         responseDocLib.getItems(responseDocQuery3);
       currCtx.load(
         responseDocMarkedForDeletionItems,
@@ -8035,7 +7992,8 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
           folderPath +
           "</Value></Eq><Eq><FieldRef Name='DocumentStatus'/><Value Type='Text'>Rejected</Value></Eq></And></Where></Query></View>"
       );
-      responseDocRejectedItems = responseDocLib.getItems(responseDocQuery4);
+      const responseDocRejectedItems =
+        responseDocLib.getItems(responseDocQuery4);
       currCtx.load(
         responseDocRejectedItems,
         "Include(ID, DocumentStatus, FileDirRef, Created, FileLeafRef)"
@@ -8047,7 +8005,8 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
           folderPath +
           "</Value></Eq><Eq><FieldRef Name='DocumentStatus'/><Value Type='Text'>Sent to QA</Value></Eq></And></Where></Query></View>"
       );
-      responseDocSentToQAItems = responseDocLib.getItems(responseDocQuery8);
+      const responseDocSentToQAItems =
+        responseDocLib.getItems(responseDocQuery8);
       currCtx.load(
         responseDocSentToQAItems,
         "Include(ID, DocumentStatus, FileDirRef, Created, FileLeafRef)"
@@ -8060,7 +8019,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
       emailListQuery.set_viewXml(
         '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
       );
-      emailListFolderItems = emailList.getItems(emailListQuery);
+      const emailListFolderItems = emailList.getItems(emailListQuery);
       currCtx.load(emailListFolderItems, "Include(ID, Title, DisplayName)");
 
       currCtx.executeQueryAsync(
@@ -8218,7 +8177,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
                   "/" +
                   m_requestNum
               );
-              oListItemEmail = emailList.addItem(itemCreateInfo);
+              const oListItemEmail = emailList.addItem(itemCreateInfo);
               oListItemEmail.set_item("Title", emailSubject);
               oListItemEmail.set_item("Body", emailText);
               oListItemEmail.set_item("To", actionOfficeGroupName);
@@ -8314,7 +8273,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
 
                   //these are the documents that are marked for deletion by the AO
                   if (responseDocMarkedForDeletionItems != null) {
-                    arrItemsToRecyle = new Array();
+                    const arrItemsToRecyle = new Array();
 
                     var listItemEnumerator1 =
                       responseDocMarkedForDeletionItems.getEnumerator();
@@ -8375,7 +8334,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
                       "/" +
                       m_requestNum
                   );
-                  oListItemEmail = emailList.addItem(itemCreateInfo);
+                  const oListItemEmail = emailList.addItem(itemCreateInfo);
                   oListItemEmail.set_item("Title", emailSubject);
                   oListItemEmail.set_item("Body", emailText);
                   oListItemEmail.set_item(
@@ -8494,9 +8453,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
     if (responseTitle != null && responseTitle != "")
       m_sGoToResponseTitle = responseTitle;
 
-    _myViewModel.tabs.selectTabByTabId(
-      _myViewModel.tabs.Tabs.RequestDetail.tabId
-    );
+    _myViewModel.tabs.selectTab(_myViewModel.tabOpts.RequestDetail);
 
     if ($("#ddlReqNum").val() != requestNumber) {
       _myViewModel.filterRequestInfoTabRequestName(requestNumber);
@@ -8522,7 +8479,6 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
       $(this).parent().toggleClass("colorRedLegend");
     });
     BindActionOfficeHandler();
-    _myViewModel.tabs.bindTabs();
 
     $("#linkSubmitNewReq").click(function () {
       m_fnCreateRequest();
@@ -8644,6 +8600,10 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
         "</HTML>";
 
       var printWP = window.open("", "printWebPart");
+      if (!printWP) {
+        alert("No printWebPart!");
+        return;
+      }
       printWP.document.open();
       //insert content
       printWP.document.write(html);
@@ -8657,6 +8617,11 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
   //http://stackoverflow.com/questions/18185660/javascript-jquery-exporting-data-in-csv-not-working-in-ie
   function ExportToCsv(fileName, tableName, removeHeader) {
     var data = GetCellValues(tableName);
+
+    if (!data) {
+      alert("No data!");
+      return;
+    }
 
     if (removeHeader == true) data = data.slice(1);
 
@@ -8689,6 +8654,7 @@ currCtx.load(responseDocSubmittedItems, "Include(ID, DocumentStatus, FileDirRef)
   function GetCellValues(tableName) {
     var table = document.getElementById(tableName);
 
+    if (!table) return;
     //remove headers and footers
     if (table.innerHTML.indexOf("rowFilters") >= 0) {
       var deets = $("<div>").append(table.outerHTML);
