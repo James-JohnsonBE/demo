@@ -1,4 +1,5 @@
 ﻿import UploadDocModule from "../../Components/UploadDoc/UploadDocModule.js";
+import { TabsModule, Tab } from "../../Components/Tabs/TabsModule.js";
 
 var Audit = window.Audit || {};
 Audit.AOReport = Audit.AOReport || {};
@@ -144,6 +145,17 @@ Audit.AOReport.NewReportPage = function () {
     self.debugMode = ko.observable(false);
     self.siteUrl = Audit.Common.Utilities.GetSiteUrl();
 
+    self.tabOpts = {
+      Responses: new Tab("response-report", "Status Report", {
+        id: "responseStatusReportTemplate",
+        data: self,
+      }),
+      ResponseDetail: new Tab("response-detail", "Responses", {
+        id: "responseDetailTemplate",
+        data: self,
+      }),
+    };
+    self.tabs = new TabsModule(Object.values(self.tabOpts));
     //cant add rate limit because it'll affect the refresh
     //self.arrResponses = ko.observableArray( null ).extend({ rateLimit: 500 });
     self.arrResponses = ko.observableArray(null);
@@ -310,7 +322,10 @@ Audit.AOReport.NewReportPage = function () {
         setTimeout(function () {
           var paramTabIndex = GetUrlKeyValue("Tab");
           if (paramTabIndex != null && paramTabIndex != "") {
-            $("#tabs").tabs("option", "active", paramTabIndex);
+            // $("#tabs").tabs("option", "active", paramTabIndex);
+            self.tabs.selectById(paramTabIndex);
+          } else {
+            self.tabs.selectById(self.tabOpts.Responses.id);
           }
           if (
             paramTabIndex == null ||
@@ -868,7 +883,7 @@ Audit.AOReport.NewReportPage = function () {
         m_statusToFilterOn = m_responseStatus2;
 
       _myViewModel.cntPendingReview(count);
-      $("#tabs").tabs(); //.show();
+      // $("#tabs").tabs(); //.show();
 
       ko.utils.arrayPushAll(_myViewModel.arrResponses, responseArr);
 
@@ -1357,7 +1372,8 @@ Audit.AOReport.NewReportPage = function () {
   }
 
   function GoToResponse(response) {
-    $("#tabs").tabs({ active: 1 });
+    //$("#tabs").tabs({ active: 1 });
+    _myViewModel.tabs.selectById(_myViewModel.tabOpts.ResponseDetail.id);
 
     if (response) {
       response = m_bigMap["response-" + response];
