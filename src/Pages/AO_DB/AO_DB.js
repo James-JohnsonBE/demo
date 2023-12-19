@@ -191,6 +191,8 @@ Audit.AOReport.NewReportPage = function () {
 
     self.onNewResponseDocCallback = Audit.Common.Utilities.Refresh;
 
+    self.refresh = () => window.location.reload();
+
     self.currentResponse.subscribe((newResponse) => {
       if (!newResponse) return;
       setUrlParam(responseParam, newResponse.title);
