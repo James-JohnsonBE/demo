@@ -3,6 +3,8 @@ import { setUrlParam } from "../../Common/Router.js";
 import CommentChainModule from "../../Components/CommentChain/CommentChainModule.js";
 import ActiveViewersModule from "../../Components/ActiveViewers/ActiveViewersModule.js";
 
+import NewRequestForm from "../../Forms/NewRequest/NewRequestForm.js";
+
 var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
 

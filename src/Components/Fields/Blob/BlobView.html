@@ -1,0 +1,36 @@
+<h5>
+  <span data-bind="text: displayName"></span
+  ><span data-bind="if: isRequired" class="fw-bold text-danger">*</span>:
+</h5>
+<!-- ko ifnot: entityType -->
+<div class="alert alert-danger">Missing entity type</div>
+<!-- /ko -->
+<!-- ko if: entityType -->
+<!-- ko ifnot: multiple -->
+<!-- ko if: TypedValue -->
+<div
+  data-bind="component: {name: TypedValue().components.view, params: {Entity: TypedValue()}}"
+></div>
+<!-- /ko -->
+<!-- /ko -->
+<!-- ko if: multiple -->
+<table class="table">
+  <thead>
+    <tr data-bind="">
+      <!-- ko foreach: Cols -->
+      <th data-bind="text: displayName"></th>
+      <!-- /ko -->
+    </tr>
+  </thead>
+  <tbody data-bind="">
+    <!-- ko foreach: {data: TypedValues, as: 'row'} -->
+    <tr data-bind="">
+      <!-- ko foreach: {data: row.FormFields, as: 'col'} -->
+      <td data-bind="text: col.toString()"></td>
+      <!-- /ko -->
+    </tr>
+    <!-- /ko -->
+  </tbody>
+</table>
+<!-- /ko -->
+<!-- /ko -->

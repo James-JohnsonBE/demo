@@ -46,7 +46,7 @@
 ></script>
 
 <script
-  type="text/javascript"
+  type="module"
   src="/sites/CGFS/Style Library/apps/audit/src/Common/KnockoutExtensions.js"
 ></script>
 <script
