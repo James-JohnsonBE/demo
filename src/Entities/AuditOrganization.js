@@ -6,7 +6,7 @@ export class AuditOrganization {
       "ID",
       "Title",
       "Country",
-      "Description",
+      "Organization_x0020_Description",
       "EmailGroup",
       "Org_Type",
       "Post_x0020_Code",

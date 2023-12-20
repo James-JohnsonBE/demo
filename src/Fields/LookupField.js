@@ -16,24 +16,31 @@ export default class LookupField extends BaseField {
     type: entityType,
     isRequired = false,
     Visible,
-    Options = null,
+    entitySet,
+    optionsFilter = null,
     optionsText = null,
+    isSearch = false,
     multiple = false,
-    lookupCol = null,
+    lookupCol = "Title",
   }) {
     super({ Visible, displayName, isRequired });
     // Support passing in options
     // if options are not passed, assume this is a search input
-    Options ? (this.Options = Options) : (this.isSearch = true);
-
+    this.entitySet = entitySet;
+    this.isSearch = isSearch;
     this.multiple = multiple;
     this.Value = multiple ? ko.observableArray() : ko.observable();
 
     this.entityType = entityType;
     this.entitySet = appContext.Set(entityType);
-    this.lookupCol = lookupCol ?? "Title";
+    this.lookupCol = lookupCol;
     this.optionsText = optionsText ?? ((item) => item[this.lookupCol]);
+    this.init();
   }
+
+  init = async () => {
+    this.Options(await this.entitySet.ToList());
+  };
 
   isSearch = false;
 

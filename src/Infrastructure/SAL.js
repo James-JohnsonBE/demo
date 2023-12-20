@@ -23,7 +23,18 @@
 window.console = window.console || { log: function () {} };
 
 var sal = window.sal || {};
-sal.globalConfig = sal.globalConfig || {};
+
+const serverRelativeUrl =
+  _spPageContextInfo.webServerRelativeUrl == "/"
+    ? ""
+    : _spPageContextInfo.webServerRelativeUrl;
+
+sal.globalConfig = sal.globalConfig || {
+  siteGroups: [],
+  siteUrl: serverRelativeUrl,
+  listServices: serverRelativeUrl + "/_vti_bin/ListData.svc/",
+  defaultGroups: {},
+};
 sal.site = sal.site || {};
 
 window.DEBUG = true;
@@ -56,19 +67,7 @@ export const webRoot =
     : _spPageContextInfo.webAbsoluteUrl;
 
 export async function InitSal() {
-  sal.globalConfig.siteGroups = [];
-
-  console.log("we are initing sal");
-  // Initialize the sitewide settings here.
-  sal.globalConfig.siteUrl =
-    _spPageContextInfo.webServerRelativeUrl == "/"
-      ? ""
-      : _spPageContextInfo.webServerRelativeUrl;
-
-  //sal.globalConfig.user =
-  sal.globalConfig.listServices =
-    sal.globalConfig.siteUrl + "/_vti_bin/ListData.svc/";
-
+  console.log("Init Sal");
   var currCtx = SP.ClientContext.get_current();
   var web = currCtx.get_web();
   //sal.site = sal.siteConnection;
@@ -101,7 +100,9 @@ export async function InitSal() {
       function () {
         sal.globalConfig.currentUser = user;
 
-        sal.globalConfig.siteGroups = m_fnLoadSiteGroups(siteGroupCollection);
+        sal.globalConfig.siteGroups.push(
+          m_fnLoadSiteGroups(siteGroupCollection)
+        );
 
         // Role Definitions
         var oEnumerator = oRoleDefinitions.getEnumerator();

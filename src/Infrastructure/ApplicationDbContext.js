@@ -21,7 +21,7 @@ const DEBUG = false;
 //   id: "LookupID",
 // };
 
-export default class ApplicationDbContext {
+class ApplicationDbContext {
   constructor() {}
 
   AuditOrganizations = new EntitySet(AuditOrganization);
@@ -38,8 +38,6 @@ export default class ApplicationDbContext {
     return this.virtualSets.get(key);
   };
 }
-
-export const appContext = new ApplicationDbContext();
 
 class EntitySet {
   constructor(entityType) {
@@ -76,6 +74,11 @@ class EntitySet {
     this.entityConstructor =
       this.entityType.FindInStore || this.entityType.Create || this.entityType;
   }
+
+  // OPTIONAL cache using array or knockout observable
+  // _store = [];
+  _store = ko.observableArray();
+  _allItemsQueried = false;
 
   // Queries
   // TODO: Feature - Queries should return options to read e.g. toList, first, toCursor
@@ -155,13 +158,19 @@ class EntitySet {
   /**
    * Return all items in list
    */
-  ToList = async (fields = this.Views.All) => {
+  ToList = async () => {
+    if (this._allItemsQueried) return this._store();
+
+    const fields = this.Views.All;
     const results = await this.ListRef.getListItemsAsync({ fields });
-    return results.map((item) => {
+    const allItems = results.map((item) => {
       const newEntity = new this.entityType(item);
       mapObjectToEntity(item, newEntity);
       return newEntity;
     });
+    this._store(allItems);
+    this._allItemsQueried = true;
+    return this._store();
   };
 
   LoadEntity = async function (entity) {
@@ -427,3 +436,5 @@ function mapViewFieldToValue(fieldMap) {
 }
 
 // export const _context = new ApplicationDbContext();
+
+export const appContext = new ApplicationDbContext();
