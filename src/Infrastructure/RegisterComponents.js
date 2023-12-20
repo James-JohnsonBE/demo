@@ -1,7 +1,8 @@
 export function registerComponent({
   name,
   folder,
-  module: moduleFilename,
+  module = null,
+  moduleFilename = null,
   template: templateFilename,
 }) {
   if (ko.components.isRegistered(name)) {
@@ -11,7 +12,7 @@ export function registerComponent({
     template: {
       fromPath: `/components/${folder}/${templateFilename}.html`,
     },
-    viewModel: {
+    viewModel: module ?? {
       viaLoader: `/components/${folder}/${moduleFilename}.js`,
     },
   });

@@ -1,5 +1,5 @@
-import { SPList } from "./SAL.js";
 import { AuditOrganization } from "../entities/AuditOrganization.js";
+import { SPList } from "../infrastructure/SAL.js";
 
 const DEBUG = false;
 

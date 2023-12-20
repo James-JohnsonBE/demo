@@ -5,6 +5,7 @@ import CommentChainModule from "../../components/CommentChain/CommentChainModule
 import ActiveViewersModule from "../../components/ActiveViewers/ActiveViewersModule.js";
 
 import { AuditRequest } from "../../entities/AuditRequest.js";
+import { NewRequestFormComponent } from "../../components/NewRequestForm/NewRequestForm.js";
 
 var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
@@ -112,7 +113,7 @@ Audit.IAReport.NewReportPage = function () {
       }),
       NewRequest: new Tab("new-request", "New Request", {
         id: "newRequestTemplate",
-        data: new AuditRequest(),
+        data: new NewRequestFormComponent(),
       }),
     };
 

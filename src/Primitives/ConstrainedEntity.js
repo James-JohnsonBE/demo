@@ -16,7 +16,7 @@ Object.keys(defaultComponents).map((key) =>
   registerComponent({
     name: defaultComponents[key],
     folder: "ConstrainedEntity",
-    module: "ConstrainedEntityModule",
+    moduleFilename: "ConstrainedEntityModule",
     template: "Default" + key,
   })
 );

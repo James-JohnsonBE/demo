@@ -1686,9 +1686,7 @@
 </script>
 
 <script id="newRequestTemplate" type="text/html">
-  <div
-    data-bind="component: {name: components.new, params: {Entity: $data}}"
-  ></div>
+  <div data-bind="component: {name: componentName, params: params}"></div>
 </script>
 
 <div id="divTest"></div>
