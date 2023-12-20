@@ -143,6 +143,39 @@ TABLE.tablesorter THEAD TR .header {
   top: 1px;
 }
 
+/* input styles */
+
+button.btn {
+  font-size: 1rem;
+  padding: 0.25rem 1rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: 500;
+  border: none;
+}
+
+.btn.btn-success {
+  color: white;
+  background-color: var(--success-color);
+}
+.btn.btn-success:hover {
+  background-color: var(--success-hover-color);
+}
+
+input.form-control,
+input.form-check-input,
+textarea.form-control,
+select.form-select {
+  display: block;
+  background-color: white;
+  color: var(--text-primary);
+  border: none;
+  border-radius: 4px;
+  padding: 4px;
+  font-size: 1rem;
+}
+
+/* Utilities */
 .bigrounded {
   -webkit-border-radius: 2em;
   -moz-border-radius: 2em;
@@ -155,6 +188,24 @@ TABLE.tablesorter THEAD TR .header {
 .small {
   font-size: 11px;
   padding: 0.2em 1em 0.275em;
+}
+
+.fst-italic {
+  font-style: italic;
+}
+
+.fw-lighter {
+  font-weight: 300;
+}
+.fw-light {
+  font-weight: 400;
+}
+.fw-semibold {
+  font-weight: 600;
+}
+
+.text-danger {
+  color: var(--primary-color);
 }
 
 .commentChain .comment {

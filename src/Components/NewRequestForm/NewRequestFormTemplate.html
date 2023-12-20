@@ -1,6 +1,32 @@
-<div
-  data-bind="component: {
-    name: newRequest.components.new, 
-    params: newRequest}"
-></div>
-<button type="button" data-bind="click: submit">Submit</button>
+<div class="new-request-form">
+  <div class="form-fields" data-bind="foreach: newRequest.FormFields">
+    <div
+      class="form-field-component"
+      data-bind="component: 
+        {name: components.edit, params: $data}, 
+        class: width"
+    ></div>
+  </div>
+  <div class="form-actions">
+    <button type="button" class="btn btn-success" data-bind="click: submit">
+      Create Request
+    </button>
+  </div>
+</div>
+
+<style>
+  .new-request-form .form-fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1.5rem;
+    background-color: var(--dark-bg-color);
+    color: white;
+  }
+
+  .new-request-form .form-actions {
+    display: flex;
+    justify-content: end;
+    padding: 2rem;
+  }
+</style>

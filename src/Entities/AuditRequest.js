@@ -1,4 +1,5 @@
 import { AuditOrganization } from "../entities/AuditOrganization.js";
+// import LookupField from "../fields/LookupField.js"
 import TextField from "../fields/TextField.js";
 import DateField, { dateFieldTypes } from "../fields/DateField.js";
 import SelectField from "../fields/SelectField.js";
@@ -37,7 +38,7 @@ export class AuditRequest extends ConstrainedEntity {
       isRequired: true,
     }),
     IsSample: new CheckboxField({
-      displayName: "Is Sample",
+      displayName: "Is Sample?",
     }),
     ReceiptDate: new DateField({
       displayName: "Receipt Date",
@@ -78,11 +79,11 @@ export class AuditRequest extends ConstrainedEntity {
       options: ["Official", "SBU", "PII_SBU"],
     }),
     // ActionOffice: new LookupField({
-    //     displayName: "Action Offices",
-    //     type: AuditOrganizations,
-    //     lookupCol: "Title",
-    //     multiple: true
-    // })
+    //   displayName: "Action Offices",
+    //   type: AuditOrganizations,
+    //   lookupCol: "Title",
+    //   multiple: true,
+    // }),
   };
 
   static ListDef = {

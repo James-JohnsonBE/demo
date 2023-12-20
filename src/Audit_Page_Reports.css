@@ -38,8 +38,13 @@ div.audit {
   --dark-bg-color: #1d2b36;
 
   --text-primary: #1e2a36;
+
+  --success-color: #4fbf77;
+  --success-hover-color: #1f8f46;
+
   --primary-color: #3bbfc3;
   --primary-muted-color: #b9dfe2;
+
   --secondary-color: #3c474d;
 }
 
@@ -67,14 +72,15 @@ div.audit {
 }
 
 .audit-body .reports-container {
-  flex: 1 0 1080px;
+  flex: 1 0 810px;
   margin: 1rem;
 }
 
 .audit-body .quick-links {
   display: flex;
   flex-direction: row-reverse;
-  justify-content: space-between;
+  justify-content: start;
+  flex-wrap: wrap;
   gap: 0.5rem;
   max-width: fit-content;
   align-items: start;
@@ -315,20 +321,4 @@ table.tablesorter thead tr .header {
 .sr1-request-item .past-due {
   background-color: salmon;
   font-weight: bold;
-}
-
-label.file-upload-field {
-}
-
-.dropzone {
-  color: gray;
-  font-size: 1.25rem;
-  font-weight: bold;
-  text-align: center;
-  padding: 1.5rem;
-  border: 2px dashed lightgray;
-}
-
-label.file-upload-field.dragging .dropzone {
-  border: 2px dashed gray;
 }

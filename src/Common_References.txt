@@ -71,4 +71,19 @@
   <div data-bind="text: message"></div>
 </template>
 
+<style>
+  .dropzone {
+    color: gray;
+    font-size: 1.25rem;
+    font-weight: bold;
+    text-align: center;
+    padding: 1.5rem;
+    border: 2px dashed lightgray;
+  }
+
+  label.file-upload-field.dragging .dropzone {
+    border: 2px dashed gray;
+  }
+</style>
+
 <script defer></script>
