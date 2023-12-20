@@ -1,4 +1,4 @@
-import { setUrlParam } from "../../Common/Router.js";
+import { setUrlParam } from "../../common/Router.js";
 
 const urlParam = "Tab";
 

@@ -1,12 +1,12 @@
-import { AuditOrganizations } from "../../Entities/AuditOrganizations.js";
-import TextField from "../../Fields/TextField.js";
-import DateField, { dateFieldTypes } from "../../Fields/DateField.js";
-import SelectField from "../../Fields/SelectField.js";
-import CheckboxField from "../../Fields/CheckboxField.js";
-import TextAreaField from "../../Fields/TextAreaField.js";
-import BaseForm from "../BaseForm.js";
+import { AuditOrganization } from "../entities/AuditOrganization.js";
+import TextField from "../fields/TextField.js";
+import DateField, { dateFieldTypes } from "../fields/DateField.js";
+import SelectField from "../fields/SelectField.js";
+import CheckboxField from "../fields/CheckboxField.js";
+import TextAreaField from "../fields/TextAreaField.js";
+import ConstrainedEntity from "../primitives/ConstrainedEntity.js";
 
-export default class NewRequestForm extends BaseForm {
+export class AuditRequest extends ConstrainedEntity {
   constructor(params) {
     super(params);
   }
@@ -83,5 +83,10 @@ export default class NewRequestForm extends BaseForm {
     //     lookupCol: "Title",
     //     multiple: true
     // })
+  };
+
+  static ListDef = {
+    name: "AuditRequests",
+    title: "AuditRequests",
   };
 }

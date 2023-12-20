@@ -1,4 +1,10 @@
+import Entity from "./Entity.js";
 import { registerComponent } from "../infrastructure/RegisterComponents.js";
+
+/**
+ * Constrained Entity's are validated based on their declared fields.
+ * We are expecting user input, so need to validate each input field.
+ */
 
 export const defaultComponents = {
   view: "default-constrained-view",
@@ -15,10 +21,10 @@ Object.keys(defaultComponents).map((key) =>
   })
 );
 
-export default class BaseForm {
-  constructor(params) {}
-
-  FieldMap = {};
+export default class ConstrainedEntity extends Entity {
+  constructor(params) {
+    super(params);
+  }
 
   toJSON = () => {
     const out = {};

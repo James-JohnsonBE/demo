@@ -47,11 +47,11 @@
 
 <script
   type="module"
-  src="/sites/CGFS/Style Library/apps/audit/src/Common/KnockoutExtensions.js"
+  src="/sites/CGFS/Style Library/apps/audit/src/common/KnockoutExtensions.js"
 ></script>
 <script
   type="text/javascript"
-  src="/sites/CGFS/Style Library/apps/audit/src/Common/Utilities.js"
+  src="/sites/CGFS/Style Library/apps/audit/src/common/Utilities.js"
 ></script>
 
 <!-- TODO: Break these out into their individual files! -->

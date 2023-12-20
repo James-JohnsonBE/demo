@@ -1696,5 +1696,5 @@
 <script
   defer
   type="module"
-  src="/sites/CGFS/Style Library/apps/audit/src/Pages/IA_DB/IA_DB.js"
+  src="/sites/CGFS/Style Library/apps/audit/src/pages/IA_DB/IA_DB.js"
 ></script>

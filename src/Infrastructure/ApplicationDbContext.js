@@ -1,5 +1,5 @@
 import { SPList } from "./SAL.js";
-import { AuditOrganizations } from "../Entities/AuditOrganizations.js";
+import { AuditOrganization } from "../entities/AuditOrganization.js";
 
 const DEBUG = false;
 
@@ -24,7 +24,7 @@ const DEBUG = false;
 export default class ApplicationDbContext {
   constructor() {}
 
-  AuditOrganizations = new EntitySet(AuditOrganizations);
+  AuditOrganizations = new EntitySet(AuditOrganization);
 
   virtualSets = new Map();
 

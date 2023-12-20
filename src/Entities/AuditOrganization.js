@@ -1,4 +1,4 @@
-export class AuditOrganizations {
+export class AuditOrganization {
   constructor() {}
 
   static Views = {
