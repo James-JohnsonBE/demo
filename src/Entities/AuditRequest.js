@@ -1,5 +1,6 @@
 import { AuditOrganization } from "../entities/AuditOrganization.js";
 import LookupField from "../fields/LookupField.js";
+import PeopleField from "../fields/PeopleField.js";
 import TextField from "../fields/TextField.js";
 import DateField, { dateFieldTypes } from "../fields/DateField.js";
 import SelectField from "../fields/SelectField.js";
@@ -36,6 +37,11 @@ export class AuditRequest extends ConstrainedEntity {
     ReqDueDate: new DateField({
       displayName: "Request Due Date",
       type: dateFieldTypes.date,
+      isRequired: true,
+    }),
+    ReqStatus: new SelectField({
+      displayName: "Request Status",
+      options: ["Open", "Canceled", "Closed", "ReOpened"],
       isRequired: true,
     }),
     IsSample: new CheckboxField({
@@ -75,6 +81,9 @@ export class AuditRequest extends ConstrainedEntity {
       ],
       multiple: true,
     }),
+    EmailSent: new CheckboxField({
+      displayName: "Email has been sent",
+    }),
     Sensitivity: new SelectField({
       displayName: "Sensitivity",
       options: ["Official", "SBU", "PII_SBU"],
@@ -86,8 +95,65 @@ export class AuditRequest extends ConstrainedEntity {
       lookupCol: "Title",
       multiple: true,
     }),
+    EmailActionOffice: new LookupField({
+      displayName: "Action Offices",
+      type: AuditOrganization,
+      entitySet: appContext.AuditOrganizations,
+      lookupCol: "Title",
+      multiple: true,
+    }),
+    ClosedDate: new DateField({
+      displayName: "Closed Date",
+      isRequired: false,
+    }),
+    ClosedBy: new PeopleField({
+      displayName: "Closed By",
+      isRequired: false,
+    }),
   };
 
+  static Views = {
+    All: [
+      "ID",
+      "Title",
+      "ReqSubject",
+      "FiscalYear",
+      "InternalDueDate",
+      "ReqDueDate",
+      "ReqStatus",
+      "IsSample",
+      "ReceiptDate",
+      "MemoDate",
+      "RelatedAudit",
+      "ActionItems",
+      "Comments",
+      "Reminders",
+      "EmailSent",
+      "Sensitivity",
+      "ActionOffice",
+      "EmailActionOffice",
+      "EmailActionOffice",
+      "ClosedDate",
+      "ClosedBy",
+    ],
+    New: [
+      "Title",
+      "ReqSubject",
+      "FiscalYear",
+      "InternalDueDate",
+      "ReqDueDate",
+      "ReqStatus",
+      "IsSample",
+      "ReceiptDate",
+      "MemoDate",
+      "RelatedAudit",
+      "ActionItems",
+      "Comments",
+      "Reminders",
+      "Sensitivity",
+      "ActionOffice",
+    ],
+  };
   static ListDef = {
     name: "AuditRequests",
     title: "AuditRequests",

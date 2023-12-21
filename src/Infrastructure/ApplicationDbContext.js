@@ -75,10 +75,12 @@ class EntitySet {
       this.entityType.FindInStore || this.entityType.Create || this.entityType;
   }
 
+  // TODO: Caching should be broken out via decorator pattern
   // OPTIONAL cache using array or knockout observable
   // _store = [];
   _store = ko.observableArray();
-  _allItemsQueried = false;
+  _queryingAllItems = false;
+  _allItemsQueried = ko.observable();
 
   // Queries
   // TODO: Feature - Queries should return options to read e.g. toList, first, toCursor
@@ -155,11 +157,23 @@ class EntitySet {
       }),
     };
   };
+
   /**
    * Return all items in list
    */
-  ToList = async () => {
-    if (this._allItemsQueried) return this._store();
+  ToList = async (refresh = false) => {
+    if (this._allItemsQueried()) return this._store();
+
+    if (this._queryingAllItems) {
+      return new Promise((resolve) => {
+        const hasLoadedSubscription = this._allItemsQueried.subscribe(
+          (bool) => {
+            hasLoadedSubscription.dispose();
+            resolve(this._store());
+          }
+        );
+      });
+    }
 
     const fields = this.Views.All;
     const results = await this.ListRef.getListItemsAsync({ fields });
@@ -169,7 +183,7 @@ class EntitySet {
       return newEntity;
     });
     this._store(allItems);
-    this._allItemsQueried = true;
+    this._allItemsQueried(true);
     return this._store();
   };
 
