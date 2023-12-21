@@ -42,6 +42,9 @@ div.audit {
   --success-color: #4fbf77;
   --success-hover-color: #1f8f46;
 
+  --warn-color: #f0bb51;
+  --warn-hover-color: #d6930c;
+
   --primary-color: #3bbfc3;
   --primary-muted-color: #b9dfe2;
 
