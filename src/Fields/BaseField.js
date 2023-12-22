@@ -13,6 +13,8 @@ export default class BaseField {
     this.isRequired = isRequired;
     this.Visible = Visible;
     this.width = width ? "col-md-" + width : "col-md-6";
+
+    this.addFieldRequirement(isRequiredValidationRequirement(this));
   }
 
   Value = ko.observable();
@@ -32,30 +34,40 @@ export default class BaseField {
 
   Errors = ko.pureComputed(() => {
     if (!this.Visible()) return [];
-    const isRequired =
-      typeof this.isRequired == "function"
-        ? this.isRequired()
-        : this.isRequired;
-    if (!isRequired) return [];
-    return this.Value()
-      ? []
-      : [
-          new ValidationError(
-            "text-field",
-            "required-field",
-            (typeof this.displayName == "function"
-              ? this.displayName()
-              : this.displayName) + ` is required!`
-          ),
-        ];
+    const errors = this._fieldValidationRequirements()
+      .filter((req) => req.requirement())
+      .map((req) => req.error);
+
+    return errors;
   });
+
+  _fieldValidationRequirements = ko.observableArray();
+
+  addFieldRequirement = (requirement) =>
+    this._fieldValidationRequirements.push(requirement);
 
   IsValid = ko.pureComputed(() => !this.Errors().length);
 
   ShowErrors = ko.observable(false);
 
+  // TODO: this should go in the field component base class since it's purely UI.
   ValidationClass = ko.pureComputed(() => {
     if (!this.ShowErrors()) return;
     return this.Errors().length ? "is-invalid" : "is-valid";
   });
+}
+
+function isRequiredValidationRequirement(field) {
+  return {
+    requirement: ko.pureComputed(() => {
+      const isRequired = ko.utils.unwrapObservable(field.isRequired);
+      if (!isRequired || field.Value()) return false;
+      return true;
+    }),
+    error: new ValidationError(
+      "text-field",
+      "required-field",
+      `${ko.utils.unwrapObservable(field.displayName)} is required!`
+    ),
+  };
 }

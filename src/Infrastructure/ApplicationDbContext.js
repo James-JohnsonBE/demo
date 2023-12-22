@@ -1,4 +1,5 @@
 import { AuditOrganization } from "../entities/AuditOrganization.js";
+import { AuditRequest } from "../entities/AuditRequest.js";
 import { SPList } from "../infrastructure/SAL.js";
 
 const DEBUG = false;
@@ -23,6 +24,8 @@ const DEBUG = false;
 
 class ApplicationDbContext {
   constructor() {}
+
+  AuditRequests = new EntitySet(AuditRequest);
 
   AuditOrganizations = new EntitySet(AuditOrganization);
 
@@ -140,7 +143,7 @@ class EntitySet {
 
     while (cursor._next) {
       cursor = await this.LoadNextPage(cursor);
-      resultObj.results.concat(cursor.results);
+      resultObj.results = resultObj.results.concat(cursor.results);
     }
 
     return resultObj;
@@ -205,14 +208,10 @@ class EntitySet {
   };
 
   // Mutators
-  AddEntity = async function (entity, folderPath, request = null) {
+  AddEntity = async function (entity, folderPath) {
     const creationfunc = mapEntityToObject.bind(this);
     const writeableEntity = creationfunc(entity);
 
-    if (request) {
-      writeableEntity.Title = request.Title;
-      writeableEntity.Request = request;
-    }
     if (DEBUG) console.log(writeableEntity);
     const newId = await this.ListRef.createListItemAsync(
       writeableEntity,

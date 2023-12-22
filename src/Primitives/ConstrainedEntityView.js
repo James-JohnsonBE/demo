@@ -3,13 +3,14 @@ export class ConstrainedEntityView {
   constructor({ entity = null, view = null }) {
     this.entity = entity;
     this.view = view ?? entity.constructor.Views.All;
-
-    this.FormFields = ko.pureComputed(() =>
-      Object.entries(this.entity.FieldMap)
-        .filter(([key, field]) => this.view.includes(key) && field?.Visible())
-        .map(([key, field]) => field)
-    );
   }
+
+  FormFields = ko.pureComputed(() => {
+    const entity = ko.utils.unwrapObservable(this.entity);
+    return Object.entries(entity.FieldMap)
+      .filter(([key, field]) => this.view.includes(key) && field?.Visible())
+      .map(([key, field]) => field);
+  });
 
   // Validate just the fields on this form
   validate = (showErrors = true) => {

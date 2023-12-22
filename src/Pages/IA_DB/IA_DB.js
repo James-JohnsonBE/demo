@@ -1,4 +1,5 @@
 ﻿import { InitSal } from "../../infrastructure/SAL.js";
+import { appContext } from "../../infrastructure/ApplicationDbContext.js";
 import { TabsModule, Tab } from "../../components/Tabs/TabsModule.js";
 import { setUrlParam } from "../../common/Router.js";
 import CommentChainModule from "../../components/CommentChain/CommentChainModule.js";
@@ -113,7 +114,9 @@ Audit.IAReport.NewReportPage = function () {
       }),
       NewRequest: new Tab("new-request", "New Request", {
         id: "newRequestTemplate",
-        data: new NewRequestFormComponent(),
+        data: new NewRequestFormComponent({
+          onSubmitSuccess: OnCallbackFormNewRequest,
+        }),
       }),
     };
 

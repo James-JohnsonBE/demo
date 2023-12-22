@@ -1,5 +1,5 @@
 <div class="new-request-form">
-  <div class="form-fields" data-bind="foreach: newRequest().FormFields">
+  <div class="form-fields" data-bind="foreach: FormFields">
     <div
       class="form-field-component"
       data-bind="component: 
@@ -11,7 +11,11 @@
     <button type="button" class="btn btn-warn" data-bind="click: clearForm">
       Clear Form
     </button>
-    <button type="button" class="btn btn-success" data-bind="click: submit">
+    <button
+      type="button"
+      class="btn btn-success"
+      data-bind="click: clickSubmit"
+    >
       Create Request
     </button>
   </div>
