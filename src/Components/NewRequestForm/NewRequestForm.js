@@ -3,6 +3,7 @@ import { appContext } from "../../infrastructure/ApplicationDbContext.js";
 import { registerComponent } from "../../infrastructure/RegisterComponents.js";
 import { ConstrainedEntityView } from "../../primitives/ConstrainedEntityView.js";
 import { ValidationError } from "../../primitives/ValidationError.js";
+import { AddNewRequest } from "../../services/AuditRequestService.js";
 
 export const newRequestFormComponentName = "newRequestForm";
 
@@ -63,24 +64,13 @@ export default class NewRequestFormModule extends ConstrainedEntityView {
     if (errors.length) return;
 
     const request = this.entity();
-    const fields = request.FieldMap;
 
-    // See if we have a request with this title already
-    const existingRequests = await appContext.AuditRequests.FindByColumnValue(
-      [{ column: "Title", value: fields.Title.Value() }],
-      {},
-      { count: 1 }
-    );
-
-    // TODO: use addFieldRequirement?
-    if (existingRequests.results.length) {
-      alert("Request with this name already exists!");
-      return;
+    try {
+      await AddNewRequest(request);
+      this.onSubmitSuccess(SP.UI.DialogResult.OK);
+    } catch (e) {
+      alert(e);
     }
-
-    await appContext.AuditRequests.AddEntity(request);
-
-    this.onSubmitSuccess(SP.UI.DialogResult.OK);
   }
 
   clearForm() {

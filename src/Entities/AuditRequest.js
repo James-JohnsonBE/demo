@@ -86,7 +86,7 @@ export class AuditRequest extends ConstrainedEntity {
     }),
     Sensitivity: new SelectField({
       displayName: "Sensitivity",
-      options: ["Official", "SBU", "PII_SBU"],
+      options: ["None", "Official", "SBU", "PII_SBU"],
     }),
     ActionOffice: new LookupField({
       displayName: "Action Offices",
