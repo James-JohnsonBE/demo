@@ -355,6 +355,14 @@
         </div>
         <div style="padding-top: 3px">
           <a
+            id="linkSubmitBulkReq"
+            href="javascript:void(0)"
+            data-bind="click: clickBulkAddRequestHandler"
+            ><span class="ui-icon ui-icon-plus"></span>Bulk Add Request</a
+          >
+        </div>
+        <div style="padding-top: 3px">
+          <a
             id="linkSubmitNewReq"
             href="javascript:void(0)"
             data-bind="click: clickNewRequestHandler"

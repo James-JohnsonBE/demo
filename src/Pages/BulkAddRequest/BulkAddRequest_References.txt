@@ -1,0 +1,32 @@
+<div id="divLoading" style="color: green">Loading...</div>
+<div id="divLoadSettings" style="">
+  <fieldset>
+    <legend>Add Requests:</legend>
+    <div id="divLoadedRequests"></div>
+  </fieldset>
+</div>
+<div id="divLoadBulkResponsesOutput" style="padding-top: 15px"></div>
+<div style="padding-top: 15px">
+  <a
+    href="javascript:void"
+    id="btnCreateResponses"
+    style="display: none"
+    title="Click here to Create the Responses"
+    ><span class="ui-icon ui-icon-disk"></span>Create Responses</a
+  >
+  <div style="padding-top: 15px">
+    <input
+      id="btnCancel"
+      type="button"
+      class="ms-ButtonHeightWidth"
+      value="Close"
+      title="Close"
+      onclick="SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)"
+    />
+  </div>
+</div>
+
+<script
+  type="module"
+  src="/sites/CGFS/Style Library/apps/audit/src/pages/BulkAddRequest/BulkAddRequest.js"
+></script>

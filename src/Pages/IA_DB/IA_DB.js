@@ -124,8 +124,6 @@ Audit.IAReport.NewReportPage = function () {
 
     self.refresh = () => window.location.reload();
 
-    self.clickNewRequestHandler = () => {};
-
     self.debugMode = ko.observable(false);
     self.siteUrl = Audit.Common.Utilities.GetSiteUrl();
 
@@ -540,6 +538,28 @@ Audit.IAReport.NewReportPage = function () {
         self.arrFilteredResponsesCount(count);
         document.body.style.cursor = "default";
       }, 200);
+    };
+
+    self.clickNewRequestHandler = () => {};
+    self.clickBulkAddRequestHandler = () => {
+      if (!m_bIsSiteOwner) {
+        SP.UI.Notify.addNotification(
+          "You do not have access to perform this action...",
+          false
+        );
+        return;
+      }
+
+      m_bIsTransactionExecuting = true;
+
+      var options = SP.UI.$create_DialogOptions();
+      options.title = "Bulk Add Requests";
+      options.dialogReturnValueCallback = m_fnRefresh;
+      options.height = 800;
+      options.url =
+        Audit.Common.Utilities.GetSiteUrl() + "/pages/AuditBulkAddRequest.aspx";
+
+      SP.UI.ModalDialog.showModalDialog(options);
     };
 
     self.ClickGoToRequest = function (oRequest) {
