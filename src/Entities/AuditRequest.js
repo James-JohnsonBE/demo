@@ -7,7 +7,7 @@ import SelectField from "../fields/SelectField.js";
 import CheckboxField from "../fields/CheckboxField.js";
 import TextAreaField from "../fields/TextAreaField.js";
 import ConstrainedEntity from "../primitives/ConstrainedEntity.js";
-import { appContext } from "../infrastructure/ApplicationDbContext.js";
+// import { appContext } from "../infrastructure/ApplicationDbContext.js";
 
 export class AuditRequest extends ConstrainedEntity {
   constructor(params) {
@@ -91,14 +91,14 @@ export class AuditRequest extends ConstrainedEntity {
     ActionOffice: new LookupField({
       displayName: "Action Offices",
       type: AuditOrganization,
-      entitySet: appContext.AuditOrganizations,
+      // entitySet: appContext.AuditOrganizations,
       lookupCol: "Title",
       multiple: true,
     }),
     EmailActionOffice: new LookupField({
       displayName: "Action Offices",
       type: AuditOrganization,
-      entitySet: appContext.AuditOrganizations,
+      // entitySet: appContext.AuditOrganizations,
       lookupCol: "Title",
       multiple: true,
     }),

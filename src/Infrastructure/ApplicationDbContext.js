@@ -31,8 +31,17 @@ class ApplicationDbContext {
 
   virtualSets = new Map();
 
-  Set = (listDef) => {
-    const key = listDef.name;
+  Set = (entity) => {
+    // if (this[entity.constructor.name]) return this[entity.constructor.name];
+
+    const key = entity.ListDef.name;
+
+    // If we have a defined entityset, return that
+    const set = Object.values(this)
+      .filter((val) => val.constructor.name == EntitySet.name)
+      .find((set) => set.ListDef?.name == key);
+    if (set) return set;
+
     if (!this.virtualSets.has(key)) {
       const newSet = new EntitySet(listDef);
       this.virtualSets.set(key, newSet);
@@ -55,10 +64,13 @@ class EntitySet {
     try {
       const allFieldsSet = new Set();
       entityType.Views?.All?.map((field) => allFieldsSet.add(field));
-      const newEntity = new this.entityType({ ID: null, Title: null });
-      if (newEntity.FieldMap) {
-        Object.keys(newEntity.FieldMap).map((field) => allFieldsSet.add(field));
-      }
+
+      // TODO: this is bombing due to circular dependencies,
+      // all fields need to be in View
+      // const newEntity = new this.entityType({ ID: null, Title: null });
+      // if (newEntity.FieldMap) {
+      //   Object.keys(newEntity.FieldMap).map((field) => allFieldsSet.add(field));
+      // }
       // const fieldMapKeysSet = new Set(...);
       // entityType.Views.All.map((field) => fieldMapKeysSet.add(field));
       this.AllDeclaredFields = [...allFieldsSet];

@@ -23,7 +23,7 @@ export class ConstrainedEntityView {
 
   ShowErrors = ko.observable(false);
   Errors = ko.pureComputed(() => {
-    return Object.values(this.FormFields)
+    return Object.values(this.FormFields())
       .filter((field) => field?.Errors && field.Errors())
       .flatMap((field) => field.Errors());
   });
