@@ -67,7 +67,7 @@ export default class NewRequestFormModule extends ConstrainedEntityView {
 
     try {
       await AddNewRequest(request);
-      this.onSubmitSuccess(SP.UI.DialogResult.OK);
+      // this.onSubmitSuccess(SP.UI.DialogResult.OK);
     } catch (e) {
       alert(e);
     }

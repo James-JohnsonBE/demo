@@ -1,12 +1,4 @@
-import { AuditOrganization } from "./AuditOrganization.js";
-import LookupField from "../fields/LookupField.js";
-import PeopleField from "../fields/PeopleField.js";
-import TextField from "../fields/TextField.js";
-import DateField, { dateFieldTypes } from "../fields/DateField.js";
-import SelectField from "../fields/SelectField.js";
-import CheckboxField from "../fields/CheckboxField.js";
-import TextAreaField from "../fields/TextAreaField.js";
-import ConstrainedEntity from "../primitives/ConstrainedEntity.js";
+import { AuditRequest } from "./AuditRequest.js";
 // import { appContext } from "../infrastructure/ApplicationDbContext.js";
 
 export class AuditBulkRequest extends AuditRequest {
@@ -57,7 +49,7 @@ export class AuditBulkRequest extends AuditRequest {
     ],
   };
   static ListDef = {
-    name: "AuditBulkRequest",
-    title: "AuditBulkRequest",
+    name: "AuditBulkRequests",
+    title: "AuditBulkRequests",
   };
 }

@@ -119,15 +119,20 @@ export default class LookupField extends BaseField {
       Title: entity.Title,
     };
   };
-  set = (val) => {
+
+  set = async (val) => {
     if (!val) {
       this.Value(val);
       return;
     }
     if (this.multiple) {
       const valArr = Array.isArray(val) ? val : val.results ?? val.split("#;");
+      // const values = await Promise.all(
+      //   valArr.map(async (value) => await this.findOrCreateNewEntity(value))
+      // );
+      const values = valArr.map((value) => this.findOrCreateNewEntity(value));
 
-      this.Value(valArr.map((value) => this.findOrCreateNewEntity(value)));
+      this.Value(values);
       return;
     }
 
@@ -147,11 +152,10 @@ export default class LookupField extends BaseField {
       );
     }
 
-    if (this.entityType.Create) {
-      return this.entityType.Create(val);
-    }
+    const cachedEntity = this.Options().find((entity) => entity.ID == val.ID);
+    if (cachedEntity) return cachedEntity;
 
-    return new this.entityType(val);
+    return this.entitySet.FindInStore(val.ID);
   };
 
   components = components;

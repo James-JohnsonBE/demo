@@ -554,7 +554,7 @@ Audit.IAReport.NewReportPage = function () {
 
       var options = SP.UI.$create_DialogOptions();
       options.title = "Bulk Add Requests";
-      options.dialogReturnValueCallback = m_fnRefresh;
+      // options.dialogReturnValueCallback = m_fnRefresh;
       options.height = 800;
       options.url =
         Audit.Common.Utilities.GetSiteUrl() + "/pages/AuditBulkAddRequest.aspx";

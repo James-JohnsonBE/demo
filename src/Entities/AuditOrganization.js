@@ -1,5 +1,9 @@
-export class AuditOrganization {
-  constructor() {}
+import ConstrainedEntity from "../primitives/ConstrainedEntity.js";
+
+export class AuditOrganization extends ConstrainedEntity {
+  constructor(params) {
+    super(params);
+  }
 
   static Views = {
     All: [

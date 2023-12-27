@@ -1133,8 +1133,10 @@ export function SPList(listDef) {
     );
   }
 
-  function deleteListItemAsync(id) {
-    return new Promise((resolve, reject) => deleteListItem(id, resolve));
+  async function deleteListItemAsync(id) {
+    const apiEndpoint = `/web/lists/GetByTitle('${self.config.def.title}')/items(${id})`;
+    return await fetchData(apiEndpoint, "DELETE", { "If-Match": "*" });
+    // return new Promise((resolve, reject) => deleteListItem(id, resolve));
   }
 
   /*****************************************************************
@@ -2138,15 +2140,16 @@ export function SPList(listDef) {
   return publicMembers;
 }
 
-async function fetchData(uri, method = "GET") {
+async function fetchData(uri, method = "GET", headers = {}) {
   const siteEndpoint = uri.startsWith("http")
     ? uri
     : sal.globalConfig.siteUrl + "/_api" + uri;
   const response = await fetch(siteEndpoint, {
-    method: method,
+    method,
     headers: {
       Accept: "application/json; odata=verbose",
       "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value,
+      ...headers,
     },
   });
 
@@ -2156,6 +2159,10 @@ async function fetchData(uri, method = "GET") {
     }
     console.error(response);
   }
-  const result = await response.json();
-  return result;
+  try {
+    const result = await response.json();
+    return result;
+  } catch (e) {
+    return;
+  }
 }

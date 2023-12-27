@@ -1,5 +1,6 @@
 import { AuditOrganization } from "../entities/AuditOrganization.js";
 import { AuditRequest } from "../entities/AuditRequest.js";
+import { AuditBulkRequest } from "../entities/AuditBulkRequest.js";
 import { SPList } from "../infrastructure/SAL.js";
 
 const DEBUG = false;
@@ -26,6 +27,8 @@ class ApplicationDbContext {
   constructor() {}
 
   AuditRequests = new EntitySet(AuditRequest);
+
+  AuditBulkRequests = new EntitySet(AuditBulkRequest);
 
   AuditOrganizations = new EntitySet(AuditOrganization);
 
@@ -95,17 +98,23 @@ class EntitySet {
   // _store = [];
   _store = ko.observableArray();
   _queryingAllItems = false;
-  _allItemsQueried = ko.observable();
+  _allItemsQueried = ko.observable(false);
 
   // Queries
   // TODO: Feature - Queries should return options to read e.g. toList, first, toCursor
   FindById = async (id, fields = this.AllDeclaredFields) => {
+    const cachedEntity = this._store().find((entity) => entity.ID == id);
+    if (cachedEntity) return cachedEntity;
+
     const result = await this.ListRef.findByIdAsync(id, fields);
     if (!result) return null;
     const newEntity = new this.entityType(result);
     mapObjectToEntity(result, newEntity);
+    this._store.push(newEntity);
     return newEntity;
   };
+
+  FindInStore = (id) => this._store().find((entity) => entity.ID == id);
 
   /**
    * Takes an array of columns and filter values with an optional comparison operator
@@ -190,6 +199,7 @@ class EntitySet {
       });
     }
 
+    this._queryingAllItems = true;
     const fields = this.Views.All;
     const results = await this.ListRef.getListItemsAsync({ fields });
     const allItems = results.map((item) => {
