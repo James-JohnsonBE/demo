@@ -12,7 +12,7 @@
     id="btnCreateResponses"
     data-bind="click: clickSubmitRequests"
     title="Click here to Create the Responses"
-    ><span class="ui-icon ui-icon-disk"></span>Create Responses</a
+    ><span class="ui-icon ui-icon-disk"></span>Create Requests</a
   >
   <div style="padding-top: 15px">
     <input

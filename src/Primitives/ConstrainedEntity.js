@@ -44,6 +44,11 @@ export default class ConstrainedEntity extends Entity {
 
   IsValid = ko.pureComputed(() => !this.Errors().length);
 
+  /**
+   * Expose methods to generate default new, edit, and view forms
+   * for a constrained entity. Uses the constrained
+   * entity components.
+   */
   static components = {
     new: (entity, view = null) =>
       new ConstrainedEntityComponent({

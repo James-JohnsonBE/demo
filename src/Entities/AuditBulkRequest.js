@@ -6,6 +6,13 @@ export class AuditBulkRequest extends AuditRequest {
     super(params);
   }
 
+  toRequest() {
+    const newReq = new AuditRequest(this);
+
+    newReq.fromJSON(this.toJSON());
+    return newReq;
+  }
+
   static Views = {
     All: [
       "ID",

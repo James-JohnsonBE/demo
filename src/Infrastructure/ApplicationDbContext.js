@@ -97,8 +97,8 @@ class EntitySet {
   // OPTIONAL cache using array or knockout observable
   // _store = [];
   _store = ko.observableArray();
-  _queryingAllItems = false;
-  _allItemsQueried = ko.observable(false);
+  _queryingAllItems = ko.observable(false);
+  _allItemsQueried = false;
 
   // Queries
   // TODO: Feature - Queries should return options to read e.g. toList, first, toCursor
@@ -186,11 +186,11 @@ class EntitySet {
    * Return all items in list
    */
   ToList = async (refresh = false) => {
-    if (this._allItemsQueried()) return this._store();
+    if (this._allItemsQueried && !refresh) return this._store();
 
-    if (this._queryingAllItems) {
+    if (this._queryingAllItems()) {
       return new Promise((resolve) => {
-        const hasLoadedSubscription = this._allItemsQueried.subscribe(
+        const hasLoadedSubscription = this._queryingAllItems.subscribe(
           (bool) => {
             hasLoadedSubscription.dispose();
             resolve(this._store());
@@ -199,7 +199,7 @@ class EntitySet {
       });
     }
 
-    this._queryingAllItems = true;
+    this._queryingAllItems(true);
     const fields = this.Views.All;
     const results = await this.ListRef.getListItemsAsync({ fields });
     const allItems = results.map((item) => {
@@ -208,7 +208,8 @@ class EntitySet {
       return newEntity;
     });
     this._store(allItems);
-    this._allItemsQueried(true);
+    this._queryingAllItems(false);
+    this._allItemsQueried = true;
     return this._store();
   };
 
