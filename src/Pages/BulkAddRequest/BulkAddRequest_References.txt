@@ -1,31 +1,85 @@
-<div id="divLoading" style="color: green">Loading...</div>
-<div id="divLoadSettings" style="">
-  <fieldset>
-    <legend>Add Requests:</legend>
-    <div id="divLoadedRequests"></div>
-  </fieldset>
-</div>
-<div id="divLoadBulkResponsesOutput" style="padding-top: 15px"></div>
-<div style="padding-top: 15px">
-  <a
-    href="javascript:void"
-    id="btnCreateResponses"
-    data-bind="click: clickSubmitRequests"
-    title="Click here to Create the Responses"
-    ><span class="ui-icon ui-icon-disk"></span>Create Requests</a
+<div id="bulkAddRequest" class="audit">
+  <button
+    class="btn btn-warn"
+    type="button"
+    data-bind="click: clickUploadResponses"
   >
-  <div style="padding-top: 15px">
-    <input
+    Add/Modify Requests
+  </button>
+  <div id="divBulkRequests" data-bind="if: bulkRequestItems">
+    <table id="tblBulkRequests" class="tablesorter report">
+      <thead>
+        <tr>
+          <th>Request Number</th>
+          <th>Request Subject</th>
+        </tr>
+      </thead>
+      <tbody data-bind="foreach: bulkRequestItems">
+        <tr class="bulk-request-item" data-bind="class: status">
+          <!-- ko using: bulkRequest -->
+          <td data-bind="text: Title"></td>
+          <td data-bind="text: FieldMap.ReqSubject.toString"></td>
+          <!-- /ko -->
+        </tr>
+      </tbody>
+      <tfoot class="footer">
+        <tr>
+          <th colspan="2">
+            Total: <span data-bind="text: bulkRequestItems().length"></span>
+          </th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  <div class="">
+    <button
+      class="btn btn-success"
+      type="button"
+      data-bind="click: clickSubmitRequests, enable: bulkRequestItems"
+      title="Click here to Create the Responses"
+    >
+      Create Requests
+    </button>
+  </div>
+  <div>
+    <button
       id="btnCancel"
       type="button"
-      class="ms-ButtonHeightWidth"
+      class="btn btn-danger"
       value="Close"
       title="Close"
       onclick="SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)"
-    />
+    >
+      Close
+    </button>
   </div>
 </div>
 
+<style>
+  #bulkAddRequest button {
+    margin-bottom: 10px;
+  }
+  div#divBulkRequests {
+    margin: 10px;
+  }
+
+  tr.bulk-request-item {
+  }
+
+  tr.bulk-request-item.pending {
+    color: white;
+    background-color: var(--warn-color);
+  }
+
+  tr.bulk-request-item.succeeded {
+    color: white;
+    background-color: var(--success-color);
+  }
+  tr.bulk-request-item.failed {
+    color: white;
+    background-color: var(--danger-color);
+  }
+</style>
 <script
   type="module"
   src="/sites/CGFS/Style Library/apps/audit/src/pages/BulkAddRequest/BulkAddRequest.js"

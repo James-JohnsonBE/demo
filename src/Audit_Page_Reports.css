@@ -45,6 +45,9 @@ div.audit {
   --warn-color: #f0bb51;
   --warn-hover-color: #d6930c;
 
+  --danger-color: rgb(182, 49, 49);
+  --danger-hover-color: rgb(179, 26, 26);
+
   --primary-color: #3bbfc3;
   --primary-muted-color: #b9dfe2;
 

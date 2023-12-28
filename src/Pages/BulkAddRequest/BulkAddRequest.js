@@ -22,25 +22,52 @@ class BulkAddRequestPage {
     console.log("Bulk Add Request");
   }
 
+  bulkRequestItems = ko.observableArray();
+  working = ko.observable(false);
+
   async Init() {
     // TODO: need to initialize audit organizations store
     await appContext.AuditOrganizations.ToList();
     await LoadInfo();
+    this.fetchBulkRequests();
   }
 
-  clickUploadResponses() {}
+  async clickUploadResponses() {
+    await appContext.AuditBulkRequests.ShowForm(
+      "BulkAddRequest.aspx",
+      "Bulk Add Requests",
+      {}
+    );
 
-  async clickSubmitRequests() {
-    // 1. Query all AuditBulkRequests
+    this.fetchBulkRequests();
+  }
+
+  async fetchBulkRequests() {
+    console.log("Request added callback");
     const bulkRequests = await appContext.AuditBulkRequests.ToList(true);
 
-    console.log(bulkRequests[0].FieldMap.ActionOffice.Value());
+    // Decorate our bulk requests with an object to keep track of view specific stuff
+    this.bulkRequestItems(
+      bulkRequests.map((bulkRequest) => {
+        return {
+          bulkRequest,
+          status: ko.observable(""),
+        };
+      })
+    );
+  }
+
+  async clickSubmitRequests() {
+    this.working(true);
+    // 1. Query all AuditBulkRequests
+    const bulkRequestItems = this.bulkRequestItems();
 
     const failedInserts = [];
     // 2. Create new AuditRequests
-    const insertPromises = bulkRequests.map(async (bulkRequest) => {
-      // TODO: For clarity we should map the bulk request to a regular request
-      // before inserting
+    const insertPromises = bulkRequestItems.map(async (bulkRequestItem) => {
+      bulkRequestItem.status("pending");
+      // Map the bulk request to a an AuditRequest
+      const bulkRequest = bulkRequestItem.bulkRequest;
       const newRequest = bulkRequest.toRequest();
       // a. Insert new Request
       try {
@@ -48,9 +75,11 @@ class BulkAddRequestPage {
         // await OnAddNewRequest()
       } catch (e) {
         failedInserts.push([e, bulkRequest]);
+        bulkRequestItem.status("failed");
         return;
       }
-      //  a. Run OnRequest Created Callback
+      //  a. Update bulkRequests view
+      bulkRequestItem.status("succeeded");
 
       //  b. Delete successfully created AuditBulkRequests
       await appContext.AuditBulkRequests.RemoveEntity(bulkRequest);
@@ -58,6 +87,7 @@ class BulkAddRequestPage {
     // Reload Page
     const insertResults = await Promise.all(insertPromises);
     // If any failed, need to alert user!
+    this.working(false);
   }
 }
 

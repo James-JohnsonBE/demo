@@ -146,6 +146,7 @@ TABLE.tablesorter THEAD TR .header {
 /* input styles */
 
 button.btn {
+  color: white;
   cursor: pointer;
   font-size: 1rem;
   padding: 0.25rem 1rem;
@@ -155,20 +156,32 @@ button.btn {
   border: none;
 }
 
+button.btn[disabled] {
+  cursor: not-allowed;
+}
+
 .btn.btn-success {
-  color: white;
   background-color: var(--success-color);
 }
 .btn.btn-success:hover {
   background-color: var(--success-hover-color);
 }
+.btn.btn-success[disabled] {
+  background-color: var(--success-hover-color);
+}
 
 .btn.btn-warn {
-  color: white;
   background-color: var(--warn-color);
 }
 .btn.btn-warn:hover {
   background-color: var(--warn-hover-color);
+}
+
+.btn.btn-danger {
+  background-color: var(--danger-color);
+}
+.btn.btn-danger:hover {
+  background-color: var(--danger-hover-color);
 }
 
 input.form-control,
