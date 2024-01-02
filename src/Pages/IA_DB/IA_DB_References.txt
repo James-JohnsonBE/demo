@@ -667,7 +667,7 @@
   </div>
 </script>
 
-<script id="requestDetailTemplate" type="text/html">
+<script id="requestDetailTemplateDeprecated" type="text/html">
   <div style="padding-bottom: 15px">
     <span>Request: </span
     ><select
@@ -1632,6 +1632,10 @@
       </table>
     </fieldset>
   </div>
+</script>
+
+<script id="requestDetailTemplate" type="text/html">
+  <div data-bind="component: {name: componentName, params: params}"></div>
 </script>
 
 <script id="requestTemplate" type="text/html">
