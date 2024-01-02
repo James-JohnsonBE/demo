@@ -52,6 +52,7 @@ class BulkAddRequestPage {
         return {
           bulkRequest,
           status: ko.observable(""),
+          message: ko.observable(""),
         };
       })
     );
@@ -76,6 +77,7 @@ class BulkAddRequestPage {
       } catch (e) {
         failedInserts.push([e, bulkRequest]);
         bulkRequestItem.status("failed");
+        bulkRequestItem.message(e.message);
         return;
       }
       //  a. Update bulkRequests view

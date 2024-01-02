@@ -1991,6 +1991,7 @@ export function SPList(listDef) {
       title: title,
       dialogReturnValueCallback: callback,
       args: JSON.stringify(args),
+      height: 800,
       url:
         sal.globalConfig.siteUrl +
         formsPath +
