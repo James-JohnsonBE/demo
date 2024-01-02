@@ -1693,6 +1693,7 @@
   ></td>
 </script>
 
+<!-- New Request Detail tab, uses the  -->
 <script id="newRequestTemplate" type="text/html">
   <div data-bind="component: {name: componentName, params: params}"></div>
 </script>

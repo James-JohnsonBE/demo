@@ -1768,7 +1768,7 @@ Audit.IAReport.NewReportPage = function () {
           columnName: "ActiveViewers",
           initialValue: oListItem.get_item("ActiveViewers"),
         });
-        break;
+        // break;
       }
     } catch (err) {
       alert(err);
