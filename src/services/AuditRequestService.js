@@ -92,6 +92,14 @@ export async function OnAddNewRequest(request) {
   });
 }
 
+export async function ensureRequestPermissions(request) {
+  const perms = await appContext.AuditRequests.GetItemPermissions(request);
+  if (!perms.hasUniqueRoleAssignments) {
+    if (window.DEBUG) console.warn("Request does not have unique permissions");
+    //TODO: Add UserManager service, modernize breakRequestPermissions below.
+  }
+}
+
 async function createRequestInternalItem(requestNumber) {
   var currCtx = new SP.ClientContext.get_current();
   var web = currCtx.get_web();

@@ -1286,71 +1286,71 @@ export function SPList(listDef) {
       var web = currCtx.get_web();
 
       var oList = web.get_lists().getByTitle(self.config.def.title);
+      var camlQuery = new SP.CamlQuery();
+      camlQuery.set_viewXml(
+        '<View><Query><Where><Eq><FieldRef Name="ID"/><Value Type="Text">' +
+          id +
+          "</Value></Eq></Where></Query></View>"
+      );
 
-      var oListItem = oList.getItemById(id);
-      var roles = oListItem.get_roleAssignments();
+      var oListItems = oList.getItems(camlQuery);
 
-      function onFindItemSucceeded() {
-        var currCtx = new SP.ClientContext.get_current();
-        var web = currCtx.get_web();
-        var principals = [];
-        var roleEnumerator = this.roles.getEnumerator();
-        // enumerate the roles
-        while (roleEnumerator.moveNext()) {
-          var role = roleEnumerator.get_current();
-          var principal = role.get_member();
-          // get the principal
-          currCtx.load(principal);
-          principals.push(principal);
-        }
+      currCtx.load(
+        oListItems,
+        "Include(ID, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+      );
 
-        currCtx.executeQueryAsync(
-          function (sender, args) {
-            var logins = principals.map(function (principal) {
-              return {
+      function onQuerySuccess() {
+        var listItemEnumerator = oListItems.getEnumerator();
+
+        while (listItemEnumerator.moveNext()) {
+          var oListItem = listItemEnumerator.get_current();
+          var itemPermissions = {
+            hasUniqueRoleAssignments: oListItem.get_hasUniqueRoleAssignments(),
+            roles: [],
+          };
+
+          var roleEnumerator = oListItem.get_roleAssignments().getEnumerator();
+          // enumerate the roles
+          while (roleEnumerator.moveNext()) {
+            var roleColl = roleEnumerator.get_current();
+            var principal = roleColl.get_member();
+
+            const roleDef = {
+              principal: {
                 ID: principal.get_id(),
                 Title: principal.get_title(),
                 LoginName: principal.get_loginName(),
-              };
-            });
-            resolve(logins);
-          },
-          function (sender, args) {
-            alert(
-              "Request failed. " +
-                args.get_message() +
-                "\n" +
-                args.get_stackTrace()
-            );
-            reject(args);
+              },
+              permissions: [],
+            };
+
+            const roleDefBindingCollEnumerator = roleColl
+              .get_roleDefinitionBindings()
+              .getEnumerator();
+            while (roleDefBindingCollEnumerator.moveNext()) {
+              const role = roleDefBindingCollEnumerator.get_current();
+              roleDef.permissions.push(role.get_name());
+            }
+            itemPermissions.roles.push(roleDef);
           }
-        );
+          resolve(itemPermissions);
+          break;
+        }
       }
 
-      function onFindItemFailed(sender, args) {
-        console.error(
-          "Failed to get permissions on item: " +
-            args.get_message() +
-            "\n" +
-            args.get_stackTrace(),
-          false
-        );
-        reject(args);
+      function onQueryFailed(sender, args) {
+        reject(args.get_message());
       }
 
       const data = {
-        id,
-        oListItem,
-        roles,
+        oListItems,
         resolve,
         reject,
       };
-
-      currCtx.load(oListItem);
-      currCtx.load(roles);
       currCtx.executeQueryAsync(
-        Function.createDelegate(data, onFindItemSucceeded),
-        Function.createDelegate(data, onFindItemFailed)
+        Function.createDelegate(data, onQuerySuccess),
+        Function.createDelegate(data, onQueryFailed)
       );
     });
   }

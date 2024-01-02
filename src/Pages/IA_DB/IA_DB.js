@@ -7,6 +7,7 @@ import ActiveViewersModule from "../../components/ActiveViewers/ActiveViewersMod
 
 import { AuditRequest } from "../../entities/AuditRequest.js";
 import { NewRequestFormComponent } from "../../components/NewRequestForm/NewRequestForm.js";
+import { RequestDetailViewComponent } from "../../components/RequestDetailView/RequestDetailView.js";
 
 var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
@@ -98,37 +99,6 @@ Audit.IAReport.NewReportPage = function () {
 
   function ViewModel() {
     var self = this;
-
-    self.tabOpts = {
-      Requests: new Tab("request-report", "Request Status Report", {
-        id: "requestStatusReportTemplate",
-        data: self,
-      }),
-      Responses: new Tab("response-report", "Response Status Report", {
-        id: "responseStatusReportTemplate",
-        data: self,
-      }),
-      RequestDetail: new Tab(
-        "request-detail-dep",
-        "Request Information (Deprecated)",
-        {
-          id: "requestDetailTemplateDeprecated",
-          data: self,
-        }
-      ),
-      RequestDetail2: new Tab("request-detail", "Request Information", {
-        id: "requestDetailTemplate",
-        data: self,
-      }),
-      NewRequest: new Tab("new-request", "New Request", {
-        id: "newRequestTemplate",
-        data: new NewRequestFormComponent({
-          onSubmitSuccess: OnCallbackFormNewRequest,
-        }),
-      }),
-    };
-
-    self.tabs = new TabsModule(Object.values(self.tabOpts));
 
     self.refresh = () => window.location.reload();
 
@@ -259,6 +229,41 @@ Audit.IAReport.NewReportPage = function () {
         responseModified
       );
     });
+
+    self.requestDetailViewComponent = new RequestDetailViewComponent({
+      currentRequest: self.currentRequest,
+    });
+
+    self.tabOpts = {
+      Requests: new Tab("request-report", "Request Status Report", {
+        id: "requestStatusReportTemplate",
+        data: self,
+      }),
+      Responses: new Tab("response-report", "Response Status Report", {
+        id: "responseStatusReportTemplate",
+        data: self,
+      }),
+      RequestDetail: new Tab(
+        "request-detail-dep",
+        "Request Information (Deprecated)",
+        {
+          id: "requestDetailTemplateDeprecated",
+          data: self,
+        }
+      ),
+      RequestDetail2: new Tab("request-detail", "Request Information", {
+        id: "requestDetailTemplate",
+        data: self,
+      }),
+      NewRequest: new Tab("new-request", "New Request", {
+        id: "newRequestTemplate",
+        data: new NewRequestFormComponent({
+          onSubmitSuccess: OnCallbackFormNewRequest,
+        }),
+      }),
+    };
+
+    self.tabs = new TabsModule(Object.values(self.tabOpts));
 
     /** Behaviors **/
 

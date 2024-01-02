@@ -668,14 +668,14 @@
 </script>
 
 <script id="requestDetailTemplateDeprecated" type="text/html">
-  <div style="padding-bottom: 15px">
+  <!-- <div style="padding-bottom: 15px">
     <span>Request: </span
     ><select
       id="ddlReqNum"
       title="Select a Request Number"
       data-bind="options: $root.ddOptionsRequestInfoTabRequestName, value: filterRequestInfoTabRequestName, optionsCaption: '-Select-'"
     ></select>
-  </div>
+  </div> -->
 
   <div
     id="divRequestClose"
@@ -1635,7 +1635,17 @@
 </script>
 
 <script id="requestDetailTemplate" type="text/html">
+  <div style="padding-bottom: 15px">
+    <span>Request: </span
+    ><select
+      id="ddlReqNum"
+      title="Select a Request Number"
+      data-bind="options: $root.ddOptionsRequestInfoTabRequestName, value: filterRequestInfoTabRequestName, optionsCaption: '-Select-'"
+    ></select>
+  </div>
+  <!-- ko using: requestDetailViewComponent -->
   <div data-bind="component: {name: componentName, params: params}"></div>
+  <!-- /ko -->
 </script>
 
 <script id="requestTemplate" type="text/html">

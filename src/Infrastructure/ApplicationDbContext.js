@@ -259,6 +259,7 @@ class EntitySet {
   };
 
   // Permissions
+
   SetItemPermissions = async function (entityId, valuePairs, reset = false) {
     const salValuePairs = valuePairs
       .filter((vp) => vp[0] && vp[1])
@@ -266,8 +267,8 @@ class EntitySet {
     return this.ListRef.setItemPermissionsAsync(entityId, salValuePairs, reset);
   };
 
-  GetItemPermissions = function (id) {
-    return this.ListRef.getItemPermissionsAsync(id);
+  GetItemPermissions = function (entity) {
+    return this.ListRef.getItemPermissionsAsync(entity.ID);
   };
 
   // Folder Methods
