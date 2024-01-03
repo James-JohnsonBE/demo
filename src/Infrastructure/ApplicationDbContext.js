@@ -2,6 +2,7 @@ import { AuditOrganization } from "../entities/AuditOrganization.js";
 import { AuditRequest } from "../entities/AuditRequest.js";
 import { AuditBulkRequest } from "../entities/AuditBulkRequest.js";
 import { SPList } from "../infrastructure/SAL.js";
+import { AuditEmail } from "../entities/AuditEmail.js";
 
 const DEBUG = false;
 
@@ -29,6 +30,8 @@ class ApplicationDbContext {
   AuditRequests = new EntitySet(AuditRequest);
 
   AuditBulkRequests = new EntitySet(AuditBulkRequest);
+
+  AuditEmails = new EntitySet(AuditEmail);
 
   AuditOrganizations = new EntitySet(AuditOrganization);
 

@@ -26,75 +26,50 @@ export async function AddNewRequest(request) {
 
   await appContext.AuditRequests.AddEntity(request);
 
-  await OnAddNewRequest(request);
+  await onAddNewRequest(request);
 }
 
-export async function OnAddNewRequest(request) {
-  return new Promise((resolve, reject) => {
-    // var Audit = top.Audit || {};
+export async function onAddNewRequest(request) {
+  await ensureRequestPermissions(request);
+  await ensureAuditEmailFolder(request);
+  await createRequestInternalItem(request.ID);
+}
 
-    var currCtx = new SP.ClientContext.get_current();
-    var web = currCtx.get_web();
+async function ensureAuditEmailFolder(request) {
+  const newFolder = await appContext.AuditEmails.UpsertFolderPath(
+    request.Title
+  );
 
-    var requestList = web
-      .get_lists()
-      .getByTitle(Audit.Common.Utilities.GetListTitleRequests());
-    var requestQuery = new SP.CamlQuery();
-    requestQuery.set_viewXml(
-      "<View><Query>" +
-        '<Where><Eq><FieldRef Name="ID"/><Value Type="int">' +
-        request.ID +
-        "</Value></Eq></Where>" +
-        '<OrderBy><FieldRef Name="ID" Ascending="FALSE"/></OrderBy></Query><RowLimit>1</RowLimit></View>'
-    );
-    const requestItems = requestList.getItems(requestQuery);
-    //request status has internal name as response status in the request list
-    currCtx.load(
-      requestItems,
-      "Include(ID, Title, ActionOffice, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
-    );
+  const newItemPermissions = new ItemPermissions({
+    hasUniqueRoleAssignments: true,
+    roles: [],
+  });
 
-    const emailList = web
-      .get_lists()
-      .getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory());
-    var emailListQuery = new SP.CamlQuery();
-    emailListQuery.set_viewXml(
-      '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
-    );
-    const emailListFolderItems = emailList.getItems(emailListQuery);
-    currCtx.load(emailListFolderItems, "Include(ID, Title, DisplayName)");
+  const { owners, members, visitors } = await getSiteGroups();
+  const qaGroup = await getPeopleByUsername(
+    Audit.Common.Utilities.GetGroupNameQA()
+  );
 
-    currCtx.executeQueryAsync(
-      async function () {
-        var oListItem = null;
+  newItemPermissions.addPrincipalRole(owners, roleNames.FullControl);
+  newItemPermissions.addPrincipalRole(members, roleNames.RestrictedContribute);
+  newItemPermissions.addPrincipalRole(visitors, roleNames.RestrictedRead);
 
-        var listItemEnumerator = requestItems.getEnumerator();
-        while (listItemEnumerator.moveNext()) {
-          oListItem = listItemEnumerator.get_current();
-          break;
-        }
+  newItemPermissions.addPrincipalRole(qaGroup, roleNames.RestrictedContribute);
 
-        if (oListItem) {
-          createRequestInternalItem(oListItem.get_item("ID"));
+  const actionOffices = request.FieldMap.ActionOffice.Value();
 
-          if (!oListItem.get_hasUniqueRoleAssignments()) {
-            var bDoneBreakingReqPermisions = false;
-            await breakRequestPermissions(oListItem, false, null);
-          }
-          Audit.Common.Utilities.CreateEmailFolder(
-            emailList,
-            oListItem.get_item("Title"),
-            oListItem
-          );
-        }
-        resolve();
-      },
-      function (sender, args) {
-        //alert( "Request failed: "  + args.get_message() + "\n" + args.get_stackTrace() );
-        reject(sender);
-      }
+  actionOffices.map((ao) => {
+    newItemPermissions.addPrincipalRole(
+      ao.UserGroup,
+      roleNames.RestrictedContribute
     );
   });
+
+  const result = await appContext.AuditEmails.SetItemPermissions(
+    { ID: newFolder },
+    newItemPermissions,
+    true
+  );
 }
 
 export async function ensureRequestPermissions(request) {
