@@ -260,11 +260,11 @@ class EntitySet {
 
   // Permissions
 
-  SetItemPermissions = async function (entityId, valuePairs, reset = false) {
-    const salValuePairs = valuePairs
-      .filter((vp) => vp[0] && vp[1])
-      .map((vp) => [vp[0].getKey(), vp[1]]);
-    return this.ListRef.setItemPermissionsAsync(entityId, salValuePairs, reset);
+  SetItemPermissions = async function (entity, valuePairs, reset = false) {
+    // const salValuePairs = valuePairs
+    //   .filter((vp) => vp[0] && vp[1])
+    //   .map((vp) => [vp[0].getKey(), vp[1]]);
+    return this.ListRef.setItemPermissionsAsync(entity.ID, valuePairs, reset);
   };
 
   GetItemPermissions = function (entity) {

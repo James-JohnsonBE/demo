@@ -49,7 +49,7 @@ function principalToPeople(oPrincipal, isGroup = null) {
       isGroup != null
         ? isGroup
         : oPrincipal.constructor.getName() == "SP.Group",
-    oGroup: oPrincipal,
+    oPrincipal,
   };
 }
 
@@ -533,7 +533,7 @@ export async function ensureUserByKeyAsync(userName) {
   });
 }
 
-sal.getSPSiteGroupByName = function (groupName) {
+function getSPSiteGroupByName(groupName) {
   var userGroup = null;
   if (this.globalConfig.siteGroups != null) {
     userGroup = this.globalConfig.siteGroups.find(function (group) {
@@ -541,13 +541,14 @@ sal.getSPSiteGroupByName = function (groupName) {
     });
   }
   return userGroup;
-};
+}
 
 export class ItemPermissions {
   constructor({ hasUniqueRoleAssignments, roles }) {
     this.hasUniqueRoleAssignments = hasUniqueRoleAssignments;
     this.roles = roles;
   }
+
   hasUniqueRoleAssignments;
   roles = [];
 
@@ -583,6 +584,7 @@ class Role {
   constructor({ principal }) {
     this.principal = principal;
   }
+
   principal;
   roleDefs = [];
 
@@ -675,7 +677,7 @@ export function SPList(listDef) {
     var oList = web.get_lists().getByTitle(self.config.def.title);
 
     valuePairs.forEach(function (vp) {
-      var resolvedGroup = sal.getSPSiteGroupByName(vp[0]);
+      var resolvedGroup = getSPSiteGroupByName(vp[0]);
       if (resolvedGroup) {
         resolvedGroups.push([resolvedGroup, vp[1]]);
       } else {
@@ -1205,11 +1207,103 @@ export function SPList(listDef) {
                             Permissions  
     ******************************************************************/
 
-  function setItemPermissionsAsync(id, valuePairs, reset) {
+  async function setItemPermissionsAsync(id, itemPermissions, reset) {
+    const currCtx = new SP.ClientContext.get_current();
+    const web = currCtx.get_web();
+
+    const oListItem = await getoListItemByIdAsync(id);
+
+    oListItem.resetRoleInheritance();
+    oListItem.breakRoleInheritance(false, false);
+    oListItem
+      .get_roleAssignments()
+      .getByPrincipal(sal.globalConfig.currentUser)
+      .deleteObject();
+
+    const result = await new Promise((resolve, reject) => {
+      currCtx.executeQueryAsync(
+        () => {
+          resolve();
+        },
+        (sender, args) => {
+          console.error(
+            "Failed to break permissions on item: " +
+              this.oListItem.get_lookupValue() +
+              args.get_message(),
+            args
+          );
+          reject();
+        }
+      );
+    });
+
+    await Promise.all(
+      itemPermissions.roles.map(async (role) => {
+        const ensuredPrincipalResult = await ensureUserByKeyAsync(
+          role.principal.Title
+        );
+        if (!ensuredPrincipalResult) return;
+
+        const currCtx2 = new SP.ClientContext.get_current();
+        const web = currCtx2.get_web();
+
+        const oPrincipal = ensuredPrincipalResult.oPrincipal;
+
+        currCtx2.load(oPrincipal);
+
+        role.roleDefs.map((roleDef) => {
+          const roleDefBindingColl =
+            SP.RoleDefinitionBindingCollection.newObject(currCtx2);
+          roleDefBindingColl.add(
+            web.get_roleDefinitions().getByName(roleDef.name)
+          );
+          oListItem.get_roleAssignments().add(oPrincipal, roleDefBindingColl);
+        });
+
+        const data = {};
+        return new Promise((resolve, reject) => {
+          currCtx2.executeQueryAsync(
+            () => {
+              resolve();
+            },
+            (sender, args) => {
+              console.error(
+                "Failed to set role permissions on item: " +
+                  oListItem.get_lookupValue() +
+                  args.get_message(),
+                args
+              );
+              reject();
+            }
+          );
+        });
+      })
+    );
+  }
+
+  function getoListItemByIdAsync(id) {
     return new Promise((resolve, reject) => {
-      setItemPermissions(id, valuePairs, resolve, reset);
+      const currCtx = new SP.ClientContext.get_current();
+      const web = currCtx.get_web();
+
+      const oList = web.get_lists().getByTitle(self.config.def.title);
+
+      const oListItem = oList.getItemById(id);
+      currCtx.executeQueryAsync(
+        () => {
+          resolve(oListItem);
+        },
+        (sender, args) => {
+          console.error(
+            "Failed to find item: " + id + args.get_message(),
+            args
+          );
+          reject();
+        }
+      );
     });
   }
+
   /**
    * Documentation - setItemPermissions
    * @param {number} id Item identifier, obtain using getListItems above
@@ -1233,7 +1327,7 @@ export function SPList(listDef) {
       // var roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(
       //   currCtx
       // );
-      const resolvedGroup = sal.getSPSiteGroupByName(vp[0]);
+      const resolvedGroup = getSPSiteGroupByName(vp[0]);
       if (resolvedGroup?.oGroup) {
         resolvedGroups.push([resolvedGroup.oGroup, vp[1]]);
 
@@ -1926,7 +2020,7 @@ export function SPList(listDef) {
     const folder = web.getFolderByServerRelativeUrl(serverRelFolderPath);
 
     valuePairs.forEach(function (vp) {
-      var resolvedGroup = sal.getSPSiteGroupByName(vp[0]);
+      var resolvedGroup = getSPSiteGroupByName(vp[0]);
       if (resolvedGroup?.oGroup) {
         resolvedGroups.push([resolvedGroup.oGroup, vp[1]]);
       } else {

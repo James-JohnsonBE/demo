@@ -190,6 +190,7 @@ async function breakRequestPermissions(request, responseStatus) {
   );
 
   // TODO: set entity permissions
+  await appContext.AuditRequests.SetItemPermissions(request, newPerms);
 }
 
 async function breakRequestPermissionsDep(
