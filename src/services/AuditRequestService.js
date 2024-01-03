@@ -1,4 +1,9 @@
 import { appContext } from "../infrastructure/ApplicationDbContext.js";
+import { getPeopleByUsername, getSiteGroups } from "./PeopleManager.js";
+import { roleNames } from "./PermissionManager.js";
+import { ItemPermissions } from "../infrastructure/SAL.js";
+import { responseStates } from "../entities/AuditResponse.js";
+import { People } from "../entities/People.js";
 
 export async function AddNewRequest(request) {
   const fields = request.FieldMap;
@@ -93,11 +98,12 @@ export async function OnAddNewRequest(request) {
 }
 
 export async function ensureRequestPermissions(request) {
-  const perms = await appContext.AuditRequests.GetItemPermissions(request);
-  if (!perms.hasUniqueRoleAssignments) {
-    if (window.DEBUG) console.warn("Request does not have unique permissions");
-    //TODO: Add UserManager service, modernize breakRequestPermissions below.
-  }
+  await breakRequestPermissions(request);
+  // const perms = await appContext.AuditRequests.GetItemPermissions(request);
+  // if (!perms.hasUniqueRoleAssignments) {
+  //   if (window.DEBUG) console.warn("Request does not have unique permissions");
+  //   //TODO: Add UserManager service, modernize breakRequestPermissions below.
+  // }
 }
 
 async function createRequestInternalItem(requestNumber) {
@@ -122,7 +128,71 @@ async function createRequestInternalItem(requestNumber) {
   );
 }
 
-async function breakRequestPermissions(
+async function breakRequestPermissions(request, responseStatus) {
+  const curPerms = await appContext.AuditRequests.GetItemPermissions(request);
+
+  const defaultGroups = await getSiteGroups();
+
+  const qaGroup = await getPeopleByUsername(
+    Audit.Common.Utilities.GetGroupNameQA()
+  );
+
+  const qaHasRead = curPerms.principalHasPermissionKind(
+    qaGroup,
+    SP.PermissionKind.viewListItems
+  );
+
+  const special1Group = await getPeopleByUsername(
+    Audit.Common.Utilities.GetGroupNameSpecialPerm1()
+  );
+  const special2Group = await getPeopleByUsername(
+    Audit.Common.Utilities.GetGroupNameSpecialPerm2()
+  );
+
+  const special1HasRead = curPerms.principalHasPermissionKind(
+    special1Group,
+    SP.PermissionKind.viewListItems
+  );
+  const special2HasRead = curPerms.principalHasPermissionKind(
+    special2Group,
+    SP.PermissionKind.viewListItems
+  );
+
+  const newPerms = new ItemPermissions({
+    hasUniqueRoleAssignments: true,
+    roles: [],
+  });
+
+  // TODO: add the appropriate principals and roles
+  newPerms.addPrincipalRole(defaultGroups.owners, roleNames.FullControl);
+  newPerms.addPrincipalRole(defaultGroups.members, roleNames.Contribute);
+  newPerms.addPrincipalRole(defaultGroups.visitors, roleNames.RestrictedRead);
+
+  if (qaHasRead || responseStatus == responseStates.ApprovedForQA) {
+    newPerms.addPrincipalRole(qaGroup, roleNames.RestrictedRead);
+  }
+
+  if (special1HasRead) {
+    newPerms.addPrincipalRole(special1Group, roleNames.RestrictedRead);
+  }
+
+  if (special2HasRead) {
+    newPerms.addPrincipalRole(special2Group, roleNames.RestrictedRead);
+  }
+
+  const actionOffices = request.FieldMap.ActionOffice.Value();
+
+  actionOffices.map((ao) =>
+    newPerms.addPrincipalRole(
+      new People(ao.UserGroup),
+      roleNames.RestrictedRead
+    )
+  );
+
+  // TODO: set entity permissions
+}
+
+async function breakRequestPermissionsDep(
   oListItem,
   refreshPageOnUpdate,
   responseStatus,

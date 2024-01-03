@@ -39,14 +39,17 @@ sal.site = sal.site || {};
 
 window.DEBUG = true;
 
-function groupItemToObj(oListItem) {
+function principalToPeople(oPrincipal, isGroup = null) {
   return {
-    ID: oListItem.get_id(),
-    Title: oListItem.get_title(),
-    LoginName: oListItem.get_loginName(),
+    ID: oPrincipal.get_id(),
+    Title: oPrincipal.get_title(),
+    LoginName: oPrincipal.get_loginName(),
     IsEnsured: true,
-    IsGroup: true,
-    oGroup: oListItem,
+    IsGroup:
+      isGroup != null
+        ? isGroup
+        : oPrincipal.constructor.getName() == "SP.Group",
+    oGroup: oPrincipal,
   };
 }
 
@@ -55,7 +58,7 @@ export function getDefaultGroups() {
   const defaultGroups = sal.globalConfig.defaultGroups;
   const result = {};
   Object.keys(defaultGroups).forEach((key) => {
-    result[key] = groupItemToObj(defaultGroups[key]);
+    result[key] = principalToPeople(defaultGroups[key], true);
   });
   return result;
 }
@@ -100,9 +103,11 @@ export async function InitSal() {
       function () {
         sal.globalConfig.currentUser = user;
 
-        sal.globalConfig.siteGroups.push(
-          m_fnLoadSiteGroups(siteGroupCollection)
-        );
+        var listItemEnumerator = siteGroupCollection.getEnumerator();
+        while (listItemEnumerator.moveNext()) {
+          var oListItem = listItemEnumerator.get_current();
+          sal.globalConfig.siteGroups.push(principalToPeople(oListItem));
+        }
 
         // Role Definitions
         var oEnumerator = oRoleDefinitions.getEnumerator();
@@ -240,7 +245,7 @@ async function getUserPropsAsyncDeprecated() {
       var groupsEnumerator = oGroups.getEnumerator();
       while (groupsEnumerator.moveNext()) {
         var oGroup = groupsEnumerator.get_current();
-        user.Groups.push(groupItemToObj(oGroup));
+        user.Groups.push(principalToPeople(oGroup));
       }
       resolve(user);
     }
@@ -348,9 +353,8 @@ sal.NewUtilities = function () {
       var groupsEnumerator = oGroups.getEnumerator();
       while (groupsEnumerator.moveNext()) {
         var oGroup = groupsEnumerator.get_current();
-        var group = {};
-        group.ID = oGroup.get_id();
-        group.Title = oGroup.get_title();
+        var group = principalToPeople(oGroup);
+
         groupsInfo +=
           "\n" +
           "Group ID: " +
@@ -391,10 +395,8 @@ sal.NewUtilities = function () {
       var userObjs = [];
       var userEnumerator = oUsers.getEnumerator();
       while (userEnumerator.moveNext()) {
-        var userObj = {};
         var oUser = userEnumerator.get_current();
-        userObj.title = oUser.get_title();
-        userObj.loginName = oUser.get_loginName();
+        var userObj = principalToPeople(oUser);
         userObjs.push(userObj);
       }
       callback(userObjs);
@@ -508,13 +510,7 @@ export async function ensureUserByKeyAsync(userName) {
     var oUser = context.get_web().ensureUser(userName);
 
     function onEnsureUserSucceeded(sender, args) {
-      const user = {
-        ID: oUser.get_id(),
-        Title: oUser.get_title(),
-        LoginName: oUser.get_loginName(),
-        IsEnsured: true,
-        IsGroup: false,
-      };
+      const user = principalToPeople(oUser);
       resolve(user);
     }
 
@@ -537,19 +533,6 @@ export async function ensureUserByKeyAsync(userName) {
   });
 }
 
-function m_fnLoadSiteGroups(itemColl) {
-  var m_arrSiteGroups = new Array();
-  var listItemEnumerator = itemColl.getEnumerator();
-
-  while (listItemEnumerator.moveNext()) {
-    var oListItem = listItemEnumerator.get_current();
-
-    m_arrSiteGroups.push(groupItemToObj(oListItem));
-  }
-
-  return m_arrSiteGroups;
-}
-
 sal.getSPSiteGroupByName = function (groupName) {
   var userGroup = null;
   if (this.globalConfig.siteGroups != null) {
@@ -559,6 +542,85 @@ sal.getSPSiteGroupByName = function (groupName) {
   }
   return userGroup;
 };
+
+export class ItemPermissions {
+  constructor({ hasUniqueRoleAssignments, roles }) {
+    this.hasUniqueRoleAssignments = hasUniqueRoleAssignments;
+    this.roles = roles;
+  }
+  hasUniqueRoleAssignments;
+  roles = [];
+
+  addPrincipalRole(principal, roleName) {
+    const newRoleDef = new RoleDef({ name: roleName });
+    const principalRole = this.getPrincipalRole(principal);
+
+    if (principalRole) {
+      principalRole.addRoleDef(newRoleDef);
+      return;
+    }
+
+    const newRole = new Role({ principal });
+    newRole.addRoleDef(newRoleDef);
+    this.roles.push(newRole);
+  }
+
+  getPrincipalRole(principal) {
+    return this.roles.find((role) => role.principal.ID == principal.ID);
+  }
+
+  principalHasPermissionKind(principal, permission) {
+    const role = this.getPrincipalRole(principal);
+    return role?.roleDefs.find((roleDef) =>
+      roleDef.basePermissions?.has(permission)
+    )
+      ? true
+      : false;
+  }
+}
+
+class Role {
+  constructor({ principal }) {
+    this.principal = principal;
+  }
+  principal;
+  roleDefs = [];
+
+  addRoleDef(roleDef) {
+    this.roleDefs.push(roleDef);
+  }
+
+  static fromJsomRole(role) {
+    const newRole = new Role({
+      principal: principalToPeople(role.get_member()),
+    });
+
+    var roleDefs = role.get_roleDefinitionBindings();
+    if (roleDefs != null) {
+      var roleDefsEnumerator = roleDefs.getEnumerator();
+      while (roleDefsEnumerator.moveNext()) {
+        var roleDef = roleDefsEnumerator.get_current();
+        newRole.roleDefs.push(RoleDef.fromJsomRoleDef(roleDef));
+      }
+    }
+    return newRole;
+  }
+}
+
+class RoleDef {
+  constructor({ name }) {
+    this.name = name;
+  }
+  name;
+  basePermissions;
+
+  static fromJsomRoleDef(roleDef) {
+    const newRoleDef = new RoleDef({ name: roleDef.get_name() });
+    newRoleDef.basePermissions = roleDef.get_basePermissions();
+
+    return newRoleDef;
+  }
+}
 
 export function SPList(listDef) {
   /*
@@ -1305,34 +1367,31 @@ export function SPList(listDef) {
 
         while (listItemEnumerator.moveNext()) {
           var oListItem = listItemEnumerator.get_current();
-          var itemPermissions = {
+          var itemPermissions = new ItemPermissions({
             hasUniqueRoleAssignments: oListItem.get_hasUniqueRoleAssignments(),
             roles: [],
-          };
+          });
 
           var roleEnumerator = oListItem.get_roleAssignments().getEnumerator();
           // enumerate the roles
           while (roleEnumerator.moveNext()) {
             var roleColl = roleEnumerator.get_current();
-            var principal = roleColl.get_member();
+            const role = Role.fromJsomRole(roleColl);
+            // var principal = roleColl.get_member();
 
-            const roleDef = {
-              principal: {
-                ID: principal.get_id(),
-                Title: principal.get_title(),
-                LoginName: principal.get_loginName(),
-              },
-              permissions: [],
-            };
+            // const roleDef = {
+            //   principal: principalToPeople(principal),
+            //   permissions: [],
+            // };
 
-            const roleDefBindingCollEnumerator = roleColl
-              .get_roleDefinitionBindings()
-              .getEnumerator();
-            while (roleDefBindingCollEnumerator.moveNext()) {
-              const role = roleDefBindingCollEnumerator.get_current();
-              roleDef.permissions.push(role.get_name());
-            }
-            itemPermissions.roles.push(roleDef);
+            // const roleDefBindingCollEnumerator = roleColl
+            //   .get_roleDefinitionBindings()
+            //   .getEnumerator();
+            // while (roleDefBindingCollEnumerator.moveNext()) {
+            //   const role = roleDefBindingCollEnumerator.get_current();
+            //   roleDef.permissions.push(role.get_name());
+            // }
+            itemPermissions.roles.push(role);
           }
           resolve(itemPermissions);
           break;
