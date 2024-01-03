@@ -1206,19 +1206,25 @@ export function SPList(listDef) {
   /*****************************************************************
                             Permissions  
     ******************************************************************/
-
+  /**
+   * Documentation - setItemPermissions
+   * @param {number} id Item identifier, obtain using getListItems above
+   * @param {ItemPermissions} itemPermissions an instance of ItemPermissions
+   */
   async function setItemPermissionsAsync(id, itemPermissions, reset) {
     const currCtx = new SP.ClientContext.get_current();
     const web = currCtx.get_web();
 
     const oListItem = await getoListItemByIdAsync(id);
 
-    oListItem.resetRoleInheritance();
-    oListItem.breakRoleInheritance(false, false);
-    oListItem
-      .get_roleAssignments()
-      .getByPrincipal(sal.globalConfig.currentUser)
-      .deleteObject();
+    if (reset) {
+      oListItem.resetRoleInheritance();
+      oListItem.breakRoleInheritance(false, false);
+      oListItem
+        .get_roleAssignments()
+        .getByPrincipal(sal.globalConfig.currentUser)
+        .deleteObject();
+    }
 
     const result = await new Promise((resolve, reject) => {
       currCtx.executeQueryAsync(
@@ -1302,132 +1308,6 @@ export function SPList(listDef) {
         }
       );
     });
-  }
-
-  /**
-   * Documentation - setItemPermissions
-   * @param {number} id Item identifier, obtain using getListItems above
-   * @param {Array} valuePairs A 2d array containing groups/users and permission levels
-   *    e.g. [["Owners", "Full Control"], ["backlundpf", "Contribute"]]
-   */
-  function setItemPermissions(id, valuePairs, callback, reset) {
-    reset = reset === undefined ? false : reset;
-
-    //TODO: Validate that the groups and permissions exist on the site.
-    const users = [];
-    const resolvedGroups = [];
-    const currCtx = new SP.ClientContext.get_current();
-    const web = currCtx.get_web();
-
-    const oList = web.get_lists().getByTitle(self.config.def.title);
-
-    const oListItem = oList.getItemById(id);
-
-    valuePairs.forEach(function (vp) {
-      // var roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(
-      //   currCtx
-      // );
-      const resolvedGroup = getSPSiteGroupByName(vp[0]);
-      if (resolvedGroup?.oGroup) {
-        resolvedGroups.push([resolvedGroup.oGroup, vp[1]]);
-
-        // roleDefBindingColl.add(web.get_roleDefinitions().getByName(vp[1]));
-        // oListItem.get_roleAssignments().add(resolvedGroup, roleDefBindingColl);
-      } else {
-        users.push([currCtx.get_web().ensureUser(vp[0]), vp[1]]);
-        // ensureUser(vp[0], function(resolvedUser)  {
-        //   self.setItemPermissionsUser(id, resolvedUser, vp[1]);
-        // });
-      }
-    });
-
-    function onFindItemSucceeded() {
-      console.log("Successfully found item");
-      const currCtx = new SP.ClientContext.get_current();
-      const web = currCtx.get_web();
-
-      if (reset) {
-        oListItem.resetRoleInheritance();
-        oListItem.breakRoleInheritance(false, false);
-        oListItem
-          .get_roleAssignments()
-          .getByPrincipal(sal.globalConfig.currentUser)
-          .deleteObject();
-      } else {
-        oListItem.breakRoleInheritance(false, false);
-      }
-      //var oList = web.get_lists().getByTitle(self.config.def.title);
-
-      this.resolvedGroups.forEach(function (groupPairs) {
-        const roleDefBindingColl =
-          SP.RoleDefinitionBindingCollection.newObject(currCtx);
-        roleDefBindingColl.add(
-          web.get_roleDefinitions().getByName(groupPairs[1])
-        );
-        oListItem.get_roleAssignments().add(groupPairs[0], roleDefBindingColl);
-      });
-
-      this.users.forEach(function (userPairs) {
-        const roleDefBindingColl =
-          SP.RoleDefinitionBindingCollection.newObject(currCtx);
-        roleDefBindingColl.add(
-          web.get_roleDefinitions().getByName(userPairs[1])
-        );
-        oListItem.get_roleAssignments().add(userPairs[0], roleDefBindingColl);
-      });
-
-      var data = { oListItem: oListItem, callback: callback };
-
-      function onSetItemPermissionsSuccess() {
-        console.log("Successfully set permissions");
-        callback(oListItem);
-      }
-
-      function onSetItemPermissionsFailure(sender, args) {
-        console.error(
-          "Failed to update permissions on item: " +
-            this.oListItem.get_lookupValue() +
-            args.get_message() +
-            "\n" +
-            args.get_stackTrace(),
-          false
-        );
-      }
-
-      currCtx.load(oListItem);
-      currCtx.executeQueryAsync(
-        Function.createDelegate(data, onSetItemPermissionsSuccess),
-        Function.createDelegate(data, onSetItemPermissionsFailure)
-      );
-    }
-
-    function onFindItemFailed(sender, args) {
-      console.error(
-        "Failed to update permissions on item: " +
-          this.title +
-          args.get_message() +
-          "\n" +
-          args.get_stackTrace(),
-        false
-      );
-    }
-    var data = {
-      id: id,
-      oListItem: oListItem,
-      users: users,
-      resolvedGroups: resolvedGroups,
-      callback: callback,
-    };
-    //let data = { title: oListItem.get_item("Title"), oListItem: oListItem };
-
-    currCtx.load(oListItem);
-    users.map(function (user) {
-      currCtx.load(user[0]);
-    });
-    currCtx.executeQueryAsync(
-      Function.createDelegate(data, onFindItemSucceeded),
-      Function.createDelegate(data, onFindItemFailed)
-    );
   }
 
   /**

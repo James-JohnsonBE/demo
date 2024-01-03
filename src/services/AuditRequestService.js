@@ -98,12 +98,11 @@ export async function OnAddNewRequest(request) {
 }
 
 export async function ensureRequestPermissions(request) {
-  await breakRequestPermissions(request);
-  // const perms = await appContext.AuditRequests.GetItemPermissions(request);
-  // if (!perms.hasUniqueRoleAssignments) {
-  //   if (window.DEBUG) console.warn("Request does not have unique permissions");
-  //   //TODO: Add UserManager service, modernize breakRequestPermissions below.
-  // }
+  const perms = await appContext.AuditRequests.GetItemPermissions(request);
+  if (!perms.hasUniqueRoleAssignments) {
+    if (window.DEBUG) console.warn("Request does not have unique permissions");
+    await breakRequestPermissions(request);
+  }
 }
 
 async function createRequestInternalItem(requestNumber) {
@@ -158,39 +157,56 @@ async function breakRequestPermissions(request, responseStatus) {
     SP.PermissionKind.viewListItems
   );
 
-  const newPerms = new ItemPermissions({
+  const newRequestPermissions = new ItemPermissions({
     hasUniqueRoleAssignments: true,
     roles: [],
   });
 
-  // TODO: add the appropriate principals and roles
-  newPerms.addPrincipalRole(defaultGroups.owners, roleNames.FullControl);
-  newPerms.addPrincipalRole(defaultGroups.members, roleNames.Contribute);
-  newPerms.addPrincipalRole(defaultGroups.visitors, roleNames.RestrictedRead);
+  newRequestPermissions.addPrincipalRole(
+    defaultGroups.owners,
+    roleNames.FullControl
+  );
+  newRequestPermissions.addPrincipalRole(
+    defaultGroups.members,
+    roleNames.Contribute
+  );
+  newRequestPermissions.addPrincipalRole(
+    defaultGroups.visitors,
+    roleNames.RestrictedRead
+  );
 
   if (qaHasRead || responseStatus == responseStates.ApprovedForQA) {
-    newPerms.addPrincipalRole(qaGroup, roleNames.RestrictedRead);
+    newRequestPermissions.addPrincipalRole(qaGroup, roleNames.RestrictedRead);
   }
 
   if (special1HasRead) {
-    newPerms.addPrincipalRole(special1Group, roleNames.RestrictedRead);
+    newRequestPermissions.addPrincipalRole(
+      special1Group,
+      roleNames.RestrictedRead
+    );
   }
 
   if (special2HasRead) {
-    newPerms.addPrincipalRole(special2Group, roleNames.RestrictedRead);
+    newRequestPermissions.addPrincipalRole(
+      special2Group,
+      roleNames.RestrictedRead
+    );
   }
 
   const actionOffices = request.FieldMap.ActionOffice.Value();
 
   actionOffices.map((ao) =>
-    newPerms.addPrincipalRole(
+    newRequestPermissions.addPrincipalRole(
       new People(ao.UserGroup),
       roleNames.RestrictedRead
     )
   );
 
-  // TODO: set entity permissions
-  await appContext.AuditRequests.SetItemPermissions(request, newPerms);
+  await appContext.AuditRequests.SetItemPermissions(
+    request,
+    newRequestPermissions,
+    true
+  );
 }
 
 async function breakRequestPermissionsDep(
