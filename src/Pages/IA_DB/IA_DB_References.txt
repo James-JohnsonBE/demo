@@ -1644,7 +1644,9 @@
     ></select>
   </div>
   <!-- ko using: requestDetailViewComponent -->
+  <!-- ko if: params -->
   <div data-bind="component: {name: componentName, params: params}"></div>
+  <!-- /ko -->
   <!-- /ko -->
 </script>
 
