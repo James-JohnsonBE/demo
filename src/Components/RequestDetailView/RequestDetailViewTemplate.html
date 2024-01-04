@@ -1,4 +1,26 @@
-<div class="requestDetailView">
-  <div>Request Info</div>
+<div class="request-view request-detail-view">
+  <div class="form-fields">
+    <div>
+      <h3>Audit Request Details</h3>
+    </div>
+    <!-- ko using: request -->
+    <div class="row">
+      <div>
+        <div
+          class="form-field-component"
+          data-bind="component: {name: ReqNum.components.view,  params: ReqNum}"
+        ></div>
+      </div>
+    </div>
+    <!-- /ko -->
+  </div>
   <div>Document tabs</div>
 </div>
+
+<style>
+  div.request-detail-view {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+</style>

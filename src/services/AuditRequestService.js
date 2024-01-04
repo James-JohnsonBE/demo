@@ -31,14 +31,16 @@ export async function AddNewRequest(request) {
 }
 
 export async function onAddNewRequest(request) {
-  await ensureRequestPermissions(request);
-  await ensureAuditEmailFolder(request);
-  await ensureRequestInternalItem(request);
+  await Promise.all([
+    ensureRequestPermissions(request),
+    ensureAuditEmailFolder(request),
+    ensureRequestInternalItem(request),
+  ]);
 }
 
 async function ensureAuditEmailFolder(request) {
   const newFolderId = await appContext.AuditEmails.UpsertFolderPath(
-    request.Title
+    request.ReqNum.Value()
   );
 
   const newItemPermissions = new ItemPermissions({
@@ -76,7 +78,7 @@ async function ensureAuditEmailFolder(request) {
 export async function ensureRequestPermissions(request) {
   const perms = await appContext.AuditRequests.GetItemPermissions(request);
   if (!perms.hasUniqueRoleAssignments) {
-    if (window.DEBUG) console.warn("Request does not have unique permissions");
+    if (window.DEBUG) console.log("Request does not have unique permissions");
     await breakRequestPermissions(request);
   }
 }

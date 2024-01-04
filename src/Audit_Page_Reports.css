@@ -134,6 +134,21 @@ div.audit {
   display: revert;
 }
 
+.request-view .form-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1.5rem;
+  background-color: var(--dark-bg-color);
+  color: white;
+}
+
+.request-view .form-actions {
+  display: flex;
+  justify-content: end;
+  padding: 2rem;
+}
+
 fieldset {
   margin-bottom: 10px;
   /*border-color:lightsteelblue;*/

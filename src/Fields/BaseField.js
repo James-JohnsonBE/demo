@@ -3,12 +3,16 @@ import { ValidationError } from "../primitives/ValidationError.js";
 export default class BaseField {
   constructor({
     displayName,
+    systemName,
     instructions = null,
     isRequired = false,
     width,
     Visible = ko.pureComputed(() => true),
   }) {
+    // The name that will be displayed on components etc.
     this.displayName = displayName;
+    // The column name this should be mapped to when persisting
+    this.systemName = systemName;
     this.instructions = instructions;
     this.isRequired = isRequired;
     this.Visible = Visible;
