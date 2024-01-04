@@ -2,8 +2,8 @@
 import { appContext } from "../../infrastructure/ApplicationDbContext.js";
 import { TabsModule, Tab } from "../../components/Tabs/TabsModule.js";
 import { setUrlParam } from "../../common/Router.js";
-import CommentChainModule from "../../components/CommentChain/CommentChainModule.js";
-import ActiveViewersModule from "../../components/ActiveViewers/ActiveViewersModule.js";
+import { CommentChainModuleDeprecated } from "../../components/CommentChain/CommentChainModule.js";
+import { ActiveViewersModuleDeprecated } from "../../components/ActiveViewers/ActiveViewersModule.js";
 
 import { AuditRequest } from "../../entities/AuditRequest.js";
 import { NewRequestFormComponent } from "../../components/NewRequestForm/NewRequestForm.js";
@@ -885,8 +885,8 @@ Audit.IAReport.NewReportPage = function () {
           if (paramRequestNum != null && paramRequestNum != "") {
             if (paramTabIndex == self.tabOpts.Responses.id)
               self.filterRequestTabRequestID(paramRequestNum);
-            else if (paramTabIndex == self.tabOpts.RequestDetail.id)
-              self.filterRequestInfoTabRequestName(paramRequestNum);
+            //if (paramTabIndex == self.tabOpts.RequestDetail.id)
+            else self.filterRequestInfoTabRequestName(paramRequestNum);
           }
           /**Note: on the jsrender of the request/response tables, I set the rows to display none; the filters below show the rows I want **/
           self.filterRequestTabRequestStatus(m_sRequestStatusToFilterOn);
@@ -1769,13 +1769,13 @@ Audit.IAReport.NewReportPage = function () {
 
         var requestObject = m_bigMap["request-" + reqNum.get_lookupValue()];
 
-        requestObject.internalStatus = new CommentChainModule(id, {
+        requestObject.internalStatus = new CommentChainModuleDeprecated(id, {
           requestListTitle:
             Audit.Common.Utilities.GetListTitleRequestsInternal(),
           columnName: "InternalStatus",
           initialValue: oListItem.get_item("InternalStatus"),
         });
-        requestObject.activeViewers = new ActiveViewersModule(id, {
+        requestObject.activeViewers = new ActiveViewersModuleDeprecated(id, {
           requestListTitle:
             Audit.Common.Utilities.GetListTitleRequestsInternal(),
           columnName: "ActiveViewers",
@@ -2503,11 +2503,14 @@ Audit.IAReport.NewReportPage = function () {
         oResponse["specialPerms"] = specialPerms;
         oResponse["styleTag"] = styleTag;
         oResponse["toolTip"] = toolTip;
-        oResponse["activeViewers"] = new ActiveViewersModule(oResponse.ID, {
-          requestListTitle: Audit.Common.Utilities.GetListTitleResponses(),
-          columnName: "ActiveViewers",
-          initialValue: oResponse.item.get_item("ActiveViewers"),
-        });
+        oResponse["activeViewers"] = new ActiveViewersModuleDeprecated(
+          oResponse.ID,
+          {
+            requestListTitle: Audit.Common.Utilities.GetListTitleResponses(),
+            columnName: "ActiveViewers",
+            initialValue: oResponse.item.get_item("ActiveViewers"),
+          }
+        );
 
         arrResponses.push(oResponse);
       }

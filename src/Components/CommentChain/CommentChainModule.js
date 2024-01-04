@@ -1,4 +1,76 @@
-export default class CommentChainModule {
+import { appContext } from "../../infrastructure/ApplicationDbContext.js";
+import { registerComponent } from "../../infrastructure/RegisterComponents.js";
+import { Comment } from "../../valueObjects/Comment.js";
+
+const commentChainComponentName = "commentChain";
+
+export class CommentChainComponent {
+  constructor({ entity, fieldName }) {
+    this.entity = entity;
+    this.blobField = entity[fieldName];
+    this.fieldName = fieldName;
+  }
+  entity;
+  blobField;
+  fieldName;
+
+  componentName = commentChainComponentName;
+}
+
+class CommentChainModule {
+  constructor({ entity, fieldName, blobField }) {
+    this.entity = entity;
+    this.fieldName = fieldName;
+    this.blobField = blobField;
+    this.comments = blobField.TypedValues;
+  }
+
+  // comments = ko.observableArray();
+  newCommentText = ko.observable();
+
+  showHistoryBool = ko.observable(false);
+
+  toggleShowHistory = function () {
+    this.showHistoryBool(!this.showHistoryBool());
+  };
+
+  async onSubmit() {
+    var comment = Comment.Create({
+      id: Math.ceil(Math.random() * 1000000).toString(16),
+      text: this.newCommentText(),
+      author: _spPageContextInfo.userLoginName,
+      timestamp: new Date().toLocaleString(),
+    });
+    this.blobField.add(comment);
+    await this.commitChanges();
+    this.newCommentText("");
+  }
+
+  onRemove = (commentToRemove) => {
+    if (confirm("Are you sure you want to delete this item?")) {
+      this.blobField.remove(commentToRemove);
+      this.commitChanges();
+    }
+  };
+
+  async commitChanges() {
+    const set = appContext.Set(this.entity.constructor);
+    if (!set) {
+      alert("Cannot find entity set", this.entity);
+      return;
+    }
+    await set.UpdateEntity(this.entity, [this.fieldName]);
+  }
+}
+
+registerComponent({
+  name: commentChainComponentName,
+  folder: "CommentChain",
+  module: CommentChainModule,
+  template: "CommentChainTemplate",
+});
+
+export class CommentChainModuleDeprecated {
   constructor(requestId, props) {
     this.requestId = requestId;
     this.requestListTitle = props.requestListTitle;

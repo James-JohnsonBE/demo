@@ -1,18 +1,106 @@
-<div class="request-view request-detail-view">
-  <div class="form-fields">
-    <div>
-      <h3>Audit Request Details</h3>
-    </div>
-    <!-- ko using: request -->
-    <div class="row">
-      <div>
+<div class="request-detail-view">
+  <div>
+    <div data-bind="using: activeViewersComponent">
+      <!-- ko foreach: viewers -->
+      <div class="active-viewer">
+        <div data-bind="text: viewer.Value() + ' @ ' + timestamp.Value()"></div>
         <div
-          class="form-field-component"
-          data-bind="component: {name: ReqNum.components.view,  params: ReqNum}"
+          style="cursor: pointer"
+          data-bind="click: $parent.onRemove"
+          class="ui-icon ui-icon-closethick"
         ></div>
       </div>
+      <!-- /ko -->
     </div>
-    <!-- /ko -->
+    <div class="request-info request-form">
+      <div class="form-title">
+        <h3 class="white">Audit Request Details</h3>
+      </div>
+      <div class="">
+        <!-- ko using: request -->
+        <div class="form-row">
+          <div class="vertical form-fields">
+            <div
+              class="form-field-component"
+              data-bind="component: {name: ReqNum.components.view,  params: ReqNum}"
+            ></div>
+            <div
+              class="form-field-component"
+              data-bind="component: {name: ReqSubject.components.view,  params: ReqSubject}"
+            ></div>
+            <div
+              class="form-field-component"
+              data-bind="component: {name: Sensitivity.components.view,  params: Sensitivity}"
+            ></div>
+            <div
+              class="form-field-component"
+              data-bind="component: {name: IsSample.components.view,  params: IsSample}"
+            ></div>
+            <div
+              class="form-field-component"
+              data-bind="component: {name: ReceiptDate.components.view,  params: ReceiptDate}"
+            ></div>
+            <div
+              class="form-field-component"
+              data-bind="component: {name: MemoDate.components.view,  params: MemoDate}"
+            ></div>
+            <div
+              class="form-field-component"
+              data-bind="component: {name: RelatedAudit.components.view,  params: RelatedAudit}"
+            ></div>
+          </div>
+          <div class="vertical form-fields">
+            <div class="vertical form-fields emphasized-section">
+              <div
+                class="form-field-component"
+                data-bind="component: {name: ReqStatus.components.view,  params: ReqStatus}"
+              ></div>
+              <div
+                class="form-field-component"
+                data-bind="component: {name: InternalDueDate.components.view,  params: InternalDueDate}"
+              ></div>
+              <div
+                class="form-field-component"
+                data-bind="component: {name: ReqDueDate.components.view,  params: ReqDueDate}"
+              ></div>
+            </div>
+          </div>
+        </div>
+        <div class="form-fields">
+          <div
+            class="form-field-component"
+            data-bind="component: {name: ActionItems.components.view,  params: ActionItems}"
+          ></div>
+          <div
+            class="form-field-component"
+            data-bind="component: {name: Comments.components.view,  params: Comments}"
+          ></div>
+        </div>
+        <div class="form-fields">
+          <div
+            class="form-field-component"
+            data-bind="component: {name: ActionOffice.components.view,  params: ActionOffice}"
+          ></div>
+          <div
+            class="form-field-component"
+            data-bind="component: {name: EmailActionOffice.components.view,  params: EmailActionOffice}"
+          ></div>
+        </div>
+        <!-- /ko -->
+        <!-- <div class="form-fields">
+        <div
+          class="form-field-component"
+          data-bind="component: {name: requestInternal.InternalStatus.components.edit,  params: requestInternal.InternalStatus}"
+        ></div>
+      </div> -->
+        <div class="form-row">
+          <div
+            class="emphasized-section comment-chain-section"
+            data-bind="component: {name: commentChainComponent.componentName, params: commentChainComponent}"
+          ></div>
+        </div>
+      </div>
+    </div>
   </div>
   <div>Document tabs</div>
 </div>
@@ -22,5 +110,13 @@
     display: flex;
     justify-content: space-between;
     gap: 1rem;
+  }
+
+  .request-form .emphasized-section {
+    padding: 1.5rem;
+    background-color: var(--bg-dark-secondary-color);
+  }
+  .comment-chain-section {
+    width: 100%;
   }
 </style>

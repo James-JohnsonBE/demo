@@ -112,7 +112,7 @@ export class AuditRequest extends ConstrainedEntity {
   });
 
   EmailActionOffice = new LookupField({
-    displayName: "Action Offices",
+    displayName: "Email Action Offices",
     type: AuditOrganization,
     // entitySet: appContext.AuditOrganizations,
     lookupCol: "Title",

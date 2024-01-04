@@ -198,8 +198,21 @@ select.form-select {
 }
 
 /* Utilities */
+
+.white {
+  color: white;
+}
+
+.bg-dark-secondary {
+  background-color: var(--bg-dark-secondary-color);
+}
+
 .flex {
   display: flex;
+}
+
+.vertical {
+  flex-direction: column;
 }
 
 .bigrounded {

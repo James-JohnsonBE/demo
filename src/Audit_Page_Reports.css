@@ -35,7 +35,8 @@ div.cell-margin {
 
 /* Properties */
 div.audit {
-  --dark-bg-color: #1d2b36;
+  --bg-dark-color: #1d2b36;
+  --bg-dark-secondary-color: #2a3c48;
 
   --text-primary: #1e2a36;
 
@@ -63,7 +64,7 @@ div.audit {
 
 .audit-body .quick-info {
   width: 275px;
-  background-color: var(--dark-bg-color);
+  background-color: var(--bg-dark-color);
 }
 
 .audit-body .quick-info .status-set-container {
@@ -134,16 +135,31 @@ div.audit {
   display: revert;
 }
 
-.request-view .form-fields {
+.request-form {
+  background-color: var(--bg-dark-color);
+  color: white;
+  padding: 1.5rem;
+}
+
+.request-form .form-title {
+  width: 100%;
+}
+
+.request-form .form-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.request-form .form-fields {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  padding: 1.5rem;
-  background-color: var(--dark-bg-color);
-  color: white;
+  padding: 1.5rem 0;
+  justify-content: space-between;
 }
 
-.request-view .form-actions {
+.request-form .form-actions {
   display: flex;
   justify-content: end;
   padding: 2rem;

@@ -1,5 +1,77 @@
+import { ActiveViewer } from "../../valueObjects/ActiveViewer.js";
+import { appContext } from "../../infrastructure/ApplicationDbContext.js";
+
+export class ActiveViewersComponent {
+  constructor({ entity, fieldName }) {
+    this.entity = entity;
+    this.blobField = entity[fieldName];
+    this.fieldName = fieldName;
+    this.viewers = this.blobField.TypedValues;
+  }
+  entity;
+  blobField;
+  fieldName;
+
+  pushCurrentUser() {
+    this.pushUser(_spPageContextInfo.userLoginName);
+  }
+
+  pushUser(loginName) {
+    // Check if our viewer is listed
+    var filteredViewers = this.viewers().filter(function (viewer) {
+      return viewer.viewer != loginName;
+    });
+
+    this.viewers(filteredViewers);
+
+    var viewer = new ActiveViewer();
+    viewer.fromJSON({
+      id: Math.ceil(Math.random() * 1000000).toString(16),
+      viewer: loginName,
+      timestamp: new Date().toLocaleString(),
+    });
+    this.viewers.push(viewer);
+    this.commitChanges();
+  }
+
+  removeUser(viewerToRemove) {
+    this.viewers.remove(viewerToRemove);
+    this.commitChanges();
+  }
+
+  removeCurrentuser() {
+    this.removeUserByLogin(_spPageContextInfo.userLoginName);
+  }
+
+  removeUserByLogin(loginName) {
+    // Check if our viewer is listed
+    var viewerToRemove = this.viewers().find(function (viewer) {
+      return viewer.viewer == loginName;
+    });
+
+    if (viewerToRemove) {
+      this.removeUser(viewerToRemove);
+    }
+  }
+
+  onRemove = (viewerToRemove) => {
+    if (confirm("Are you sure you want to delete this item?")) {
+      this.removeUser(viewerToRemove);
+    }
+  };
+
+  async commitChanges() {
+    const set = appContext.Set(this.entity.constructor);
+    if (!set) {
+      alert("Cannot find entity set", this.entity);
+      return;
+    }
+    await set.UpdateEntity(this.entity, [this.fieldName]);
+  }
+}
+
 // TODO: convert to class
-export default function ActiveViewersModule(requestId, props) {
+export function ActiveViewersModuleDeprecated(requestId, props) {
   var requestListTitle = props.requestListTitle;
   var columnName = props.columnName;
   var initialValue = props.initialValue;

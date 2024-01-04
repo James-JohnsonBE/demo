@@ -26,7 +26,7 @@ export default class ConstrainedEntity extends Entity {
     Object.keys(inputObj).map((key) => this.FieldMap[key]?.set(inputObj[key]));
   }
 
-  // FormFields = Object.values(this.FieldMap);
+  FormFields = () => Object.values(this.FieldMap);
 
   // Validate the entire entity
   validate = (showErrors = true) => {

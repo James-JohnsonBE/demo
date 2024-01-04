@@ -4,6 +4,8 @@ import {
   ensureRequestPermissions,
   ensureRequestInternalItem,
 } from "../../services/AuditRequestService.js";
+import { ActiveViewersComponent } from "../ActiveViewers/ActiveViewersModule.js";
+import { CommentChainComponent } from "../CommentChain/CommentChainModule.js";
 
 const requestDetailViewComponentName = "requestDetailView";
 
@@ -45,9 +47,27 @@ export default class RequestDetailViewModule {
     this.request = request;
     this.requestInternal = requestInternal;
     console.log("recreating detail view component!", request);
+
+    this.commentChainComponent = new CommentChainComponent({
+      entity: this.requestInternal,
+      fieldName: "InternalStatus",
+    });
+
+    this.activeViewersComponent = new ActiveViewersComponent({
+      entity: this.requestInternal,
+      fieldName: "ActiveViewers",
+    });
+
+    this.activeViewersComponent.pushCurrentUser();
   }
 
+  commentChainComponent;
+
   init() {}
+
+  dispose() {
+    this.activeViewersComponent.removeCurrentuser();
+  }
 }
 
 registerComponent({

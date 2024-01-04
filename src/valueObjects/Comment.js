@@ -2,27 +2,40 @@ import ConstrainedEntity from "../primitives/ConstrainedEntity.js";
 import TextField from "../fields/TextField.js";
 
 export class Comment extends ConstrainedEntity {
+  constructor(params) {
+    super(params);
+  }
+
   id = new TextField({
     displayName: "ID",
   });
-  Text = new TextField({
+  text = new TextField({
     displayName: "Comment",
   });
-  Author = new TextField({
-    displayName: "Author",
+  author = new TextField({
+    displayName: "author",
   });
-  Timestamp = new TextField({
-    displayName: "Timestamp",
+  timestamp = new TextField({
+    displayName: "timestamp",
   });
 
   FieldMap = {
-    ID: this.id,
-    Text: this.Text,
-    Author: this.Author,
-    Timestamp: this.Timestamp,
+    id: this.id,
+    text: this.text,
+    author: this.author,
+    timestamp: this.timestamp,
   };
 
+  static Create({ id, text, author, timestamp }) {
+    const newComment = new Comment();
+    newComment.id.Value(id);
+    newComment.text.Value(text);
+    newComment.author.Value(author);
+    newComment.timestamp.Value(timestamp);
+
+    return newComment;
+  }
   static Views = {
-    All: ["ID", "Text", "Author", "Timestamp"],
+    All: ["id", "text", "author", "timestamp"],
   };
 }

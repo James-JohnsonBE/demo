@@ -40,8 +40,8 @@ class ApplicationDbContext {
 
   virtualSets = new Map();
 
-  Set = (entity) => {
-    const key = entity.ListDef.name;
+  Set = (entityType) => {
+    const key = entityType.ListDef.name;
 
     // If we have a defined entityset, return that
     const set = Object.values(this)
