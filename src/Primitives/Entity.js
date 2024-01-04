@@ -7,11 +7,11 @@ export default class Entity {
   ObservableID = ko.observable();
   ObservableTitle = ko.observable();
 
-  get ID() {
+  get id() {
     return this.ObservableID();
   }
 
-  set ID(val) {
+  set id(val) {
     this.ObservableID(val);
   }
 

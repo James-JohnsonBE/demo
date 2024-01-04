@@ -3,6 +3,7 @@ import { AuditRequest } from "../entities/AuditRequest.js";
 import { AuditBulkRequest } from "../entities/AuditBulkRequest.js";
 import { SPList } from "../infrastructure/SAL.js";
 import { AuditEmail } from "../entities/AuditEmail.js";
+import { AuditRequestsInternal } from "../entities/AuditRequestsInternal.js";
 
 const DEBUG = false;
 
@@ -27,19 +28,19 @@ const DEBUG = false;
 class ApplicationDbContext {
   constructor() {}
 
-  AuditRequests = new EntitySet(AuditRequest);
-
   AuditBulkRequests = new EntitySet(AuditBulkRequest);
 
   AuditEmails = new EntitySet(AuditEmail);
 
   AuditOrganizations = new EntitySet(AuditOrganization);
 
+  AuditRequests = new EntitySet(AuditRequest);
+
+  AuditRequestsInternals = new EntitySet(AuditRequestsInternal);
+
   virtualSets = new Map();
 
   Set = (entity) => {
-    // if (this[entity.constructor.name]) return this[entity.constructor.name];
-
     const key = entity.ListDef.name;
 
     // If we have a defined entityset, return that

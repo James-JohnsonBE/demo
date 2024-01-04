@@ -4,6 +4,7 @@ import { roleNames } from "./PermissionManager.js";
 import { ItemPermissions } from "../infrastructure/SAL.js";
 import { responseStates } from "../entities/AuditResponse.js";
 import { People } from "../entities/People.js";
+import { AuditRequestsInternal } from "../entities/AuditRequestsInternal.js";
 
 export async function AddNewRequest(request) {
   const fields = request.FieldMap;
@@ -32,11 +33,11 @@ export async function AddNewRequest(request) {
 export async function onAddNewRequest(request) {
   await ensureRequestPermissions(request);
   await ensureAuditEmailFolder(request);
-  await createRequestInternalItem(request.ID);
+  await createRequestInternalItem(request);
 }
 
 async function ensureAuditEmailFolder(request) {
-  const newFolder = await appContext.AuditEmails.UpsertFolderPath(
+  const newFolderId = await appContext.AuditEmails.UpsertFolderPath(
     request.Title
   );
 
@@ -66,13 +67,15 @@ async function ensureAuditEmailFolder(request) {
   });
 
   const result = await appContext.AuditEmails.SetItemPermissions(
-    { ID: newFolder },
+    { ID: newFolderId },
     newItemPermissions,
     true
   );
 }
 
 export async function ensureRequestPermissions(request) {
+  await createRequestInternalItem(request);
+  return;
   const perms = await appContext.AuditRequests.GetItemPermissions(request);
   if (!perms.hasUniqueRoleAssignments) {
     if (window.DEBUG) console.warn("Request does not have unique permissions");
@@ -80,26 +83,31 @@ export async function ensureRequestPermissions(request) {
   }
 }
 
-async function createRequestInternalItem(requestNumber) {
-  var currCtx = new SP.ClientContext.get_current();
-  var web = currCtx.get_web();
+async function createRequestInternalItem(request) {
+  const requestInternal = new AuditRequestsInternal();
+  requestInternal.ReqNum.Value(request);
 
-  var requestInternalList = web
-    .get_lists()
-    .getByTitle(Audit.Common.Utilities.GetListTitleRequestsInternal());
+  await appContext.AuditRequestsInternals.AddEntity(requestInternal);
 
-  var itemCreateInfo = new SP.ListItemCreationInformation();
-  var newRequestInternalItem = requestInternalList.addItem(itemCreateInfo);
-  newRequestInternalItem.set_item("ReqNum", requestNumber);
-  newRequestInternalItem.update();
+  // var currCtx = new SP.ClientContext.get_current();
+  // var web = currCtx.get_web();
 
-  currCtx.executeQueryAsync(
-    function () {},
-    function (sender, args) {
-      alert("error creating internal request item");
-      console.error(sender, args);
-    }
-  );
+  // var requestInternalList = web
+  //   .get_lists()
+  //   .getByTitle(Audit.Common.Utilities.GetListTitleRequestsInternal());
+
+  // var itemCreateInfo = new SP.ListItemCreationInformation();
+  // var newRequestInternalItem = requestInternalList.addItem(itemCreateInfo);
+  // newRequestInternalItem.set_item("ReqNum", requestNumber);
+  // newRequestInternalItem.update();
+
+  // currCtx.executeQueryAsync(
+  //   function () {},
+  //   function (sender, args) {
+  //     alert("error creating internal request item");
+  //     console.error(sender, args);
+  //   }
+  // );
 }
 
 async function breakRequestPermissions(request, responseStatus) {

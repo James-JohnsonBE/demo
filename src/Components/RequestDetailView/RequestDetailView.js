@@ -11,20 +11,22 @@ export class RequestDetailViewComponent {
     });
   }
 
-  async loadRequest(requestId) {
-    const request = await appContext.AuditRequests.FindById(requestId);
-    await ensureRequestPermissions(request);
-    this.request(request);
-  }
-
   request = ko.observable();
 
   params = ko.pureComputed(() => {
-    // By resolving this observable, we can force the component to re-render
+    // By observing the request observable, we can force the component to re-render
     return {
       request: this.request(),
     };
   });
+
+  async loadRequest(requestId) {
+    // All resource heavy initialization should be done in the component reference class
+    // since it persists past the component lifecycle
+    const request = await appContext.AuditRequests.FindById(requestId);
+    await ensureRequestPermissions(request);
+    this.request(request);
+  }
 
   componentName = requestDetailViewComponentName;
 }
