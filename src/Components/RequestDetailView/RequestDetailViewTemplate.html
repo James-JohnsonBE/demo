@@ -1,6 +1,7 @@
 <div class="request-detail-view">
   <div>
-    <div data-bind="using: activeViewersComponent">
+    <div data-bind="using: requestInternal.activeViewersComponent">
+      <h5>Active Viewers</h5>
       <!-- ko foreach: viewers -->
       <div class="active-viewer">
         <div data-bind="text: viewer.Value() + ' @ ' + timestamp.Value()"></div>
@@ -96,14 +97,136 @@
         <div class="form-row">
           <div
             class="emphasized-section comment-chain-section"
-            data-bind="component: {name: commentChainComponent.componentName, params: commentChainComponent}"
+            data-bind="component: {name: requestInternal.commentChainComponent.componentName, params: requestInternal.commentChainComponent}"
           ></div>
         </div>
       </div>
     </div>
   </div>
-  <div>Document tabs</div>
+  <div class="tabs-container">
+    <div id="requestDetailTabs" style="">
+      <!-- ko using: tabs -->
+      <ul class="ui-tabs-nav" data-bind="foreach: tabOpts">
+        <li
+          data-bind="text: linkText, 
+        click: $parent.clickTabLink, 
+        css: {active: $parent.isSelected($data)}"
+        ></li>
+      </ul>
+      <!-- /ko -->
+      <div
+        data-bind="template: {
+        name: tabs.selectedTab()?.template.id, 
+        data: tabs.selectedTab()?.template.data
+      }"
+      ></div>
+    </div>
+  </div>
 </div>
+
+<script id="requestDetailCoversheetsTabTemplate" type="text/html">
+  <table class="tablesorter">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Action Office</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <!-- ko ifnot: requestCoversheets().length -->
+    <tbody>
+      <tr>
+        <td colspan="3">No coversheets uploaded...</td>
+      </tr>
+    </tbody>
+    <!-- /ko -->
+    <!-- ko if: requestCoversheets().length -->
+    <tbody data-bind="foreach: requestCoversheets">
+      <tr>
+        <td>
+          <a
+            target="blank"
+            data-bind="text: FileName.Value(), attr: {href: FileRef.Value() }"
+          ></a>
+        </td>
+        <td>
+          <button
+            type="button"
+            class="btn btn-link"
+            data-bind="click: toggleShowActionOffices"
+          >
+            View Action Offices
+          </button>
+          <!-- ko if: showActionOffices -->
+          <ul data-bind="foreach: ActionOffice.Value">
+            <li data-bind="text: Title"></li>
+          </ul>
+          <!-- /ko -->
+        </td>
+        <td></td>
+      </tr>
+    </tbody>
+    <!-- /ko -->
+  </table>
+</script>
+
+<script id="requestDetailResponsesTabTemplate" type="text/html">
+  <table class="tablesorter">
+    <thead>
+      <tr>
+        <th>Sample #</th>
+        <th>Name</th>
+        <th>Action Office</th>
+        <th>Status</th>
+        <th>Return Reason</th>
+        <th>Special Permission</th>
+        <th>Active Viewers</th>
+        <th>Action</th>
+        <th>Documents</th>
+      </tr>
+    </thead>
+    <tbody data-bind="foreach: requestResponses">
+      <tr>
+        <td data-bind="text: SampleNumber.toString()"></td>
+        <td data-bind="text: Title.toString()"></td>
+        <td data-bind="text: ActionOffice.toString()"></td>
+        <td data-bind="text: ResStatus.toString()"></td>
+        <td data-bind="text: ReturnReason.toString()"></td>
+        <td data-bind="text: responseHasSpecialPerms"></td>
+        <td>
+          <ul data-bind="foreach: ActiveViewers.TypedValues">
+            <li data-bind="viewer.toString()"></li>
+          </ul>
+        </td>
+        <td></td>
+        <td></td>
+      </tr>
+    </tbody>
+    <tfoot class="">
+      <tr>
+        <th colspan="9">
+          Total: <span data-bind="text: requestResponses().length"></span>
+        </th>
+      </tr>
+    </tfoot>
+  </table>
+  <div class="responses-actions">
+    <button
+      type="button"
+      class="btn btn-primary"
+      data-bind="click: addResponseHandler"
+    >
+      Add Response
+    </button>
+    <button
+      type="button"
+      class="btn btn-primary"
+      data-bind="click: bulkAddResponsesHandler"
+    >
+      Bulk Add Responses
+    </button>
+  </div>
+</script>
 
 <style>
   div.request-detail-view {
@@ -112,11 +235,22 @@
     gap: 1rem;
   }
 
+  .request-detail-view .tabs-container {
+    flex-grow: 1;
+  }
+
   .request-form .emphasized-section {
     padding: 1.5rem;
     background-color: var(--bg-dark-secondary-color);
   }
   .comment-chain-section {
     width: 100%;
+  }
+
+  .responses-actions {
+    padding: 1rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
   }
 </style>

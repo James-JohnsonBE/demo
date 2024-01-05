@@ -151,13 +151,24 @@ button.btn {
   font-size: 1rem;
   padding: 0.25rem 1rem;
   border-radius: 4px;
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
   font-weight: 500;
   border: none;
 }
 
 button.btn[disabled] {
   cursor: not-allowed;
+}
+
+button.btn.btn-link {
+  color: #0072c6;
+  border: none;
+  font-weight: normal;
+  padding: 0;
+}
+
+button.btn.btn-link:hover {
+  text-decoration: underline;
 }
 
 .btn.btn-success {
@@ -168,6 +179,16 @@ button.btn[disabled] {
 }
 .btn.btn-success[disabled] {
   background-color: var(--success-hover-color);
+}
+
+.btn.btn-primary {
+  background-color: var(--primary-color);
+}
+.btn.btn-primary:hover {
+  background-color: var(--primary-muted-color);
+}
+.btn.btn-primary[disabled] {
+  background-color: var(--primary-muted-color);
 }
 
 .btn.btn-warn {

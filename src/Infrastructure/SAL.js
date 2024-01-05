@@ -983,6 +983,12 @@ export function SPList(listDef) {
 
     const listFields = await getListFields();
     fields.map((f) => {
+      // TODO: Figure out why FileRef is pretending to be a lookup
+      if (f == "FileRef") {
+        queryFields.push(f);
+        return;
+      }
+
       if (f.includes("/")) {
         queryFields.push(f);
         expandFields.push(f.split("/")[0]);
@@ -993,12 +999,14 @@ export function SPList(listDef) {
         alert(`Field '${f}' not found on list ${self.config.def.name}`);
         return;
       }
+
+      const idString = f + "/ID";
+      let titleString = f + "/Title";
       switch (fieldSchema.TypeAsString) {
-        case "User":
         case "LookupMulti":
         case "Lookup":
-          const idString = f + "/ID";
-          const titleString = f + "/Title";
+          titleString = f + "/" + fieldSchema.LookupField;
+        case "User":
           queryFields.push(idString);
           queryFields.push(titleString);
           expandFields.push(f);
@@ -1016,11 +1024,15 @@ export function SPList(listDef) {
   async function findByColumnValueAsync(
     columnFilters,
     { orderByColumn = null, sortAsc },
-    { count = null },
+    { count = null, includePermissions = false },
     fields,
     includeFolders
   ) {
     const [queryFields, expandFields] = await getQueryFields(fields);
+    if (includePermissions) {
+      queryFields.push("RoleAssignments");
+      expandFields.push("RoleAssignments");
+    }
     const orderBy = orderByColumn
       ? `$orderby=${orderByColumn} ${sortAsc ? "asc" : "desc"}`
       : "";

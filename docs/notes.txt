@@ -1,0 +1,3 @@
+http://cgfs16index1dev:31000/sites/audit/_api/web/lists/GetByTitle('AuditCoversheets')/items?$select=ID,Title,FileLeafRef,FileRef,ReqNum/ID,ReqNum/Title,ActionOffice/ID,ActionOffice/Title&$expand=ReqNum,ActionOffice&&$filter=(ReqNum
+eq 21) and (FSObjType eq 0)&$top=5000
+http://cgfs16index1dev:31000/sites/audit/_api/web/lists/GetByTitle('AuditResponses')/items?$select=ID,RoleAssignments,Title,SampleNumber,ResStatus,ReturnReason,Comments,ClosedDate,ClosedBy/ID,ClosedBy/Title,POC/ID,POC/Title,POCCC/ID,POCCC/Title,ReqNum/ID,ReqNum/Title,ActionOffice/ID,ActionOffice/Title,ActiveViewers&$expand=RoleAssignments,ClosedBy,POC,POCCC,ReqNum,ActionOffice&&$filter=(ReqNum%20eq%20%27138%27)%20and%20(FSObjType%20eq%20%270%27)&$top=5000

@@ -5,6 +5,9 @@ import { AuditRequest } from "./AuditRequest.js";
 import { Comment } from "../valueObjects/Comment.js";
 import { ActiveViewer } from "../valueObjects/ActiveViewer.js";
 
+import { ActiveViewersComponent } from "../components/ActiveViewers/ActiveViewersModule.js";
+import { CommentChainComponent } from "../components/CommentChain/CommentChainModule.js";
+
 export class AuditRequestsInternal extends ConstrainedEntity {
   constructor(params) {
     super(params);
@@ -28,12 +31,16 @@ export class AuditRequestsInternal extends ConstrainedEntity {
     lookupCol: "Title",
   });
 
-  FieldMap = {
-    ...this.FieldMap,
-    ReqNum: this.ReqNum,
-    ActiveViewers: this.ActiveViewers,
-    InternalStatus: this.InternalStatus,
-  };
+  commentChainComponent = new CommentChainComponent({
+    entity: this,
+    fieldName: "InternalStatus",
+  });
+
+  activeViewersComponent = new ActiveViewersComponent({
+    entity: this,
+    fieldName: "ActiveViewers",
+  });
+
   static Views = {
     All: ["ID", "ActiveViewers", "InternalStatus", "ReqNum"],
   };

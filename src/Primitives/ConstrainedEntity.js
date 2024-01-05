@@ -1,6 +1,7 @@
 import { ConstrainedEntityComponent } from "../components/ConstrainedEntity/ConstrainedEntityModule.js";
 import { ConstrainedEntityView } from "./ConstrainedEntityView.js";
 import Entity from "./Entity.js";
+import BaseField from "../fields/BaseField.js";
 
 /**
  * Constrained Entity's are validated based on their declared fields.
@@ -24,6 +25,17 @@ export default class ConstrainedEntity extends Entity {
     if (window.DEBUG)
       console.log("Setting constrained entity from JSON", inputObj);
     Object.keys(inputObj).map((key) => this.FieldMap[key]?.set(inputObj[key]));
+  }
+
+  get FieldMap() {
+    const fieldMap = {};
+    Object.entries(this)
+      .filter(([key, val]) => val instanceof BaseField)
+      .map(([key, val]) => {
+        key = val.systemName ?? key;
+        fieldMap[key] = val;
+      });
+    return fieldMap;
   }
 
   FormFields = () => Object.values(this.FieldMap);

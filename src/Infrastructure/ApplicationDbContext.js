@@ -4,35 +4,23 @@ import { AuditBulkRequest } from "../entities/AuditBulkRequest.js";
 import { SPList } from "../infrastructure/SAL.js";
 import { AuditEmail } from "../entities/AuditEmail.js";
 import { AuditRequestsInternal } from "../entities/AuditRequestsInternal.js";
+import { AuditResponse } from "../entities/AuditResponse.js";
+import { AuditCoversheet } from "../entities/AuditCoversheet.js";
 
 const DEBUG = false;
-
-// let context = null;
-
-// export function CreateAppContext() {
-//   if (context) {
-//     return;
-//   }
-//   context = new ApplicationDbContext();
-// }
-
-// export function getAppContext() {
-//   return context;
-// }
-
-// export const lookupType = {
-//   value: "LookupValue",
-//   id: "LookupID",
-// };
 
 class ApplicationDbContext {
   constructor() {}
 
   AuditBulkRequests = new EntitySet(AuditBulkRequest);
 
+  AuditCoversheets = new EntitySet(AuditCoversheet);
+
   AuditEmails = new EntitySet(AuditEmail);
 
   AuditOrganizations = new EntitySet(AuditOrganization);
+
+  AuditResponses = new EntitySet(AuditResponse);
 
   AuditRequests = new EntitySet(AuditRequest);
 
@@ -132,7 +120,7 @@ class EntitySet {
   FindByColumnValue = async (
     columnFilters,
     { orderByColumn, sortAsc },
-    { count = null },
+    { count = null, includePermissions = false },
     fields = this.AllDeclaredFields,
     includeFolders = false
   ) => {
@@ -144,7 +132,7 @@ class EntitySet {
     const results = await this.ListRef.findByColumnValueAsync(
       columnFilters,
       { orderByColumn, sortAsc },
-      { count },
+      { count, includePermissions },
       fields,
       includeFolders
     );

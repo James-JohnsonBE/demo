@@ -189,3 +189,23 @@ async function breakRequestPermissions(request, responseStatus) {
     true
   );
 }
+
+export async function getRequestCoversheets(request) {
+  const coversheetsResult = await appContext.AuditCoversheets.FindByColumnValue(
+    [{ column: "ReqNum", value: request.ID }],
+    {},
+    {}
+  );
+
+  return coversheetsResult.results;
+}
+
+export async function getRequestResponses(request) {
+  const responsesResult = await appContext.AuditResponses.FindByColumnValue(
+    [{ column: "ReqNum", value: request.ID }],
+    {},
+    { includePermissions: true }
+  );
+
+  return responsesResult.results;
+}
