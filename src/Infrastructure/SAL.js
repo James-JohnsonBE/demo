@@ -2139,8 +2139,20 @@ export function SPList(listDef) {
       return response.json();
     });
 
-    const updateResult = await updateUploadedFileMetadata(result.d, payload);
+    await updateUploadedFileMetadata(result.d, payload);
 
+    let itemUri = result.d.ListItemAllFields.__deferred.uri + "?$select=ID";
+
+    const listItem = await fetchData(itemUri);
+    return listItem.d.ID;
+  }
+
+  async function getById(id, fields) {
+    const [queryFields, expandFields] = await getQueryFields(fields);
+
+    const apiEndpoint = `/web/lists/GetByTitle('${self.config.def.title}')/items(${id})?$Select=${queryFields}&$expand=${expandFields}`;
+
+    const result = await fetchData(apiEndpoint);
     return result.d;
   }
 
@@ -2224,6 +2236,7 @@ export function SPList(listDef) {
 
   const publicMembers = {
     findByIdAsync,
+    getById,
     findByColumnValueAsync,
     loadNextPage,
     getListItemsAsync,

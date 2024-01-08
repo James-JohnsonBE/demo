@@ -8,6 +8,7 @@ import {
   getRequestResponses,
 } from "../../services/AuditRequestService.js";
 import { showBulkAddResponseModal } from "../../services/AuditResponseService.js";
+import { uploadRequestCoversheetFile } from "../../services/CoversheetManager.js";
 import { getSpecialPermGroups } from "../../services/PeopleManager.js";
 
 import { TabsModule, Tab } from "../Tabs/TabsModule.js";
@@ -76,7 +77,9 @@ export default class RequestDetailViewModule {
       requestCoversheets.map((cs) => new RequestDetailCoversheet(cs))
     );
     this.requestResponses(
-      requestResponses.map((response) => new RequestDetailResponse(response))
+      requestResponses.map(
+        (response) => new RequestDetailResponse(this.request, response)
+      )
     );
     console.log("recreating detail view component!", request);
 
@@ -121,6 +124,8 @@ export default class RequestDetailViewModule {
     this.tabs.selectTab(defaultTab);
   }
 
+  addCoversheetFile(file, actionOffices) {}
+
   addResponseHandler() {}
 
   async bulkAddResponsesHandler() {
@@ -131,7 +136,9 @@ export default class RequestDetailViewModule {
   async reloadResponses() {
     const responses = await getRequestResponses(this.request);
     this.requestResponses(
-      responses.map((response) => new RequestDetailResponse(response))
+      responses.map(
+        (response) => new RequestDetailResponse(this.request, response)
+      )
     );
   }
 
@@ -164,18 +171,25 @@ class RequestDetailCoversheet {
  * This class is composed on top of the AuditResponse entity
  */
 class RequestDetailResponse {
-  constructor(response) {
-    Object.assign(this, response);
-    this.response = response;
+  constructor(request, response) {
+    // Object.assign(this, response);
+    (this.request = request), (this.response = response);
     this.init();
     this.responseDocFiles.subscribe(
       this.responseDocFilesChangeHandler,
       this,
       "arrayChange"
     );
+
+    this.responseCoversheetFiles.subscribe(
+      this.responseCoversheetFilesChangeHandler,
+      this,
+      "arrayChange"
+    );
   }
   permissions = ko.observable();
   responseDocFiles = ko.observableArray();
+  responseCoversheetFiles = ko.observableArray();
 
   responseDocFilesChangeHandler = (fileChanges) => {
     const newFiles = fileChanges
@@ -185,18 +199,39 @@ class RequestDetailResponse {
     if (newFiles.length) this.uploadResponseDocFiles(newFiles);
   };
 
+  responseCoversheetFilesChangeHandler = (fileChanges) => {
+    const newFiles = fileChanges
+      .filter((file) => file.status == "added")
+      .map((file) => file.value);
+
+    if (newFiles.length) this.uploadResponseCoversheetFiles(newFiles);
+  };
+
   uploadResponseDocFiles = async (files) => {
     const promises = [];
 
     for (let file of files) {
-      promises.push(
-        // This function is on the AuditResponse entity
-        this.response.uploadResponseDocFile(file)
-      );
+      promises.push(this.response.uploadResponseDocFile(file));
     }
     await Promise.all(promises);
 
     this.responseDocFiles.removeAll();
+  };
+
+  uploadResponseCoversheetFiles = async (files) => {
+    const promises = [];
+
+    for (let file of files) {
+      promises.push(
+        uploadRequestCoversheetFile(file, this.request, [
+          this.response.ActionOffice.Value(),
+        ])
+      );
+    }
+
+    await Promise.all(promises);
+
+    this.responseCoversheetFiles.removeAll();
   };
 
   responseHasSpecialPerms = ko.pureComputed(() => {

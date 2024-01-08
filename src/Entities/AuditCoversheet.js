@@ -39,5 +39,6 @@ export class AuditCoversheet extends ConstrainedEntity {
   static ListDef = {
     title: "AuditCoversheets",
     name: "AuditCoversheets",
+    isLib: true,
   };
 }

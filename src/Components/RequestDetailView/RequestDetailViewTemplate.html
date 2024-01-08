@@ -183,6 +183,7 @@
         <th>Active Viewers</th>
         <th>Action</th>
         <th>Documents</th>
+        <th>Coversheets</th>
       </tr>
     </thead>
     <tbody data-bind="foreach: requestResponses">
@@ -205,6 +206,14 @@
             type="file"
             multiple
             data-bind="files: responseDocFiles"
+          />
+        </td>
+        <td>
+          <input
+            class="file-upload"
+            type="file"
+            multiple
+            data-bind="files: responseCoversheetFiles"
           />
         </td>
       </tr>

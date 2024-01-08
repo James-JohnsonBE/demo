@@ -327,12 +327,16 @@ class EntitySet {
     folderPath,
     updates
   ) {
-    return this.ListRef.uploadFileToFolderAndUpdateMetadata(
+    const itemId = await this.ListRef.uploadFileToFolderAndUpdateMetadata(
       file,
       filename,
       folderPath,
       updates
     );
+    const item = await this.ListRef.getById(itemId, this.AllDeclaredFields);
+    const newEntity = new this.entityConstructor(item);
+    mapObjectToEntity(item, newEntity);
+    return newEntity;
   };
 
   UploadNewDocument = async function (folderPath, args) {
