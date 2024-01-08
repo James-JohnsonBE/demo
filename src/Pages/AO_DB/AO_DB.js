@@ -1,6 +1,6 @@
-﻿import UploadDocModule from "../../Components/UploadDoc/UploadDocModule.js";
-import { TabsModule, Tab } from "../../Components/Tabs/TabsModule.js";
-import { setUrlParam } from "../../Common/Router.js";
+﻿import { UploadResponseDocModule } from "../../components/UploadDoc/UploadDocModule.js";
+import { TabsModule, Tab } from "../../components/Tabs/TabsModule.js";
+import { setUrlParam } from "../../common/Router.js";
 
 var Audit = window.Audit || {};
 Audit.AOReport = Audit.AOReport || {};

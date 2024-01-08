@@ -2108,6 +2108,66 @@ export function SPList(listDef) {
     });
   }
 
+  async function uploadFileToFolderAndUpdateMetadata(
+    file,
+    fileName,
+    relFolderPath,
+    payload
+  ) {
+    // convert list relative folder path to web relative
+    const serverRelFolderPath = getServerRelativeFolderPath(relFolderPath);
+
+    const result = await fetch(
+      _spPageContextInfo.webServerRelativeUrl +
+        `/_api/web/GetFolderByServerRelativeUrl('${serverRelFolderPath}')/Files/add(url='${fileName}',overwrite=true)`,
+      {
+        method: "POST",
+        credentials: "same-origin",
+        body: file,
+        headers: {
+          Accept: "application/json; odata=verbose",
+          "Content-Type": "application/json;odata=nometadata",
+          "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value,
+        },
+      }
+    ).then((response) => {
+      if (!response.ok) {
+        console.error("Error Uploading File", response);
+        return;
+      }
+
+      return response.json();
+    });
+
+    const updateResult = await updateUploadedFileMetadata(result.d, payload);
+
+    return result.d;
+  }
+
+  async function updateUploadedFileMetadata(fileResult, payload) {
+    var result = await fetch(fileResult.ListItemAllFields.__deferred.uri, {
+      method: "POST",
+      credentials: "same-origin",
+      body: JSON.stringify(payload),
+      headers: {
+        Accept: "application/json; odata=nometadata",
+        "Content-Type": "application/json;odata=nometadata",
+        "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value,
+        "X-HTTP-Method": "MERGE",
+        "If-Match": "*",
+      },
+    }).then((response) => {
+      if (!response.ok) {
+        console.error("Error Updating File", response);
+        return;
+      }
+
+      return response;
+    });
+
+    return result;
+  }
+
   function copyFiles(sourceFolderPath, destFolderPath, callback, onError) {
     const sourcePath = getServerRelativeFolderPath(sourceFolderPath);
     const destPath = getServerRelativeFolderPath(destFolderPath);
@@ -2178,6 +2238,7 @@ export function SPList(listDef) {
     setFolderReadonlyAsync,
     setFolderPermissionsAsync,
     ensureFolderPermissionsAsync,
+    uploadFileToFolderAndUpdateMetadata,
     uploadNewDocumentAsync,
     copyFilesAsync,
     showModal,

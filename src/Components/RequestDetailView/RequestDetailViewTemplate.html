@@ -187,19 +187,26 @@
     </thead>
     <tbody data-bind="foreach: requestResponses">
       <tr>
-        <td data-bind="text: SampleNumber.toString()"></td>
-        <td data-bind="text: Title.toString()"></td>
-        <td data-bind="text: ActionOffice.toString()"></td>
-        <td data-bind="text: ResStatus.toString()"></td>
-        <td data-bind="text: ReturnReason.toString()"></td>
+        <td data-bind="text: response.SampleNumber.toString()"></td>
+        <td data-bind="text: response.Title.toString()"></td>
+        <td data-bind="text: response.ActionOffice.toString()"></td>
+        <td data-bind="text: response.ResStatus.toString()"></td>
+        <td data-bind="text: response.ReturnReason.toString()"></td>
         <td data-bind="text: responseHasSpecialPerms"></td>
         <td>
-          <ul data-bind="foreach: ActiveViewers.TypedValues">
+          <ul data-bind="foreach: response.ActiveViewers.TypedValues">
             <li data-bind="viewer.toString()"></li>
           </ul>
         </td>
         <td></td>
-        <td></td>
+        <td>
+          <input
+            class="file-upload"
+            type="file"
+            multiple
+            data-bind="files: responseDocFiles"
+          />
+        </td>
       </tr>
     </tbody>
     <tfoot class="">

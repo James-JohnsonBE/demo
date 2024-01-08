@@ -12,6 +12,8 @@ import { AuditOrganization } from "./AuditOrganization.js";
 import { ActiveViewer } from "../valueObjects/ActiveViewer.js";
 import { ActiveViewersComponent } from "../components/ActiveViewers/ActiveViewersModule.js";
 
+// import { appContext } from "../infrastructure/ServiceContainer.js";
+
 export const responseStates = {
   ApprovedForQA: "4-Approved for QA",
 };
@@ -88,6 +90,25 @@ export class AuditResponse extends ConstrainedEntity {
     entity: this,
     fieldName: "ActiveViewers",
   });
+
+  async uploadResponseDocFile(file) {
+    const fileMetadata = {
+      Title: file.name,
+      ReqNumId: this.ReqNum.Value().ID,
+      ResIDId: this.ID,
+    };
+
+    const { appContext } = await import(
+      "../infrastructure/ApplicationDbContext.js"
+    );
+
+    await appContext.AuditResponseDocs.UploadFileToFolderAndUpdateMetadata(
+      file,
+      file.name,
+      this.Title.Value(),
+      fileMetadata
+    );
+  }
 
   static Views = {
     All: [

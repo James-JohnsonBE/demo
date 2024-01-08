@@ -160,14 +160,44 @@ class RequestDetailCoversheet {
 }
 
 /***
- * Hold information regarding our request detail response items
+ * Hold information regarding our request detail response items.
+ * This class is composed on top of the AuditResponse entity
  */
 class RequestDetailResponse {
   constructor(response) {
     Object.assign(this, response);
+    this.response = response;
     this.init();
+    this.responseDocFiles.subscribe(
+      this.responseDocFilesChangeHandler,
+      this,
+      "arrayChange"
+    );
   }
   permissions = ko.observable();
+  responseDocFiles = ko.observableArray();
+
+  responseDocFilesChangeHandler = (fileChanges) => {
+    const newFiles = fileChanges
+      .filter((file) => file.status == "added")
+      .map((file) => file.value);
+
+    if (newFiles.length) this.uploadResponseDocFiles(newFiles);
+  };
+
+  uploadResponseDocFiles = async (files) => {
+    const promises = [];
+
+    for (let file of files) {
+      promises.push(
+        // This function is on the AuditResponse entity
+        this.response.uploadResponseDocFile(file)
+      );
+    }
+    await Promise.all(promises);
+
+    this.responseDocFiles.removeAll();
+  };
 
   responseHasSpecialPerms = ko.pureComputed(() => {
     const perms = this.permissions();
@@ -191,7 +221,9 @@ class RequestDetailResponse {
   }
 
   async getResponsePermissions() {
-    const perms = await appContext.AuditResponses.GetItemPermissions(this);
+    const perms = await appContext.AuditResponses.GetItemPermissions(
+      this.response
+    );
     this.permissions(perms);
   }
 }

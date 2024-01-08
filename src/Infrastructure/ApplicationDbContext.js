@@ -5,11 +5,12 @@ import { SPList } from "../infrastructure/SAL.js";
 import { AuditEmail } from "../entities/AuditEmail.js";
 import { AuditRequestsInternal } from "../entities/AuditRequestsInternal.js";
 import { AuditResponse } from "../entities/AuditResponse.js";
+import { AuditResponseDoc } from "../entities/AuditResponseDocs.js";
 import { AuditCoversheet } from "../entities/AuditCoversheet.js";
 
 const DEBUG = false;
 
-class ApplicationDbContext {
+export class ApplicationDbContext {
   constructor() {}
 
   AuditBulkRequests = new EntitySet(AuditBulkRequest);
@@ -21,6 +22,8 @@ class ApplicationDbContext {
   AuditOrganizations = new EntitySet(AuditOrganization);
 
   AuditResponses = new EntitySet(AuditResponse);
+
+  AuditResponseDocs = new EntitySet(AuditResponseDoc);
 
   AuditRequests = new EntitySet(AuditRequest);
 
@@ -318,6 +321,20 @@ class EntitySet {
   };
 
   // Other Functions
+  UploadFileToFolderAndUpdateMetadata = async function (
+    file,
+    filename,
+    folderPath,
+    updates
+  ) {
+    return this.ListRef.uploadFileToFolderAndUpdateMetadata(
+      file,
+      filename,
+      folderPath,
+      updates
+    );
+  };
+
   UploadNewDocument = async function (folderPath, args) {
     return this.ListRef.uploadNewDocumentAsync(
       folderPath,
