@@ -30,12 +30,13 @@ export async function getSpecialPermGroups() {
   if (specialGroups) return specialGroups;
   if (specialGroupsLoading()) {
     return new Promise((resolve) => {
-      const subscriber = specialGroupsLoading.subscribe((specialGroups) => {
+      const subscriber = specialGroupsLoading.subscribe(() => {
         subscriber.dispose();
         resolve(specialGroups);
       });
     });
   }
+
   specialGroupsLoading(true);
   const specialPermGroup1 = await getPeopleByUsername(
     groupNameSpecialPermName1
@@ -52,4 +53,22 @@ export async function getSpecialPermGroups() {
   specialGroupsLoading(false);
 
   return specialGroups;
+}
+
+let qaGroup = null;
+let qaGroupLoading = ko.observable(false);
+export async function getQAGroup() {
+  if (qaGroup) return qaGroup;
+  if (qaGroupLoading()) {
+    return new Promise((resolve) => {
+      const subscriber = qaGroupLoading.subscribe(() => {
+        subscriber.dispose();
+        resolve(qaGroup);
+      });
+    });
+  }
+  qaGroupLoading(true);
+  qaGroup = await getPeopleByUsername(groupNameQA);
+  qaGroupLoading(false);
+  return qaGroup;
 }

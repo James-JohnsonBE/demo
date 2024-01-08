@@ -321,6 +321,7 @@ class EntitySet {
   };
 
   // Other Functions
+  // Upload file directly from browser "File" object e.g. from input field
   UploadFileToFolderAndUpdateMetadata = async function (
     file,
     filename,
@@ -339,6 +340,7 @@ class EntitySet {
     return newEntity;
   };
 
+  // Open file upload Modal
   UploadNewDocument = async function (folderPath, args) {
     return this.ListRef.uploadNewDocumentAsync(
       folderPath,
