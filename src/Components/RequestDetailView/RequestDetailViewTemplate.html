@@ -254,7 +254,7 @@
         <th>Title</th>
         <th>Receipt Date</th>
         <th>File Size</th>
-        <th>Checked Out</th>
+        <th>Checked Out To</th>
         <th>Status</th>
         <th>Reason</th>
         <th>Modified</th>
@@ -270,14 +270,23 @@
       </tr>
       <!-- ko if: showResponseDocs -->
       <!-- ko foreach: responseDocs -->
-      <tr>
+      <tr data-bind="using: responseDoc">
         <td></td>
         <td>
           <a
             target="blank"
-            data-bind="text: responseDoc.FileName.Value(), attr: {href: responseDoc.FileRef.Value() }"
+            data-bind="text: FileName.Value(), attr: {href: FileRef.Value() }"
           ></a>
         </td>
+        <td data-bind="text: Title.toString()"></td>
+        <td data-bind="text: ReceiptDate.toString()"></td>
+        <td data-bind="text: FileSizeDisplay.toString()"></td>
+        <td data-bind="text: CheckoutUser.toString()"></td>
+        <td data-bind="text: DocumentStatus.toString()"></td>
+        <td data-bind="text: RejectReason.toString()"></td>
+        <td data-bind="text: Modified.toString()"></td>
+        <td data-bind="text: Editor.toString()"></td>
+        <td data-bind=""></td>
       </tr>
       <!-- /ko -->
       <!-- /ko -->

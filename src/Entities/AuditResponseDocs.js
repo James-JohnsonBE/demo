@@ -6,6 +6,7 @@ import SelectField from "../fields/SelectField.js";
 import TextAreaField from "../fields/TextAreaField.js";
 import { AuditResponse } from "./AuditResponse.js";
 import { AuditRequest } from "./AuditRequest.js";
+import PeopleField from "../fields/PeopleField.js";
 
 export class AuditResponseDoc extends ConstrainedEntity {
   constructor(params) {
@@ -58,6 +59,28 @@ export class AuditResponseDoc extends ConstrainedEntity {
     systemName: "FileRef",
   });
 
+  Modified = new DateField({
+    displayName: "Modified",
+    type: dateFieldTypes.datetime,
+  });
+
+  Editor = new PeopleField({
+    displayName: "Modified By",
+  });
+
+  FileSizeDisplay = new TextField({
+    displayName: "File",
+  });
+
+  File_x0020_Type = new TextField({
+    displayName: "File Type",
+    systemName: "File_x0020_Type",
+  });
+
+  CheckoutUser = new PeopleField({
+    displayName: "Checked Out To",
+  });
+
   static Views = {
     All: [
       "ID",
@@ -69,6 +92,11 @@ export class AuditResponseDoc extends ConstrainedEntity {
       "ResID",
       "FileLeafRef",
       "FileRef",
+      "Modified",
+      "Editor",
+      "FileSizeDisplay",
+      "File_x0020_Type",
+      "CheckoutUser",
     ],
   };
 

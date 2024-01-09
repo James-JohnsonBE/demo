@@ -237,7 +237,10 @@ class EntitySet {
 
     this._store.push(entity);
 
-    const result = await this.ListRef.findByIdAsync(entity.ID, fields);
+    const result = await this.ListRef.findByIdAsync(
+      entity.ID,
+      this.AllDeclaredFields
+    );
     if (!result) return null;
 
     mapObjectToEntity(result, entity);
@@ -396,7 +399,7 @@ export function mapObjectToEntity(inputObject, targetEntity) {
 }
 
 function mapValueToEntityProperty(propertyName, inputValue, targetEntity) {
-  if (window.DEBUG)
+  if (DEBUG)
     console.log(
       `ApplicationDBContext: ${targetEntity.constructor.name}.${propertyName} to ${inputValue}`
     );
