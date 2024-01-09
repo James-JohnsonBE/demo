@@ -182,8 +182,8 @@
         <th>Special Permission</th>
         <th>Active Viewers</th>
         <th>Action</th>
-        <th>Documents</th>
         <th>Coversheets</th>
+        <th>Documents</th>
       </tr>
     </thead>
     <tbody data-bind="foreach: requestResponses">
@@ -200,14 +200,7 @@
           </ul>
         </td>
         <td></td>
-        <td>
-          <input
-            class="file-upload"
-            type="file"
-            multiple
-            data-bind="files: responseDocFiles"
-          />
-        </td>
+
         <td>
           <input
             class="file-upload"
@@ -216,11 +209,19 @@
             data-bind="files: responseCoversheetFiles"
           />
         </td>
+        <td>
+          <input
+            class="file-upload"
+            type="file"
+            multiple
+            data-bind="files: responseDocFiles"
+          />
+        </td>
       </tr>
     </tbody>
     <tfoot class="">
       <tr>
-        <th colspan="9">
+        <th colspan="10">
           Total: <span data-bind="text: requestResponses().length"></span>
         </th>
       </tr>
@@ -242,6 +243,46 @@
       Bulk Add Responses
     </button>
   </div>
+</script>
+
+<script id="requestDetailResponseDocsTabTemplate" type="text/html">
+  <table class="tablesorter">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Title</th>
+        <th>Receipt Date</th>
+        <th>File Size</th>
+        <th>Checked Out</th>
+        <th>Status</th>
+        <th>Reason</th>
+        <th>Modified</th>
+        <th>Modified By</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody data-bind="foreach: requestResponses">
+      <tr>
+        <td colspan="11" data-bind="click: toggleShowResponseDocs">
+          <span data-bind="text: response.Title.Value()"></span>
+        </td>
+      </tr>
+      <!-- ko if: showResponseDocs -->
+      <!-- ko foreach: responseDocs -->
+      <tr>
+        <td></td>
+        <td>
+          <a
+            target="blank"
+            data-bind="text: responseDoc.FileName.Value(), attr: {href: responseDoc.FileRef.Value() }"
+          ></a>
+        </td>
+      </tr>
+      <!-- /ko -->
+      <!-- /ko -->
+    </tbody>
+  </table>
 </script>
 
 <style>

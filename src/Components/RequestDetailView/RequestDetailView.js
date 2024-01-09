@@ -6,6 +6,7 @@ import {
   ensureRequestInternalItem,
   getRequestCoversheets,
   getRequestResponses,
+  getRequestResponseDocs,
 } from "../../services/AuditRequestService.js";
 import { showBulkAddResponseModal } from "../../services/AuditResponseService.js";
 import { uploadRequestCoversheetFile } from "../../services/CoversheetManager.js";
@@ -34,6 +35,7 @@ export class RequestDetailViewComponent {
   requestInternal = ko.observable();
   requestCoversheets;
   requestResponses;
+  requestResponseDocs;
 
   // By making the params observable, we can force the component to re-render when they change
   params = ko.observable();
@@ -48,6 +50,7 @@ export class RequestDetailViewComponent {
 
     this.requestCoversheets = await getRequestCoversheets(request);
     this.requestResponses = await getRequestResponses(request);
+    this.requestResponseDocs = await getRequestResponseDocs(request);
 
     this.request(request);
     this.requestInternal(requestInternal);
@@ -57,6 +60,7 @@ export class RequestDetailViewComponent {
       requestInternal: this.requestInternal(),
       requestCoversheets: this.requestCoversheets,
       requestResponses: this.requestResponses,
+      requestResponseDocs: this.requestResponseDocs,
     });
   }
 
@@ -70,6 +74,7 @@ export default class RequestDetailViewModule {
     requestInternal,
     requestCoversheets,
     requestResponses,
+    requestResponseDocs,
   }) {
     this.request = request;
     this.requestInternal = requestInternal;
@@ -78,7 +83,14 @@ export default class RequestDetailViewModule {
     );
     this.requestResponses(
       requestResponses.map(
-        (response) => new RequestDetailResponse(this.request, response)
+        (response) =>
+          new RequestDetailResponse(this.request, response, this.responseDocs)
+      )
+    );
+
+    this.responseDocs(
+      requestResponseDocs.map(
+        (responseDoc) => new RequestDetailResponseDoc(this.request, responseDoc)
       )
     );
     console.log("recreating detail view component!", request);
@@ -95,6 +107,7 @@ export default class RequestDetailViewModule {
 
   requestCoversheets = ko.observableArray();
   requestResponses = ko.observableArray();
+  responseDocs = ko.observableArray();
 
   tabOpts = {
     Coversheets: new Tab("coversheets", "Coversheets", {
@@ -103,6 +116,10 @@ export default class RequestDetailViewModule {
     }),
     Responses: new Tab("responses", "Responses", {
       id: "requestDetailResponsesTabTemplate",
+      data: this,
+    }),
+    ResponseDocs: new Tab("response-docs", "Response Docs", {
+      id: "requestDetailResponseDocsTabTemplate",
       data: this,
     }),
   };
@@ -171,10 +188,12 @@ class RequestDetailCoversheet {
  * This class is composed on top of the AuditResponse entity
  */
 class RequestDetailResponse {
-  constructor(request, response) {
+  constructor(request, response, requestResponseDocs) {
     // Object.assign(this, response);
     (this.request = request), (this.response = response);
+    this.requestResponseDocs = requestResponseDocs;
     this.init();
+
     this.responseDocFiles.subscribe(
       this.responseDocFilesChangeHandler,
       this,
@@ -187,6 +206,15 @@ class RequestDetailResponse {
       "arrayChange"
     );
   }
+  requestResponseDocs;
+
+  responseDocs = ko.pureComputed(() => {
+    return this.requestResponseDocs().filter(
+      (responseDoc) =>
+        responseDoc.responseDoc.ResID.Value()?.ID == this.response.ID
+    );
+  });
+
   permissions = ko.observable();
   responseDocFiles = ko.observableArray();
   responseCoversheetFiles = ko.observableArray();
@@ -251,6 +279,13 @@ class RequestDetailResponse {
     );
   });
 
+  //Response Docs View
+  showResponseDocs = ko.observable(false);
+
+  toggleShowResponseDocs() {
+    this.showResponseDocs(!this.showResponseDocs());
+  }
+
   async init() {
     await this.getResponsePermissions();
   }
@@ -261,4 +296,14 @@ class RequestDetailResponse {
     );
     this.permissions(perms);
   }
+}
+
+class RequestDetailResponseDoc {
+  constructor(request, responseDoc) {
+    this.request = request;
+    this.responseDoc = responseDoc;
+  }
+
+  request;
+  response;
 }

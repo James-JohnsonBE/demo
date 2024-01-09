@@ -54,7 +54,7 @@ export default class LookupField extends BaseField {
   // }
 
   refresh = async () => {
-    if (!!!this.Value()) {
+    if (!this.Value()) {
       return;
     }
     this.IsLoading(true);
@@ -133,6 +133,7 @@ export default class LookupField extends BaseField {
       const values = valArr.map((value) => this.findOrCreateNewEntity(value));
 
       this.Value(values);
+      this.ensure();
       return;
     }
 
@@ -152,10 +153,15 @@ export default class LookupField extends BaseField {
       );
     }
 
-    const cachedEntity = this.Options().find((entity) => entity.ID == val.ID);
+    const optionEntity = this.Options().find((entity) => entity.ID == val.ID);
+    if (optionEntity) return optionEntity;
+
+    const cachedEntity = this.entitySet.FindInStore(val.ID);
     if (cachedEntity) return cachedEntity;
 
-    return this.entitySet.FindInStore(val.ID);
+    const newEntity = new this.entityType();
+    newEntity.ID = val.ID;
+    return newEntity;
   };
 
   components = components;

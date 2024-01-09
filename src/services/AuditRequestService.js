@@ -209,3 +209,13 @@ export async function getRequestResponses(request) {
 
   return responsesResult.results;
 }
+
+export async function getRequestResponseDocs(request) {
+  const responsesResult = await appContext.AuditResponseDocs.FindByColumnValue(
+    [{ column: "ReqNum", value: request.ID }],
+    {},
+    { includePermissions: true }
+  );
+
+  return responsesResult.results;
+}

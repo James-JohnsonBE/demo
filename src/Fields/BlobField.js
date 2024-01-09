@@ -50,7 +50,7 @@ export default class BlobField extends BaseField {
   };
 
   set = (val) => {
-    if (window.DEBUG) console.log(val);
+    // if (DEBUG) console.log(val);
     this.Value(JSON.parse(val));
     this.fromJSON(this.Value());
   };

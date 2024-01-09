@@ -98,8 +98,20 @@ class EntitySet {
   // Queries
   // TODO: Feature - Queries should return options to read e.g. toList, first, toCursor
   FindById = async (id, fields = this.AllDeclaredFields) => {
+    // Hit our cache first
     const cachedEntity = this._store().find((entity) => entity.ID == id);
     if (cachedEntity) return cachedEntity;
+
+    // Next, check if we are querying the cache
+    if (this._queryingAllItems()) {
+      const foundEntity = await new Promise((resolve) => {
+        const subscriber = this._queryingAllItems.subscribe(() => {
+          subscriber.dispose();
+          resolve(this._store().find((entity) => entity.ID == id));
+        });
+      });
+      if (foundEntity) return foundEntity;
+    }
 
     const result = await this.ListRef.findByIdAsync(id, fields);
     if (!result) return null;
@@ -195,12 +207,16 @@ class EntitySet {
     }
 
     this._queryingAllItems(true);
+    if (DEBUG)
+      console.log(
+        `ApplicationDbContext: Initializing ${this.ListDef.name} cache`
+      );
     const fields = this.Views.All;
     const results = await this.ListRef.getListItemsAsync({ fields });
     const allItems = results.map((item) => {
-      const newEntity = new this.entityType(item);
-      mapObjectToEntity(item, newEntity);
-      return newEntity;
+      let entityToLoad = this.FindInStore(item.ID) ?? new this.entityType(item);
+      mapObjectToEntity(item, entityToLoad);
+      return entityToLoad;
     });
     this._store(allItems);
     this._queryingAllItems(false);
@@ -213,16 +229,19 @@ class EntitySet {
       console.error("entity missing Id", entity);
       return false;
     }
-    const item = await this.ListRef.findByIdAsync(
-      entity.ID,
-      this.ListDef.fields
-    );
-    if (!item) {
-      console.warn("ApplicationDbContext Could not find entity", entity);
-      return false;
+    const existingItem = this.FindInStore(entity.ID);
+    if (existingItem == entity) {
+      console.warn("entity already in cache");
+      return;
     }
-    mapObjectToEntity(item, entity);
-    return true;
+
+    this._store.push(entity);
+
+    const result = await this.ListRef.findByIdAsync(entity.ID, fields);
+    if (!result) return null;
+
+    mapObjectToEntity(result, entity);
+    return entity;
   };
 
   // Mutators
@@ -364,6 +383,11 @@ class EntitySet {
 }
 
 export function mapObjectToEntity(inputObject, targetEntity) {
+  if (DEBUG)
+    console.log(
+      `ApplicationDBContext: ${targetEntity.constructor.name}: `,
+      inputObject
+    );
   if (!inputObject || !targetEntity) return;
   // Takes an object and attempts to map it to the target entity
   Object.keys(inputObject).forEach((key) => {
@@ -372,6 +396,10 @@ export function mapObjectToEntity(inputObject, targetEntity) {
 }
 
 function mapValueToEntityProperty(propertyName, inputValue, targetEntity) {
+  if (window.DEBUG)
+    console.log(
+      `ApplicationDBContext: ${targetEntity.constructor.name}.${propertyName} to ${inputValue}`
+    );
   //1. Check if the targetEntity has a fieldmapping for this property
   if (targetEntity.FieldMap && targetEntity.FieldMap[propertyName]) {
     mapObjectToViewField(inputValue, targetEntity.FieldMap[propertyName]);
@@ -389,42 +417,42 @@ function mapValueToEntityProperty(propertyName, inputValue, targetEntity) {
   return;
 }
 
-function mapObjectToViewField(inVal, fieldMap) {
+function mapObjectToViewField(inVal, fieldMapping) {
   // Fieldmap has Three options for setting,
   // 1. observable - the fieldmap represents an observable
   // 2. setter - the fieldmap exposes a setter
   // 3. factory/obs - the fieldmap exposes a factory and an observable to put the result.
 
-  if (typeof fieldMap == "function") {
-    fieldMap(inVal);
+  if (typeof fieldMapping == "function") {
+    fieldMapping(inVal);
     return;
   }
 
-  if (typeof fieldMap != "object") {
-    fieldMap = inVal;
+  if (typeof fieldMapping != "object") {
+    fieldMapping = inVal;
     return;
   }
 
-  if (fieldMap.set && typeof fieldMap.set == "function") {
-    fieldMap.set(inVal);
+  if (fieldMapping.set && typeof fieldMapping.set == "function") {
+    fieldMapping.set(inVal);
     return;
   }
 
-  if (fieldMap.obs) {
+  if (fieldMapping.obs) {
     if (!inVal) {
-      fieldMap.obs(null);
+      fieldMapping.obs(null);
       return;
     }
     // If the input value is an array, then we are putting an array into the observable.
     const outVal = Array.isArray(inVal)
-      ? inVal.map((item) => generateObject(item, fieldMap))
-      : generateObject(inVal, fieldMap);
+      ? inVal.map((item) => generateObject(item, fieldMapping))
+      : generateObject(inVal, fieldMapping);
 
-    fieldMap.obs(outVal);
+    fieldMapping.obs(outVal);
     return;
   }
 
-  fieldMap = inVal;
+  fieldMapping = inVal;
   //throw "Error setting fieldmap?";
 }
 
