@@ -22,7 +22,7 @@ var result = {
   UniqueId: "907815ce-5ac6-49be-a98d-e809ab879cc0",
 };
 
-export default class UploadDocModule {
+export class UploadDocModule {
   constructor({ label, response, newUploadCallback }) {
     this.response = response;
     this.label = label;
@@ -153,6 +153,12 @@ export default class UploadDocModule {
   };
 
   static componentName = "upload-doc-component";
+}
+
+export class UploadResponseDocModule extends UploadDocModule {
+  constructor(params) {
+    super(params);
+  }
 }
 
 ko.bindingHandlers.files = {

@@ -382,6 +382,12 @@ class EntitySet {
     );
   };
 
+  CheckInDocument = async function (fileRef) {
+    return new Promise((resolve) =>
+      this.ListRef.showCheckinModal(fileRef, resolve)
+    );
+  };
+
   EnsureList = async function () {};
 }
 

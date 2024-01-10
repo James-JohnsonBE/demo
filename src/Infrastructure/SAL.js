@@ -648,9 +648,12 @@ export function SPList(listDef) {
     ******************************************************************/
   async function init() {
     if (!self.config.fieldSchema) {
-      const apiEndpoint = `/web/lists/GetByTitle('${self.config.def.title}')/Fields`;
-      const fields = await fetchData(apiEndpoint);
-      self.config.fieldSchema = fields.d.results;
+      const listEndpoint = `/web/lists/GetByTitle('${self.config.def.title}')?$expand=Fields`;
+      const list = await fetchData(listEndpoint);
+      // const apiEndpoint = `/web/lists/GetByTitle('${self.config.def.title}')/Fields`;
+      //const fields = await fetchData(apiEndpoint);
+      self.config.guid = list.d.Id;
+      self.config.fieldSchema = list.d.Fields.results;
     }
   }
 
@@ -966,6 +969,15 @@ export function SPList(listDef) {
         reject(e);
       }
     });
+  }
+
+  async function getById(id, fields) {
+    const [queryFields, expandFields] = await getQueryFields(fields);
+
+    const apiEndpoint = `/web/lists/GetByTitle('${self.config.def.title}')/items(${id})?$Select=${queryFields}&$expand=${expandFields}`;
+
+    const result = await fetchData(apiEndpoint);
+    return result.d;
   }
 
   async function getListFields() {
@@ -2057,6 +2069,22 @@ export function SPList(listDef) {
     // );
   }
 
+  function showCheckinModal(fileRef, callback) {
+    var options = SP.UI.$create_DialogOptions();
+    options.title = "Check in Document";
+    options.height = "600";
+    options.dialogReturnValueCallback = callback;
+
+    options.url =
+      sal.globalConfig.siteUrl +
+      "/_layouts/checkin.aspx?List={" +
+      self.config.guid +
+      "}&FileName=" +
+      fileRef;
+
+    SP.UI.ModalDialog.showModalDialog(options);
+  }
+
   function uploadNewDocumentAsync(folderPath, title, args) {
     return new Promise((resolve, reject) => {
       const currCtx = new SP.ClientContext.get_current();
@@ -2145,15 +2173,6 @@ export function SPList(listDef) {
 
     const listItem = await fetchData(itemUri);
     return listItem.d.ID;
-  }
-
-  async function getById(id, fields) {
-    const [queryFields, expandFields] = await getQueryFields(fields);
-
-    const apiEndpoint = `/web/lists/GetByTitle('${self.config.def.title}')/items(${id})?$Select=${queryFields}&$expand=${expandFields}`;
-
-    const result = await fetchData(apiEndpoint);
-    return result.d;
   }
 
   async function updateUploadedFileMetadata(fileResult, payload) {
@@ -2255,6 +2274,7 @@ export function SPList(listDef) {
     uploadNewDocumentAsync,
     copyFilesAsync,
     showModal,
+    showCheckinModal,
   };
 
   return publicMembers;
