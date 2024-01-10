@@ -8,6 +8,16 @@ import { AuditResponse } from "./AuditResponse.js";
 import { AuditRequest } from "./AuditRequest.js";
 import PeopleField from "../fields/PeopleField.js";
 
+export const AuditResponseDocStates = {
+  Open: "Open",
+  Submitted: "Submitted",
+  SentToQA: "Sent to QA",
+  Approved: "Approved",
+  Rejected: "Rejected",
+  Archived: "Archived",
+  MarkedForDeletion: "Marked for Deletion",
+};
+
 export class AuditResponseDoc extends ConstrainedEntity {
   constructor(params) {
     super(params);
@@ -24,15 +34,7 @@ export class AuditResponseDoc extends ConstrainedEntity {
 
   DocumentStatus = new SelectField({
     displayName: "Document Status",
-    options: [
-      "Open",
-      "Submitted",
-      "Sent to QA",
-      "Approved",
-      "Rejected",
-      "Archived",
-      "Marked for Deletion",
-    ],
+    options: Object.values(AuditResponseDocStates),
   });
 
   RejectReason = new TextAreaField({

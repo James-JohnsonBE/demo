@@ -14,8 +14,14 @@ import { ActiveViewersComponent } from "../components/ActiveViewers/ActiveViewer
 
 // import { appContext } from "../infrastructure/ServiceContainer.js";
 
-export const responseStates = {
+export const AuditResponseStates = {
+  Open: "1-Open",
+  Submitted: "2-Submitted",
+  ReturnedToAO: "3-Returned to Action Office",
   ApprovedForQA: "4-Approved for QA",
+  ReturnedToGFS: "5-Returned to GFS",
+  RepostedAfterRejection: "6-Reposted After Rejection",
+  Closed: "7-Closed",
 };
 
 export class AuditResponse extends ConstrainedEntity {
@@ -33,15 +39,7 @@ export class AuditResponse extends ConstrainedEntity {
 
   ResStatus = new SelectField({
     displayName: "Response Status",
-    options: [
-      "1-Open",
-      "2-Submitted",
-      "3-Returned to Action Office",
-      "4-Approved for QA",
-      "5-Returned to GFS",
-      "6-Reposted After Rejection",
-      "7-Closed",
-    ],
+    options: Object.values(AuditResponseStates),
   });
 
   ReturnReason = new SelectField({

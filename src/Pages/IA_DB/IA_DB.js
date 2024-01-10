@@ -243,15 +243,11 @@ Audit.IAReport.NewReportPage = function () {
         id: "responseStatusReportTemplate",
         data: self,
       }),
-      RequestDetail: new Tab(
-        "request-detail-dep",
-        "Request Information (Deprecated)",
-        {
-          id: "requestDetailTemplateDeprecated",
-          data: self,
-        }
-      ),
-      RequestDetail2: new Tab("request-detail", "Request Information", {
+      RequestDetail: new Tab("request-detail-dep", "Request Information", {
+        id: "requestDetailTemplateDeprecated",
+        data: self,
+      }),
+      RequestDetail2: new Tab("request-detail", "Request Information (V2)", {
         id: "requestDetailTemplate",
         data: self,
       }),

@@ -2,7 +2,7 @@ import { appContext } from "../infrastructure/ApplicationDbContext.js";
 import { getPeopleByUsername, getSiteGroups } from "./PeopleManager.js";
 import { roleNames } from "./PermissionManager.js";
 import { ItemPermissions } from "../infrastructure/SAL.js";
-import { responseStates } from "../entities/AuditResponse.js";
+import { AuditResponseStates } from "../entities/AuditResponse.js";
 import { People } from "../entities/People.js";
 import { AuditRequestsInternal } from "../entities/AuditRequestsInternal.js";
 
@@ -156,7 +156,7 @@ async function breakRequestPermissions(request, responseStatus) {
     roleNames.RestrictedRead
   );
 
-  if (qaHasRead || responseStatus == responseStates.ApprovedForQA) {
+  if (qaHasRead || responseStatus == AuditResponseStates.ApprovedForQA) {
     newRequestPermissions.addPrincipalRole(qaGroup, roleNames.RestrictedRead);
   }
 
@@ -219,3 +219,5 @@ export async function getRequestResponseDocs(request) {
 
   return responsesResult.results;
 }
+
+/* TO BE UPDATED */

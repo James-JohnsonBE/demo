@@ -1,4 +1,6 @@
 import { getUrlParam } from "../../common/Router.js";
+import { AuditResponseStates } from "../../entities/AuditResponse.js";
+import { AuditResponseDocStates } from "../../entities/AuditResponseDocs.js";
 import { appContext } from "../../infrastructure/ApplicationDbContext.js";
 import { registerComponent } from "../../infrastructure/RegisterComponents.js";
 import {
@@ -105,6 +107,8 @@ export default class RequestDetailViewModule {
     this.init();
   }
 
+  showDocuments = ko.observable(false);
+
   requestCoversheets = ko.observableArray();
   requestResponses = ko.observableArray();
   responseDocs = ko.observableArray();
@@ -159,6 +163,19 @@ export default class RequestDetailViewModule {
     );
   }
 
+  _checkResponseDocs = true;
+  /* ResponseDocTab */
+  checkResponseDocsHandler() {
+    this.requestResponses().forEach((response) => {
+      if (
+        response.response.ResStatus.Value() == AuditResponseStates.Submitted
+      ) {
+        response.checkResponseDocs(this._checkResponseDocs);
+      }
+    });
+    this._checkResponseDocs = !this._checkResponseDocs;
+  }
+
   dispose() {
     this.requestInternal.activeViewersComponent.removeCurrentuser();
   }
@@ -206,6 +223,7 @@ class RequestDetailResponse {
       "arrayChange"
     );
   }
+  requestResponses = [this];
   requestResponseDocs;
 
   responseDocs = ko.pureComputed(() => {
@@ -279,6 +297,18 @@ class RequestDetailResponse {
     );
   });
 
+  checkResponseDocs = (checkResponses) => {
+    this.responseDocs().forEach((responseDoc) => {
+      if (
+        responseDoc.responseDoc.DocumentStatus.Value() ==
+          AuditResponseDocStates.Submitted &&
+        responseDoc.chkApproveResDoc() != checkResponses
+      ) {
+        responseDoc.chkApproveResDoc(checkResponses);
+      }
+    });
+  };
+
   //Response Docs View
   showResponseDocs = ko.observable(false);
 
@@ -303,6 +333,8 @@ class RequestDetailResponseDoc {
     this.request = request;
     this.responseDoc = responseDoc;
   }
+
+  chkApproveResDoc = ko.observable();
 
   request;
   response;

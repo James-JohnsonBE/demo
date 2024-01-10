@@ -222,6 +222,16 @@ ko.bindingHandlers.toggleClick = {
   },
 };
 
+ko.bindingHandlers.toggles = {
+  init: function (element, valueAccessor) {
+    var value = valueAccessor();
+
+    ko.utils.registerEventHandler(element, "click", function () {
+      value(!value());
+    });
+  },
+};
+
 const fromPathTemplateLoader = {
   loadTemplate: function (name, templateConfig, callback) {
     if (templateConfig.fromPath) {
