@@ -281,7 +281,18 @@
         <td data-bind="text: Title.toString()"></td>
         <td data-bind="text: ReceiptDate.toString()"></td>
         <td data-bind="text: FileSizeDisplay.toString()"></td>
-        <td data-bind="text: CheckoutUser.toString()"></td>
+        <td>
+          <!-- ko if: CheckoutUser.Value() -->
+          <span data-bind="text: CheckoutUser.toString()"></span>
+          <button
+            type="button"
+            class="btn btn-link"
+            data-bind="click: $parent.checkInResponseDoc"
+          >
+            Check In
+          </button>
+          <!-- /ko -->
+        </td>
         <td data-bind="text: DocumentStatus.toString()"></td>
         <td data-bind="text: RejectReason.toString()"></td>
         <td data-bind="text: Modified.toString()"></td>

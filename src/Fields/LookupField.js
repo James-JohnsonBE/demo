@@ -38,12 +38,13 @@ export default class LookupField extends BaseField {
   }
 
   init = async () => {
-    this.Options(await this.entitySet.ToList());
+    this.Options = this.entitySet._store;
+    await this.entitySet.ToList();
   };
 
   isSearch = false;
 
-  Options = ko.observableArray();
+  Options;
   IsLoading = ko.observable(false);
   HasLoaded = ko.observable(false);
 

@@ -224,27 +224,31 @@ class EntitySet {
     return this._store();
   };
 
-  LoadEntity = async function (entity) {
+  LoadEntity = async function (entity, refresh = false) {
     if (!entity.ID) {
       console.error("entity missing Id", entity);
       return false;
     }
-    const existingItem = this.FindInStore(entity.ID);
-    if (existingItem == entity) {
+    let cachedEntity = this.FindInStore(entity.ID);
+
+    if (!refresh && cachedEntity == entity) {
       console.warn("entity already in cache");
       return;
     }
 
-    this._store.push(entity);
+    if (!cachedEntity) {
+      cachedEntity = entity;
+      this._store.push(cachedEntity);
+    }
 
-    const result = await this.ListRef.findByIdAsync(
-      entity.ID,
+    const result = await this.ListRef.getById(
+      cachedEntity.ID,
       this.AllDeclaredFields
     );
     if (!result) return null;
 
-    mapObjectToEntity(result, entity);
-    return entity;
+    mapObjectToEntity(result, cachedEntity);
+    return cachedEntity;
   };
 
   // Mutators

@@ -306,4 +306,14 @@ class RequestDetailResponseDoc {
 
   request;
   response;
+
+  checkInResponseDoc = async () => {
+    const result = await appContext.AuditResponseDocs.CheckInDocument(
+      this.responseDoc.FileRef.Value()
+    );
+
+    if (result) {
+      await appContext.AuditResponseDocs.LoadEntity(this.responseDoc, true);
+    }
+  };
 }
