@@ -189,15 +189,15 @@ export async function getUserPropsAsync(userId = _spPageContextInfo.userId) {
   // Get more user info:
   const userInfoUrl = `/Web/GetUserById(${userId})/?$expand=Groups`;
 
-  const userInfo = (await fetchData(userInfoUrl)).d;
+  const userInfo = (await fetchSharePointData(userInfoUrl)).d;
 
   // TODO: See if we can just select the properties we need
   // const userPropsUrl = `/sp.userprofiles.peoplemanager/getpropertiesfor(@v)?@v='${encodeURIComponent(
   //   userInfo.LoginName
   // )}'`;
 
-  const userProps = (await fetchData(userPropsUrl))?.d.UserProfileProperties
-    .results;
+  const userProps = (await fetchSharePointData(userPropsUrl))?.d
+    .UserProfileProperties.results;
 
   function findPropValue(props, key) {
     return props.find((prop) => prop.Key == key)?.Value;
@@ -649,7 +649,7 @@ export function SPList(listDef) {
   async function init() {
     if (!self.config.fieldSchema) {
       const listEndpoint = `/web/lists/GetByTitle('${self.config.def.title}')?$expand=Fields`;
-      const list = await fetchData(listEndpoint);
+      const list = await fetchSharePointData(listEndpoint);
       // const apiEndpoint = `/web/lists/GetByTitle('${self.config.def.title}')/Fields`;
       //const fields = await fetchData(apiEndpoint);
       self.config.guid = list.d.Id;
@@ -976,14 +976,14 @@ export function SPList(listDef) {
 
     const apiEndpoint = `/web/lists/GetByTitle('${self.config.def.title}')/items(${id})?$Select=${queryFields}&$expand=${expandFields}`;
 
-    const result = await fetchData(apiEndpoint);
+    const result = await fetchSharePointData(apiEndpoint);
     return result.d;
   }
 
   async function getListFields() {
     if (!self.config.fieldSchema) {
       const apiEndpoint = `/web/lists/GetByTitle('${self.config.def.title}')/Fields`;
-      const fields = await fetchData(apiEndpoint);
+      const fields = await fetchSharePointData(apiEndpoint);
       self.config.fieldSchema = fields.d.results;
     }
     return self.config.fieldSchema;
@@ -1073,7 +1073,7 @@ export function SPList(listDef) {
       `/web/lists/GetByTitle('${self.config.def.title}')/items?` +
       `${include}&${expand}&${orderBy}&${filter}&${page}`;
 
-    const result = await fetchData(apiEndpoint);
+    const result = await fetchSharePointData(apiEndpoint);
     const cursor = {
       results: result?.d?.results,
       _next: result?.d?.__next,
@@ -1084,7 +1084,7 @@ export function SPList(listDef) {
   }
 
   async function loadNextPage(cursor) {
-    const result = await fetchData(cursor._next);
+    const result = await fetchSharePointData(cursor._next);
     return {
       results: result?.d?.results,
       _next: result?.d?.__next,
@@ -1223,7 +1223,9 @@ export function SPList(listDef) {
 
   async function deleteListItemAsync(id) {
     const apiEndpoint = `/web/lists/GetByTitle('${self.config.def.title}')/items(${id})`;
-    return await fetchData(apiEndpoint, "DELETE", { "If-Match": "*" });
+    return await fetchSharePointData(apiEndpoint, "DELETE", {
+      "If-Match": "*",
+    });
     // return new Promise((resolve, reject) => deleteListItem(id, resolve));
   }
 
@@ -2171,7 +2173,7 @@ export function SPList(listDef) {
 
     let itemUri = result.d.ListItemAllFields.__deferred.uri + "?$select=ID";
 
-    const listItem = await fetchData(itemUri);
+    const listItem = await fetchSharePointData(itemUri);
     return listItem.d.ID;
   }
 
@@ -2248,7 +2250,7 @@ export function SPList(listDef) {
   // Ensure List/Library exists on the site
   async function ensureList() {
     // Query List Title
-    const listInfo = await fetchData(
+    const listInfo = await fetchSharePointData(
       `/web/lists/GetByTitle('${self.config.def.title}')`
     );
   }
@@ -2280,7 +2282,7 @@ export function SPList(listDef) {
   return publicMembers;
 }
 
-async function fetchData(uri, method = "GET", headers = {}) {
+async function fetchSharePointData(uri, method = "GET", headers = {}) {
   const siteEndpoint = uri.startsWith("http")
     ? uri
     : sal.globalConfig.siteUrl + "/_api" + uri;
@@ -2306,3 +2308,5 @@ async function fetchData(uri, method = "GET", headers = {}) {
     return;
   }
 }
+
+window.fetchSharePointData = fetchSharePointData;

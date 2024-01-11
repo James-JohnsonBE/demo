@@ -40,6 +40,8 @@ export async function uploadRequestCoversheetFile(
     );
 
   await breakCoversheetPermissions(newCoversheet);
+
+  return newCoversheet;
 }
 
 function getNewFileNameForSensitivity(

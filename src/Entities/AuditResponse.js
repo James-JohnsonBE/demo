@@ -100,7 +100,7 @@ export class AuditResponse extends ConstrainedEntity {
       "../infrastructure/ApplicationDbContext.js"
     );
 
-    await appContext.AuditResponseDocs.UploadFileToFolderAndUpdateMetadata(
+    return await appContext.AuditResponseDocs.UploadFileToFolderAndUpdateMetadata(
       file,
       file.name,
       this.Title.Value(),

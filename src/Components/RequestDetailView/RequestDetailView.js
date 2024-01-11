@@ -81,13 +81,18 @@ export default class RequestDetailViewModule {
     this.request = request;
     this.requestInternal = requestInternal;
     this.requestCoversheets(
-      requestCoversheets.map((cs) => new RequestDetailCoversheet(cs))
+      requestCoversheets?.map((cs) => new RequestDetailCoversheet(cs)) ?? []
     );
     this.requestResponses(
-      requestResponses.map(
+      requestResponses?.map(
         (response) =>
-          new RequestDetailResponse(this.request, response, this.responseDocs)
-      )
+          new RequestDetailResponse(
+            this.request,
+            response,
+            this.requestCoversheets,
+            this.responseDocs
+          )
+      ) ?? []
     );
 
     this.responseDocs(
@@ -103,6 +108,8 @@ export default class RequestDetailViewModule {
       Object.values(this.tabOpts),
       requestDetailUrlParam
     );
+
+    this.expandResponseDocs.subscribe(this.expandResponseDocsHandler, this);
 
     this.init();
   }
@@ -145,6 +152,7 @@ export default class RequestDetailViewModule {
     this.tabs.selectTab(defaultTab);
   }
 
+  /* Responses Tab */
   addCoversheetFile(file, actionOffices) {}
 
   addResponseHandler() {}
@@ -158,13 +166,21 @@ export default class RequestDetailViewModule {
     const responses = await getRequestResponses(this.request);
     this.requestResponses(
       responses.map(
-        (response) => new RequestDetailResponse(this.request, response)
+        (response) =>
+          new RequestDetailResponse(
+            this.request,
+            response,
+            this.requestCoversheets,
+            this.responseDocs
+          )
       )
     );
   }
 
+  /* Response Docs Tab */
+  expandResponseDocs = ko.observable(false);
+
   _checkResponseDocs = true;
-  /* ResponseDocTab */
   checkResponseDocsHandler() {
     this.requestResponses().forEach((response) => {
       if (
@@ -175,6 +191,14 @@ export default class RequestDetailViewModule {
     });
     this._checkResponseDocs = !this._checkResponseDocs;
   }
+
+  expandResponseDocsHandler(expandDocs) {
+    this.requestResponses().forEach((response) =>
+      response.showResponseDocs(expandDocs)
+    );
+  }
+
+  approveCheckedResponseDocsHandler() {}
 
   dispose() {
     this.requestInternal.activeViewersComponent.removeCurrentuser();
@@ -205,10 +229,12 @@ class RequestDetailCoversheet {
  * This class is composed on top of the AuditResponse entity
  */
 class RequestDetailResponse {
-  constructor(request, response, requestResponseDocs) {
+  constructor(request, response, requestCoversheets, requestResponseDocs) {
     // Object.assign(this, response);
-    (this.request = request), (this.response = response);
+    this.request = request;
+    this.response = response;
     this.requestResponseDocs = requestResponseDocs;
+    this.requestCoversheets = requestCoversheets;
     this.init();
 
     this.responseDocFiles.subscribe(
@@ -245,6 +271,30 @@ class RequestDetailResponse {
     if (newFiles.length) this.uploadResponseDocFiles(newFiles);
   };
 
+  uploadResponseDocFiles = async (files) => {
+    const promises = [];
+
+    // for (let file of files) {
+    //   promises.push(this.response.uploadResponseDocFile(file));
+    // }
+
+    for (let file of files) {
+      promises.push(
+        new Promise(async (resolve) => {
+          const newDoc = await this.response.uploadResponseDocFile(file);
+          this.requestResponseDocs.push(
+            new RequestDetailResponseDoc(this.request, newDoc)
+          );
+          resolve();
+        })
+      );
+    }
+
+    await Promise.all(promises);
+
+    this.responseDocFiles.removeAll();
+  };
+
   responseCoversheetFilesChangeHandler = (fileChanges) => {
     const newFiles = fileChanges
       .filter((file) => file.status == "added")
@@ -253,25 +303,20 @@ class RequestDetailResponse {
     if (newFiles.length) this.uploadResponseCoversheetFiles(newFiles);
   };
 
-  uploadResponseDocFiles = async (files) => {
-    const promises = [];
-
-    for (let file of files) {
-      promises.push(this.response.uploadResponseDocFile(file));
-    }
-    await Promise.all(promises);
-
-    this.responseDocFiles.removeAll();
-  };
-
   uploadResponseCoversheetFiles = async (files) => {
     const promises = [];
 
     for (let file of files) {
       promises.push(
-        uploadRequestCoversheetFile(file, this.request, [
-          this.response.ActionOffice.Value(),
-        ])
+        new Promise(async (resolve) => {
+          const newSheet = await uploadRequestCoversheetFile(
+            file,
+            this.request,
+            [this.response.ActionOffice.Value()]
+          );
+          this.requestCoversheets.push(new RequestDetailCoversheet(newSheet));
+          resolve();
+        })
       );
     }
 
@@ -334,7 +379,7 @@ class RequestDetailResponseDoc {
     this.responseDoc = responseDoc;
   }
 
-  chkApproveResDoc = ko.observable();
+  chkApproveResDoc = ko.observable(false);
 
   request;
   response;

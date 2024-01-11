@@ -28,7 +28,7 @@ class BulkAddRequestPage {
   async Init() {
     // TODO: need to initialize audit organizations store
     await appContext.AuditOrganizations.ToList();
-    await LoadInfo();
+    // await LoadInfo();
     this.fetchBulkRequests();
   }
 
