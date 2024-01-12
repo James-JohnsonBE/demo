@@ -8,14 +8,22 @@ export function registerComponent({
   if (ko.components.isRegistered(name)) {
     return;
   }
-  ko.components.register(name, {
-    template: {
-      fromPath: `/components/${folder}/${templateFilename}.html`,
-    },
-    viewModel: module ?? {
-      viaLoader: `/components/${folder}/${moduleFilename}.js`,
-    },
-  });
+  if (moduleFilename || module) {
+    ko.components.register(name, {
+      template: {
+        fromPath: `/components/${folder}/${templateFilename}.html`,
+      },
+      viewModel: module ?? {
+        viaLoader: `/components/${folder}/${moduleFilename}.js`,
+      },
+    });
+  } else {
+    ko.components.register(name, {
+      template: {
+        fromPath: `/components/${folder}/${templateFilename}.html`,
+      },
+    });
+  }
 }
 
 export function registerFieldComponent(name, components) {

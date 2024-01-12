@@ -34,7 +34,7 @@ div.cell-margin {
 }
 
 /* Properties */
-div.audit {
+.audit {
   --bg-dark-color: #1d2b36;
   --bg-dark-secondary-color: #2a3c48;
 

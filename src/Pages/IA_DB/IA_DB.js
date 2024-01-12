@@ -5,6 +5,11 @@ import { setUrlParam } from "../../common/Router.js";
 import { CommentChainModuleDeprecated } from "../../components/CommentChain/CommentChainModule.js";
 import { ActiveViewersModuleDeprecated } from "../../components/ActiveViewers/ActiveViewersModule.js";
 
+import {
+  currentDialog,
+  showModalDialog,
+} from "../../infrastructure/ModalDialog.js";
+
 import { AuditRequest } from "../../entities/AuditRequest.js";
 import { NewRequestFormComponent } from "../../components/NewRequestForm/NewRequestForm.js";
 import { RequestDetailViewComponent } from "../../components/RequestDetailView/RequestDetailView.js";
@@ -229,6 +234,8 @@ Audit.IAReport.NewReportPage = function () {
         responseModified
       );
     });
+
+    self.currentDialog = currentDialog;
 
     self.requestDetailViewComponent = new RequestDetailViewComponent({
       currentRequest: self.currentRequest,
@@ -549,26 +556,12 @@ Audit.IAReport.NewReportPage = function () {
       }, 200);
     };
 
-    self.clickNewRequestHandler = () => {};
-    self.clickBulkAddRequestHandler = () => {
-      if (!m_bIsSiteOwner) {
-        SP.UI.Notify.addNotification(
-          "You do not have access to perform this action...",
-          false
-        );
-        return;
-      }
+    self.ClickNewRequest = () => {
+      m_fnCreateRequest();
+    };
 
-      m_bIsTransactionExecuting = true;
-
-      var options = SP.UI.$create_DialogOptions();
-      options.title = "Bulk Add Requests";
-      // options.dialogReturnValueCallback = m_fnRefresh;
-      options.height = 800;
-      options.url =
-        Audit.Common.Utilities.GetSiteUrl() + "/pages/AuditBulkAddRequest.aspx";
-
-      SP.UI.ModalDialog.showModalDialog(options);
+    self.ClickBulkAddRequest = () => {
+      m_fnBulkAddRequest();
     };
 
     self.ClickGoToRequest = function (oRequest) {
@@ -3031,6 +3024,25 @@ Audit.IAReport.NewReportPage = function () {
       return;
     }
 
+    const newRequestForm = new NewRequestFormComponent();
+    const options = {
+      title: "Test Title",
+      form: newRequestForm,
+      dialogReturnValueCallback: OnCallbackFormNewRequest,
+    };
+
+    showModalDialog(options);
+  }
+
+  function m_fnCreateRequestDep() {
+    if (!m_bIsSiteOwner) {
+      SP.UI.Notify.addNotification(
+        "You do not have access to perform this action...",
+        false
+      );
+      return;
+    }
+
     m_bIsTransactionExecuting = true;
 
     var formName = "CustomNewForm.aspx";
@@ -3046,6 +3058,27 @@ Audit.IAReport.NewReportPage = function () {
       formName +
       "?Source=" +
       location.pathname;
+
+    SP.UI.ModalDialog.showModalDialog(options);
+  }
+
+  function m_fnBulkAddRequest() {
+    if (!m_bIsSiteOwner) {
+      SP.UI.Notify.addNotification(
+        "You do not have access to perform this action...",
+        false
+      );
+      return;
+    }
+
+    m_bIsTransactionExecuting = true;
+
+    var options = SP.UI.$create_DialogOptions();
+    options.title = "Bulk Add Requests";
+    // options.dialogReturnValueCallback = m_fnRefresh;
+    options.height = 800;
+    options.url =
+      Audit.Common.Utilities.GetSiteUrl() + "/pages/AuditBulkAddRequest.aspx";
 
     SP.UI.ModalDialog.showModalDialog(options);
   }

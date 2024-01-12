@@ -357,7 +357,7 @@
           <a
             id="linkSubmitBulkReq"
             href="javascript:void(0)"
-            data-bind="click: clickBulkAddRequestHandler"
+            data-bind="click: ClickBulkAddRequest"
             ><span class="ui-icon ui-icon-plus"></span>Bulk Add Request</a
           >
         </div>
@@ -365,7 +365,7 @@
           <a
             id="linkSubmitNewReq"
             href="javascript:void(0)"
-            data-bind="click: clickNewRequestHandler"
+            data-bind="click: ClickNewRequest"
             ><span class="ui-icon ui-icon-plus"></span>Create a New Request</a
           >
         </div>

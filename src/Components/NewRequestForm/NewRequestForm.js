@@ -8,9 +8,11 @@ import { AddNewRequest } from "../../services/AuditRequestService.js";
 export const newRequestFormComponentName = "newRequestForm";
 
 export class NewRequestFormComponent {
-  constructor({ onSubmitSuccess }) {
-    this.onSubmitSuccess = onSubmitSuccess;
+  constructor(params) {
+    this.onComplete = params?.onComplete;
   }
+
+  onComplete;
 
   newRequest = ko.observable(new AuditRequest());
 
@@ -18,7 +20,7 @@ export class NewRequestFormComponent {
     return {
       newRequest: this.newRequest,
       reset: this.reset,
-      onSubmitSuccess: this.onSubmitSuccess,
+      onComplete: this.onComplete,
     };
   });
 
@@ -26,10 +28,10 @@ export class NewRequestFormComponent {
 }
 
 export default class NewRequestFormModule extends ConstrainedEntityView {
-  constructor({ newRequest, onSubmitSuccess }) {
+  constructor({ newRequest, onComplete }) {
     super({ entity: newRequest, view: AuditRequest.Views.New });
 
-    this.onSubmitSuccess = onSubmitSuccess;
+    this.onComplete = onComplete;
 
     this.init();
   }
@@ -67,7 +69,7 @@ export default class NewRequestFormModule extends ConstrainedEntityView {
 
     try {
       await AddNewRequest(request);
-      this.onSubmitSuccess(SP.UI.DialogResult.OK);
+      this.onComplete(SP.UI.DialogResult.OK);
     } catch (e) {
       alert(e);
     }

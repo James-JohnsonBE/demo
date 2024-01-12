@@ -83,6 +83,25 @@
 
 <!-- TODO: Break these out into their individual files! -->
 
+<dialog id="dlgModalDialog" class="audit card">
+  <div data-bind="with: currentDialog" class="audit">
+    <h2 data-bind="text: title"></h2>
+    <div
+      data-bind="component: { name: form.componentName, params: form.params }"
+    ></div>
+    <div class="modal-actions">
+      <button
+        style
+        type="button"
+        class="btn btn-danger"
+        data-bind="click: close"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+</dialog>
+
 <template id="componentUploadDoc">
   <!-- ko if: isUploading -->
   <progress></progress>
