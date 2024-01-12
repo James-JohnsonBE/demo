@@ -1,5 +1,3 @@
-import { ConstrainedEntityComponent } from "../components/ConstrainedEntity/ConstrainedEntityModule.js";
-import { ConstrainedEntityView } from "./ConstrainedEntityView.js";
 import Entity from "./Entity.js";
 import BaseField from "../fields/BaseField.js";
 
@@ -60,22 +58,25 @@ export default class ConstrainedEntity extends Entity {
    * Expose methods to generate default new, edit, and view forms
    * for a constrained entity. Uses the constrained
    * entity components.
+   *
+   * This could be broken into a separate service, but since it's
+   * tightly coupled leave it here?
    */
-  static components = {
-    new: (entity, view = null) =>
-      new ConstrainedEntityComponent({
-        entityView: new ConstrainedEntityView({ entity, view }),
-        displayMode: "edit",
-      }),
-    edit: (entity, view = null) =>
-      new ConstrainedEntityComponent({
-        entityView: new ConstrainedEntityView({ entity, view }),
-        displayMode: "edit",
-      }),
-    view: (entity, view = null) =>
-      new ConstrainedEntityComponent({
-        entityView: new ConstrainedEntityView({ entity, view }),
-        displayMode: "view",
-      }),
-  };
+  // static components = {
+  //   new: (entity, view = null) =>
+  //     new ConstrainedEntityComponent({
+  //       entityView: new ConstrainedEntityView({ entity, view }),
+  //       displayMode: "edit",
+  //     }),
+  //   edit: (entity, view = null) =>
+  //     new ConstrainedEntityComponent({
+  //       entityView: new ConstrainedEntityView({ entity, view }),
+  //       displayMode: "edit",
+  //     }),
+  //   view: (entity, view = null) =>
+  //     new ConstrainedEntityComponent({
+  //       entityView: new ConstrainedEntityView({ entity, view }),
+  //       displayMode: "view",
+  //     }),
+  // };
 }

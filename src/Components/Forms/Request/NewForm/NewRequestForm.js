@@ -1,9 +1,9 @@
-import { AuditRequest } from "../../entities/AuditRequest.js";
-import { appContext } from "../../infrastructure/ApplicationDbContext.js";
-import { registerComponent } from "../../infrastructure/RegisterComponents.js";
-import { ConstrainedEntityView } from "../../primitives/ConstrainedEntityView.js";
-import { ValidationError } from "../../primitives/ValidationError.js";
-import { AddNewRequest } from "../../services/AuditRequestService.js";
+import { AuditRequest } from "../../../../entities/AuditRequest.js";
+import { appContext } from "../../../../infrastructure/ApplicationDbContext.js";
+import { registerComponent } from "../../../../infrastructure/RegisterComponents.js";
+import { ValidationError } from "../../../../primitives/ValidationError.js";
+import { AddNewRequest } from "../../../../services/AuditRequestService.js";
+import { BaseForm } from "../../BaseForm.js";
 
 export const newRequestFormComponentName = "newRequestForm";
 
@@ -27,7 +27,7 @@ export class NewRequestFormComponent {
   componentName = newRequestFormComponentName;
 }
 
-export default class NewRequestFormModule extends ConstrainedEntityView {
+export default class NewRequestFormModule extends BaseForm {
   constructor({ newRequest, onComplete }) {
     super({ entity: newRequest, view: AuditRequest.Views.New });
 

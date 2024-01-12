@@ -1,5 +1,4 @@
-// We can use these as partial views of entities, where we don't want to show all fields etc
-export class ConstrainedEntityView {
+export class BaseForm {
   constructor({ entity = null, view = null }) {
     this.entity = entity;
     this.view = view ?? entity.constructor.Views.All;
@@ -22,6 +21,7 @@ export class ConstrainedEntityView {
   };
 
   ShowErrors = ko.observable(false);
+
   Errors = ko.pureComputed(() => {
     return Object.values(this.FormFields())
       .filter((field) => field?.Errors && field.Errors())

@@ -5,13 +5,11 @@ import { setUrlParam } from "../../common/Router.js";
 import { CommentChainModuleDeprecated } from "../../components/CommentChain/CommentChainModule.js";
 import { ActiveViewersModuleDeprecated } from "../../components/ActiveViewers/ActiveViewersModule.js";
 
-import {
-  currentDialog,
-  showModalDialog,
-} from "../../infrastructure/ModalDialog.js";
+import * as ModalDialog from "../../infrastructure/ModalDialog.js";
+import * as FormManager from "../../services/FormManager.js";
 
 import { AuditRequest } from "../../entities/AuditRequest.js";
-import { NewRequestFormComponent } from "../../components/NewRequestForm/NewRequestForm.js";
+import { NewRequestFormComponent } from "../../components/Forms/Request/NewForm/NewRequestForm.js";
 import { RequestDetailViewComponent } from "../../components/RequestDetailView/RequestDetailView.js";
 
 var Audit = window.Audit || {};
@@ -235,7 +233,7 @@ Audit.IAReport.NewReportPage = function () {
       );
     });
 
-    self.currentDialog = currentDialog;
+    self.currentDialog = ModalDialog.currentDialog;
 
     self.requestDetailViewComponent = new RequestDetailViewComponent({
       currentRequest: self.currentRequest,
@@ -3026,40 +3024,12 @@ Audit.IAReport.NewReportPage = function () {
 
     const newRequestForm = new NewRequestFormComponent();
     const options = {
-      title: "Test Title",
+      title: "Create a New Request",
       form: newRequestForm,
       dialogReturnValueCallback: OnCallbackFormNewRequest,
     };
 
-    showModalDialog(options);
-  }
-
-  function m_fnCreateRequestDep() {
-    if (!m_bIsSiteOwner) {
-      SP.UI.Notify.addNotification(
-        "You do not have access to perform this action...",
-        false
-      );
-      return;
-    }
-
-    m_bIsTransactionExecuting = true;
-
-    var formName = "CustomNewForm.aspx";
-    var options = SP.UI.$create_DialogOptions();
-    options.title = "Create a new Request";
-    options.dialogReturnValueCallback = OnCallbackFormNewRequest;
-
-    options.url =
-      Audit.Common.Utilities.GetSiteUrl() +
-      "/Lists/" +
-      Audit.Common.Utilities.GetListNameRequests() +
-      "/" +
-      formName +
-      "?Source=" +
-      location.pathname;
-
-    SP.UI.ModalDialog.showModalDialog(options);
+    ModalDialog.showModalDialog(options);
   }
 
   function m_fnBulkAddRequest() {
@@ -3083,7 +3053,22 @@ Audit.IAReport.NewReportPage = function () {
     SP.UI.ModalDialog.showModalDialog(options);
   }
 
-  function m_fnViewRequest(id) {
+  async function m_fnViewRequest(id) {
+    m_bIsTransactionExecuting = true;
+
+    const request = await appContext.AuditRequests.FindById(id);
+    // const requestViewForm = AuditRequest.components.view(request);
+    const requestViewForm = FormManager.DispForm(request);
+
+    const options = {
+      title: "View Request (ID:" + id + ")",
+      form: requestViewForm,
+      dialogReturnValueCallback: OnCallbackForm,
+    };
+
+    ModalDialog.showModalDialog(options);
+  }
+  function m_fnViewRequestDep(id) {
     m_bIsTransactionExecuting = true;
 
     var formName = "DispForm.aspx";

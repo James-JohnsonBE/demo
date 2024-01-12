@@ -3,8 +3,8 @@
     <div
       class="col pb-3"
       data-bind="component: {
-          name: components[$parent.displayMode], params: $data}, 
-          class: width"
+            name: components[$parent.displayMode()], params: $data}, 
+            class: width"
     ></div>
   </div>
 </div>
