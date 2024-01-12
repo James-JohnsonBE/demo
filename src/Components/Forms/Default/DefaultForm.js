@@ -15,11 +15,11 @@ export class DefaultForm extends BaseForm {
 
   displayMode = ko.observable();
 
-  onSubmit() {}
+  clickSubmit() {}
 
-  onCancel() {}
+  clickCancel() {}
 
-  onClear() {}
+  clickClear() {}
 
   params = this;
   componentName = componentName;

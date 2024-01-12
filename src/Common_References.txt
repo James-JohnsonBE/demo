@@ -92,7 +92,7 @@
 <!-- TODO: Break these out into their individual files! -->
 <div class="audit">
   <dialog id="dlgModalDialog" class="card bg-dark">
-    <div data-bind="with: currentDialog" class="audit">
+    <div data-bind="with: currentDialog" class="audit bg-dark">
       <div class="card-header">
         <h2 class="card-title" data-bind="text: title"></h2>
         <h2 class="card-title">

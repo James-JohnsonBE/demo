@@ -168,16 +168,23 @@ div.cell-margin {
   max-width: 300px;
 }
 
+.form-field-component .sp-peoplepicker-topLevel {
+  width: 100%;
+}
+
 .card {
   border: 1px solid var(--primary-color);
   border-radius: 6px;
-  padding: 1.5rem;
 }
 
 .card .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background-color: inherit;
+  position: sticky;
+  top: 0;
+  padding: 1.5rem 1.5rem 0.5rem 1.5rem;
 }
 
 .card .card-title {
@@ -186,7 +193,7 @@ div.cell-margin {
 }
 
 .card .card-body {
-  margin-top: 1rem;
+  padding: 0.5rem 1.5rem;
 }
 .card .card-body > div {
   padding: 0;
@@ -196,7 +203,7 @@ div.cell-margin {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
-  margin-top: 1rem;
+  padding: 0.5rem 1.5rem 1.5rem 1.5rem;
 }
 
 .card .card-actions button {
@@ -205,6 +212,8 @@ div.cell-margin {
 
 #dlgModalDialog {
   min-width: 400px;
+  max-height: 85vh;
+  padding: 0;
 }
 
 fieldset {

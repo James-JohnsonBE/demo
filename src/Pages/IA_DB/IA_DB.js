@@ -11,6 +11,7 @@ import * as FormManager from "../../services/FormManager.js";
 import { AuditRequest } from "../../entities/AuditRequest.js";
 import { NewRequestFormComponent } from "../../components/Forms/Request/NewForm/NewRequestForm.js";
 import { RequestDetailViewComponent } from "../../components/RequestDetailView/RequestDetailView.js";
+import { EditRequestForm } from "../../components/Forms/Request/EditForm/EditRequestForm.js";
 
 var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
@@ -3068,6 +3069,7 @@ Audit.IAReport.NewReportPage = function () {
 
     ModalDialog.showModalDialog(options);
   }
+
   function m_fnViewRequestDep(id) {
     m_bIsTransactionExecuting = true;
 
@@ -3090,7 +3092,31 @@ Audit.IAReport.NewReportPage = function () {
     SP.UI.ModalDialog.showModalDialog(options);
   }
 
-  function m_fnEditRequest(id, requestNum) {
+  async function m_fnEditRequest(id, requestNum) {
+    if (!m_bIsSiteOwner) {
+      SP.UI.Notify.addNotification(
+        "You do not have access to perform this action...",
+        false
+      );
+      return;
+    }
+
+    m_bIsTransactionExecuting = true;
+
+    m_itemID = id;
+    m_requestNum = requestNum;
+
+    const request = await appContext.AuditRequests.FindById(id);
+    const form = new EditRequestForm({ entity: request });
+    const options = {
+      title: "Edit Request (" + requestNum + ")",
+      form,
+      dialogReturnValueCallback: OnCallbackFormEditRequest,
+    };
+    ModalDialog.showModalDialog(options);
+  }
+
+  function m_fnEditRequestDep(id, requestNum) {
     if (!m_bIsSiteOwner) {
       SP.UI.Notify.addNotification(
         "You do not have access to perform this action...",
