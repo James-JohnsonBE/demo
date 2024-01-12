@@ -158,6 +158,14 @@ div.cell-margin {
   justify-content: space-between;
 }
 
+.audit-form .form-fields.two-wide {
+  max-width: 550px;
+}
+
+.audit-form .form-fields.two-wide .form-field-component {
+  width: 45%;
+}
+
 .audit-form .form-actions {
   display: flex;
   justify-content: end;
@@ -166,6 +174,10 @@ div.cell-margin {
 
 .audit-form .form-field-component {
   max-width: 300px;
+}
+
+.form-field-component .form-control {
+  width: 100%;
 }
 
 .form-field-component .sp-peoplepicker-topLevel {
