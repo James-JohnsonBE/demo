@@ -64,6 +64,14 @@
 <!-- /SharePoint Cruft -->
 
 <script
+  defer
+  src="/sites/CGFS/Style Library/apps/audit/lib/fontawesome-6.5.1/js/fontawesome.min.js"
+></script>
+<script
+  defer
+  src="/sites/CGFS/Style Library/apps/audit/lib/fontawesome-6.5.1/js/solid.min.js"
+></script>
+<script
   type="text/javascript"
   src="/sites/CGFS/Style Library/apps/audit/lib/tablesorter-2.31.3/js/jquery.tablesorter.min.js"
 ></script>
@@ -82,40 +90,52 @@
 ></script>
 
 <!-- TODO: Break these out into their individual files! -->
-
-<dialog id="dlgModalDialog" class="audit card">
-  <div data-bind="with: currentDialog" class="audit">
-    <h2 data-bind="text: title"></h2>
-    <div
-      data-bind="component: { name: form.componentName, params: form.params }"
-    ></div>
-    <div class="modal-actions">
-      <button
-        style
-        type="button"
-        class="btn btn-danger"
-        data-bind="click: close"
-      >
-        Close
-      </button>
+<div class="audit">
+  <dialog id="dlgModalDialog" class="card bg-dark">
+    <div data-bind="with: currentDialog" class="audit">
+      <div class="card-header">
+        <h2 class="card-title" data-bind="text: title"></h2>
+        <h2 class="card-title">
+          <i class="fa-solid fa-xmark pointer" data-bind="click: close"></i>
+        </h2>
+      </div>
+      <div
+        class="card-body"
+        data-bind="component: { name: form.componentName, params: form.params }"
+      ></div>
+      <div class="card-actions">
+        <button
+          style
+          type="button"
+          class="btn btn-danger"
+          data-bind="click: close"
+        >
+          Cancel
+        </button>
+      </div>
     </div>
-  </div>
-</dialog>
+  </dialog>
 
-<template id="componentUploadDoc">
-  <!-- ko if: isUploading -->
-  <progress></progress>
-  <!-- /ko -->
-  <!-- ko ifnot: isUploading -->
-  <label class="file-upload-field">
-    <span data-bind="text: label"></span>
-    <div class="dropzone" data-bind="">Drop Files Here</div>
-    <input class="file-upload" type="file" multiple data-bind="files: files" />
-  </label>
-  <!-- <button type="button" data-bind="click: submit">Submit</button> -->
-  <!-- /ko -->
-  <div data-bind="text: message"></div>
-</template>
+  <template id="componentUploadDoc">
+    <!-- ko if: isUploading -->
+    <progress></progress>
+    <!-- /ko -->
+    <!-- ko ifnot: isUploading -->
+    <label class="file-upload-field">
+      <span data-bind="text: label"></span>
+      <div class="dropzone" data-bind="">Drop Files Here</div>
+      <input
+        class="file-upload"
+        type="file"
+        multiple
+        data-bind="files: files"
+      />
+    </label>
+    <!-- <button type="button" data-bind="click: submit">Submit</button> -->
+    <!-- /ko -->
+    <div data-bind="text: message"></div>
+  </template>
+</div>
 
 <style>
   .dropzone {

@@ -83,7 +83,7 @@ export default class NewRequestFormModule extends BaseForm {
 
 registerComponent({
   name: newRequestFormComponentName,
-  folder: "NewRequestForm",
+  folder: "Forms/Request/NewForm",
   module: NewRequestFormModule,
   template: "NewRequestFormTemplate",
 });

@@ -3,8 +3,8 @@
   "deploy.reloaded": {
     "packages": [
       {
-        "name": "Version 2.0",
-        "description": "Package version 2.0",
+        "name": "App Files",
+        "description": "Application Source Files",
         "files": ["lib/**", "src/**"],
         "exclude": ["**.md", "**.json"],
 

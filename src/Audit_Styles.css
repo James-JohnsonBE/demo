@@ -219,13 +219,22 @@ select.form-select {
 }
 
 /* Utilities */
+.pointer {
+  cursor: pointer;
+}
 
 .white {
   color: white;
 }
 
+.bg-dark {
+  background-color: var(--bg-dark-color);
+  color: white;
+}
+
 .bg-dark-secondary {
   background-color: var(--bg-dark-secondary-color);
+  color: white;
 }
 
 .flex {

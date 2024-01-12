@@ -13,7 +13,7 @@
       </div>
       <!-- /ko -->
     </div>
-    <div class="request-info request-form">
+    <div class="request-info audit-form bg-dark">
       <div class="form-title">
         <h3 class="white">Audit Request Details</h3>
       </div>
@@ -51,7 +51,9 @@
             ></div>
           </div>
           <div class="vertical form-fields">
-            <div class="vertical form-fields emphasized-section">
+            <div
+              class="vertical form-fields emphasized-section bg-dark-secondary"
+            >
               <div
                 class="form-field-component"
                 data-bind="component: {name: ReqStatus.components.view,  params: ReqStatus}"
@@ -382,7 +384,7 @@
     flex-grow: 1;
   }
 
-  .request-form .emphasized-section {
+  .audit-form .emphasized-section {
     padding: 1.5rem;
     background-color: var(--bg-dark-secondary-color);
   }

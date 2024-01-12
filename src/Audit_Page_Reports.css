@@ -135,34 +135,76 @@ div.cell-margin {
   display: revert;
 }
 
-.request-form {
-  background-color: var(--bg-dark-color);
-  color: white;
+.audit-form {
   padding: 1.5rem;
+  max-width: 830px;
 }
 
-.request-form .form-title {
+.audit-form .form-title {
   width: 100%;
 }
 
-.request-form .form-row {
+.audit-form .form-row {
   display: flex;
   justify-content: space-between;
   gap: 1.5rem;
 }
 
-.request-form .form-fields {
+.audit-form .form-fields {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  padding: 1.5rem 0;
+  /* padding: 1.5rem 0; */
   justify-content: space-between;
 }
 
-.request-form .form-actions {
+.audit-form .form-actions {
   display: flex;
   justify-content: end;
-  padding: 2rem;
+  padding: 2rem 0;
+}
+
+.audit-form .form-field-component {
+  max-width: 300px;
+}
+
+.card {
+  border: 1px solid var(--primary-color);
+  border-radius: 6px;
+  padding: 1.5rem;
+}
+
+.card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card .card-title {
+  color: inherit;
+  margin: 0;
+}
+
+.card .card-body {
+  margin-top: 1rem;
+}
+.card .card-body > div {
+  padding: 0;
+}
+
+.card .card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.card .card-actions button {
+  /* padding: 0; */
+}
+
+#dlgModalDialog {
+  min-width: 400px;
 }
 
 fieldset {

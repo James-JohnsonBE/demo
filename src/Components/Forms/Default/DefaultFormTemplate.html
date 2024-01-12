@@ -1,7 +1,7 @@
-<div>
-  <div class="row mb-2" data-bind="foreach: FormFields">
+<div class="audit-form">
+  <div class="form-fields vertical" data-bind="foreach: FormFields">
     <div
-      class="col pb-3"
+      class="form-field-component"
       data-bind="component: {
             name: components[$parent.displayMode()], params: $data}, 
             class: width"
