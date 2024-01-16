@@ -32,28 +32,11 @@ export default class NewRequestFormModule extends BaseForm {
     super({ entity: newRequest, view: AuditRequest.Views.New });
 
     this.onComplete = onComplete;
-
-    this.init();
   }
 
   saving = ko.observable(false);
 
-  init() {
-    const request = this.entity();
-    const internalDueDate = request.FieldMap.InternalDueDate.Value;
-    const reqDueDate = request.FieldMap.ReqDueDate.Value;
-
-    request.FieldMap.InternalDueDate.addFieldRequirement({
-      requirement: ko.pureComputed(() => {
-        return internalDueDate() > reqDueDate();
-      }),
-      error: new ValidationError(
-        "text-field",
-        "required-field",
-        "The Internal Due Date must be before the Request Due Date!"
-      ),
-    });
-  }
+  init() {}
 
   async clickSubmit() {
     this.saving(true);
@@ -77,7 +60,6 @@ export default class NewRequestFormModule extends BaseForm {
 
   clearForm() {
     this.entity(new AuditRequest());
-    this.init();
   }
 }
 

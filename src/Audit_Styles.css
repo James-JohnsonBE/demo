@@ -154,6 +154,7 @@ button.btn {
   /* text-transform: uppercase; */
   font-weight: 500;
   border: none;
+  margin-left: 0;
 }
 
 button.btn[disabled] {
@@ -164,7 +165,11 @@ button.btn.btn-link {
   color: #0072c6;
   border: none;
   font-weight: normal;
+  background-color: inherit;
   padding: 0;
+  min-width: 0;
+  vertical-align: inherit;
+  font-size: inherit;
 }
 
 button.btn.btn-link:hover {
@@ -245,6 +250,10 @@ select.form-select {
   flex-direction: column;
 }
 
+.justify-between {
+  justify-content: space-between;
+}
+
 .bigrounded {
   -webkit-border-radius: 2em;
   -moz-border-radius: 2em;
@@ -271,6 +280,10 @@ select.form-select {
 }
 .fw-semibold {
   font-weight: 600;
+}
+
+.h-1 {
+  height: 1rem;
 }
 
 .text-danger {

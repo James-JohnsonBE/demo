@@ -4,6 +4,8 @@ export class BaseForm {
     this.view = view ?? entity.constructor.Views.All;
   }
 
+  saving = ko.observable(false);
+
   FormFields = ko.pureComputed(() => {
     const entity = ko.utils.unwrapObservable(this.entity);
     return Object.entries(entity.FieldMap)

@@ -260,7 +260,7 @@ Audit.IAReport.NewReportPage = function () {
       NewRequest: new Tab("new-request", "New Request", {
         id: "newRequestTemplate",
         data: new NewRequestFormComponent({
-          onSubmitSuccess: OnCallbackFormNewRequest,
+          onComplete: OnCallbackFormNewRequest,
         }),
       }),
     };
@@ -5002,10 +5002,10 @@ Audit.IAReport.NewReportPage = function () {
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
 
-    this.currentUser = web.get_currentUser();
-    this.ownerGroup = web.get_associatedOwnerGroup();
-    this.memberGroup = web.get_associatedMemberGroup();
-    this.visitorGroup = web.get_associatedVisitorGroup();
+    const currentUser = web.get_currentUser();
+    const ownerGroup = web.get_associatedOwnerGroup();
+    const memberGroup = web.get_associatedMemberGroup();
+    const visitorGroup = web.get_associatedVisitorGroup();
 
     oListItem.resetRoleInheritance();
     oListItem.breakRoleInheritance(false, false);
@@ -5035,15 +5035,13 @@ Audit.IAReport.NewReportPage = function () {
     );
 
     //add site associated groups
+    oListItem.get_roleAssignments().add(ownerGroup, roleDefBindingCollAdmin);
     oListItem
       .get_roleAssignments()
-      .add(this.ownerGroup, roleDefBindingCollAdmin);
+      .add(memberGroup, roleDefBindingCollContribute);
     oListItem
       .get_roleAssignments()
-      .add(this.memberGroup, roleDefBindingCollContribute);
-    oListItem
-      .get_roleAssignments()
-      .add(this.visitorGroup, roleDefBindingCollRestrictedRead);
+      .add(visitorGroup, roleDefBindingCollRestrictedRead);
 
     var spGroupQA = Audit.Common.Utilities.GetSPSiteGroup(
       Audit.Common.Utilities.GetGroupNameQA()
@@ -5053,10 +5051,7 @@ Audit.IAReport.NewReportPage = function () {
         .get_roleAssignments()
         .add(spGroupQA, roleDefBindingCollRestrictedContribute);
 
-    oListItem
-      .get_roleAssignments()
-      .getByPrincipal(this.currentUser)
-      .deleteObject();
+    oListItem.get_roleAssignments().getByPrincipal(currentUser).deleteObject();
 
     function onUpdateEmailFolderPermsSucceeed() {
       if (this.oRequestItem) {

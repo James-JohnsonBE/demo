@@ -13,12 +13,16 @@
     id=""
     multiple="true"
     data-bind="options: Options, 
-    optionsCaption: 'Select...', 
     selectedOptions: Value,
     optionsText: optionsText,
     class: ValidationClass"
   ></select>
-  <div class="fst-italic fw-light">Hold ctrl to select multiple.</div>
+  <div class="fw-light flex justify-between">
+    <p class="fst-italic">Hold ctrl to select multiple</p>
+    <button type="button" class="btn btn-link h-1" data-bind="click: clear">
+      CLEAR
+    </button>
+  </div>
   <!-- /ko -->
   <!-- ko ifnot: multiple -->
   <select

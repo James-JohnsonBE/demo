@@ -5,6 +5,7 @@ import { ItemPermissions } from "../infrastructure/SAL.js";
 import { AuditResponseStates } from "../entities/AuditResponse.js";
 import { People } from "../entities/People.js";
 import { AuditRequestsInternal } from "../entities/AuditRequestsInternal.js";
+import { AuditRequest } from "../entities/AuditRequest.js";
 
 export async function AddNewRequest(request) {
   const fields = request.FieldMap;
@@ -36,6 +37,13 @@ export async function onAddNewRequest(request) {
     ensureAuditEmailFolder(request),
     ensureRequestInternalItem(request),
   ]);
+}
+
+export async function updateRequest(request) {
+  await appContext.AuditRequests.UpdateEntity(
+    request,
+    AuditRequest.Views.AOCanUpdate
+  );
 }
 
 async function ensureAuditEmailFolder(request) {

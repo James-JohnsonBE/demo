@@ -8,11 +8,24 @@ import CheckboxField from "../fields/CheckboxField.js";
 import TextAreaField from "../fields/TextAreaField.js";
 import ConstrainedEntity from "../primitives/ConstrainedEntity.js";
 import BaseField from "../fields/BaseField.js";
+
+import { ValidationError } from "../primitives/ValidationError.js";
 // import { appContext } from "../infrastructure/ApplicationDbContext.js";
 
 export class AuditRequest extends ConstrainedEntity {
   constructor(params) {
     super(params);
+
+    this.InternalDueDate.addFieldRequirement({
+      requirement: ko.pureComputed(() => {
+        return this.InternalDueDate.Value() > this.ReqDueDate.Value();
+      }),
+      error: new ValidationError(
+        "text-field",
+        "required-field",
+        "The Internal Due Date must be before the Request Due Date!"
+      ),
+    });
   }
 
   ReqNum = new TextField({
@@ -170,7 +183,27 @@ export class AuditRequest extends ConstrainedEntity {
       "Sensitivity",
       "ActionOffice",
     ],
+    AOCanUpdate: [
+      "ReqSubject",
+      "FiscalYear",
+      "InternalDueDate",
+      "ReqDueDate",
+      "ReqStatus",
+      "IsSample",
+      "ReceiptDate",
+      "MemoDate",
+      "RelatedAudit",
+      "ActionItems",
+      "Comments",
+      "Reminders",
+      "Sensitivity",
+      "ActionOffice",
+      "EmailActionOffice",
+      "ClosedBy",
+      "ClosedDate",
+    ],
   };
+
   static ListDef = {
     name: "AuditRequests",
     title: "AuditRequests",

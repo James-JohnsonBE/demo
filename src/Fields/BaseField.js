@@ -25,6 +25,10 @@ export default class BaseField {
 
   get = () => this.Value();
   set = (val) => this.Value(val);
+  clear = () => {
+    if (ko.isObservableArray(this.Value)) this.Value([]);
+    else this.Value(null);
+  };
 
   toString = ko.pureComputed(() => this.Value());
 
