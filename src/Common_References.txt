@@ -91,14 +91,18 @@
 
 <!-- TODO: Break these out into their individual files! -->
 <div class="audit">
-  <dialog id="dlgModalDialog" class="card bg-dark">
-    <div data-bind="with: currentDialog" class="audit bg-dark">
-      <div class="card-header">
-        <h2 class="card-title" data-bind="text: title"></h2>
+  <dialog id="dlgModalDialog" class="card bg-dark draggable">
+    <div data-bind="" class="audit bg-dark">
+      <div class="card-header grabber">
+        <h2 class="card-title" data-bind="text: currentDialog()?.title"></h2>
         <h2 class="card-title">
-          <i class="fa-solid fa-xmark pointer" data-bind="click: close"></i>
+          <i
+            class="fa-solid fa-xmark pointer"
+            data-bind="click: currentDialog()?.close"
+          ></i>
         </h2>
       </div>
+      <!-- ko with: currentDialog -->
       <div
         class="card-body"
         data-bind="component: { name: form.componentName, params: form.params }"
@@ -113,6 +117,7 @@
           Cancel
         </button>
       </div>
+      <!-- /ko -->
     </div>
   </dialog>
 

@@ -296,6 +296,14 @@ select.form-select {
   align-items: center;
 }
 
+.draggable {
+  position: absolute;
+}
+
+.draggable .grabber {
+  cursor: move;
+}
+
 /*remove the background on notifications*/
 .s4-noti-in2 {
   background: none;
