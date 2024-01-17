@@ -151,7 +151,12 @@
       rel="stylesheet"
       href="/sites/CGFS/Style Library/apps/audit/lib/webcomponents/SearchSelect/styles.css"
     />
-    <div id="search-group" class="search-group" tabindex="-1">
+    <div
+      id="search-group"
+      style="display: none"
+      class="search-group"
+      tabindex="-1"
+    >
       <div id="selected-items-text"></div>
       <div class="search-input-group" tabindex="-1">
         <input id="search-input" class="search-input" type="text" />
@@ -160,8 +165,9 @@
       <ul id="filtered-items-text" class="filtered-items"></ul>
     </div>
     <div id="icons" class="hidden">
-      <div id="icon-close" style="display: none">
+      <div id="icon-close" style="display: none; width: 0px; height: 0px">
         <svg
+          style="display: none; max-width: 2rem; max-height: 2rem"
           class="position-absolute top-50 start-50 translate-middle"
           fill="none"
           stroke="currentColor"

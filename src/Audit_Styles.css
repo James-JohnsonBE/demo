@@ -210,10 +210,10 @@ button.btn.btn-link:hover {
   background-color: var(--danger-hover-color);
 }
 
-input.form-control,
-input.form-check-input,
-textarea.form-control,
-select.form-select {
+.form-control,
+.form-check-input,
+.form-control,
+.form-select {
   display: block;
   background-color: white;
   color: var(--text-primary);

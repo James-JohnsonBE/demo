@@ -3,6 +3,7 @@
   ><span data-bind="if: isRequired" class="fw-bold text-danger">*</span>:
 </label>
 <search-select
+  class="form-select"
   data-bind="searchSelect: { 
   options: Options, 
   selectedOptions: Value,
@@ -11,7 +12,7 @@
 >
 </search-select>
 <div class="fw-light flex justify-between">
-  <p class="fst-italic">Hold ctrl to select multiple</p>
+  <p class="fst-italic"></p>
   <button type="button" class="btn btn-link h-1" data-bind="click: clear">
     CLEAR
   </button>
