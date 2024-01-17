@@ -89,6 +89,11 @@
   src="/sites/CGFS/Style Library/apps/audit/src/common/Utilities.js"
 ></script>
 
+<script
+  defer
+  src="/sites/CGFS/Style Library/apps/audit/lib/webcomponents/searchselect/searchselect.js"
+></script>
+
 <!-- TODO: Break these out into their individual files! -->
 <div class="audit">
   <dialog id="dlgModalDialog" class="card bg-dark draggable">
@@ -139,6 +144,54 @@
     <!-- <button type="button" data-bind="click: submit">Submit</button> -->
     <!-- /ko -->
     <div data-bind="text: message"></div>
+  </template>
+
+  <template id="search-select-template">
+    <link
+      rel="stylesheet"
+      href="/sites/CGFS/Style Library/apps/audit/lib/webcomponents/SearchSelect/styles.css"
+    />
+    <div id="search-group" class="search-group" tabindex="-1">
+      <div id="selected-items-text"></div>
+      <div class="search-input-group" tabindex="-1">
+        <input id="search-input" class="search-input" type="text" />
+        <div class="vertical-spacer"></div>
+      </div>
+      <ul id="filtered-items-text" class="filtered-items"></ul>
+    </div>
+    <div id="icons" class="hidden">
+      <div id="icon-close" style="display: none">
+        <svg
+          class="position-absolute top-50 start-50 translate-middle"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          ></path>
+        </svg>
+      </div>
+      <div id="icon-caret-down">
+        <svg
+          id="svg-caret-down"
+          width="24px"
+          height="24px"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M6.1018 8C5.02785 8 4.45387 9.2649 5.16108 10.0731L10.6829 16.3838C11.3801 17.1806 12.6197 17.1806 13.3169 16.3838L18.8388 10.0731C19.5459 9.2649 18.972 8 17.898 8H6.1018Z"
+            fill="#212121"
+          />
+        </svg>
+      </div>
+    </div>
   </template>
 </div>
 

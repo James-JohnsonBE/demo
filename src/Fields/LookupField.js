@@ -10,6 +10,13 @@ const components = {
 
 registerFieldComponent("lookup", components);
 
+const searchSelectComponents = {
+  view: "search-select-view",
+  edit: "search-select-edit",
+  new: "search-select-edit",
+};
+registerFieldComponent("searchselect", searchSelectComponents);
+
 export default class LookupField extends BaseField {
   constructor({
     displayName,
@@ -34,6 +41,9 @@ export default class LookupField extends BaseField {
     this.entityType = entityType;
     this.lookupCol = lookupCol;
     this.optionsText = optionsText ?? ((item) => item[this.lookupCol]);
+
+    this.components = this.multiple ? searchSelectComponents : components;
+
     this.init();
   }
 

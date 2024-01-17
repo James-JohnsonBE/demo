@@ -38,7 +38,7 @@ Forms to be recreated:
 AuditRequest
 
 - [x] m_fnViewRequest
-- [ ] m_fnEditRequest
+- [x] m_fnEditRequest
 
 AuditCoverSheet
 

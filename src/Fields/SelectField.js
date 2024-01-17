@@ -7,7 +7,14 @@ const components = {
   new: "select-edit",
 };
 
+const searchSelectComponents = {
+  view: "search-select-view",
+  edit: "search-select-edit",
+  new: "search-select-edit",
+};
+
 registerFieldComponent("select", components);
+registerFieldComponent("searchselect", searchSelectComponents);
 
 export default class SelectField extends BaseField {
   constructor({
@@ -23,6 +30,8 @@ export default class SelectField extends BaseField {
     this.multiple = multiple;
     this.Value = multiple ? ko.observableArray() : ko.observable();
     this.optionsText = optionsText;
+
+    this.components = this.multiple ? searchSelectComponents : components;
   }
 
   toString = ko.pureComputed(() =>
@@ -44,6 +53,4 @@ export default class SelectField extends BaseField {
   };
 
   Options = ko.observableArray();
-
-  components = components;
 }

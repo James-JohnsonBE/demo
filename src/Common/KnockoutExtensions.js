@@ -17,6 +17,62 @@ ko.subscribable.fn.subscribeChanged = function (callback) {
   });
 };
 
+ko.bindingHandlers.searchSelect = {
+  init: function (element, valueAccessor, allBindingsAccessor) {
+    const { options, selectedOptions, optionsText } = valueAccessor();
+
+    function populateOpts() {
+      const optionItems = ko.unwrap(options);
+
+      const optionElements = optionItems.map((option) => {
+        const optionElement = document.createElement("option");
+        ko.selectExtensions.writeValue(optionElement, ko.unwrap(option));
+        // optionElement.value = option;
+        optionElement.innerText = optionsText(option);
+
+        if (selectedOptions().includes(option)) {
+          optionElement.setAttribute("selected", "");
+        }
+        return optionElement;
+      });
+
+      element.append(...optionElements);
+    }
+
+    populateOpts();
+
+    if (ko.isObservable(options)) {
+      options.subscribe(() => populateOpts(), this);
+    }
+
+    ko.utils.registerEventHandler(element, "change", (e) => {
+      selectedOptions(
+        element.selectedOptions.map((opt) => ko.selectExtensions.readValue(opt))
+      );
+    });
+  },
+  update: function (
+    element,
+    valueAccessor,
+    allBindings,
+    viewModel,
+    bindingContext
+  ) {
+    const { selectedOptions } = valueAccessor();
+    const selectedUnwrapped = ko.unwrap(selectedOptions);
+
+    for (var i = 0; i < element.options.length; i++) {
+      const o = element.options[i];
+      o.toggleAttribute(
+        "selected",
+        selectedUnwrapped.includes(ko.selectExtensions.readValue(o))
+      );
+    }
+
+    // element.selectedOptions = ko.unwrap(selectedOptions);
+  },
+};
+
 ko.bindingHandlers.people = {
   init: function (element, valueAccessor, allBindingsAccessor) {
     var schema = {};

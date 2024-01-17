@@ -2,63 +2,19 @@
   ><span data-bind="text: displayName"></span
   ><span data-bind="if: isRequired" class="fw-bold text-danger">*</span>:
 </label>
-<div class="row row-cols-auto" data-bind="foreach: GetSelectedOptions">
-  <div class="col pb-1">
-    <div class="input-group input-group-sm">
-      <div
-        class="input-group-text"
-        data-bind="text: $parent.optionsText($data)"
-      ></div>
-      <button
-        type="button"
-        class="btn btn-sm btn-outline-secondary"
-        style="min-width: 1.5rem"
-        data-bind="click: $parent.removeSelection"
-      >
-        <svg
-          class="position-absolute top-50 start-50 translate-middle"
-          style="width: 1rem; height: 1rem"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M6 18L18 6M6 6l12 12"
-          ></path>
-        </svg>
-      </button>
-    </div>
-  </div>
-</div>
-<div
-  tabindex="-1"
-  data-bind="event: {
-    focusin: setInputGroupFocus,
-    focusout: removeInputGroupFocus,
-    }"
-  class="position-relative"
+<search-select
+  data-bind="searchSelect: { 
+  options: Options, 
+  selectedOptions: Value,
+  optionsText: optionsText,
+ }"
 >
-  <input
-    placehold="Search to select..."
-    class="form-control form-control-sm"
-    data-bind="textInput: FilterText"
-  />
-  <div
-    data-bind="foreach: FilteredOptions, visible: InputGroupFocused"
-    class="list-group overflow-y-scroll position-absolute w-100"
-    style="max-height: 200px"
-  >
-    <button
-      type="button"
-      class="list-group-item list-group-item-action z-3"
-      data-bind="click: $parent.addSelection, 
-        text: $parent.optionsText($data)"
-    ></button>
-  </div>
+</search-select>
+<div class="fw-light flex justify-between">
+  <p class="fst-italic">Hold ctrl to select multiple</p>
+  <button type="button" class="btn btn-link h-1" data-bind="click: clear">
+    CLEAR
+  </button>
 </div>
 <!-- ko if: instructions -->
 <div
