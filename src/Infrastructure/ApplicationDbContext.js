@@ -497,7 +497,8 @@ export function mapEntityToObject(input, selectedFields = null) {
     .filter((field) => allWriteableFields.includes(field))
     .map((field) => {
       if (input.FieldMap && input.FieldMap[field]) {
-        entity[field] = mapViewFieldToValue(input.FieldMap[field]);
+        const storedFieldKey = input.FieldMap[field].systemName ?? field;
+        entity[storedFieldKey] = mapViewFieldToValue(input.FieldMap[field]);
         return;
       }
       entity[field] = input[field];

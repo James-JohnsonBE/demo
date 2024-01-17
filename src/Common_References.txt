@@ -159,7 +159,12 @@
     >
       <div id="selected-items-text"></div>
       <div class="search-input-group" tabindex="-1">
-        <input id="search-input" class="search-input" type="text" />
+        <input
+          id="search-input"
+          class="search-input"
+          type="text"
+          autocomplete="off"
+        />
         <div class="vertical-spacer"></div>
       </div>
       <ul id="filtered-items-text" class="filtered-items"></ul>

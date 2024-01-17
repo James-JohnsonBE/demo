@@ -24,7 +24,7 @@ export default class LookupField extends BaseField {
     isRequired = false,
     Visible,
     entitySet,
-    optionsFilter = null,
+    optionsFilter = (val) => val,
     optionsText = null,
     isSearch = false,
     multiple = false,
@@ -41,14 +41,18 @@ export default class LookupField extends BaseField {
     this.entityType = entityType;
     this.lookupCol = lookupCol;
     this.optionsText = optionsText ?? ((item) => item[this.lookupCol]);
-
+    this.optionsFilter = optionsFilter;
     this.components = this.multiple ? searchSelectComponents : components;
 
     this.init();
   }
 
   init = async () => {
-    this.Options = this.entitySet._store;
+    this.Options = ko.pureComputed(() => {
+      const optsFilter = ko.unwrap(this.optionsFilter);
+      const allOpts = ko.unwrap(this.entitySet._store);
+      return allOpts.filter(optsFilter);
+    });
     await this.entitySet.ToList();
   };
 

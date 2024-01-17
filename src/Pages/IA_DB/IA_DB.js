@@ -12,6 +12,7 @@ import { AuditRequest } from "../../entities/AuditRequest.js";
 import { NewRequestFormComponent } from "../../components/Forms/Request/NewForm/NewRequestForm.js";
 import { RequestDetailViewComponent } from "../../components/RequestDetailView/RequestDetailView.js";
 import { EditRequestForm } from "../../components/Forms/Request/EditForm/EditRequestForm.js";
+import { EditCoverSheetForm } from "../../components/Forms/CoverSheet/EditForm/EditCoversheetForm.js";
 
 var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
@@ -3150,115 +3151,149 @@ Audit.IAReport.NewReportPage = function () {
 
     SP.UI.ModalDialog.showModalDialog(options);
   }
+  modernization: {
+    function m_fnViewRequestDoc(id) {
+      m_bIsTransactionExecuting = true;
 
-  function m_fnViewRequestDoc(id) {
-    m_bIsTransactionExecuting = true;
+      var formName = "DispForm.aspx";
+      var options = SP.UI.$create_DialogOptions();
+      options.title = "View Request Doc (ID:" + id + ")";
+      options.dialogReturnValueCallback = OnCallbackForm;
 
-    var formName = "DispForm.aspx";
-    var options = SP.UI.$create_DialogOptions();
-    options.title = "View Request Doc (ID:" + id + ")";
-    options.dialogReturnValueCallback = OnCallbackForm;
+      options.url =
+        Audit.Common.Utilities.GetSiteUrl() +
+        "/" +
+        Audit.Common.Utilities.GetLibNameRequestDocs() +
+        "/Forms/" +
+        formName +
+        "?ID=" +
+        id +
+        GetSourceUrlForForms();
 
-    options.url =
-      Audit.Common.Utilities.GetSiteUrl() +
-      "/" +
-      Audit.Common.Utilities.GetLibNameRequestDocs() +
-      "/Forms/" +
-      formName +
-      "?ID=" +
-      id +
-      GetSourceUrlForForms();
-
-    SP.UI.ModalDialog.showModalDialog(options);
-  }
-
-  function m_fnEditRequestDoc(id, requestNum) {
-    if (!m_bIsSiteOwner) {
-      SP.UI.Notify.addNotification(
-        "You do not have access to perform this action...",
-        false
-      );
-      return;
+      SP.UI.ModalDialog.showModalDialog(options);
     }
 
+    function m_fnEditRequestDoc(id, requestNum) {
+      if (!m_bIsSiteOwner) {
+        SP.UI.Notify.addNotification(
+          "You do not have access to perform this action...",
+          false
+        );
+        return;
+      }
+
+      m_bIsTransactionExecuting = true;
+      m_requestNum = requestNum;
+
+      var formName = "CustomEditForm.aspx";
+      var options = SP.UI.$create_DialogOptions();
+      options.title = "Edit Request Doc (ID:" + id + ")";
+      options.height = "600";
+      options.dialogReturnValueCallback = OnCallbackFormEditRequestDoc;
+
+      options.url =
+        Audit.Common.Utilities.GetSiteUrl() +
+        "/" +
+        Audit.Common.Utilities.GetLibNameRequestDocs() +
+        "/Forms/" +
+        formName +
+        "?ID=" +
+        id +
+        GetSourceUrlForForms();
+
+      SP.UI.ModalDialog.showModalDialog(options);
+    }
+
+    function m_fnUploadRequestDoc(requestNum) {
+      if (!m_bIsSiteOwner) {
+        SP.UI.Notify.addNotification(
+          "You do not have access to perform this action...",
+          false
+        );
+        return;
+      }
+
+      m_bIsTransactionExecuting = true;
+      m_requestNum = requestNum;
+
+      var options = SP.UI.$create_DialogOptions();
+      options.title = "Upload Request Document to: " + requestNum;
+      options.dialogReturnValueCallback = OnCallbackFormEditRequestDoc;
+
+      var rootFolder =
+        Audit.Common.Utilities.GetSiteUrl() +
+        "/" +
+        Audit.Common.Utilities.GetLibNameRequestDocs();
+
+      options.url =
+        Audit.Common.Utilities.GetSiteUrl() +
+        "/_layouts/Upload.aspx?List=" +
+        m_libRequestDocsLibraryGUID +
+        "&RootFolder=" +
+        rootFolder +
+        "&ReqNum=" +
+        requestNum +
+        GetSourceUrlForForms();
+      //notifyId = SP.UI.Notify.addNotification("Uploading documents to: " + options.url, false);
+      SP.UI.ModalDialog.showModalDialog(options);
+    }
+  }
+
+  async function m_fnViewCoverSheet(id) {
+    m_bIsTransactionExecuting = true;
+
+    const coverSheet = await appContext.AuditCoversheets.FindById(id);
+
+    const coverSheetViewForm = FormManager.DispForm(coverSheet);
+
+    const options = {
+      title: "View Coversheet (ID:" + id + ")",
+      form: coverSheetViewForm,
+      dialogReturnValueCallback: OnCallbackForm,
+    };
+    ModalDialog.showModalDialog(options);
+  }
+
+  {
+    function m_fnViewCoverSheetDep(id) {
+      m_bIsTransactionExecuting = true;
+
+      var formName = "DispForm.aspx";
+      var options = SP.UI.$create_DialogOptions();
+      options.title = "View Coversheet (ID:" + id + ")";
+      options.dialogReturnValueCallback = OnCallbackForm;
+
+      options.url =
+        Audit.Common.Utilities.GetSiteUrl() +
+        "/" +
+        Audit.Common.Utilities.GetLibNameCoverSheets() +
+        "/Forms/" +
+        formName +
+        "?ID=" +
+        id +
+        GetSourceUrlForForms();
+
+      SP.UI.ModalDialog.showModalDialog(options);
+    }
+  }
+
+  async function m_fnEditCoverSheet(id, requestNum) {
     m_bIsTransactionExecuting = true;
     m_requestNum = requestNum;
 
-    var formName = "CustomEditForm.aspx";
-    var options = SP.UI.$create_DialogOptions();
-    options.title = "Edit Request Doc (ID:" + id + ")";
-    options.height = "600";
-    options.dialogReturnValueCallback = OnCallbackFormEditRequestDoc;
+    const coverSheet = await appContext.AuditCoversheets.FindById(id);
+    const coverSheetForm = new EditCoverSheetForm({ entity: coverSheet });
 
-    options.url =
-      Audit.Common.Utilities.GetSiteUrl() +
-      "/" +
-      Audit.Common.Utilities.GetLibNameRequestDocs() +
-      "/Forms/" +
-      formName +
-      "?ID=" +
-      id +
-      GetSourceUrlForForms();
+    const options = {
+      form: coverSheetForm,
+    };
+    options.title = "Edit Coversheet (ID:" + id + ")";
+    options.dialogReturnValueCallback = OnCallbackFormCoverSheet;
 
-    SP.UI.ModalDialog.showModalDialog(options);
+    ModalDialog.showModalDialog(options);
   }
 
-  function m_fnUploadRequestDoc(requestNum) {
-    if (!m_bIsSiteOwner) {
-      SP.UI.Notify.addNotification(
-        "You do not have access to perform this action...",
-        false
-      );
-      return;
-    }
-
-    m_bIsTransactionExecuting = true;
-    m_requestNum = requestNum;
-
-    var options = SP.UI.$create_DialogOptions();
-    options.title = "Upload Request Document to: " + requestNum;
-    options.dialogReturnValueCallback = OnCallbackFormEditRequestDoc;
-
-    var rootFolder =
-      Audit.Common.Utilities.GetSiteUrl() +
-      "/" +
-      Audit.Common.Utilities.GetLibNameRequestDocs();
-
-    options.url =
-      Audit.Common.Utilities.GetSiteUrl() +
-      "/_layouts/Upload.aspx?List=" +
-      m_libRequestDocsLibraryGUID +
-      "&RootFolder=" +
-      rootFolder +
-      "&ReqNum=" +
-      requestNum +
-      GetSourceUrlForForms();
-    //notifyId = SP.UI.Notify.addNotification("Uploading documents to: " + options.url, false);
-    SP.UI.ModalDialog.showModalDialog(options);
-  }
-
-  function m_fnViewCoverSheet(id) {
-    m_bIsTransactionExecuting = true;
-
-    var formName = "DispForm.aspx";
-    var options = SP.UI.$create_DialogOptions();
-    options.title = "View Coversheet (ID:" + id + ")";
-    options.dialogReturnValueCallback = OnCallbackForm;
-
-    options.url =
-      Audit.Common.Utilities.GetSiteUrl() +
-      "/" +
-      Audit.Common.Utilities.GetLibNameCoverSheets() +
-      "/Forms/" +
-      formName +
-      "?ID=" +
-      id +
-      GetSourceUrlForForms();
-
-    SP.UI.ModalDialog.showModalDialog(options);
-  }
-
-  function m_fnEditCoverSheet(id, requestNum) {
+  function m_fnEditCoverSheetDep(id, requestNum) {
     if (!m_bIsSiteOwner) {
       SP.UI.Notify.addNotification(
         "You do not have access to perform this action...",

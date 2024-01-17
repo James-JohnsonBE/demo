@@ -9,6 +9,10 @@ export class AuditCoversheet extends ConstrainedEntity {
     super(params);
   }
 
+  Title = new TextField({
+    displayName: "Title",
+  });
+
   FileName = new TextField({
     displayName: "Name",
     systemName: "FileLeafRef",
@@ -28,12 +32,22 @@ export class AuditCoversheet extends ConstrainedEntity {
   ActionOffice = new LookupField({
     displayName: "Action Offices",
     type: AuditOrganization,
+    optionsFilter: ko.pureComputed(() => {
+      // Only allow action offices from this coversheets associated request
+      const request = ko.unwrap(this.ReqNum.Value);
+      if (!request) return (val) => val;
+
+      const requestActionOffices = ko.unwrap(request.ActionOffice.Value);
+
+      return (opt) => requestActionOffices.includes(opt);
+    }),
     lookupCol: "Title",
     multiple: true,
   });
 
   static Views = {
     All: ["ID", "Title", "FileLeafRef", "FileRef", "ReqNum", "ActionOffice"],
+    AOCanUpdate: ["Title", "FileLeafRef", "ActionOffice"],
   };
 
   static ListDef = {

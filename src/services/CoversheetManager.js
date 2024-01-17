@@ -8,6 +8,7 @@ import {
 import { ItemPermissions } from "../infrastructure/SAL.js";
 import { roleNames } from "./PermissionManager.js";
 import { People } from "../entities/People.js";
+import { AuditCoversheet } from "../entities/AuditCoversheet.js";
 
 export async function uploadRequestCoversheetFile(
   file,
@@ -42,6 +43,13 @@ export async function uploadRequestCoversheetFile(
   await breakCoversheetPermissions(newCoversheet);
 
   return newCoversheet;
+}
+
+export async function updateRequestCoverSheet(coverSheet) {
+  await appContext.AuditCoversheets.UpdateEntity(
+    coverSheet,
+    AuditCoversheet.Views.AOCanUpdate
+  );
 }
 
 function getNewFileNameForSensitivity(
