@@ -24,6 +24,7 @@ export async function uploadRequestCoversheetFile(
     null,
     request.Sensitivity.Value()
   );
+
   const title = newFileName.substring(0, newFileName.lastIndexOf("."));
 
   const fileMetadata = {
@@ -46,6 +47,17 @@ export async function uploadRequestCoversheetFile(
 }
 
 export async function updateRequestCoverSheet(coverSheet) {
+  const request = coverSheet.ReqNum.Value();
+
+  if (!request) throw new Error("ReqNum not set!");
+
+  let fileName = coverSheet.FileName.Value();
+
+  if (!fileName.includes(request.ReqNum.Value())) {
+    fileName = request.ReqNum.Value() + "_" + fileName;
+    coverSheet.FileName.Value(fileName);
+  }
+
   await appContext.AuditCoversheets.UpdateEntity(
     coverSheet,
     AuditCoversheet.Views.AOCanUpdate

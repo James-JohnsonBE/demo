@@ -11,11 +11,13 @@ export class AuditCoversheet extends ConstrainedEntity {
 
   Title = new TextField({
     displayName: "Title",
+    required: true,
   });
 
   FileName = new TextField({
     displayName: "Name",
     systemName: "FileLeafRef",
+    required: true,
   });
 
   FileRef = new TextField({
@@ -27,6 +29,7 @@ export class AuditCoversheet extends ConstrainedEntity {
     displayName: "Request Number",
     type: AuditRequest,
     lookupCol: "Title",
+    required: true,
   });
 
   ActionOffice = new LookupField({
