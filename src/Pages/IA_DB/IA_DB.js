@@ -13,6 +13,9 @@ import { NewRequestFormComponent } from "../../components/Forms/Request/NewForm/
 import { RequestDetailViewComponent } from "../../components/RequestDetailView/RequestDetailView.js";
 import { EditRequestForm } from "../../components/Forms/Request/EditForm/EditRequestForm.js";
 import { EditCoverSheetForm } from "../../components/Forms/CoverSheet/EditForm/EditCoversheetForm.js";
+import { AuditResponse } from "../../entities/AuditResponse.js";
+import { NewResponseForm } from "../../components/Forms/Response/NewForm/NewResponseForm.js";
+import { EditResponseForm } from "../../components/Forms/Response/EditForm/EditResponseForm.js";
 
 var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
@@ -677,7 +680,8 @@ Audit.IAReport.NewReportPage = function () {
 
     self.ClickAddResponse = function () {
       var oRequest = self.currentRequest();
-      if (oRequest && oRequest.number) m_fnAddResponse(oRequest.number);
+      if (oRequest && oRequest.number)
+        m_fnAddResponse(oRequest.ID, oRequest.number);
     };
 
     self.ClickBulkAddResponse = function () {
@@ -3436,7 +3440,37 @@ Audit.IAReport.NewReportPage = function () {
     return sampleNumber;
   }
 
-  function m_fnAddResponse(id) {
+  async function m_fnAddResponse(id, reqNum) {
+    if (!m_bIsSiteOwner) {
+      SP.UI.Notify.addNotification(
+        "You do not have access to perform this action...",
+        false
+      );
+      return;
+    }
+
+    m_bIsTransactionExecuting = true;
+
+    var sampleNumber = m_fnGetNextSampleNumber(reqNum);
+
+    const request = await appContext.AuditRequests.FindById(id);
+    const newResponse = new AuditResponse();
+
+    newResponse.ReqNum.Value(request);
+    newResponse.SampleNumber.Value(sampleNumber);
+
+    const newResponseForm = new NewResponseForm({ entity: newResponse });
+
+    const options = {
+      form: newResponseForm,
+    };
+    options.title = "Add Response to (Request Number:" + id + ")";
+    options.dialogReturnValueCallback = OnCallbackFormNewResponse;
+
+    ModalDialog.showModalDialog(options);
+  }
+
+  function m_fnAddResponseDep(id) {
     if (!m_bIsSiteOwner) {
       SP.UI.Notify.addNotification(
         "You do not have access to perform this action...",
@@ -3468,7 +3502,39 @@ Audit.IAReport.NewReportPage = function () {
     SP.UI.ModalDialog.showModalDialog(options);
   }
 
-  function m_fnViewResponse(requestNumber, id, responseTitle, responseStatus) {
+  async function m_fnViewResponse(
+    requestNumber,
+    id,
+    responseTitle,
+    responseStatus
+  ) {
+    m_bIsTransactionExecuting = true;
+
+    const response = await appContext.AuditResponses.FindById(id);
+
+    if (!response) {
+      SP.UI.Notify.addNotification("Response not found! " + id, false);
+      alert();
+      return;
+    }
+    const viewResponseForm = FormManager.DispForm(response);
+
+    var options = {
+      form: viewResponseForm,
+    };
+
+    options.title = "View Response (" + responseTitle + ")";
+    options.height = 600;
+    options.dialogReturnValueCallback = OnCallbackForm;
+
+    ModalDialog.showModalDialog(options);
+  }
+  function m_fnViewResponseDep(
+    requestNumber,
+    id,
+    responseTitle,
+    responseStatus
+  ) {
     m_bIsTransactionExecuting = true;
 
     //in case they click edit item from the view form
@@ -3496,7 +3562,52 @@ Audit.IAReport.NewReportPage = function () {
     SP.UI.ModalDialog.showModalDialog(options);
   }
 
-  function m_fnEditResponse(requestNumber, id, responseTitle, responseStatus) {
+  async function m_fnEditResponse(
+    requestNumber,
+    id,
+    responseTitle,
+    responseStatus
+  ) {
+    if (!m_bIsSiteOwner) {
+      SP.UI.Notify.addNotification(
+        "You do not have access to perform this action...",
+        false
+      );
+      return;
+    }
+
+    m_bIsTransactionExecuting = true;
+
+    m_requestNum = requestNumber;
+    m_itemID = id;
+    m_responseTitle = responseTitle;
+    m_responseStatus = responseStatus;
+
+    const response = await appContext.AuditResponses.FindById(id);
+
+    if (!response) {
+      SP.UI.Notify.addNotification("Response not found! " + id, false);
+      alert();
+      return;
+    }
+
+    const editReponseForm = new EditResponseForm({ entity: response });
+
+    const options = {
+      form: editReponseForm,
+    };
+    options.title = "Edit Response (" + responseTitle + ")";
+    options.dialogReturnValueCallback = OnCallbackFormEditResponse;
+
+    ModalDialog.showModalDialog(options);
+  }
+
+  function m_fnEditResponseDep(
+    requestNumber,
+    id,
+    responseTitle,
+    responseStatus
+  ) {
     if (!m_bIsSiteOwner) {
       SP.UI.Notify.addNotification(
         "You do not have access to perform this action...",

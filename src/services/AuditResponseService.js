@@ -1,3 +1,8 @@
+import {
+  AuditResponse,
+  AuditResponseStates,
+} from "../entities/AuditResponse.js";
+import { appContext } from "../infrastructure/ApplicationDbContext.js";
 import { showModal } from "../infrastructure/SPModalService.js";
 
 export async function showBulkAddResponseModal(request) {
@@ -11,4 +16,67 @@ export async function showBulkAddResponseModal(request) {
   };
 
   await showModal(options);
+}
+
+export async function addResponse(request, response) {
+  // Update title
+  const responseTitle = getResponseTitle(request, response);
+
+  response.Title.Value(responseTitle);
+
+  response.ResStatus.Value(AuditResponseStates.Open);
+
+  // Validate title is unique
+  const responseResult = await appContext.AuditResponses.FindByColumnValue(
+    [
+      {
+        column: "Title",
+        value: responseTitle,
+      },
+    ],
+    {},
+    { count: 1 }
+  );
+
+  if (responseResult.results.length) {
+    throw new Error(`Response with title ${responseTitle} already exists!`);
+  }
+
+  await appContext.AuditResponses.AddEntity(response);
+}
+
+export async function updateResponse(request, response) {
+  // FPRA Check
+  const actionOfficeTitle = response.ActionOffice.Value()?.Title?.toLowerCase();
+  if (!actionOfficeTitle.includes("fpra")) {
+    if (response.POC.toString() || response.POCCC.toString()) {
+      throw new Error("Please clear the POC and CC fields.");
+    }
+  }
+
+  // Sensitivity Check
+  const currenResponseSensitivity = request.Sensitivity.Value();
+  const selectedResponseStatus = response.ResStatus.Value();
+
+  if (
+    selectedResponseStatus == "4-Approved for QA" &&
+    currentResponseSensitivity == "None"
+  )
+    throw new Error("Request Sensitivity not set; cannot submit to QA.");
+
+  const responseTitle = getResponseTitle(request, response);
+
+  if (response.Title.Value() != responseTitle)
+    response.Title.Value(responseTitle);
+
+  await appContext.AuditResponses.UpdateEntity(
+    response,
+    AuditResponse.Views.AOCanUpdate
+  );
+}
+
+function getResponseTitle(request, response) {
+  return `${request.ReqNum.Value()}-${
+    response.ActionOffice.Value()?.Title
+  }-${response.SampleNumber.Value()}`;
 }

@@ -53,7 +53,7 @@ export default class LookupField extends BaseField {
       const allOpts = ko.unwrap(this.entitySet._store);
       return allOpts.filter(optsFilter);
     });
-    await this.entitySet.ToList();
+    this.entitySet.ToList();
   };
 
   isSearch = false;

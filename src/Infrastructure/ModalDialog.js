@@ -38,6 +38,7 @@ function resizeDialog(elmnt) {
   elmnt.style.left = (window.GetViewportWidth() - 550) / 2 + "px";
 }
 
+// TODO: this should be in a utility class or something
 function dragElement(elmnt) {
   var pos1 = 0,
     pos2 = 0,

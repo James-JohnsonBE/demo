@@ -33,8 +33,14 @@ export class AuditResponse extends ConstrainedEntity {
     displayName: "Name",
   });
 
+  ReqNum = new LookupField({
+    displayName: "Request Number",
+    type: AuditRequest,
+  });
+
   SampleNumber = new TextField({
     displayName: "Sample Number",
+    isRequired: true,
   });
 
   ResStatus = new SelectField({
@@ -68,14 +74,19 @@ export class AuditResponse extends ConstrainedEntity {
     displayName: "POCCC",
   });
 
-  ReqNum = new LookupField({
-    displayName: "Request Number",
-    type: AuditRequest,
-  });
-
   ActionOffice = new LookupField({
     displayName: "Action Office",
     type: AuditOrganization,
+    optionsFilter: ko.pureComputed(() => {
+      // Only allow action offices from this coversheets associated request
+      const request = ko.unwrap(this.ReqNum.Value);
+      if (!request) return (val) => val;
+
+      const requestActionOffices = ko.unwrap(request.ActionOffice.Value);
+
+      return (opt) => requestActionOffices.includes(opt);
+    }),
+    isRequired: true,
   });
 
   ActiveViewers = new BlobField({
@@ -123,6 +134,29 @@ export class AuditResponse extends ConstrainedEntity {
       "ReqNum",
       "ActionOffice",
       "ActiveViewers",
+    ],
+    NewForm: ["ReqNum", "ActionOffice", "SampleNumber", "Comments"],
+    EditForm: [
+      "ReqNum",
+      "SampleNumber",
+      "Title",
+      "ResStatus",
+      "ReturnReason",
+      "Comments",
+      "ClosedDate",
+      "ClosedBy",
+      "POC",
+      "POCCC",
+    ],
+    AOCanUpdate: [
+      "Title",
+      "ResStatus",
+      "ReturnReason",
+      "Comments",
+      "ClosedDate",
+      "ClosedBy",
+      "POC",
+      "POCCC",
     ],
   };
 

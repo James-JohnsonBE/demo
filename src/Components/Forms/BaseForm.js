@@ -31,4 +31,6 @@ export class BaseForm {
   });
 
   IsValid = ko.pureComputed(() => !this.Errors().length);
+
+  params = this;
 }

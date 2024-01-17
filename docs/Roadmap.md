@@ -42,13 +42,13 @@ AuditRequest
 
 AuditCoverSheet
 
-- [ ] m_fnViewCoverSheet
-- [ ] m_fnEditCoverSheet
+- [x] m_fnViewCoverSheet
+- [x] m_fnEditCoverSheet
 - [ ] m_fnUploadCoverSheet
 
 AuditResponse
 
-- [ ] m_fnAddResponse
+- [x] m_fnAddResponse
 - [ ] m_fnViewResponse
 - [ ] m_fnEditResponse
 

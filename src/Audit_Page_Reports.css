@@ -169,6 +169,7 @@ div.cell-margin {
 .audit-form .form-actions {
   display: flex;
   justify-content: end;
+  gap: 1rem;
   padding: 2rem 0;
 }
 

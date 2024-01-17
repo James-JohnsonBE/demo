@@ -2,6 +2,7 @@ import { People } from "../entities/People.js";
 import {
   ensureUserByKeyAsync,
   getDefaultGroups,
+  getUserPropsAsync,
 } from "../infrastructure/SAL.js";
 
 const groupNameSpecialPermName1 = "CGFS Special Access1";
@@ -10,7 +11,7 @@ const groupNameQA = "Quality Assurance";
 const groupNameEA = "External Auditors";
 
 export async function getSiteGroups() {
-  const groups = await getDefaultGroups();
+  const groups = getDefaultGroups();
   const mappedGroups = {};
   Object.entries(groups).map(
     ([key, group]) => (mappedGroups[key] = new People(group))
@@ -72,3 +73,60 @@ export async function getQAGroup() {
   qaGroupLoading(false);
   return qaGroup;
 }
+
+class User extends People {
+  constructor({
+    ID,
+    Title,
+    LoginName = null,
+    LookupValue = null,
+    WorkPhone = null,
+    EMail = null,
+    IsGroup = null,
+    IsEnsured = false,
+    Groups = null,
+  }) {
+    super({ ID, Title, LookupValue, LoginName, IsGroup, IsEnsured });
+
+    this.WorkPhone = WorkPhone;
+    this.EMail = EMail;
+
+    this.Groups = Groups;
+  }
+
+  Groups = [];
+
+  isInGroup(group) {
+    if (!group?.ID) return false;
+    return this.getGroupIds().includes(group.ID);
+  }
+
+  getGroupIds() {
+    return this.Groups.map((group) => group.ID);
+  }
+
+  IsSiteOwner = ko.pureComputed(() =>
+    this.isInGroup(getDefaultGroups().owners)
+  );
+
+  hasSystemRole = (systemRole) => {
+    const userIsOwner = this.IsSiteOwner();
+    switch (systemRole) {
+      case systemRoles.Admin:
+        return userIsOwner;
+        break;
+      case systemRoles.ActionOffice:
+        return userIsOwner || this.ActionOffices().length;
+      default:
+    }
+  };
+
+  static Create = async function () {
+    // TODO: Major - Switch to getUserPropertiesAsync since that includes phone # etc
+    const userProps = await getUserPropsAsync();
+    // const userProps2 = await UserManager.getUserPropertiesAsync();
+    return new User(userProps);
+  };
+}
+
+export const currentUser = await User.Create();
