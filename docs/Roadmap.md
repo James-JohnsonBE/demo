@@ -49,8 +49,8 @@ AuditCoverSheet
 AuditResponse
 
 - [x] m_fnAddResponse
-- [ ] m_fnViewResponse
-- [ ] m_fnEditResponse
+- [x] m_fnViewResponse
+- [x] m_fnEditResponse
 
 AuditResponseDoc
 

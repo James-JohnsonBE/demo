@@ -9,6 +9,7 @@ export function showModalDialog(dialogOptions) {
   currentDialog(newDialog);
   resizeDialog(dlgElement);
   dlgElement.showModal();
+  dlgElement.classList.add("active");
 }
 
 class ModalDialog {
@@ -27,6 +28,7 @@ class ModalDialog {
 
   close(result) {
     dlgElement.close();
+    dlgElement.classList.remove("active");
     if (this.dialogReturnValueCallback) this.dialogReturnValueCallback(result);
   }
 }
