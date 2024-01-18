@@ -1,9 +1,9 @@
-<h5>
+<div class="fw-semibold">
   <span data-bind="text: displayName"></span
   ><span data-bind="if: isRequired" class="fw-bold text-danger">*</span>:
-</h5>
+</div>
 <!-- ko ifnot: entityType -->
-<div class="alert alert-danger">Missing entity type</div>
+<div class="alert alert-danger">Missing entity type!</div>
 <!-- /ko -->
 <!-- ko if: entityType -->
 <!-- ko ifnot: multiple -->
@@ -14,7 +14,7 @@
 <!-- /ko -->
 <!-- /ko -->
 <!-- ko if: multiple -->
-<table class="table">
+<table class="tablesorter">
   <thead>
     <tr data-bind="">
       <!-- ko foreach: Cols -->
@@ -25,7 +25,7 @@
   <tbody data-bind="">
     <!-- ko foreach: {data: TypedValues, as: 'row'} -->
     <tr data-bind="">
-      <!-- ko foreach: {data: row.FormFields, as: 'col'} -->
+      <!-- ko foreach: {data: Object.values(row.FieldMap), as: 'col'} -->
       <td data-bind="text: col.toString()"></td>
       <!-- /ko -->
     </tr>

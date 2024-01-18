@@ -25,7 +25,7 @@
 table.tablesorter td {
   border: 1px DarkGray solid !important;
   vertical-align: top;
-  color: #595959 !important;
+  /* color: #595959 !important; */
   vertical-align: top;
 }
 

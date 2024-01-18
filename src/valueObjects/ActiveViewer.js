@@ -1,5 +1,6 @@
 import ConstrainedEntity from "../primitives/ConstrainedEntity.js";
 import TextField from "../fields/TextField.js";
+import DateField, { dateFieldTypes } from "../fields/DateField.js";
 
 export class ActiveViewer extends ConstrainedEntity {
   id = new TextField({
@@ -8,8 +9,9 @@ export class ActiveViewer extends ConstrainedEntity {
   viewer = new TextField({
     displayName: "Viewer",
   });
-  timestamp = new TextField({
+  timestamp = new DateField({
     displayName: "Timestamp",
+    type: dateFieldTypes.datetime,
   });
 
   FieldMap = {
