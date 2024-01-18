@@ -1,5 +1,13 @@
-﻿var Audit = window.Audit || {};
+﻿import { setUrlParam } from "../../common/Router.js";
+import { TabsModule, Tab } from "../../components/Tabs/TabsModule.js";
+
+// var SP = window.SP;
+// var ko = window.ko;
+
+var Audit = window.Audit || {};
 Audit.QAReport = Audit.QAReport || {};
+
+const responseParam = "ResNum";
 
 var paramShowSiteActionsToAnyone = GetUrlKeyValue("ShowSiteActions");
 if (paramShowSiteActionsToAnyone != true) {
@@ -72,6 +80,22 @@ Audit.QAReport.NewReportPage = function () {
 
   var m_bIsTransactionExecuting = false;
 
+  var memberGroup = null;
+
+  var statusId = null;
+  var notifyId = null;
+  let m_waitDialog = null;
+
+  var m_requestItems = null;
+  var m_requestInternalItems = null;
+
+  var m_responseItems = null;
+
+  var m_ResponseDocsItems = null;
+
+  let eaReponseDocsFolderItems = null;
+  let eaEmailLogListItems = null;
+
   function CommentChainField(requestId, props) {
     var requestListTitle = props.requestListTitle;
     var columnName = props.columnName;
@@ -123,7 +147,7 @@ Audit.QAReport.NewReportPage = function () {
       var web = currCtx.get_web();
       //Now push to the request item:
       var requestList = web.get_lists().getByTitle(requestListTitle);
-      oListItem = requestList.getItemById(requestId);
+      const oListItem = requestList.getItemById(requestId);
       oListItem.set_item(columnName, JSON.stringify(comments()));
       oListItem.update();
 
@@ -152,62 +176,6 @@ Audit.QAReport.NewReportPage = function () {
     return publicMembers;
   }
 
-  ko.bindingHandlers.downloadLink = {
-    update: function (
-      element,
-      valueAccessor,
-      allBindings,
-      viewModel,
-      bindingContext
-    ) {
-      var path = valueAccessor();
-      var replaced = path.replace(/:([A-Za-z_]+)/g, function (_, token) {
-        return ko.unwrap(viewModel[token]);
-      });
-      element.href = replaced;
-      //alert( replaced );
-    },
-  };
-
-  ko.bindingHandlers.toggleClick = {
-    init: function (element, valueAccessor, allBindings) {
-      var value = valueAccessor();
-
-      ko.utils.registerEventHandler(element, "click", function () {
-        var classToToggle = allBindings.get("toggleClass");
-        var classContainer = allBindings.get("classContainer");
-        var containerType = allBindings.get("containerType");
-
-        if (containerType && containerType == "sibling") {
-          $(element)
-            .nextUntil(classContainer)
-            .each(function () {
-              $(this).toggleClass(classToToggle);
-            });
-        } else if (containerType && containerType == "doc") {
-          var curIcon = $(element).attr("src");
-          if (curIcon == "/_layouts/images/minus.gif")
-            $(element).attr("src", "/_layouts/images/plus.gif");
-          else $(element).attr("src", "/_layouts/images/minus.gif");
-
-          if ($(element).parent() && $(element).parent().parent()) {
-            $(element)
-              .parent()
-              .parent()
-              .nextUntil(classContainer)
-              .each(function () {
-                $(this).toggleClass(classToToggle);
-              });
-          }
-        } else if (containerType && containerType == "any") {
-          if ($("." + classToToggle).is(":visible"))
-            $("." + classToToggle).hide();
-          else $("." + classToToggle).show();
-        } else $(element).find(classContainer).toggleClass(classToToggle);
-      });
-    },
-  };
-
   function ViewModel() {
     var self = this;
 
@@ -219,7 +187,7 @@ Audit.QAReport.NewReportPage = function () {
     //self.arrResponses = ko.observableArray( null ).extend({ rateLimit: 500 });
     self.arrResponses = ko.observableArray(null);
 
-    self.arrFilteredResponsesCount = ko.observable(0);
+    // self.arrFilteredResponsesCount = ko.observable(0);
 
     self.cntPendingReview = ko.observable(0);
 
@@ -251,28 +219,18 @@ Audit.QAReport.NewReportPage = function () {
     self.showCloseResponse = ko.observable(false);
     self.showReturnToCGFS = ko.observable(false);
 
-    self.selectedFiltersResponseTab = ko.computed(function () {
-      var requestID = self.filterResponseTabRequestID();
-      var requestStatus = self.filterResponseTabRequestStatus();
-      var requestIntDueDate = self.filterResponseTabRequestIntDueDate();
-      var sampleNum = self.filterResponseTabSampleNum();
-      var responseName = self.filterResponseTabResponseName();
-      var responseStatus = self.filterResponseTabResponseStatus();
+    self.tabOpts = {
+      Responses: new Tab("response-report", "Status Report", {
+        id: "responseStatusReportTemplate",
+        data: self,
+      }),
+      ResponseDetail: new Tab("response-detail", "Responses", {
+        id: "responseDetailTemplate",
+        data: self,
+      }),
+    };
 
-      return (
-        requestID +
-        " " +
-        requestStatus +
-        " " +
-        requestIntDueDate +
-        " " +
-        sampleNum +
-        " " +
-        responseName +
-        " " +
-        responseStatus
-      );
-    });
+    self.tabs = new TabsModule(Object.values(self.tabOpts));
 
     /** Behaviors **/
 
@@ -297,6 +255,50 @@ Audit.QAReport.NewReportPage = function () {
 				self.filterResponseNameProcessed2 ( response.title );
 		};	*/
 
+    self.filteredResponses = ko.pureComputed(() => {
+      const responses = ko.unwrap(self.arrResponses);
+      var requestID = self.filterResponseTabRequestID();
+      var requestStatus = self.filterResponseTabRequestStatus();
+      var requestIntDueDate = self.filterResponseTabRequestIntDueDate();
+      var sampleNum = self.filterResponseTabSampleNum();
+      var responseName = self.filterResponseTabResponseName();
+      var responseStatus = self.filterResponseTabResponseStatus();
+
+      if (
+        !requestID &&
+        !requestStatus &&
+        !requestIntDueDate &&
+        !sampleNum &&
+        !responseName &&
+        !responseStatus
+      ) {
+        // self.arrFilteredResponsesCount(responses.length);
+        document.body.style.cursor = "default";
+        return responses;
+      }
+
+      const filteredResponses = responses.filter((response) => {
+        if (responseStatus && response.status != responseStatus) return false;
+        if (requestID && response.reqNumber != requestID) return false;
+        if (requestStatus && response.requestStatus != requestStatus)
+          return false;
+        if (requestIntDueDate && response.internalDueDate != requestIntDueDate)
+          return false;
+        if (responseName && response.title != responseName) return false;
+        if (sampleNum && response.sample != sampleNum) return false;
+
+        return true;
+      });
+      // self.arrFilteredResponsesCount(filteredResponses.length);
+
+      return filteredResponses;
+    });
+    self.arrFilteredResponsesCount = ko.pureComputed(() => {
+      return self.filteredResponses().length;
+    });
+
+    // self.responseIsFiltered = function () {};
+
     self.FilterChangedResponseTab = function () {
       document.body.style.cursor = "wait";
       setTimeout(function () {
@@ -316,7 +318,7 @@ Audit.QAReport.NewReportPage = function () {
           !responseStatus
         ) {
           $(".sr-response-item").show();
-          self.arrFilteredResponsesCount(self.arrResponses().length);
+          // self.arrFilteredResponsesCount(self.arrResponses().length);
           document.body.style.cursor = "default";
           return;
         }
@@ -379,7 +381,7 @@ Audit.QAReport.NewReportPage = function () {
           }
         });
 
-        self.arrFilteredResponsesCount(count);
+        // self.arrFilteredResponsesCount(count);
         document.body.style.cursor = "default";
       }, 100);
     };
@@ -412,8 +414,8 @@ Audit.QAReport.NewReportPage = function () {
 
     /** Subscriptions **/
 
-    self.selectedFiltersResponseTab.subscribe(function (value) {
-      self.FilterChangedResponseTab();
+    self.currentResponse.subscribe((response) => {
+      if (response) setUrlParam(responseParam, response.title);
     });
 
     self.doSort.subscribe(function (newValue) {
@@ -422,7 +424,7 @@ Audit.QAReport.NewReportPage = function () {
       //alert("in dosort: " + self.arrResponses().length );
       if (self.arrResponses().length > 0 && newValue) {
         //should trigger only once
-        self.arrFilteredResponsesCount(self.arrResponses().length);
+        // self.arrFilteredResponsesCount(self.arrResponses().length);
 
         //draw these first
         ko.utils.arrayPushAll(
@@ -477,11 +479,13 @@ Audit.QAReport.NewReportPage = function () {
         setTimeout(function () {
           var paramTabIndex = GetUrlKeyValue("Tab");
           if (paramTabIndex != null && paramTabIndex != "") {
-            $("#tabs").tabs("option", "active", paramTabIndex);
+            _myViewModel.tabs.selectById(paramTabIndex);
+          } else {
+            _myViewModel.tabs.selectTab(_myViewModel.tabOpts.Responses);
           }
           var paramResponseNum = GetUrlKeyValue("ResNum");
           if (paramResponseNum != null && paramResponseNum != "") {
-            if (paramTabIndex == 0) {
+            if (paramTabIndex == _myViewModel.tabOpts.Responses.id) {
               if (
                 $("#ddlResponseName option[value='" + paramResponseNum + "']")
                   .length > 0
@@ -560,7 +564,7 @@ Audit.QAReport.NewReportPage = function () {
         LoadTabResponseInfoResponseDocs(oResponse);
 
         setTimeout(function () {
-          notifyId = SP.UI.Notify.addNotification(
+          const notifyId = SP.UI.Notify.addNotification(
             "Displaying Response (" + oResponse.title + ")",
             false
           );
@@ -624,7 +628,7 @@ Audit.QAReport.NewReportPage = function () {
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
 
-    m_currentUser = web.get_currentUser();
+    const m_currentUser = web.get_currentUser();
     currCtx.load(m_currentUser);
 
     var requestList = web
@@ -692,7 +696,7 @@ Audit.QAReport.NewReportPage = function () {
       $("#divRefresh").hide();
       $("#divLoading").hide();
 
-      statusId = SP.UI.Status.addStatus(
+      const statusId = SP.UI.Status.addStatus(
         "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
       );
       SP.UI.Status.setStatusPriColor(statusId, "red");
@@ -702,7 +706,7 @@ Audit.QAReport.NewReportPage = function () {
   function m_fnLoadData() {
     if (memberGroup != null) m_IA_SPGroupName = memberGroup.get_title();
     if (m_IA_SPGroupName == null || m_IA_SPGroupName == "") {
-      statusId = SP.UI.Status.addStatus(
+      const statusId = SP.UI.Status.addStatus(
         "Unable to retrieve the IA SharePoint Group. Please contact the Administrator"
       );
       SP.UI.Status.setStatusPriColor(statusId, "red");
@@ -1038,13 +1042,12 @@ Audit.QAReport.NewReportPage = function () {
         m_resStatusToFilterOn = responseStatus2;
 
       _myViewModel.cntPendingReview(count);
-      $("#tabs").tabs().show();
 
       ko.utils.arrayPushAll(_myViewModel.arrResponses, responseArr);
 
       //do this after push all because this takes some time
-      var output = $("#responseTemplate").render(responseArr);
-      $("#" + fbody).html(output);
+      // var output = $("#responseTemplate").render(responseArr);
+      // $("#" + fbody).html(output);
 
       //DoUpdateModel( responseArr, true);
     }
@@ -1127,7 +1130,7 @@ Audit.QAReport.NewReportPage = function () {
         oResponse.request.number +
         "</Value></Eq></Where></Query></View>"
     );
-    m_subsetCoverSheetItems = coverSheetLib.getItems(coverSheetQuery);
+    const m_subsetCoverSheetItems = coverSheetLib.getItems(coverSheetQuery);
     currCtx.load(
       m_subsetCoverSheetItems,
       "Include(ID, Title, ReqNum, ActionOffice, FileLeafRef, FileDirRef)"
@@ -1324,8 +1327,8 @@ Audit.QAReport.NewReportPage = function () {
     SP.UI.ModalDialog.showModalDialog(options);
   }
 
-  m_cntToApprove = 0;
-  m_cntApproved = 0;
+  let m_cntToApprove = 0;
+  let m_cntApproved = 0;
   function m_fnApproveAll() {
     m_bIsTransactionExecuting = true;
 
@@ -1487,7 +1490,7 @@ Audit.QAReport.NewReportPage = function () {
       itemCreateInfo.set_underlyingObjectType(SP.FileSystemObjectType.folder);
       itemCreateInfo.set_leafName(requestNumber);
 
-      oNewEAFolder = earesponseDocLib.addItem(itemCreateInfo);
+      const oNewEAFolder = earesponseDocLib.addItem(itemCreateInfo);
       oNewEAFolder.set_item("Title", requestNumber);
       oNewEAFolder.update();
 
@@ -1522,7 +1525,7 @@ Audit.QAReport.NewReportPage = function () {
       var friendlyName = date.format("MM/dd/yyyy");
 
       var itemCreateInfo = new SP.ListItemCreationInformation();
-      oNewEmailLogItem = eaEmailLogList.addItem(itemCreateInfo);
+      const oNewEmailLogItem = eaEmailLogList.addItem(itemCreateInfo);
       oNewEmailLogItem.set_item("Title", friendlyName);
       oNewEmailLogItem.update();
 
@@ -1565,7 +1568,7 @@ Audit.QAReport.NewReportPage = function () {
         "/" +
         oRequest.number
     );
-    oListItem = emailList.addItem(itemCreateInfo);
+    const oListItem = emailList.addItem(itemCreateInfo);
     oListItem.set_item("Title", emailSubject);
     oListItem.set_item("Body", emailText);
     oListItem.set_item("To", m_IA_SPGroupName);
@@ -1603,7 +1606,7 @@ Audit.QAReport.NewReportPage = function () {
           responseTitle +
           "</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>"
       );
-      aresponseItems = aresponseList.getItems(aresponseQuery);
+      const aresponseItems = aresponseList.getItems(aresponseQuery);
       ctx2.load(aresponseItems);
 
       var emailList = ctx2
@@ -1614,7 +1617,7 @@ Audit.QAReport.NewReportPage = function () {
       emailListQuery.set_viewXml(
         '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
       );
-      emailListFolderItems = emailList.getItems(emailListQuery);
+      const emailListFolderItems = emailList.getItems(emailListQuery);
       ctx2.load(
         emailListFolderItems,
         "Include(ID, FSObjType, Title, DisplayName)"
@@ -1708,7 +1711,7 @@ Audit.QAReport.NewReportPage = function () {
           responseTitle +
           "</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>"
       );
-      aresponseItems = aresponseList.getItems(aresponseQuery);
+      const aresponseItems = aresponseList.getItems(aresponseQuery);
       ctx2.load(aresponseItems);
 
       var emailList = ctx2
@@ -1719,7 +1722,7 @@ Audit.QAReport.NewReportPage = function () {
       emailListQuery.set_viewXml(
         '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
       );
-      emailListFolderItems = emailList.getItems(emailListQuery);
+      let emailListFolderItems = emailList.getItems(emailListQuery);
       ctx2.load(
         emailListFolderItems,
         "Include(ID, FSObjType, Title, DisplayName)"
@@ -1793,7 +1796,7 @@ Audit.QAReport.NewReportPage = function () {
         .get_lists()
         .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
 
-      oListItem = oList.getItemById(m_itemID);
+      let oListItem = oList.getItemById(m_itemID);
       clientContext.load(oListItem);
 
       var eaResponseDocsLib = clientContext
@@ -1830,8 +1833,8 @@ Audit.QAReport.NewReportPage = function () {
           m_waitDialog.close();
           return;
         }
-        oRequest = oResponse.request;
-        folderPath = oRequest.number;
+        const oRequest = oResponse.request;
+        const folderPath = oRequest.number;
 
         m_fnCreateEAFolder(folderPath);
         m_fnCreateEAEmailLogItem();
@@ -1871,7 +1874,7 @@ Audit.QAReport.NewReportPage = function () {
 
         var siteUrl = location.protocol + "//" + location.host;
         var urlOfNewFile = destinationFileNameUrl.replace(siteUrl, "");
-        newFile = ctx2.get_web().getFileByServerRelativeUrl(urlOfNewFile);
+        const newFile = ctx2.get_web().getFileByServerRelativeUrl(urlOfNewFile);
         ctx2.load(newFile, "ListItemAllFields");
         //ctx2.load(newFile, 'Include(ID)');
 
@@ -1904,7 +1907,7 @@ Audit.QAReport.NewReportPage = function () {
             .get_web()
             .get_lists()
             .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocsEA());
-          oListFileItem = oEADocLib.getItemById(idOfCopiedFile);
+          const oListFileItem = oEADocLib.getItemById(idOfCopiedFile);
           oListFileItem.set_item("RequestNumber", this.requestId);
           oListFileItem.set_item("ResponseID", this.responseNumber);
           oListFileItem.update();
@@ -1919,7 +1922,7 @@ Audit.QAReport.NewReportPage = function () {
               this.responseTitle +
               "</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>"
           );
-          aresponseItems = aresponseList.getItems(aresponseQuery);
+          const aresponseItems = aresponseList.getItems(aresponseQuery);
           ctx3.load(aresponseItems);
 
           var folderPath =
@@ -1938,7 +1941,8 @@ Audit.QAReport.NewReportPage = function () {
               folderPath +
               "</Value></Eq></And></Where></Query></View>"
           );
-          aresponseDocItems = aresponseDocList.getItems(aresponseDocQuery);
+          const aresponseDocItems =
+            aresponseDocList.getItems(aresponseDocQuery);
           ctx3.load(aresponseDocItems);
 
           var emailList = ctx3
@@ -1949,7 +1953,7 @@ Audit.QAReport.NewReportPage = function () {
           emailListQuery.set_viewXml(
             '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
           );
-          emailListFolderItems = emailList.getItems(emailListQuery);
+          let emailListFolderItems = emailList.getItems(emailListQuery);
           ctx3.load(
             emailListFolderItems,
             "Include(ID, FSObjType, Title, DisplayName)"
@@ -1961,7 +1965,7 @@ Audit.QAReport.NewReportPage = function () {
               false
             );
 
-            bUpdateResponseStatus = true;
+            let bUpdateResponseStatus = true;
             var listxItemEnumerator = aresponseDocItems.getEnumerator();
 
             var bRejected = false;
@@ -2099,7 +2103,7 @@ Audit.QAReport.NewReportPage = function () {
         .get_lists()
         .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
 
-      oListItem = oList.getItemById(m_itemID);
+      let oListItem = oList.getItemById(m_itemID);
       clientContext.load(oListItem);
 
       function OnSuccess(sender, args) {
@@ -2122,8 +2126,8 @@ Audit.QAReport.NewReportPage = function () {
           location.host +
           _spPageContextInfo.webServerRelativeUrl +
           "/";
-        filePath = oListItem.get_item("FileDirRef");
-        fileName = oListItem.get_item("FileLeafRef");
+        const filePath = oListItem.get_item("FileDirRef");
+        const fileName = oListItem.get_item("FileLeafRef");
         var lastInd = filePath.lastIndexOf("/");
         var urlpath = filePath.substring(0, lastInd + 1);
         var responseTitle = filePath.replace(urlpath, "");
@@ -2144,7 +2148,7 @@ Audit.QAReport.NewReportPage = function () {
             folderPath +
             "</Value></Eq></And></Where></Query></View>"
         );
-        aresponseDocItems = aresponseDocList.getItems(aresponseDocQuery);
+        const aresponseDocItems = aresponseDocList.getItems(aresponseDocQuery);
         ctx2.load(aresponseDocItems);
 
         var aresponseList = ctx2
@@ -2157,7 +2161,7 @@ Audit.QAReport.NewReportPage = function () {
             responseTitle +
             "</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>"
         );
-        aresponseItems = aresponseList.getItems(aresponseQuery);
+        const aresponseItems = aresponseList.getItems(aresponseQuery);
         ctx2.load(aresponseItems);
 
         var emailList = ctx2
@@ -2168,7 +2172,7 @@ Audit.QAReport.NewReportPage = function () {
         emailListQuery.set_viewXml(
           '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
         );
-        emailListFolderItems = emailList.getItems(emailListQuery);
+        const emailListFolderItems = emailList.getItems(emailListQuery);
         ctx2.load(
           emailListFolderItems,
           "Include(ID, FSObjType, Title, DisplayName)"
@@ -2180,7 +2184,7 @@ Audit.QAReport.NewReportPage = function () {
             false
           );
 
-          bUpdateResponseStatus = true;
+          let bUpdateResponseStatus = true;
           var listxItemEnumerator = aresponseDocItems.getEnumerator();
 
           while (listxItemEnumerator.moveNext()) {
@@ -2302,7 +2306,7 @@ Audit.QAReport.NewReportPage = function () {
         if (oResponse == null || oResponse.request == null) return;
 
         oRequest = oResponse.request;
-        folderPath = oRequest.number;
+        const folderPath = oRequest.number;
 
         m_fnCreateEAFolder(oRequest.number);
         m_fnCreateEAEmailLogItem();
@@ -2326,8 +2330,8 @@ Audit.QAReport.NewReportPage = function () {
             .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
 
           //refetch to avoid version conflict
-          oListItem = oResponse.responseDocs[x].item;
-          fileName = oListItem.get_item("FileLeafRef");
+          let oListItem = oResponse.responseDocs[x].item;
+          const fileName = oListItem.get_item("FileLeafRef");
           oListItem = oList.getItemById(oListItem.get_item("ID"));
 
           //copy the file to the EA library
@@ -2355,7 +2359,9 @@ Audit.QAReport.NewReportPage = function () {
           //load the file
           var siteUrl = location.protocol + "//" + location.host;
           var urlOfNewFile = destinationFileNameUrl.replace(siteUrl, "");
-          newFile = ctx2.get_web().getFileByServerRelativeUrl(urlOfNewFile);
+          const newFile = ctx2
+            .get_web()
+            .getFileByServerRelativeUrl(urlOfNewFile);
           ctx2.load(newFile, "ListItemAllFields");
 
           var data = {
@@ -2391,7 +2397,7 @@ Audit.QAReport.NewReportPage = function () {
               .get_web()
               .get_lists()
               .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocsEA());
-            oListFileItem = oEADocLib.getItemById(idOfCopiedFile);
+            const oListFileItem = oEADocLib.getItemById(idOfCopiedFile);
             oListFileItem.set_item("RequestNumber", this.requestId);
             oListFileItem.set_item("ResponseID", this.responseNumber);
             oListFileItem.update();
@@ -2406,7 +2412,7 @@ Audit.QAReport.NewReportPage = function () {
                 this.responseTitle +
                 "</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>"
             );
-            aresponseItems = aresponseList.getItems(aresponseQuery);
+            const aresponseItems = aresponseList.getItems(aresponseQuery);
             ctx3.load(aresponseItems);
 
             var folderPath =
@@ -2425,7 +2431,8 @@ Audit.QAReport.NewReportPage = function () {
                 folderPath +
                 "</Value></Eq></And></Where></Query></View>"
             );
-            aresponseDocItems = aresponseDocList.getItems(aresponseDocQuery);
+            const aresponseDocItems =
+              aresponseDocList.getItems(aresponseDocQuery);
             ctx3.load(aresponseDocItems);
 
             var emailList = ctx3
@@ -2436,7 +2443,7 @@ Audit.QAReport.NewReportPage = function () {
             emailListQuery.set_viewXml(
               '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
             );
-            emailListFolderItems = emailList.getItems(emailListQuery);
+            const emailListFolderItems = emailList.getItems(emailListQuery);
             ctx3.load(
               emailListFolderItems,
               "Include(ID, FSObjType, Title, DisplayName)"
@@ -2455,7 +2462,7 @@ Audit.QAReport.NewReportPage = function () {
                 false
               );
 
-              bUpdateResponseStatus = true;
+              let bUpdateResponseStatus = true;
               var listxItemEnumerator = this.aresponseDocItems.getEnumerator();
 
               var bRejected = false;
@@ -2624,7 +2631,7 @@ Audit.QAReport.NewReportPage = function () {
   }
 
   function GoToResponse(response) {
-    $("#tabs").tabs({ active: 1 });
+    _myViewModel.tabs.selectTab(_myViewModel.tabOpts.ResponseDetail);
 
     if (response) {
       response = m_bigMap["response-" + response];

@@ -76,8 +76,11 @@ Audit.Common.NewUtilities = function () {
         else if (responseNumProcessed != null && responseNumProcessed != "")
           curPath += "&ResNum=" + responseNumProcessed;
       }
+
+      location.href = curPath;
+    } else {
+      location.reload();
     }
-    location.href = curPath;
   }
 
   function m_fnOnLoadDisplayTimeStamp() {
