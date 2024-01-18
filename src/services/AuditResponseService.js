@@ -2,6 +2,7 @@ import {
   AuditResponse,
   AuditResponseStates,
 } from "../entities/AuditResponse.js";
+import { AuditResponseDoc } from "../entities/AuditResponseDocs.js";
 import { appContext } from "../infrastructure/ApplicationDbContext.js";
 import { showModal } from "../infrastructure/SPModalService.js";
 
@@ -55,11 +56,11 @@ export async function updateResponse(request, response) {
   }
 
   // Sensitivity Check
-  const currenResponseSensitivity = request.Sensitivity.Value();
+  const currentResponseSensitivity = request.Sensitivity.Value();
   const selectedResponseStatus = response.ResStatus.Value();
 
   if (
-    selectedResponseStatus == "4-Approved for QA" &&
+    selectedResponseStatus == AuditResponseStates.ApprovedForQA &&
     currentResponseSensitivity == "None"
   )
     throw new Error("Request Sensitivity not set; cannot submit to QA.");
@@ -72,6 +73,13 @@ export async function updateResponse(request, response) {
   await appContext.AuditResponses.UpdateEntity(
     response,
     AuditResponse.Views.AOCanUpdate
+  );
+}
+
+export async function updateResponseDoc(request, response, responseDoc) {
+  await appContext.AuditResponseDocs.UpdateEntity(
+    responseDoc,
+    AuditResponseDoc.Views.AOCanUpdate
   );
 }
 

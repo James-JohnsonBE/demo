@@ -12,6 +12,13 @@ import BaseField from "../fields/BaseField.js";
 import { ValidationError } from "../primitives/ValidationError.js";
 // import { appContext } from "../infrastructure/ApplicationDbContext.js";
 
+export const AUDITREQUESTSTATES = {
+  OPEN: "Open",
+  CANCELLED: "Canceled",
+  CLOSED: "Closed",
+  REOPENED: "ReOpened",
+};
+
 export class AuditRequest extends ConstrainedEntity {
   constructor(params) {
     super(params);
@@ -59,7 +66,7 @@ export class AuditRequest extends ConstrainedEntity {
 
   ReqStatus = new SelectField({
     displayName: "Request Status",
-    options: ["Open", "Canceled", "Closed", "ReOpened"],
+    options: Object.values(AUDITREQUESTSTATES),
     isRequired: true,
   });
 

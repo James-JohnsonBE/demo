@@ -113,7 +113,7 @@ class EntitySet {
       if (foundEntity) return foundEntity;
     }
 
-    const result = await this.ListRef.findByIdAsync(id, fields);
+    const result = await this.ListRef.getById(id, fields);
     if (!result) return null;
     const newEntity = new this.entityType(result);
     mapObjectToEntity(result, newEntity);

@@ -16,6 +16,7 @@ import { EditCoverSheetForm } from "../../components/Forms/CoverSheet/EditForm/E
 import { AuditResponse } from "../../entities/AuditResponse.js";
 import { NewResponseForm } from "../../components/Forms/Response/NewForm/NewResponseForm.js";
 import { EditResponseForm } from "../../components/Forms/Response/EditForm/EditResponseForm.js";
+import { EditResponseDocForm } from "../../components/Forms/ResponseDoc/EditForm/EditResponseDocForm.js";
 
 var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
@@ -3654,7 +3655,23 @@ Audit.IAReport.NewReportPage = function () {
     activeViewers.pushCurrentUser();
   }
 
-  function m_fnViewResponseDoc(id, requestID, responseID) {
+  async function m_fnViewResponseDoc(id, requestID, responseID) {
+    m_bIsTransactionExecuting = true;
+
+    const responseDoc = await appContext.AuditResponseDocs.FindById(id);
+    const responseDocForm = FormManager.DispForm(responseDoc);
+
+    const options = {
+      form: responseDocForm,
+    };
+
+    options.title = "View Response Doc (ID:" + id + ")";
+    options.height = "600";
+    options.dialogReturnValueCallback = OnCallbackForm;
+
+    ModalDialog.showModalDialog(options);
+  }
+  function m_fnViewResponseDocDep(id, requestID, responseID) {
     m_bIsTransactionExecuting = true;
 
     var formName = "DispForm.aspx";
@@ -3681,7 +3698,29 @@ Audit.IAReport.NewReportPage = function () {
     SP.UI.ModalDialog.showModalDialog(options);
   }
 
-  function m_fnEditResponseDoc(id, requestID, responseID) {
+  async function m_fnEditResponseDoc(id, requestID, responseID) {
+    if (!m_bIsSiteOwner) {
+      SP.UI.Notify.addNotification(
+        "You do not have access to perform this action...",
+        false
+      );
+      return;
+    }
+
+    m_bIsTransactionExecuting = true;
+    const responseDoc = await appContext.AuditResponseDocs.FindById(id);
+    const responseDocForm = new EditResponseDocForm({ entity: responseDoc });
+
+    const options = {
+      form: responseDocForm,
+    };
+    options.title = "Edit ResponseDoc (ID:" + id + ")";
+    options.dialogReturnValueCallback = OnCallbackForm;
+
+    ModalDialog.showModalDialog(options);
+  }
+
+  function m_fnEditResponseDocDep(id, requestID, responseID) {
     if (!m_bIsSiteOwner) {
       SP.UI.Notify.addNotification(
         "You do not have access to perform this action...",

@@ -100,6 +100,22 @@ export class AuditResponseDoc extends ConstrainedEntity {
       "File_x0020_Type",
       "CheckoutUser",
     ],
+    EditForm: [
+      "FileLeafRef",
+      "Title",
+      "ReceiptDate",
+      "DocumentStatus",
+      "RejectReason",
+      "ReqNum",
+      "ResID",
+    ],
+    AOCanUpdate: [
+      "Title",
+      "ReceiptDate",
+      "DocumentStatus",
+      "RejectReason",
+      "FileLeafRef",
+    ],
   };
 
   static ListDef = {

@@ -241,6 +241,15 @@ div.cell-margin {
   /* padding: 0; */
 }
 
+.alert {
+  border-radius: 6px;
+}
+
+.alert-warning {
+  background-color: var(--warn-color);
+  color: var(--warn-hover-color);
+}
+
 #dlgModalDialog {
   display: none;
   width: 615px;
