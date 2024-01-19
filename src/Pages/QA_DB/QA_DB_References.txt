@@ -44,13 +44,16 @@
         css: {active: $parent.isSelected($data)}"
       ></li>
     </ul>
-    <!-- /ko -->
+    <!-- ko foreach: tabOpts -->
     <div
       data-bind="template: {
-        name: tabs.selectedTab()?.template.id, 
-        data: tabs.selectedTab()?.template.data
-      }"
+      name: template.id,
+      data: template.data
+    },
+    visible: $parent.isSelected($data)"
     ></div>
+    <!-- /ko -->
+    <!-- /ko -->
   </div>
 </div>
 
