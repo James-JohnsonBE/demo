@@ -241,8 +241,6 @@ Audit.IAReport.NewReportPage = function () {
 
     self.currentDialog = ModalDialog.currentDialog;
 
-    self.requestDetailViewComponent = new RequestDetailView(self);
-
     self.tabOpts = {
       Requests: new Tab("request-report", "Request Status Report", {
         id: "requestStatusReportTemplate",
@@ -252,20 +250,20 @@ Audit.IAReport.NewReportPage = function () {
         id: "responseStatusReportTemplate",
         data: self,
       }),
-      RequestDetail: new Tab("request-detail-dep", "Request Information", {
-        id: "requestDetailTemplateDeprecated",
-        data: self,
-      }),
-      RequestDetail2: new Tab("request-detail", "Request Information (V2)", {
+      // RequestDetail: new Tab("request-detail-dep", "Request Information", {
+      //   id: "requestDetailTemplateDeprecated",
+      //   data: self,
+      // }),
+      RequestDetail: new Tab("request-detail", "Request Information (V2)", {
         id: "requestDetailTemplate",
         data: self,
       }),
-      NewRequest: new Tab("new-request", "New Request", {
-        id: "newRequestTemplate",
-        data: new NewRequestFormComponent({
-          onComplete: OnCallbackFormNewRequest,
-        }),
-      }),
+      // NewRequest: new Tab("new-request", "New Request", {
+      //   id: "newRequestTemplate",
+      //   data: new NewRequestFormComponent({
+      //     onComplete: OnCallbackFormNewRequest,
+      //   }),
+      // }),
     };
 
     self.tabs = new TabsModule(Object.values(self.tabOpts));
@@ -296,6 +294,8 @@ Audit.IAReport.NewReportPage = function () {
     self.FilterChangedRequestTab = function () {
       //	console.log("filter changed");
       setTimeout(function () {
+        const timerStart = new Date();
+
         var requestID = self.filterRequestTabRequestID();
         var requestStatus = self.filterRequestTabRequestStatus();
         var requestSensitivity = self.filterRequestTabRequestSensitivity();
@@ -407,12 +407,14 @@ Audit.IAReport.NewReportPage = function () {
         });
 
         self.arrFilteredRequestsCount(count);
+        console.log("Requests Filtered in: ", (new Date() - timerStart) / 1000);
       }, 100);
     };
 
     self.FilterChangedResponseTab = function () {
       document.body.style.cursor = "wait";
       setTimeout(function () {
+        const timerStart = new Date();
         var requestID = self.filterResponseTabRequestID();
         var sampleNum = self.filterResponseTabSampleNum();
         var responseName = self.filterResponseTabResponseName();
@@ -555,6 +557,10 @@ Audit.IAReport.NewReportPage = function () {
 
         self.arrFilteredResponsesCount(count);
         document.body.style.cursor = "default";
+        console.log(
+          "Responses Filtered in: ",
+          (new Date() - timerStart) / 1000
+        );
       }, 200);
     };
 
@@ -597,7 +603,7 @@ Audit.IAReport.NewReportPage = function () {
 
     self.ClickEditCoversheet = function (oCS) {
       var oRequest = self.currentRequest();
-      if (oCS && oCS.ID && oCS.number && oRequest && oRequest.number)
+      if (oCS && oCS.ID && oRequest && oRequest.number)
         m_fnEditCoverSheet(oCS.ID, oRequest.number);
     };
 
@@ -735,6 +741,8 @@ Audit.IAReport.NewReportPage = function () {
       if (oResponseDoc && oResponseDoc.ID)
         m_fnResendRejectedResponseDocToQA(oResponseDoc.ID);
     };
+
+    self.requestDetailViewComponent = new RequestDetailView(self);
 
     /** Subscriptions **/
 

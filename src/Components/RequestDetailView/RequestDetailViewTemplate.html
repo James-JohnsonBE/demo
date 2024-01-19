@@ -1,4 +1,4 @@
-<div class="request-detail-view" data-bind="with: report">
+<div class="request-detail-view" data-bind="">
   <div>
     <div
       id="divRequestClose"
@@ -12,7 +12,7 @@
           id="btnCloseRequest"
           href="javascript:void(0)"
           title="Close this Request"
-          data-bind="click: ClickCloseRequest"
+          data-bind="click: $root.ClickCloseRequest"
           >Close this Request</a
         >
       </fieldset>
@@ -482,14 +482,26 @@
             </tr>
           </tfoot>
         </table>
-        <div id="divCoverSheetActions" style="padding-top: 5px">
-          <a
-            title="Upload Cover Sheet or Supplemental Document"
-            href="javascript:void(0)"
-            data-bind="click: ClickUploadCoverSheet"
-            ><span class="ui-icon ui-icon-circle-arrow-n"></span>Upload Cover
-            Sheet or Supplemental Document</a
-          >
+        <div id="divCoverSheetActions" style="padding-top: 5px" class="w-fit">
+          <div data-bind="visible: coverSheetFiles().length">
+            Uploading Coversheet!
+            <progress></progress>
+          </div>
+          <label data-bind="visible: !coverSheetFiles().length">
+            <div
+              class="text-link"
+              title="Upload Cover Sheet or Supplemental Document"
+              data-bind=""
+            >
+              <span class="ui-icon ui-icon-circle-arrow-n"></span>Upload Cover
+              Sheet or Supplemental Document
+            </div>
+            <input
+              style="display: none"
+              type="file"
+              data-bind="files: coverSheetFiles"
+            />
+          </label>
         </div>
       </fieldset>
     </div>
@@ -570,7 +582,7 @@
               <th class="sorter-false" nowrap="nowrap">Documents</th>
             </tr>
           </thead>
-          <tbody data-bind="foreach: arrCurrentRequestResponses">
+          <tbody data-bind="foreach: currentRequestResponseItems">
             <tr class="response-item">
               <td class="response-sample">
                 <span data-bind="text: sample"></span>
@@ -687,14 +699,33 @@
                     >View Folder</span
                   ></a
                 >
-                <a
+                <label
+                  class="pointer"
                   title="Upload Response Documents"
-                  href="javascript:void(0)"
-                  data-bind="visible: $parent.status != 'Closed' && $parent.status != 'Canceled' && ( resStatus == '1-Open' || resStatus == '2-Submitted' || resStatus == '3-Returned to Action Office' ||resStatus == '5-Returned to GFS' ), click: $root.ClickUploadToResponseDocFolder"
+                  data-bind="visible: $parent.status != 'Closed' && $parent.status != 'Canceled' && ( resStatus == '1-Open' || resStatus == '2-Submitted' || resStatus == '3-Returned to Action Office' ||resStatus == '5-Returned to GFS' )"
                   ><span class="ui-icon ui-icon-circle-arrow-n"
                     >Upload Docs</span
-                  ></a
+                  >
+                  <input
+                    type="file"
+                    multiple
+                    style="display: none"
+                    data-bind="files: responseDocFiles"
+                  />
+                </label>
+                <label
+                  title="Upload Coversheets for Action Office"
+                  class="pointer"
+                  data-bind="visible: $parent.status != 'Closed' && $parent.status != 'Canceled' && ( resStatus == '1-Open' || resStatus == '2-Submitted' || resStatus == '3-Returned to Action Office' ||resStatus == '5-Returned to GFS' )"
                 >
+                  <i class="fa-solid fa-file-invoice">Upload Coversheets</i>
+                  <input
+                    type="file"
+                    multiple
+                    style="display: none"
+                    data-bind="files: responseCoversheetFiles"
+                  />
+                </label>
               </td>
             </tr>
           </tbody>

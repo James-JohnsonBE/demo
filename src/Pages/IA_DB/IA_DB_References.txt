@@ -1746,7 +1746,6 @@
 <div id="divTest"></div>
 
 <script
-  defer
   type="module"
   src="/sites/CGFS/Style Library/apps/audit/src/pages/IA_DB/IA_DB.js"
 ></script>

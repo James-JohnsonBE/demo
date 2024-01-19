@@ -17,6 +17,19 @@ ko.subscribable.fn.subscribeChanged = function (callback) {
   });
 };
 
+ko.observableArray.fn.subscribeAdded = function (callback) {
+  this.subscribe(
+    function (arrayChanges) {
+      const addedValues = arrayChanges
+        .filter((value) => value.status == "added")
+        .map((value) => value.value);
+      callback(addedValues);
+    },
+    this,
+    "arrayChange"
+  );
+};
+
 ko.bindingHandlers.searchSelect = {
   init: function (element, valueAccessor, allBindingsAccessor) {
     const { options, selectedOptions, optionsText } = valueAccessor();

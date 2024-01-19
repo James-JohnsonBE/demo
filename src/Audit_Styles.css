@@ -161,7 +161,7 @@ button.btn[disabled] {
   cursor: not-allowed;
 }
 
-button.btn.btn-link {
+.btn.btn-link {
   color: #0072c6;
   border: none;
   font-weight: normal;
@@ -286,8 +286,26 @@ button.btn.btn-link:hover {
   height: 1rem;
 }
 
+.w-fit {
+  width: fit-content;
+}
+
 .text-danger {
   color: var(--primary-color);
+}
+
+.text-link {
+  cursor: pointer;
+  color: #0072c6;
+  background-color: inherit;
+  padding: 0;
+  min-width: 0;
+  vertical-align: inherit;
+  font-size: inherit;
+}
+
+.text-link:hover {
+  text-decoration: underline;
 }
 
 .commentChain .comment {

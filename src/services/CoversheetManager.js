@@ -13,7 +13,7 @@ import { AuditCoversheet } from "../entities/AuditCoversheet.js";
 export async function uploadRequestCoversheetFile(
   file,
   request,
-  actionOffices
+  actionOffices = []
 ) {
   let fileName = file.name;
   const reqNum = request.ReqNum.Value();

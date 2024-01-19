@@ -7,6 +7,20 @@ import { People } from "../entities/People.js";
 import { AuditRequestsInternal } from "../entities/AuditRequestsInternal.js";
 import { AuditRequest } from "../entities/AuditRequest.js";
 
+export async function getRequestById(id) {
+  return await appContext.AuditRequests.FindById(id);
+}
+
+export async function getRequestByTitle(title) {
+  const requestResults = await appContext.AuditRequests.FindByColumnValue(
+    [{ column: "Title", value: title }],
+    {},
+    { count: 1 }
+  );
+
+  return requestResults.results[0] ?? null;
+}
+
 export async function AddNewRequest(request) {
   const fields = request.FieldMap;
 
