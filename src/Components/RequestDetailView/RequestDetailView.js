@@ -1,396 +1,49 @@
-import { getUrlParam } from "../../common/Router.js";
-import { AuditResponseStates } from "../../entities/AuditResponse.js";
-import { AuditResponseDocStates } from "../../entities/AuditResponseDocs.js";
-import { appContext } from "../../infrastructure/ApplicationDbContext.js";
 import { registerComponent } from "../../infrastructure/RegisterComponents.js";
-import {
-  ensureRequestPermissions,
-  ensureRequestInternalItem,
-  getRequestCoversheets,
-  getRequestResponses,
-  getRequestResponseDocs,
-} from "../../services/AuditRequestService.js";
-import { showBulkAddResponseModal } from "../../services/AuditResponseService.js";
-import { uploadRequestCoversheetFile } from "../../services/CoversheetManager.js";
-import { getSpecialPermGroups } from "../../services/PeopleManager.js";
 
-import { TabsModule, Tab } from "../Tabs/TabsModule.js";
+const componentName = "component-request-detail-view";
 
-const requestDetailViewComponentName = "requestDetailView";
+export class RequestDetailView {
+  constructor(report) {
+    this.report = report;
 
-let specialGroups;
+    /*
+    currentRequest
+    arrCurrentRequestCoverSheets
+    arrCurrentRequestResponses
 
-export class RequestDetailViewComponent {
-  constructor({ currentRequest }) {
-    currentRequest.subscribe((request) => {
-      if (request) this.loadRequest(request.ID);
-    });
+    ClickViewCoversheet
+    ClickEditCoversheet
+    ClickUploadCoverSheet
 
-    this.init();
+    ClickAddResponse
+    ClickBulkAddResponse
+    ClickBulkEditResponse
+    ClickReOpenResponse
+
+    ClickViewResponse
+    ClickEditResponse
+    ClickReviewingResponse
+    ClickViewResponseDocFolder
+    ClickUploadToResponseDocFolder
+
+    cntResponseDocs
+
+    arrCurrentRequestResponseDocs
+    ClickDeleteResponseDoc
+    ClickCheckInResponseDocument
+    ClickResendRejectedResponseDocToQA
+    ClickViewResponseDoc
+    ClickEditResponseDoc
+    */
   }
+  report;
 
-  async init() {
-    specialGroups = await getSpecialPermGroups();
-  }
-
-  request = ko.observable();
-  requestInternal = ko.observable();
-  requestCoversheets;
-  requestResponses;
-  requestResponseDocs;
-
-  // By making the params observable, we can force the component to re-render when they change
-  params = ko.observable();
-
-  async loadRequest(requestId) {
-    // All resource heavy initialization should be done in the component reference class
-    // since it persists past the component lifecycle
-    const request = await appContext.AuditRequests.FindById(requestId);
-    await ensureRequestPermissions(request);
-
-    const requestInternal = await ensureRequestInternalItem(request);
-
-    this.requestCoversheets = await getRequestCoversheets(request);
-    this.requestResponses = await getRequestResponses(request);
-    this.requestResponseDocs = await getRequestResponseDocs(request);
-
-    this.request(request);
-    this.requestInternal(requestInternal);
-
-    this.params({
-      request: this.request(),
-      requestInternal: this.requestInternal(),
-      requestCoversheets: this.requestCoversheets,
-      requestResponses: this.requestResponses,
-      requestResponseDocs: this.requestResponseDocs,
-    });
-  }
-
-  componentName = requestDetailViewComponentName;
-}
-
-const requestDetailUrlParam = "request-detail-tab";
-export default class RequestDetailViewModule {
-  constructor({
-    request,
-    requestInternal,
-    requestCoversheets,
-    requestResponses,
-    requestResponseDocs,
-  }) {
-    this.request = request;
-    this.requestInternal = requestInternal;
-    this.requestCoversheets(
-      requestCoversheets?.map((cs) => new RequestDetailCoversheet(cs)) ?? []
-    );
-    this.requestResponses(
-      requestResponses?.map(
-        (response) =>
-          new RequestDetailResponse(
-            this.request,
-            response,
-            this.requestCoversheets,
-            this.responseDocs
-          )
-      ) ?? []
-    );
-
-    this.responseDocs(
-      requestResponseDocs.map(
-        (responseDoc) => new RequestDetailResponseDoc(this.request, responseDoc)
-      )
-    );
-    console.log("recreating detail view component!", request);
-
-    this.requestInternal.activeViewersComponent.pushCurrentUser();
-
-    this.tabs = new TabsModule(
-      Object.values(this.tabOpts),
-      requestDetailUrlParam
-    );
-
-    this.expandResponseDocs.subscribe(this.expandResponseDocsHandler, this);
-
-    this.init();
-  }
-
-  showDocuments = ko.observable(false);
-
-  requestCoversheets = ko.observableArray();
-  requestResponses = ko.observableArray();
-  responseDocs = ko.observableArray();
-
-  tabOpts = {
-    Coversheets: new Tab("coversheets", "Coversheets", {
-      id: "requestDetailCoversheetsTabTemplate",
-      data: this,
-    }),
-    Responses: new Tab("responses", "Responses", {
-      id: "requestDetailResponsesTabTemplate",
-      data: this,
-    }),
-    ResponseDocs: new Tab("response-docs", "Response Docs", {
-      id: "requestDetailResponseDocsTabTemplate",
-      data: this,
-    }),
-  };
-
-  async init() {
-    this.setInitialTab();
-  }
-
-  setInitialTab() {
-    if (getUrlParam(requestDetailUrlParam)) {
-      this.tabs.selectById(getUrlParam(requestDetailUrlParam));
-      return;
-    }
-
-    const defaultTab = this.request.EmailSent.Value()
-      ? this.tabOpts.Responses
-      : this.tabOpts.Coversheets;
-
-    this.tabs.selectTab(defaultTab);
-  }
-
-  /* Responses Tab */
-  addCoversheetFile(file, actionOffices) {}
-
-  addResponseHandler() {}
-
-  async bulkAddResponsesHandler() {
-    await showBulkAddResponseModal(this.request);
-    this.reloadResponses();
-  }
-
-  async reloadResponses() {
-    const responses = await getRequestResponses(this.request);
-    this.requestResponses(
-      responses.map(
-        (response) =>
-          new RequestDetailResponse(
-            this.request,
-            response,
-            this.requestCoversheets,
-            this.responseDocs
-          )
-      )
-    );
-  }
-
-  /* Response Docs Tab */
-  expandResponseDocs = ko.observable(false);
-
-  _checkResponseDocs = true;
-  checkResponseDocsHandler() {
-    this.requestResponses().forEach((response) => {
-      if (
-        response.response.ResStatus.Value() == AuditResponseStates.Submitted
-      ) {
-        response.checkResponseDocs(this._checkResponseDocs);
-      }
-    });
-    this._checkResponseDocs = !this._checkResponseDocs;
-  }
-
-  expandResponseDocsHandler(expandDocs) {
-    this.requestResponses().forEach((response) =>
-      response.showResponseDocs(expandDocs)
-    );
-  }
-
-  approveCheckedResponseDocsHandler() {}
-
-  dispose() {
-    this.requestInternal.activeViewersComponent.removeCurrentuser();
-  }
+  componentName = componentName;
+  params = this;
 }
 
 registerComponent({
-  name: requestDetailViewComponentName,
+  name: componentName,
   folder: "RequestDetailView",
-  module: RequestDetailViewModule,
   template: "RequestDetailViewTemplate",
 });
-
-class RequestDetailCoversheet {
-  constructor(coversheet) {
-    Object.assign(this, coversheet);
-  }
-
-  showActionOffices = ko.observable(false);
-
-  toggleShowActionOffices() {
-    this.showActionOffices(!this.showActionOffices());
-  }
-}
-
-/***
- * Hold information regarding our request detail response items.
- * This class is composed on top of the AuditResponse entity
- */
-class RequestDetailResponse {
-  constructor(request, response, requestCoversheets, requestResponseDocs) {
-    // Object.assign(this, response);
-    this.request = request;
-    this.response = response;
-    this.requestResponseDocs = requestResponseDocs;
-    this.requestCoversheets = requestCoversheets;
-    this.init();
-
-    this.responseDocFiles.subscribe(
-      this.responseDocFilesChangeHandler,
-      this,
-      "arrayChange"
-    );
-
-    this.responseCoversheetFiles.subscribe(
-      this.responseCoversheetFilesChangeHandler,
-      this,
-      "arrayChange"
-    );
-  }
-  requestResponses = [this];
-  requestResponseDocs;
-
-  responseDocs = ko.pureComputed(() => {
-    return this.requestResponseDocs().filter(
-      (responseDoc) =>
-        responseDoc.responseDoc.ResID.Value()?.ID == this.response.ID
-    );
-  });
-
-  permissions = ko.observable();
-  responseDocFiles = ko.observableArray();
-  responseCoversheetFiles = ko.observableArray();
-
-  responseDocFilesChangeHandler = (fileChanges) => {
-    const newFiles = fileChanges
-      .filter((file) => file.status == "added")
-      .map((file) => file.value);
-
-    if (newFiles.length) this.uploadResponseDocFiles(newFiles);
-  };
-
-  uploadResponseDocFiles = async (files) => {
-    const promises = [];
-
-    // for (let file of files) {
-    //   promises.push(this.response.uploadResponseDocFile(file));
-    // }
-
-    for (let file of files) {
-      promises.push(
-        new Promise(async (resolve) => {
-          const newDoc = await this.response.uploadResponseDocFile(file);
-          this.requestResponseDocs.push(
-            new RequestDetailResponseDoc(this.request, newDoc)
-          );
-          resolve();
-        })
-      );
-    }
-
-    await Promise.all(promises);
-
-    this.responseDocFiles.removeAll();
-  };
-
-  responseCoversheetFilesChangeHandler = (fileChanges) => {
-    const newFiles = fileChanges
-      .filter((file) => file.status == "added")
-      .map((file) => file.value);
-
-    if (newFiles.length) this.uploadResponseCoversheetFiles(newFiles);
-  };
-
-  uploadResponseCoversheetFiles = async (files) => {
-    const promises = [];
-
-    for (let file of files) {
-      promises.push(
-        new Promise(async (resolve) => {
-          const newSheet = await uploadRequestCoversheetFile(
-            file,
-            this.request,
-            [this.response.ActionOffice.Value()]
-          );
-          this.requestCoversheets.push(new RequestDetailCoversheet(newSheet));
-          resolve();
-        })
-      );
-    }
-
-    await Promise.all(promises);
-
-    this.responseCoversheetFiles.removeAll();
-  };
-
-  responseHasSpecialPerms = ko.pureComputed(() => {
-    const perms = this.permissions();
-    if (!perms) {
-      return;
-    }
-    return (
-      perms.principalHasPermissionKind(
-        specialGroups.specialPermGroup1,
-        SP.PermissionKind.viewListItems
-      ) &&
-      perms.principalHasPermissionKind(
-        specialGroups.specialPermGroup2,
-        SP.PermissionKind.viewListItems
-      )
-    );
-  });
-
-  checkResponseDocs = (checkResponses) => {
-    this.responseDocs().forEach((responseDoc) => {
-      if (
-        responseDoc.responseDoc.DocumentStatus.Value() ==
-          AuditResponseDocStates.Submitted &&
-        responseDoc.chkApproveResDoc() != checkResponses
-      ) {
-        responseDoc.chkApproveResDoc(checkResponses);
-      }
-    });
-  };
-
-  //Response Docs View
-  showResponseDocs = ko.observable(false);
-
-  toggleShowResponseDocs() {
-    this.showResponseDocs(!this.showResponseDocs());
-  }
-
-  async init() {
-    await this.getResponsePermissions();
-  }
-
-  async getResponsePermissions() {
-    const perms = await appContext.AuditResponses.GetItemPermissions(
-      this.response
-    );
-    this.permissions(perms);
-  }
-}
-
-class RequestDetailResponseDoc {
-  constructor(request, responseDoc) {
-    this.request = request;
-    this.responseDoc = responseDoc;
-  }
-
-  chkApproveResDoc = ko.observable(false);
-
-  request;
-  response;
-
-  checkInResponseDoc = async () => {
-    const result = await appContext.AuditResponseDocs.CheckInDocument(
-      this.responseDoc.FileRef.Value()
-    );
-
-    if (result) {
-      await appContext.AuditResponseDocs.LoadEntity(this.responseDoc, true);
-    }
-  };
-}

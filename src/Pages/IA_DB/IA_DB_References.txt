@@ -1674,11 +1674,9 @@
       data-bind="options: $root.ddOptionsRequestInfoTabRequestName, value: filterRequestInfoTabRequestName, optionsCaption: '-Select-'"
     ></select>
   </div>
-  <!-- ko using: requestDetailViewComponent -->
-  <!-- ko if: params -->
-  <div data-bind="component: {name: componentName, params: params}"></div>
-  <!-- /ko -->
-  <!-- /ko -->
+  <div
+    data-bind="component: {name: requestDetailViewComponent.componentName, params: requestDetailViewComponent}"
+  ></div>
 </script>
 
 <script id="requestTemplate" type="text/html">

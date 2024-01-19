@@ -10,7 +10,7 @@ import * as FormManager from "../../services/FormManager.js";
 
 import { AuditRequest } from "../../entities/AuditRequest.js";
 import { NewRequestFormComponent } from "../../components/Forms/Request/NewForm/NewRequestForm.js";
-import { RequestDetailViewComponent } from "../../components/RequestDetailView/RequestDetailView.js";
+import { RequestDetailView } from "../../components/RequestDetailView/RequestDetailView.js";
 import { EditRequestForm } from "../../components/Forms/Request/EditForm/EditRequestForm.js";
 import { EditCoverSheetForm } from "../../components/Forms/CoverSheet/EditForm/EditCoversheetForm.js";
 import { AuditResponse } from "../../entities/AuditResponse.js";
@@ -241,9 +241,7 @@ Audit.IAReport.NewReportPage = function () {
 
     self.currentDialog = ModalDialog.currentDialog;
 
-    self.requestDetailViewComponent = new RequestDetailViewComponent({
-      currentRequest: self.currentRequest,
-    });
+    self.requestDetailViewComponent = new RequestDetailView(self);
 
     self.tabOpts = {
       Requests: new Tab("request-report", "Request Status Report", {
