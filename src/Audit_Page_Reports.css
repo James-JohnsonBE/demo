@@ -463,4 +463,5 @@ table.tablesorter thead tr .header {
 .request-detail-view {
   display: flex;
   gap: 1rem;
+  flex-wrap: wrap-reverse;
 }
