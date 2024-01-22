@@ -775,6 +775,42 @@
       There are 0 response documents
     </div>
 
+    <div class="quick-links" data-bind="visible: cntResponseDocs() > 0">
+      <div>
+        <a
+          class="btnApprovedCheckedResponseDocs"
+          href="javascript:void(0)"
+          title="Approve Checked Response Documents"
+          data-bind="click: ApproveCheckedResponseDocs, visible: currentRequest() && (currentRequest().status == 'Open' || currentRequest().status == 'ReOpened')"
+        >
+          <span class="ui-icon ui-icon-circle-check"></span>
+          Approve Checked Response Documents
+        </a>
+      </div>
+      <div>
+        <a
+          class="btnCheckResponseDocs"
+          href="javascript:void(0)"
+          title="Check/Un-Check Response Documents"
+          data-bind="click: CheckResponseDocs, visible: currentRequest() && (currentRequest().status == 'Open' || currentRequest().status == 'ReOpened')"
+        >
+          <span class="ui-icon ui-icon-check"></span>
+          Check Response Documents
+        </a>
+      </div>
+      <div>
+        <a
+          class="btnToggleExpand"
+          href="javascript:void(0)"
+          title="Click to Expand/Collapse"
+          data-bind="toggles: showCollapsed"
+        >
+          <span class="ui-icon ui-icon-gear"></span>
+          Expand/Collapse Documents
+        </a>
+      </div>
+    </div>
+
     <table
       id="tblResponseDocs"
       class="tablesorter report"
@@ -814,18 +850,39 @@
           <td colspan="11">
             <img
               style="background-color: transparent"
-              src="/_layouts/images/plus.gif"
               title="Expand/Collapse"
-              data-bind="toggleClick: $data, toggleClass: 'collapsed', containerType: 'doc', classContainer: '.requestInfo-response-doc'"
+              data-bind="
+              attr: { src: ($parent.showCollapsed() ? '/_layouts/images/plus.gif' : '/_layouts/images/minus.gif') },
+              toggleClick: $data, toggleClass: 'collapsed', containerType: 'doc', classContainer: '.requestInfo-response-doc'"
             /><span data-bind="text: responseDocSummary.responseTitle"></span>
+          </td>
+        </tr>
+
+        <tr
+          class="requestInfo-response-doc-item"
+          data-bind="visible: responseDocSummary.showBulkApprove,
+            css: ($parent.showCollapsed() ? 'collapsed' : '')"
+        >
+          <td colspan="11">
+            <span class="divBulkApprove">
+              <a
+                class="btnApproveAll"
+                href="javascript:void(0)"
+                title="Click to Approve Remaining Documents"
+                data-bind="click: $parent.ClickBulkApprove"
+              >
+                <span class="ui-icon ui-icon-circle-check"></span>
+                Approve 'Submitted' Documents for this Response below
+              </a>
+            </span>
           </td>
         </tr>
 
         <!-- ko foreach: responseDocSummary.responseDocs-->
 
         <tr
-          class="requestInfo-response-doc-item collapsed"
-          data-bind="style: styleTag"
+          class="requestInfo-response-doc-item"
+          data-bind="style: styleTag, css: ($parents[1].showCollapsed() ? 'collapsed' : '')"
         >
           <td>
             <img
@@ -833,6 +890,9 @@
             />
           </td>
           <td class="requestInfo-response-doc-title">
+            <input type="checkbox"
+            data-bind="attr: { id: ID }, visible: documentStatus == 'Submitted' && $parent.responseStatus == '2-Submitted' && ( $parent.requestStatus == 'Open' || $parent.requestStatus == 'ReOpened' ), checked: chkApproveResDoc"></input>
+
             <a
               title="Click to Download"
               data-bind="visible: $parent.responseStatus == '7-Closed' || $parent.requestStatus == 'Closed' || $parent.requestStatus == 'Canceled', downloadLink: '../_layouts/download.aspx?SourceUrl=:folder/:fileName'"
@@ -890,6 +950,15 @@
             data-bind="text: modifiedBy"
           ></td>
           <td nowrap>
+            <span data-bind="visible: $parent.responseStatus == '2-Submitted' && documentStatus == 'Submitted'" >
+              <a title="Approve this Document" href="javascript:void(0)" data-bind="click: $root.ClickApproveResponseDoc">
+                <span class='ui-icon ui-icon-circle-check'>Approve Response Doc</span>
+              </a>
+              <a title="Reject this Document" href="javascript:void(0)" data-bind="click: $root.ClickRejectResponseDoc">
+                <span class='ui-icon ui-icon-circle-close'>Reject Response Doc</span>
+              </a>
+            </span>
+
             <a
               title="Click to Download"
               data-bind="downloadLink: '../_layouts/download.aspx?SourceUrl=:folder/:fileName'"

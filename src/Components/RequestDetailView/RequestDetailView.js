@@ -53,6 +53,7 @@ export class RequestDetailView {
     ClickResendRejectedResponseDocToQA
     ClickViewResponseDoc
     ClickEditResponseDoc
+    ApproveCheckedResponseDocs
     */
     this.coverSheetFiles.subscribeAdded(this.onCoverSheetFileAttachedHandler);
 
@@ -64,6 +65,9 @@ export class RequestDetailView {
     this.setInitialTab();
   }
 
+  // Fields
+  componentName = componentName;
+  params = this;
   tabOpts = {
     Coversheets: new Tab("coversheets", "Coversheets", {
       id: "requestDetailCoversheetsTabTemplate",
@@ -79,20 +83,18 @@ export class RequestDetailView {
     }),
   };
 
+  // Observables
   coverSheetFiles = ko.observableArray();
+  showCollapsed = ko.observable(false);
 
-  onCoverSheetFileAttachedHandler = async (newFiles) => {
-    if (!newFiles.length) return;
-    const request = await appContext.AuditRequests.FindById(
-      this.currentRequest().ID
+  // Computed Observables
+  currentRequestResponseItems = ko.pureComputed(() => {
+    return this.arrCurrentRequestResponses().map(
+      (response) => new ResponseItem(response, this)
     );
+  });
 
-    // Only allow 1 coversheet at a time
-    const file = newFiles[0];
-    const coversheet = await uploadRequestCoversheetFile(file, request);
-    this.editCoversheet({ ID: coversheet.ID });
-  };
-
+  // Behaviors
   setInitialTab() {
     if (getUrlParam(requestDetailUrlParamKey)) {
       this.tabs.selectById(getUrlParam(requestDetailUrlParamKey));
@@ -106,14 +108,25 @@ export class RequestDetailView {
     this.tabs.selectTab(defaultTab);
   }
 
-  currentRequestResponseItems = ko.pureComputed(() => {
-    return this.arrCurrentRequestResponses().map(
-      (response) => new ResponseItem(response, this)
+  // Coversheets
+  onCoverSheetFileAttachedHandler = async (newFiles) => {
+    if (!newFiles.length) return;
+    const request = await appContext.AuditRequests.FindById(
+      this.currentRequest().ID
     );
-  });
 
-  componentName = componentName;
-  params = this;
+    // Only allow 1 coversheet at a time
+    const file = newFiles[0];
+    const coversheet = await uploadRequestCoversheetFile(file, request);
+    this.editCoversheet({ ID: coversheet.ID });
+  };
+
+  // ResponseDocs
+  ClickBulkApprove = (oResponseSummary) => {};
+
+  CheckResponseDocs = () => {};
+
+  ApproveCheckedResponseDocs = () => {};
 }
 
 registerComponent({
