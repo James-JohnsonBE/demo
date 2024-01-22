@@ -4,8 +4,12 @@ import { uploadRequestCoversheetFile } from "../../services/CoversheetManager.js
 import { EditCoverSheetForm } from "../Forms/CoverSheet/EditForm/EditCoversheetForm.js";
 import * as ModalDialog from "../../infrastructure/ModalDialog.js";
 import { getRequestByTitle } from "../../services/AuditRequestService.js";
+import { Tab, TabsModule } from "../Tabs/TabsModule.js";
+import { getUrlParam } from "../../common/Router.js";
 
 const componentName = "component-request-detail-view";
+
+const requestDetailUrlParamKey = "request-detail-tab";
 
 export class RequestDetailView {
   constructor({
@@ -51,7 +55,29 @@ export class RequestDetailView {
     ClickEditResponseDoc
     */
     this.coverSheetFiles.subscribeAdded(this.onCoverSheetFileAttachedHandler);
+
+    this.tabs = new TabsModule(
+      Object.values(this.tabOpts),
+      requestDetailUrlParamKey
+    );
+
+    this.setInitialTab();
   }
+
+  tabOpts = {
+    Coversheets: new Tab("coversheets", "Coversheets", {
+      id: "requestDetailCoversheetsTabTemplate",
+      data: this,
+    }),
+    Responses: new Tab("responses", "Responses", {
+      id: "requestDetailResponsesTabTemplate",
+      data: this,
+    }),
+    ResponseDocs: new Tab("response-docs", "Response Docs", {
+      id: "requestDetailResponseDocsTabTemplate",
+      data: this,
+    }),
+  };
 
   coverSheetFiles = ko.observableArray();
 
@@ -66,6 +92,19 @@ export class RequestDetailView {
     const coversheet = await uploadRequestCoversheetFile(file, request);
     this.editCoversheet({ ID: coversheet.ID });
   };
+
+  setInitialTab() {
+    if (getUrlParam(requestDetailUrlParamKey)) {
+      this.tabs.selectById(getUrlParam(requestDetailUrlParamKey));
+      return;
+    }
+
+    const defaultTab = this.currentRequest()?.EmailSent.Value()
+      ? this.tabOpts.Responses
+      : this.tabOpts.Coversheets;
+
+    this.tabs.selectTab(defaultTab);
+  }
 
   currentRequestResponseItems = ko.pureComputed(() => {
     return this.arrCurrentRequestResponses().map(

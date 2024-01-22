@@ -7,7 +7,7 @@
     >
       <fieldset style="border-color: GreenYellow">
         <legend style="font-weight: bold; font-size: 12pt">Action</legend>
-        <span class="ui-icon ui-icon-locked"></span
+        <span class="fa-solid fa-lock"></span
         ><a
           id="btnCloseRequest"
           href="javascript:void(0)"
@@ -28,7 +28,7 @@
         >
           <fieldset>
             <legend>
-              <span class="ui-icon ui-icon-alert"></span
+              <span class="fa-solid fa-triangle-exclamation"></span
               ><span data-bind="text: viewers().length"></span> Active Viewers
             </legend>
             <ul data-bind="foreach: viewers">
@@ -40,7 +40,7 @@
                   <div
                     style="cursor: pointer"
                     data-bind="click: $parent.onRemove"
-                    class="ui-icon ui-icon-closethick"
+                    class="fa-solid fa-xmark"
                   ></div>
                 </div>
               </li>
@@ -107,10 +107,10 @@
               <td>
                 <span id="requestInfoSample">
                   <span data-bind="if: sample"
-                    ><span class="ui-icon ui-icon-check"></span> Yes</span
+                    ><span class="fa-solid fa-check"></span> Yes</span
                   >
                   <span data-bind="if: !sample"
-                    ><span class="ui-icon ui-icon-close"></span> No</span
+                    ><span class="fa-solid fa-xmark"></span> No</span
                   >
                 </span>
               </td>
@@ -228,7 +228,7 @@
                       class="actionOfficeContainerRequestInfo"
                       data-bind="toggleClick: $data, toggleClass: 'collapsed', classContainer: '.sr1-request-actionOfficeContainerRequestInfo-item'"
                     >
-                      <span class="ui-icon ui-icon-search"></span
+                      <span class="fa-solid fa-magnifying-glass"></span
                       ><a href="javascript:void(0)">View Action Offices</a>
                       <!-- ko foreach: actionOffices -->
                       <div
@@ -253,7 +253,7 @@
                       class="actionOfficeContainerRequestInfo"
                       data-bind="toggleClick: $data, toggleClass: 'collapsed', classContainer: '.sr1-request-actionOfficeContainerRequestInfo-item'"
                     >
-                      <span class="ui-icon ui-icon-search"></span
+                      <span class="fa-solid fa-magnifying-glass"></span
                       ><a href="javascript:void(0)"
                         >View Email Action Offices</a
                       >
@@ -272,10 +272,10 @@
               <td>Email Sent?</td>
               <td>
                 <span data-bind="if: emailSent"
-                  ><span class="ui-icon ui-icon-check"></span> Yes</span
+                  ><span class="fa-solid fa-check"></span> Yes</span
                 >
                 <span data-bind="if: !emailSent"
-                  ><span class="ui-icon ui-icon-close"></span> No</span
+                  ><span class="fa-solid fa-xmark"></span> No</span
                 >
 
                 <fieldset
@@ -311,8 +311,8 @@
                       title="View Email History"
                       href="javascript:void(0)"
                       data-bind="click: $root.ClickViewEmailHistoryFolder"
-                      ><span class="ui-icon ui-icon-search"></span>View Email
-                      History</a
+                      ><span class="fa-solid fa-magnifying-glass"></span>View
+                      Email History</a
                     >
                   </div>
                   <div id="divSyncEmailActionOffices" style="padding-top: 5px">
@@ -331,10 +331,10 @@
               <td>Special Permissions?</td>
               <td>
                 <span data-bind="if: specialPerms == true"
-                  ><span class="ui-icon ui-icon-check"></span> Yes</span
+                  ><span class="fa-solid fa-check"></span> Yes</span
                 >
                 <span data-bind="if: specialPerms == false"
-                  ><span class="ui-icon ui-icon-close"></span> No</span
+                  ><span class="fa-solid fa-xmark"></span> No</span
                 >
                 <fieldset
                   style="
@@ -365,8 +365,8 @@
                       title="Remove Special Permissions"
                       href="javascript:void(0)"
                       data-bind="click: $root.ClickRemoveSpecialPermissions"
-                      ><span class="ui-icon ui-icon-locked"></span>Remove
-                      Special Permissions</a
+                      ><span class="fa-solid fa-lock"></span>Remove Special
+                      Permissions</a
                     >
                   </div>
                 </fieldset>
@@ -382,7 +382,8 @@
                 title="View Request"
                 href="javascript:void(0)"
                 data-bind="click: $root.ClickViewRequest"
-                ><span class="ui-icon ui-icon-search"></span>View Request</a
+                ><span class="fa-solid fa-magnifying-glass"></span>View
+                Request</a
               >
             </div>
             <div>
@@ -390,7 +391,7 @@
                 title="Edit Request"
                 href="javascript:void(0)"
                 data-bind="click: $root.ClickEditRequest"
-                ><span class="ui-icon ui-icon-pencil"></span>Edit Request</a
+                ><span class="fa-solid fa-pencil"></span>Edit Request</a
               >
             </div>
           </fieldset>
@@ -400,527 +401,529 @@
   </div>
 
   <div>
-    <div id="divCoverSheets" data-bind="visible: currentRequest">
-      <fieldset>
-        <legend>Cover Sheets/Supplemental Documents</legend>
-        <div
-          id="divEmptyCoversheetsMsg"
-          style="border: 0px !important; font-style: italic"
-          data-bind="visible: arrCurrentRequestCoverSheets().length <= 0"
-        >
-          There are 0 coversheets
-        </div>
-        <table
-          id="tblCoverSheets"
-          class="tablesorter report"
-          data-bind="visible: arrCurrentRequestCoverSheets().length > 0"
-        >
-          <thead>
-            <tr valign="top">
-              <th class="sorter-false" nowrap="nowrap">Name</th>
-              <th class="sorter-false" nowrap="nowrap">Action Office</th>
-              <th class="sorter-false" nowrap="nowrap">Action</th>
-            </tr>
-          </thead>
-          <tbody data-bind="foreach: arrCurrentRequestCoverSheets">
-            <tr class="coversheet-item">
-              <td class="coversheet-title" title="Click to Download">
-                <a
-                  data-bind="downloadLink: '../_layouts/download.aspx?SourceUrl=:folder/:title'"
-                  ><span data-bind="text: title"></span
-                ></a>
-              </td>
-              <td class="coversheet-ao">
-                <div
-                  style="cursor: pointer"
-                  title="Click to view"
-                  data-bind="visible: $data.actionOffices.length > 0, toggleClick: $data, toggleClass: 'collapsed', classContainer: '.sr1-request-actionOfficeContainerRequestInfo-item'"
-                >
-                  <span class="ui-icon ui-icon-search"></span
-                  ><span class="actionOfficeContainerRequestInfo"
-                    ><a href="javascript:void(0)">View Action Offices</a></span
-                  >
-                  <!-- ko foreach: actionOffices -->
-                  <div
-                    class="sr1-request-actionOfficeContainerRequestInfo-item collapsed"
-                  >
-                    <span data-bind="text: actionOffice"></span>
-                  </div>
-                  <!-- /ko -->
-                </div>
-              </td>
-              <td class="coversheet-action">
-                <a
-                  title="View Coversheet"
-                  href="javascript:void(0)"
-                  data-bind="click: $root.ClickViewCoversheet"
-                  ><span class="ui-icon ui-icon-search"
-                    >View Coversheet</span
-                  ></a
-                >
-                <a
-                  title="Edit Coversheet"
-                  href="javascript:void(0)"
-                  data-bind="visible: requestStatus != 'Closed' && requestStatus != 'Canceled', click: $root.ClickEditCoversheet"
-                  ><span class="ui-icon ui-icon-pencil"
-                    >Edit Coversheet</span
-                  ></a
-                >
-              </td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr valign="top">
-              <th nowrap="nowrap" colspan="3">
-                Total:
-                <span
-                  id="tblCoverSheetsTotal"
-                  data-bind="text: arrCurrentRequestCoverSheets().length"
-                  >0</span
-                >
-              </th>
-            </tr>
-          </tfoot>
-        </table>
-        <div id="divCoverSheetActions" style="padding-top: 5px" class="w-fit">
-          <div data-bind="visible: coverSheetFiles().length">
-            Uploading Coversheet!
-            <progress></progress>
-          </div>
-          <label data-bind="visible: !coverSheetFiles().length">
-            <div
-              class="text-link"
-              title="Upload Cover Sheet or Supplemental Document"
-              data-bind=""
-            >
-              <span class="ui-icon ui-icon-circle-arrow-n"></span>Upload Cover
-              Sheet or Supplemental Document
-            </div>
-            <input
-              style="display: none"
-              type="file"
-              data-bind="files: coverSheetFiles"
-            />
-          </label>
-        </div>
-      </fieldset>
-    </div>
-
-    <div id="divResponses" data-bind="visible: currentRequest">
-      <fieldset>
-        <legend>Responses</legend>
-        <div data-bind="with: currentRequest">
-          <div
-            id="divResponsesActions"
-            style="padding-top: 5px"
-            data-bind="visible: status == 'Open' || status == 'ReOpened'"
-          >
-            <div>
-              <a
-                title="Add Response"
-                href="javascript:void(0)"
-                data-bind="click: $root.ClickAddResponse"
-                ><span class="ui-icon ui-icon-circle-plus"></span>Add
-                Response</a
-              >
-            </div>
-            <div>
-              <a
-                title="Bulk Add Responses"
-                href="javascript:void(0)"
-                data-bind="click: $root.ClickBulkAddResponse"
-                ><span class="ui-icon ui-icon-circle-plus"></span>Bulk Add
-                Responses</a
-              >
-            </div>
-            <div
-              data-bind="visible: $root.currentRequest && $root.arrCurrentRequestResponses().length > 0"
-            >
-              <a
-                title="Bulk Edit Responses"
-                href="javascript:void(0)"
-                data-bind="click: $root.ClickBulkEditResponse"
-                ><span class="ui-icon ui-icon-pencil"></span>Bulk Edit
-                Responses</a
-              >
-            </div>
-          </div>
-        </div>
-        <div
-          id="divResponsesShowHideFolderPerms"
-          data-bind="visible: currentRequest && arrCurrentRequestResponses().length > 0"
-        >
-          <a
-            title="Show/Hide Response Folder Permissions"
-            style="color: #0072bc !important"
-            href="javascript:void(0)"
-            data-bind="toggleClick: $data, toggleClass: 'response-permissions', containerType: 'any'"
-            ><span class="ui-icon ui-icon-gear"></span>Show/Hide Response Folder
-            Permissions</a
-          >
-        </div>
-        <table
-          id="tblResponses"
-          class="tablesorter report"
-          data-bind="visible: arrCurrentRequestResponses().length > 0 "
-        >
-          <thead>
-            <tr valign="top">
-              <th class="sorter-true" nowrap="nowrap">Sample #</th>
-              <th class="sorter-true" nowrap="nowrap" style="text-align: left">
-                Name
-              </th>
-              <th class="sorter-true" nowrap="nowrap">Action Office</th>
-              <th class="sorter-true" nowrap="nowrap">Status</th>
-              <th class="sorter-true" nowrap="nowrap">Return Reason</th>
-              <th class="sorter-false" nowrap="nowrap">Special Permission?</th>
-              <th class="sorter-false response-permissions" nowrap="nowrap">
-                Response Folder Permissions
-              </th>
-              <th class="sorter-false" nowrap="nowrap">Active Viewers</th>
-              <th class="sorter-false" nowrap="nowrap">Action</th>
-              <th class="sorter-false" nowrap="nowrap">Documents</th>
-            </tr>
-          </thead>
-          <tbody data-bind="foreach: currentRequestResponseItems">
-            <tr class="response-item">
-              <td class="response-sample">
-                <span data-bind="text: sample"></span>
-              </td>
-              <td
-                class="response-title"
-                data-bind="attr: {'id': 'response-item-title-' + title}"
-              >
-                <span data-bind="text: title"></span>
-              </td>
-              <td
-                class="response-actionOffice"
-                data-bind="attr: {'title': toolTip}, style: styleTag"
-              >
-                <span data-bind="text: actionOffice"></span
-                ><span data-bind="visible: poc" style="color: green"
-                  >&nbsp;POC: </span
-                ><span data-bind="text: poc" style="color: green"></span>
-              </td>
-              <td class="response-resStatus">
-                <span
-                  data-bind="visible: resStatus != '7-Closed'"
-                  style="color: green"
-                  ><span data-bind="text: resStatus"></span>
-                </span>
-                <span
-                  data-bind="visible: resStatus == '7-Closed'"
-                  style="color: red"
-                  ><span data-bind="text: resStatus"></span>&nbsp;on&nbsp;<span
-                    data-bind="text: closedDate"
-                  ></span
-                  >&nbsp;by&nbsp;<span data-bind="text: closedBy"></span
-                ></span>
-
-                <div
-                  style="padding-top: 5px; padding-left: 20px"
-                  data-bind="visible: resStatus == '7-Closed'"
-                >
-                  <span class="ui-icon ui-icon-gear"></span
-                  ><a
-                    title="Click to Open Response"
-                    href="javascript:void(0)"
-                    data-bind="click: $root.ClickReOpenResponse"
-                    >Open Response?</a
-                  >
-                </div>
-              </td>
-              <td class="response-returnReason" style="white-space: pre-line">
-                <span data-bind="text: returnReason"></span>
-              </td>
-              <td class="response-specialPermissions">
-                <span
-                  data-bind="css: (specialPerms ? 'ui-icon ui-icon-check' : '')"
-                ></span>
-              </td>
-              <td class="response-permissions">
-                <span data-bind="html: groupPerms"></span>
-              </td>
-              <td class="response-viewers">
-                <div
-                  data-bind="visible: activeViewers.viewers().length, with: activeViewers"
-                >
-                  <fieldset>
-                    <legend>
-                      <span class="ui-icon ui-icon-alert"></span
-                      ><span data-bind="text: viewers().length"></span>
-                      Active Viewers
-                    </legend>
-                    <ul data-bind="foreach: viewers">
-                      <li>
-                        <div class="active-viewer">
-                          <div
-                            data-bind="text: viewer + ' @ ' + timestamp.toLocaleString()"
-                          ></div>
-                          <div
-                            style="cursor: pointer"
-                            data-bind="click: $parent.onRemove"
-                            class="ui-icon ui-icon-closethick"
-                          ></div>
-                        </div>
-                      </li>
-                    </ul>
-                  </fieldset>
-                </div>
-              </td>
-              <td class="response-action">
-                <a
-                  title="View Response"
-                  href="javascript:void(0)"
-                  data-bind="click: $root.ClickViewResponse"
-                  ><span class="ui-icon ui-icon-search">View Response</span></a
-                >
-                <a
-                  title="Edit Response"
-                  href="javascript:void(0)"
-                  data-bind="visible: resStatus != '7-Closed' && $parent.status != 'Closed' && $parent.status != 'Canceled', click: $root.ClickEditResponse"
-                  ><span class="ui-icon ui-icon-pencil">Edit Response</span></a
-                >
-                <a
-                  title="Reviewing Response"
-                  href="javascript:void(0)"
-                  data-bind="visible: resStatus != '7-Closed' && $parent.status != 'Closed' && $parent.status != 'Canceled', click: $root.ClickReviewingResponse"
-                  ><span class="ui-icon ui-icon-flag"
-                    >Reviewing Response</span
-                  ></a
-                >
-              </td>
-              <td class="response-responseDocs">
-                <a
-                  title="View Response Documents"
-                  href="javascript:void(0)"
-                  data-bind="visible: resStatus != '7-Closed' && $parent.status != 'Closed' && $parent.status != 'Canceled', click: $root.ClickViewResponseDocFolder"
-                  ><span class="ui-icon ui-icon-folder-collapsed"
-                    >View Folder</span
-                  ></a
-                >
-                <label
-                  class="pointer"
-                  title="Upload Response Documents"
-                  data-bind="visible: $parent.status != 'Closed' && $parent.status != 'Canceled' && ( resStatus == '1-Open' || resStatus == '2-Submitted' || resStatus == '3-Returned to Action Office' ||resStatus == '5-Returned to GFS' )"
-                  ><span class="ui-icon ui-icon-circle-arrow-n"
-                    >Upload Docs</span
-                  >
-                  <input
-                    type="file"
-                    multiple
-                    style="display: none"
-                    data-bind="files: responseDocFiles"
-                  />
-                </label>
-                <label
-                  title="Upload Coversheets for Action Office"
-                  class="pointer"
-                  data-bind="visible: $parent.status != 'Closed' && $parent.status != 'Canceled' && ( resStatus == '1-Open' || resStatus == '2-Submitted' || resStatus == '3-Returned to Action Office' ||resStatus == '5-Returned to GFS' )"
-                >
-                  <i class="fa-solid fa-file-invoice">Upload Coversheets</i>
-                  <input
-                    type="file"
-                    multiple
-                    style="display: none"
-                    data-bind="files: responseCoversheetFiles"
-                  />
-                </label>
-              </td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr valign="top">
-              <th colspan="9" nowrap="nowrap">
-                Total:
-                <span
-                  id="tblResponsesTotal"
-                  data-bind="text: arrCurrentRequestResponses().length"
-                  >0</span
-                >
-              </th>
-            </tr>
-          </tfoot>
-        </table>
-      </fieldset>
-    </div>
-
-    <div id="divResponseDocs" data-bind="visible: currentRequest">
-      <fieldset>
-        <legend>Response Documents</legend>
-        <div
-          id="divEmptyResponseDocsMsg"
-          style="border: 0px !important; font-style: italic"
-          data-bind="visible: cntResponseDocs() == 0"
-        >
-          There are 0 response documents
-        </div>
-
-        <table
-          id="tblResponseDocs"
-          class="tablesorter report"
-          data-bind="visible: cntResponseDocs() > 0"
-        >
-          <thead>
-            <tr valign="top">
-              <th class="sorter-false" nowrap="nowrap">Type</th>
-              <th class="sorter-false" nowrap="nowrap">Name</th>
-              <th class="sorter-false" nowrap="nowrap">Title</th>
-              <th class="sorter-false" nowrap="nowrap">Receipt Date</th>
-              <th class="sorter-false" nowrap="nowrap">File Size</th>
-              <th class="sorter-false" nowrap="nowrap">Checked Out</th>
-              <th class="sorter-false" nowrap="nowrap">
-                Status
-                <span class="linkHelpResponseDocs" style="float: right"
-                  ><a
-                    title="View Help"
-                    href="javascript:void(0)"
-                    style="color: #0072bc"
-                    ><span class="ui-icon ui-icon-help"></span></a
-                ></span>
-              </th>
-              <th class="sorter-false" nowrap="nowrap">Reason</th>
-              <th class="sorter-false" nowrap="nowrap">Modified</th>
-              <th class="sorter-false" nowrap="nowrap">Modified By</th>
-              <th class="sorter-false" nowrap="nowrap">Actions</th>
-            </tr>
-          </thead>
-          <tbody
-            data-bind="foreach: { data: arrCurrentRequestResponseDocs, as: 'responseDocSummary'} "
-          >
-            <tr
-              class="requestInfo-response-doc"
-              data-bind="visible: responseDocSummary.responseDocs.length > 0"
-            >
-              <td colspan="11">
-                <img
-                  style="background-color: transparent"
-                  src="/_layouts/images/plus.gif"
-                  title="Expand/Collapse"
-                  data-bind="toggleClick: $data, toggleClass: 'collapsed', containerType: 'doc', classContainer: '.requestInfo-response-doc'"
-                /><span
-                  data-bind="text: responseDocSummary.responseTitle"
-                ></span>
-              </td>
-            </tr>
-
-            <!-- ko foreach: responseDocSummary.responseDocs-->
-
-            <tr
-              class="requestInfo-response-doc-item collapsed"
-              data-bind="style: styleTag"
-            >
-              <td>
-                <img
-                  data-bind="attr:{ src: $parent.siteUrl + '/_layouts/images/' + docIcon}"
-                />
-              </td>
-              <td class="requestInfo-response-doc-title">
-                <a
-                  title="Click to Download"
-                  data-bind="visible: $parent.responseStatus == '7-Closed' || $parent.requestStatus == 'Closed' || $parent.requestStatus == 'Canceled', downloadLink: '../_layouts/download.aspx?SourceUrl=:folder/:fileName'"
-                  ><span data-bind="text: fileName"></span
-                ></a>
-                <span
-                  title="Click to Open"
-                  data-bind="visible: $parent.responseStatus != '7-Closed' && $parent.requestStatus != 'Closed' && $parent.requestStatus != 'Canceled', html: responseDocOpenInIELink "
-                ></span>
-                <span
-                  style="float: right"
-                  data-bind="visible: ( documentStatus == 'Open' || documentStatus == 'Marked for Deletion') && ($parent.requestStatus == 'Open' || $parent.requestStatus == 'ReOpened') "
-                  ><a
-                    title="Delete Response Document"
-                    href="javascript:void(0)"
-                    data-bind="click: $root.ClickDeleteResponseDoc"
-                    ><span class="ui-icon ui-icon-trash"
-                      >Delete Response Document</span
-                    ></a
-                  ></span
-                >
-              </td>
-              <td nowrap data-bind="text: title"></td>
-              <td nowrap data-bind="text: receiptDate"></td>
-              <td nowrap data-bind="text: fileSize"></td>
-              <td nowrap>
-                <span data-bind="visible: checkedOutBy != ''"
-                  ><span data-bind="text: checkedOutBy"></span>&nbsp;<img
-                    style="background-color: transparent"
-                    src="/_layouts/images/checkin.gif"
-                    title="Check In Document"
-                  /><a
-                    href="javascript:void(0)"
-                    title="Check In Document"
-                    data-bind="click: $root.ClickCheckInResponseDocument"
-                    >Check In Document</a
-                  ></span
-                >
-              </td>
-              <td nowrap>
-                <span data-bind="text: documentStatus"></span>
-                <span
-                  data-bind="visible: documentStatus == 'Rejected' && ( $parent.requestStatus == 'Open' || $parent.requestStatus == 'ReOpened' ) "
-                  ><a
-                    title="Clear Rejected Status"
-                    href="javascript:void(0)"
-                    data-bind="click: $root.ClickResendRejectedResponseDocToQA"
-                    ><span class="ui-icon ui-icon-circle-check"
-                      >Clear Rejected Status</span
-                    ></a
-                  ></span
-                >
-              </td>
-              <td data-bind="html: rejectReason"></td>
-              <td
-                class="requestInfo-response-doc-modified"
-                data-bind="text: modifiedDate"
-              ></td>
-              <td
-                class="requestInfo-response-doc-modifiedBy"
-                data-bind="text: modifiedBy"
-              ></td>
-              <td nowrap>
-                <a
-                  title="Click to Download"
-                  data-bind="downloadLink: '../_layouts/download.aspx?SourceUrl=:folder/:fileName'"
-                  ><span class="ui-icon ui-icon-arrowreturnthick-1-s"
-                    >Download Document</span
-                  ></a
-                >
-                <a
-                  title="View Response Document Properties"
-                  href="javascript:void(0)"
-                  data-bind="click: $root.ClickViewResponseDoc"
-                  ><span class="ui-icon ui-icon-search"
-                    >View Response Doc</span
-                  ></a
-                >
-                <a
-                  title="Edit Response Document Properties"
-                  href="javascript:void(0)"
-                  data-bind="visible: $parent.responseStatus != '7-Closed' && $parent.requestStatus != 'Closed' && $parent.requestStatus != 'Canceled' && ( documentStatus == 'Sent to QA' || documentStatus == 'Open' || documentStatus == 'Submitted' ), click: $root.ClickEditResponseDoc"
-                  ><span class="ui-icon ui-icon-pencil"
-                    >Edit Response Doc</span
-                  ></a
-                >
-              </td>
-            </tr>
-
-            <!-- /ko -->
-          </tbody>
-          <tfoot>
-            <tr valign="top">
-              <th colspan="11" nowrap="nowrap">
-                Total:
-                <span
-                  id="tblResponseDocsTotal"
-                  data-bind="text: cntResponseDocs()"
-                  >0</span
-                >
-              </th>
-            </tr>
-          </tfoot>
-        </table>
-      </fieldset>
-    </div>
+    <!-- ko using: tabs -->
+    <ul class="ui-tabs-nav" data-bind="foreach: tabOpts">
+      <li
+        data-bind="text: linkText, 
+          click: $parent.clickTabLink, 
+          css: {active: $parent.isSelected($data)}"
+      ></li>
+    </ul>
+    <!-- ko foreach: tabOpts -->
+    <div
+      data-bind="template: {
+            name: template.id,
+            data: template.data
+          },
+          visible: $parent.isSelected($data)"
+    ></div>
+    <!-- /ko -->
+    <!-- /ko -->
   </div>
 </div>
+
+<script id="requestDetailCoversheetsTabTemplate" type="text/html">
+  <div id="divCoverSheets" data-bind="visible: currentRequest">
+    <div
+      id="divEmptyCoversheetsMsg"
+      style="border: 0px !important; font-style: italic"
+      data-bind="visible: arrCurrentRequestCoverSheets().length <= 0"
+    >
+      There are 0 coversheets
+    </div>
+    <table
+      id="tblCoverSheets"
+      class="tablesorter report"
+      data-bind="visible: arrCurrentRequestCoverSheets().length > 0"
+    >
+      <thead>
+        <tr valign="top">
+          <th class="sorter-false" nowrap="nowrap">Name</th>
+          <th class="sorter-false" nowrap="nowrap">Action Office</th>
+          <th class="sorter-false" nowrap="nowrap">Action</th>
+        </tr>
+      </thead>
+      <tbody data-bind="foreach: arrCurrentRequestCoverSheets">
+        <tr class="coversheet-item">
+          <td class="coversheet-title" title="Click to Download">
+            <a
+              data-bind="downloadLink: '../_layouts/download.aspx?SourceUrl=:folder/:title'"
+              ><span data-bind="text: title"></span
+            ></a>
+          </td>
+          <td class="coversheet-ao">
+            <div
+              style="cursor: pointer"
+              title="Click to view"
+              data-bind="visible: $data.actionOffices.length > 0, toggleClick: $data, toggleClass: 'collapsed', classContainer: '.sr1-request-actionOfficeContainerRequestInfo-item'"
+            >
+              <span class="fa-solid fa-magnifying-glass"></span
+              ><span class="actionOfficeContainerRequestInfo"
+                ><a href="javascript:void(0)">View Action Offices</a></span
+              >
+              <!-- ko foreach: actionOffices -->
+              <div
+                class="sr1-request-actionOfficeContainerRequestInfo-item collapsed"
+              >
+                <span data-bind="text: actionOffice"></span>
+              </div>
+              <!-- /ko -->
+            </div>
+          </td>
+          <td class="coversheet-action">
+            <a
+              title="View Coversheet"
+              href="javascript:void(0)"
+              data-bind="click: $root.ClickViewCoversheet"
+              ><span class="fa-solid fa-magnifying-glass"
+                >View Coversheet</span
+              ></a
+            >
+            <a
+              title="Edit Coversheet"
+              href="javascript:void(0)"
+              data-bind="visible: requestStatus != 'Closed' && requestStatus != 'Canceled', click: $root.ClickEditCoversheet"
+              ><span class="fa-solid fa-pencil">Edit Coversheet</span></a
+            >
+          </td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr valign="top">
+          <th nowrap="nowrap" colspan="3">
+            Total:
+            <span
+              id="tblCoverSheetsTotal"
+              data-bind="text: arrCurrentRequestCoverSheets().length"
+              >0</span
+            >
+          </th>
+        </tr>
+      </tfoot>
+    </table>
+    <div id="divCoverSheetActions" style="padding-top: 5px" class="w-fit">
+      <div data-bind="visible: coverSheetFiles().length">
+        Uploading Coversheet!
+        <progress></progress>
+      </div>
+      <label data-bind="visible: !coverSheetFiles().length">
+        <div
+          class="text-link"
+          title="Upload Cover Sheet or Supplemental Document"
+          data-bind=""
+        >
+          <span class="ui-icon ui-icon-circle-arrow-n"></span>Upload Cover Sheet
+          or Supplemental Document
+        </div>
+        <input
+          style="display: none"
+          type="file"
+          data-bind="files: coverSheetFiles"
+        />
+      </label>
+    </div>
+  </div>
+</script>
+
+<script id="requestDetailResponsesTabTemplate" type="text/html">
+  <div id="divResponses" data-bind="visible: currentRequest">
+    <div data-bind="with: currentRequest">
+      <div
+        id="divResponsesActions"
+        style="padding-top: 5px"
+        data-bind="visible: status == 'Open' || status == 'ReOpened'"
+      >
+        <div>
+          <a
+            title="Add Response"
+            href="javascript:void(0)"
+            data-bind="click: $root.ClickAddResponse"
+            ><span class="ui-icon ui-icon-circle-plus"></span>Add Response</a
+          >
+        </div>
+        <div>
+          <a
+            title="Bulk Add Responses"
+            href="javascript:void(0)"
+            data-bind="click: $root.ClickBulkAddResponse"
+            ><span class="ui-icon ui-icon-circle-plus"></span>Bulk Add
+            Responses</a
+          >
+        </div>
+        <div
+          data-bind="visible: $root.currentRequest && $root.arrCurrentRequestResponses().length > 0"
+        >
+          <a
+            title="Bulk Edit Responses"
+            href="javascript:void(0)"
+            data-bind="click: $root.ClickBulkEditResponse"
+            ><span class="fa-solid fa-pencil"></span>Bulk Edit Responses</a
+          >
+        </div>
+      </div>
+    </div>
+    <div
+      id="divResponsesShowHideFolderPerms"
+      data-bind="visible: currentRequest && arrCurrentRequestResponses().length > 0"
+    >
+      <a
+        title="Show/Hide Response Folder Permissions"
+        style="color: #0072bc !important"
+        href="javascript:void(0)"
+        data-bind="toggleClick: $data, toggleClass: 'response-permissions', containerType: 'any'"
+        ><i class="fa-solid fa-gear"></i>Show/Hide Response Folder
+        Permissions</a
+      >
+    </div>
+    <table
+      id="tblResponses"
+      class="tablesorter report"
+      data-bind="visible: arrCurrentRequestResponses().length > 0 "
+    >
+      <thead>
+        <tr valign="top">
+          <th class="sorter-true" nowrap="nowrap">Sample #</th>
+          <th class="sorter-true" nowrap="nowrap" style="text-align: left">
+            Name
+          </th>
+          <th class="sorter-true" nowrap="nowrap">Action Office</th>
+          <th class="sorter-true" nowrap="nowrap">Status</th>
+          <th class="sorter-true" nowrap="nowrap">Return Reason</th>
+          <th class="sorter-false" nowrap="nowrap">Special Permission?</th>
+          <th class="sorter-false response-permissions" nowrap="nowrap">
+            Response Folder Permissions
+          </th>
+          <th class="sorter-false" nowrap="nowrap">Active Viewers</th>
+          <th class="sorter-false" nowrap="nowrap">Action</th>
+          <th class="sorter-false" nowrap="nowrap">Documents</th>
+        </tr>
+      </thead>
+      <tbody data-bind="foreach: currentRequestResponseItems">
+        <tr class="response-item">
+          <td class="response-sample">
+            <span data-bind="text: sample"></span>
+          </td>
+          <td
+            class="response-title"
+            data-bind="attr: {'id': 'response-item-title-' + title}"
+          >
+            <span data-bind="text: title"></span>
+          </td>
+          <td
+            class="response-actionOffice"
+            data-bind="attr: {'title': toolTip}, style: styleTag"
+          >
+            <span data-bind="text: actionOffice"></span
+            ><span data-bind="visible: poc" style="color: green"
+              >&nbsp;POC: </span
+            ><span data-bind="text: poc" style="color: green"></span>
+          </td>
+          <td class="response-resStatus">
+            <span
+              data-bind="visible: resStatus != '7-Closed'"
+              style="color: green"
+              ><span data-bind="text: resStatus"></span>
+            </span>
+            <span
+              data-bind="visible: resStatus == '7-Closed'"
+              style="color: red"
+              ><span data-bind="text: resStatus"></span>&nbsp;on&nbsp;<span
+                data-bind="text: closedDate"
+              ></span
+              >&nbsp;by&nbsp;<span data-bind="text: closedBy"></span
+            ></span>
+
+            <div
+              style="padding-top: 5px; padding-left: 20px"
+              data-bind="visible: resStatus == '7-Closed'"
+            >
+              <i class="fa-solid fa-gear"></i
+              ><a
+                title="Click to Open Response"
+                href="javascript:void(0)"
+                data-bind="click: $root.ClickReOpenResponse"
+                >Open Response?</a
+              >
+            </div>
+          </td>
+          <td class="response-returnReason" style="white-space: pre-line">
+            <span data-bind="text: returnReason"></span>
+          </td>
+          <td class="response-specialPermissions">
+            <span
+              data-bind="css: (specialPerms ? 'fa-solid fa-check' : '')"
+            ></span>
+          </td>
+          <td class="response-permissions">
+            <span data-bind="html: groupPerms"></span>
+          </td>
+          <td class="response-viewers">
+            <div
+              data-bind="visible: activeViewers.viewers().length, with: activeViewers"
+            >
+              <fieldset>
+                <legend>
+                  <i class="fa-solid fa-triangle-exclamation"></i
+                  ><span data-bind="text: viewers().length"></span>
+                  Active Viewers
+                </legend>
+                <ul data-bind="foreach: viewers">
+                  <li>
+                    <div class="active-viewer">
+                      <div
+                        data-bind="text: viewer + ' @ ' + timestamp.toLocaleString()"
+                      ></div>
+                      <div
+                        style="cursor: pointer"
+                        data-bind="click: $parent.onRemove"
+                      >
+                        <i class="fa-solid fa-xmark"></i>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+              </fieldset>
+            </div>
+          </td>
+          <td class="response-action">
+            <button
+              type="button"
+              class="btn btn-link"
+              title="View Response"
+              href="javascript:void(0)"
+              data-bind="click: $root.ClickViewResponse"
+            >
+              <i class="fa-solid fa-magnifying-glass">View Response</i>
+            </button>
+            <button
+              type="button"
+              class="btn btn-link"
+              title="Edit Response"
+              data-bind="visible: resStatus != '7-Closed' && $parent.status != 'Closed' && $parent.status != 'Canceled', click: $root.ClickEditResponse"
+            >
+              <i class="fa-solid fa-pen">Edit Response</i>
+            </button>
+            <button
+              type="button"
+              class="btn btn-link"
+              title="Reviewing Response"
+              data-bind="visible: resStatus != '7-Closed' && $parent.status != 'Closed' && $parent.status != 'Canceled', click: $root.ClickReviewingResponse"
+            >
+              <i class="fa-solid fa-flag"> Reviewing Response </i>
+            </button>
+          </td>
+          <td class="response-responseDocs">
+            <button
+              type="button"
+              class="btn btn-link"
+              title="View Response Documents"
+              data-bind="visible: resStatus != '7-Closed' && $parent.status != 'Closed' && $parent.status != 'Canceled', click: $root.ClickViewResponseDocFolder"
+            >
+              <i class="fa-solid fa-folder-open">View Folder</i>
+            </button>
+            <label
+              class="text-link"
+              title="Upload Response Documents"
+              data-bind="visible: $parent.status != 'Closed' && $parent.status != 'Canceled' && ( resStatus == '1-Open' || resStatus == '2-Submitted' || resStatus == '3-Returned to Action Office' ||resStatus == '5-Returned to GFS' )"
+              ><i class="fa-solid fa-file-arrow-up">Upload Docs</i>
+              <input
+                type="file"
+                multiple
+                style="display: none"
+                data-bind="files: responseDocFiles"
+              />
+            </label>
+            <label
+              title="Upload Coversheets for Action Office"
+              class="text-link"
+              data-bind="visible: $parent.status != 'Closed' && $parent.status != 'Canceled' && ( resStatus == '1-Open' || resStatus == '2-Submitted' || resStatus == '3-Returned to Action Office' ||resStatus == '5-Returned to GFS' )"
+            >
+              <i class="fa-solid fa-file-invoice">Upload Coversheets</i>
+              <input
+                type="file"
+                multiple
+                style="display: none"
+                data-bind="files: responseCoversheetFiles"
+              />
+            </label>
+          </td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr valign="top">
+          <th colspan="9" nowrap="nowrap">
+            Total:
+            <span
+              id="tblResponsesTotal"
+              data-bind="text: arrCurrentRequestResponses().length"
+              >0</span
+            >
+          </th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</script>
+
+<script id="requestDetailResponseDocsTabTemplate" type="text/html">
+  <div id="divResponseDocs" data-bind="visible: currentRequest">
+    <div
+      id="divEmptyResponseDocsMsg"
+      style="border: 0px !important; font-style: italic"
+      data-bind="visible: cntResponseDocs() == 0"
+    >
+      There are 0 response documents
+    </div>
+
+    <table
+      id="tblResponseDocs"
+      class="tablesorter report"
+      data-bind="visible: cntResponseDocs() > 0"
+    >
+      <thead>
+        <tr valign="top">
+          <th class="sorter-false" nowrap="nowrap">Type</th>
+          <th class="sorter-false" nowrap="nowrap">Name</th>
+          <th class="sorter-false" nowrap="nowrap">Title</th>
+          <th class="sorter-false" nowrap="nowrap">Receipt Date</th>
+          <th class="sorter-false" nowrap="nowrap">File Size</th>
+          <th class="sorter-false" nowrap="nowrap">Checked Out</th>
+          <th class="sorter-false" nowrap="nowrap">
+            Status
+            <span class="linkHelpResponseDocs"
+              ><a
+                title="View Help"
+                href="javascript:void(0)"
+                style="color: #0072bc"
+                ><i class="fa-solid fa-question"></i></a
+            ></span>
+          </th>
+          <th class="sorter-false" nowrap="nowrap">Reason</th>
+          <th class="sorter-false" nowrap="nowrap">Modified</th>
+          <th class="sorter-false" nowrap="nowrap">Modified By</th>
+          <th class="sorter-false" nowrap="nowrap">Actions</th>
+        </tr>
+      </thead>
+      <tbody
+        data-bind="foreach: { data: arrCurrentRequestResponseDocs, as: 'responseDocSummary'} "
+      >
+        <tr
+          class="requestInfo-response-doc"
+          data-bind="visible: responseDocSummary.responseDocs.length > 0"
+        >
+          <td colspan="11">
+            <img
+              style="background-color: transparent"
+              src="/_layouts/images/plus.gif"
+              title="Expand/Collapse"
+              data-bind="toggleClick: $data, toggleClass: 'collapsed', containerType: 'doc', classContainer: '.requestInfo-response-doc'"
+            /><span data-bind="text: responseDocSummary.responseTitle"></span>
+          </td>
+        </tr>
+
+        <!-- ko foreach: responseDocSummary.responseDocs-->
+
+        <tr
+          class="requestInfo-response-doc-item collapsed"
+          data-bind="style: styleTag"
+        >
+          <td>
+            <img
+              data-bind="attr:{ src: $parent.siteUrl + '/_layouts/images/' + docIcon}"
+            />
+          </td>
+          <td class="requestInfo-response-doc-title">
+            <a
+              title="Click to Download"
+              data-bind="visible: $parent.responseStatus == '7-Closed' || $parent.requestStatus == 'Closed' || $parent.requestStatus == 'Canceled', downloadLink: '../_layouts/download.aspx?SourceUrl=:folder/:fileName'"
+              ><span data-bind="text: fileName"></span
+            ></a>
+            <span
+              title="Click to Open"
+              data-bind="visible: $parent.responseStatus != '7-Closed' && $parent.requestStatus != 'Closed' && $parent.requestStatus != 'Canceled', html: responseDocOpenInIELink "
+            ></span>
+            <span
+              style="float: right"
+              data-bind="visible: ( documentStatus == 'Open' || documentStatus == 'Marked for Deletion') && ($parent.requestStatus == 'Open' || $parent.requestStatus == 'ReOpened') "
+              ><a
+                title="Delete Response Document"
+                href="javascript:void(0)"
+                data-bind="click: $root.ClickDeleteResponseDoc"
+                ><i class="fa-solid fa-trash"></i></a
+            ></span>
+          </td>
+          <td nowrap data-bind="text: title"></td>
+          <td nowrap data-bind="text: receiptDate"></td>
+          <td nowrap data-bind="text: fileSize"></td>
+          <td nowrap>
+            <span data-bind="visible: checkedOutBy != ''"
+              ><span data-bind="text: checkedOutBy"></span>&nbsp;<img
+                style="background-color: transparent"
+                src="/_layouts/images/checkin.gif"
+                title="Check In Document"
+              /><a
+                href="javascript:void(0)"
+                title="Check In Document"
+                data-bind="click: $root.ClickCheckInResponseDocument"
+                >Check In Document</a
+              ></span
+            >
+          </td>
+          <td nowrap>
+            <span data-bind="text: documentStatus"></span>
+            <span
+              data-bind="visible: documentStatus == 'Rejected' && ( $parent.requestStatus == 'Open' || $parent.requestStatus == 'ReOpened' ) "
+              ><a
+                title="Clear Rejected Status"
+                href="javascript:void(0)"
+                data-bind="click: $root.ClickResendRejectedResponseDocToQA"
+                ><i class="fa-solid fa-circle-check"></i></a
+            ></span>
+          </td>
+          <td data-bind="html: rejectReason"></td>
+          <td
+            class="requestInfo-response-doc-modified"
+            data-bind="text: modifiedDate"
+          ></td>
+          <td
+            class="requestInfo-response-doc-modifiedBy"
+            data-bind="text: modifiedBy"
+          ></td>
+          <td nowrap>
+            <a
+              title="Click to Download"
+              data-bind="downloadLink: '../_layouts/download.aspx?SourceUrl=:folder/:fileName'"
+              ><i class="fa-solid fa-download"></i
+            ></a>
+            <a
+              title="View Response Document Properties"
+              href="javascript:void(0)"
+              data-bind="click: $root.ClickViewResponseDoc"
+              ><span class="fa-solid fa-magnifying-glass"
+                >View Response Doc</span
+              ></a
+            >
+            <a
+              title="Edit Response Document Properties"
+              href="javascript:void(0)"
+              data-bind="visible: $parent.responseStatus != '7-Closed' && $parent.requestStatus != 'Closed' && $parent.requestStatus != 'Canceled' && ( documentStatus == 'Sent to QA' || documentStatus == 'Open' || documentStatus == 'Submitted' ), click: $root.ClickEditResponseDoc"
+              ><span class="fa-solid fa-pencil">Edit Response Doc</span></a
+            >
+          </td>
+        </tr>
+
+        <!-- /ko -->
+      </tbody>
+      <tfoot>
+        <tr valign="top">
+          <th colspan="11" nowrap="nowrap">
+            Total:
+            <span id="tblResponseDocsTotal" data-bind="text: cntResponseDocs()"
+              >0</span
+            >
+          </th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</script>
