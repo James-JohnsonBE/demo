@@ -6,6 +6,7 @@ import * as ModalDialog from "../../infrastructure/ModalDialog.js";
 import { getRequestByTitle } from "../../services/AuditRequestService.js";
 import { Tab, TabsModule } from "../Tabs/TabsModule.js";
 import { getUrlParam } from "../../common/Router.js";
+import { ConfirmApproveResponseDocForm } from "../Forms/ResponseDoc/ConfirmApprove/ConfirmApproveResponseDocForm.js";
 
 const componentName = "component-request-detail-view";
 
@@ -19,6 +20,7 @@ export class RequestDetailView {
     arrCurrentRequestResponses,
     cntResponseDocs,
     arrCurrentRequestResponseDocs,
+    ModalDialog,
     ClickEditCoversheet,
   }) {
     // this.report = args;
@@ -30,6 +32,8 @@ export class RequestDetailView {
     this.arrCurrentRequestResponseDocs = arrCurrentRequestResponseDocs;
 
     this.editCoversheet = ClickEditCoversheet;
+
+    this.ModalDialog = ModalDialog;
     /*
     ROOT FUNCTIONS 
     ClickViewCoversheet
@@ -82,6 +86,7 @@ export class RequestDetailView {
       data: this,
     }),
   };
+  checkResponseDoc = true;
 
   // Observables
   coverSheetFiles = ko.observableArray();
@@ -124,9 +129,73 @@ export class RequestDetailView {
   // ResponseDocs
   ClickBulkApprove = (oResponseSummary) => {};
 
-  CheckResponseDocs = () => {};
+  ClickApproveResponseDoc = (oResponseDoc) => {
+    const response = this.arrCurrentRequestResponses().find(
+      (response) => response.title == oResponseDoc.responseTitle
+    );
+    const request = this.currentRequest();
 
-  ApproveCheckedResponseDocs = () => {};
+    const newResponseDocForm = new ConfirmApproveResponseDocForm(
+      request,
+      response,
+      oResponseDoc
+    );
+
+    const options = {
+      form: newResponseDocForm,
+      dialogReturnValueCallback: this.OnCallBackApproveResponseDoc,
+      title: "Approve Response Doc?",
+    };
+
+    ModalDialog.showModalDialog(options);
+  };
+
+  OnCallBackApproveResponseDoc(result) {
+    if (result) {
+      // Update is handled in the form, just need to refresh page/data
+    }
+  }
+
+  CheckResponseDocs = () => {
+    const allDocs = this.arrCurrentRequestResponseDocs()
+      .filter(
+        (responseDocSummary) =>
+          responseDocSummary.responseStatus == "2-Submitted"
+      )
+      .flatMap((responseDocSummary) => {
+        return responseDocSummary.responseDocs;
+      })
+      .filter((responseDoc) => responseDoc.documentStatus == "Submitted")
+      .map((responseDoc) =>
+        responseDoc.chkApproveResDoc(this.checkResponseDoc)
+      );
+
+    this.checkResponseDoc = !this.checkResponseDoc;
+  };
+
+  ApproveCheckedResponseDocs = () => {
+    const allDocs = this.arrCurrentRequestResponseDocs()
+      .flatMap((responseDocSummary) => {
+        return responseDocSummary.responseDocs;
+      })
+      .filter((responseDoc) => responseDoc.chkApproveResDoc());
+
+    const request = this.currentRequest();
+
+    const newResponseDocForm = new ConfirmApproveResponseDocForm(
+      request,
+      null,
+      allDocs
+    );
+
+    const options = {
+      form: newResponseDocForm,
+      dialogReturnValueCallback: this.OnCallBackApproveResponseDoc,
+      title: "Approve Response Docs?",
+    };
+
+    ModalDialog.showModalDialog(options);
+  };
 }
 
 registerComponent({

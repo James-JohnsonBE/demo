@@ -70,6 +70,11 @@ export class AuditResponseDoc extends ConstrainedEntity {
     displayName: "Modified By",
   });
 
+  Created = new DateField({
+    displayName: "Created",
+    type: dateFieldTypes.datetime,
+  });
+
   FileSizeDisplay = new TextField({
     displayName: "File",
   });
@@ -94,11 +99,12 @@ export class AuditResponseDoc extends ConstrainedEntity {
       "ResID",
       "FileLeafRef",
       "FileRef",
-      "Modified",
-      "Editor",
       "FileSizeDisplay",
       "File_x0020_Type",
       "CheckoutUser",
+      "Modified",
+      "Editor",
+      "Created",
     ],
     EditForm: [
       "FileLeafRef",
@@ -116,6 +122,7 @@ export class AuditResponseDoc extends ConstrainedEntity {
       "RejectReason",
       "FileLeafRef",
     ],
+    UpdateDocStatus: ["Title", "FileLeafRef", "DocumentStatus"],
   };
 
   static ListDef = {
