@@ -1,0 +1,37 @@
+import { appContext } from "../../../../infrastructure/ApplicationDbContext.js";
+import { registerComponent } from "../../../../infrastructure/RegisterComponents.js";
+import { approveResponseDocsForQA } from "../../../../services/AuditResponseService.js";
+const componentName = "confirm-approve-response-doc";
+export class ConfirmApproveResponseDocForm {
+  constructor(request, response, responseDocs) {
+    this.request = request;
+    this.response = response;
+    this.responseDocs(responseDocs);
+  }
+
+  responseDocs = ko.observableArray();
+  saving = ko.observable(false);
+
+  async clickSubmit() {
+    this.saving(true);
+    await this.submit();
+    this.saving(false);
+  }
+  async submit() {
+    await approveResponseDocsForQA(
+      this.request.ID,
+      this.response?.ID,
+      this.responseDocs()?.map((responseDoc) => responseDoc.ID)
+    );
+    this.onComplete(true);
+  }
+
+  componentName = componentName;
+  params = this;
+}
+
+registerComponent({
+  name: componentName,
+  folder: "Forms/ResponseDoc/ConfirmApprove",
+  template: "ConfirmApproveResponseDocFormTemplate",
+});

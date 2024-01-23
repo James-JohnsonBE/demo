@@ -2625,9 +2625,13 @@ Audit.IAReport.NewReportPage = function () {
       for (var y = 0; y < oRequest.responses.length; y++) {
         var oResponse = oRequest.responses[y];
 
+        var showBulkApprove = false;
+
         var arrResponseDocs = new Array();
         for (var z = 0; z < oResponse.responseDocs.length; z++) {
           var oResponseDoc = oResponse.responseDocs[z];
+
+          oResponseDoc.chkApproveResDoc = ko.observable(false);
 
           if (oResponseDoc.documentStatus == "Marked for Deletion") continue;
 
@@ -2650,12 +2654,20 @@ Audit.IAReport.NewReportPage = function () {
             "</a>";
           arrResponseDocs.push(oResponseDoc);
           cnt++;
+
+          if (
+            oResponse.resStatus == "2-Submitted" &&
+            oResponseDoc.documentStatus == "Submitted"
+          ) {
+            showBulkApprove = true;
+          }
         }
         arrResponseSummaries.push({
           responseTitle: oResponse.title,
           responseDocs: arrResponseDocs,
           responseStatus: oResponse.resStatus,
           requestStatus: oRequest.status,
+          showBulkApprove,
         });
       }
 

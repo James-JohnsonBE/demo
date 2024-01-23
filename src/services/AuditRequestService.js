@@ -130,7 +130,7 @@ export async function ensureRequestInternalItem(request) {
   return requestInternal;
 }
 
-async function breakRequestPermissions(request, responseStatus) {
+export async function breakRequestPermissions(request, responseStatus) {
   const curPerms = await appContext.AuditRequests.GetItemPermissions(request);
 
   const defaultGroups = await getSiteGroups();
