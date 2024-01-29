@@ -1,6 +1,6 @@
 import { appContext } from "../../../../infrastructure/ApplicationDbContext.js";
 import { registerComponent } from "../../../../infrastructure/RegisterComponents.js";
-import { approveResponseDocsForQA } from "../../../../services/AuditResponseService.js";
+import { approveResponseDocsForQA } from "../../../../pages/IA_DB/IA_DB_Services.js";
 const componentName = "confirm-approve-response-doc";
 export class ConfirmApproveResponseDocForm {
   constructor(request, response, responseDocs) {
@@ -17,12 +17,9 @@ export class ConfirmApproveResponseDocForm {
     await this.submit();
     this.saving(false);
   }
+
   async submit() {
-    await approveResponseDocsForQA(
-      this.request.ID,
-      this.response?.ID,
-      this.responseDocs()?.map((responseDoc) => responseDoc.ID)
-    );
+    await approveResponseDocsForQA(this.request, this.responseDocs());
     this.onComplete(true);
   }
 

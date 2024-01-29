@@ -7,6 +7,10 @@ import { getRequestByTitle } from "../../services/AuditRequestService.js";
 import { Tab, TabsModule } from "../Tabs/TabsModule.js";
 import { getUrlParam } from "../../common/Router.js";
 import { ConfirmApproveResponseDocForm } from "../Forms/ResponseDoc/ConfirmApprove/ConfirmApproveResponseDocForm.js";
+import { AuditResponseStates } from "../../entities/AuditResponse.js";
+import { AuditResponseDocStates } from "../../entities/AuditResponseDocs.js";
+import { AUDITREQUESTSTATES } from "../../entities/AuditRequest.js";
+import { m_fnRequeryRequest } from "../../pages/IA_DB/IA_DB.js";
 
 const componentName = "component-request-detail-view";
 
@@ -127,32 +131,61 @@ export class RequestDetailView {
   };
 
   // ResponseDocs
-  ClickBulkApprove = (oResponseSummary) => {};
-
-  ClickApproveResponseDoc = (oResponseDoc) => {
-    const response = this.arrCurrentRequestResponses().find(
-      (response) => response.title == oResponseDoc.responseTitle
+  ClickBulkApprove = (responseDocSummary) => {
+    const oResponseDocsForApproval = responseDocSummary.responseDocs.filter(
+      (responseDoc) =>
+        this.responseDocCanBeApproved(responseDocSummary, responseDoc)
     );
     const request = this.currentRequest();
 
     const newResponseDocForm = new ConfirmApproveResponseDocForm(
       request,
-      response,
-      oResponseDoc
+      null,
+      oResponseDocsForApproval
     );
 
     const options = {
       form: newResponseDocForm,
-      dialogReturnValueCallback: this.OnCallBackApproveResponseDoc,
+      dialogReturnValueCallback: this.OnCallBackApproveResponseDoc.bind(this),
+      title: "Approve Response Docs?",
+    };
+
+    ModalDialog.showModalDialog(options);
+  };
+
+  ClickApproveResponseDoc = (oResponseDoc) => {
+    const request = this.currentRequest();
+
+    const newResponseDocForm = new ConfirmApproveResponseDocForm(
+      request,
+      null,
+      [oResponseDoc]
+    );
+
+    const options = {
+      form: newResponseDocForm,
+      dialogReturnValueCallback: this.OnCallBackApproveResponseDoc.bind(this),
       title: "Approve Response Doc?",
     };
 
     ModalDialog.showModalDialog(options);
   };
 
-  OnCallBackApproveResponseDoc(result) {
+  responseDocCanBeApproved = (responseDocSummary, responseDoc) => {
+    return (
+      responseDoc.documentStatus == AuditResponseDocStates.Submitted &&
+      (responseDocSummary.responseStatus == AuditResponseStates.Submitted ||
+        responseDocSummary.responseStatus ==
+          AuditResponseStates.ApprovedForQA) &&
+      (responseDocSummary.requestStatus == AUDITREQUESTSTATES.OPEN ||
+        responseDocSummary.requestStatus == AUDITREQUESTSTATES.REOPENED)
+    );
+  };
+
+  async OnCallBackApproveResponseDoc(result) {
     if (result) {
       // Update is handled in the form, just need to refresh page/data
+      m_fnRequeryRequest(this.currentRequest());
     }
   }
 
@@ -190,7 +223,7 @@ export class RequestDetailView {
 
     const options = {
       form: newResponseDocForm,
-      dialogReturnValueCallback: this.OnCallBackApproveResponseDoc,
+      dialogReturnValueCallback: this.OnCallBackApproveResponseDoc.bind(this),
       title: "Approve Response Docs?",
     };
 

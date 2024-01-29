@@ -56,3 +56,18 @@ AuditResponseDoc
 
 - [ ] m_fnViewResponseDoc
 - [ ] m_fnEditResponseDoc
+
+## General Todos
+
+Fix refresh on every action
+Fix file rename (created has conflict with drag n drop edit)
+
+## Search Select Todos
+
+Ctrl-a to highlight multiple
+Support query to update options
+
+## Cleanup!
+
+[ ] Lookupfield shouldn't query entire list.
+[ ] Caching was a mistake (remove?)

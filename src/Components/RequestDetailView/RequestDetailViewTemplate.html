@@ -890,8 +890,10 @@
             />
           </td>
           <td class="requestInfo-response-doc-title">
-            <input type="checkbox"
-            data-bind="attr: { id: ID }, visible: documentStatus == 'Submitted' && $parent.responseStatus == '2-Submitted' && ( $parent.requestStatus == 'Open' || $parent.requestStatus == 'ReOpened' ), checked: chkApproveResDoc">
+            <input
+              type="checkbox"
+              data-bind="attr: { id: ID }, visible: $parents[1].responseDocCanBeApproved(responseDocSummary, $data), checked: chkApproveResDoc"
+            />
 
             <a
               title="Click to Download"
@@ -950,12 +952,26 @@
             data-bind="text: modifiedBy"
           ></td>
           <td nowrap>
-            <span data-bind="visible: $parent.responseStatus == '2-Submitted' && documentStatus == 'Submitted'" >
-              <a title="Approve this Document" href="javascript:void(0)" data-bind="click: $parents[1].ClickApproveResponseDoc">
-                <span class='ui-icon ui-icon-circle-check'>Approve Response Doc</span>
+            <span
+              data-bind="visible: $parent.responseStatus == '2-Submitted' && documentStatus == 'Submitted'"
+            >
+              <a
+                title="Approve this Document"
+                href="javascript:void(0)"
+                data-bind="click: $parents[1].ClickApproveResponseDoc"
+              >
+                <span class="ui-icon ui-icon-circle-check"
+                  >Approve Response Doc</span
+                >
               </a>
-              <a title="Reject this Document" href="javascript:void(0)" data-bind="click: $parents[1].ClickRejectResponseDoc">
-                <span class='ui-icon ui-icon-circle-close'>Reject Response Doc</span>
+              <a
+                title="Reject this Document"
+                href="javascript:void(0)"
+                data-bind="click: $parents[1].ClickRejectResponseDoc"
+              >
+                <span class="ui-icon ui-icon-circle-close"
+                  >Reject Response Doc</span
+                >
               </a>
             </span>
 

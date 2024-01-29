@@ -1,5 +1,5 @@
 import { BaseForm } from "../../BaseForm.js";
-import { updateResponse } from "../../../../services/AuditResponseService.js";
+import { updateResponseDoc } from "../../../../services/AuditResponseService.js";
 
 import { registerComponent } from "../../../../infrastructure/RegisterComponents.js";
 import { currentUser } from "../../../../services/PeopleManager.js";
@@ -39,7 +39,7 @@ export class EditResponseDocForm extends BaseForm {
     const response = responseDoc.ResID.Value();
 
     try {
-      await updateResponse(request, response, responseDoc);
+      await updateResponseDoc(request, response, responseDoc);
       this.onComplete(SP.UI.DialogResult.OK);
     } catch (e) {
       alert(e);

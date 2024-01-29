@@ -5,3 +5,8 @@ http://cgfs16index1dev:31000/sites/audit/_api/Web/GetFileByServerRelativeUrl('/s
 http://cgfs16index1dev:31000/sites/audit/_api/Web/Lists(guid'44c6f7c1-f28b-42a0-b45b-68443cce6de3')/Items(30)?$select=ID,Title,FileLeafRef,FileRef,ReqNum/ID,ReqNum/Title,ActionOffice/ID,ActionOffice/Title&$expand=ReqNum,ActionOffice
 http://cgfs16index1dev:31000/sites/audit/_api/web/lists/GetByTitle('AuditResponseDocs')/items?$select=ID,Title,ReceiptDate,DocumentStatus,RejectReason,ReqNum/ID,ReqNum/Title,ResID/ID,ResID/Title,FileLeafRef,FileRef,Modified,Editor/ID,Editor/Title,File/ID,File/SizeInKB,File_x0020_Type,RoleAssignments&$expand=File,ReqNum,ResID,Editor,RoleAssignments&&$filter=(ReqNum%20eq%20%27138%27)%20and%20(FSObjType%20eq%20%270%27)&$top=5000
 http://cgfs16index1dev:31000/sites/audit/_api/web/lists/GetByTitle('AuditResponseDocs')/items(623)?$select=ID,Title,ReceiptDate,DocumentStatus,RejectReason,ReqNum/ID,ReqNum/Title,ResID/ID,ResID/Title,FileLeafRef,FileRef,Modified,Editor/ID,Editor/Title,File/ID,File/SizeInKB,File_x0020_Type,RoleAssignments&$expand=File,ReqNum,ResID,Editor,RoleAssignments
+m_fnBreakResponseAndFolderPermissions m_fnGrantSpecialPermsOnResponseAndFolder
+m_fnUpdateAllResponsePermissions m_fnCheckIfResponsePermissionsNeedUpdating
+m_fnBreakResponsePermissions OnCallbackFormNewResponse
+OnCallbackFormEditResponse LoadTabRequestInfoResponses2
+m_fnBreakResponseFolderPermissions OnCallbackFormEditResponse

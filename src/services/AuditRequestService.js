@@ -42,7 +42,8 @@ export async function AddNewRequest(request) {
 
   await appContext.AuditRequests.AddEntity(request);
 
-  await onAddNewRequest(request);
+  // This is handled by the IA_DB callback
+  // await onAddNewRequest(request);
 }
 
 export async function onAddNewRequest(request) {
