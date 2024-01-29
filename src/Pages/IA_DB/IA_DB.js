@@ -18,7 +18,13 @@ import { NewResponseForm } from "../../components/Forms/Response/NewForm/NewResp
 import { EditResponseForm } from "../../components/Forms/Response/EditForm/EditResponseForm.js";
 import { EditResponseDocForm } from "../../components/Forms/ResponseDoc/EditForm/EditResponseDocForm.js";
 
-import { m_fnGetNewResponseDocTitle } from "./IA_DB_Services.js";
+import {
+  m_fnGetNewResponseDocTitle,
+  m_fnBreakRequestPermissions,
+  m_fnBreakCoversheetPermissions,
+  m_fnBreakResponseAndFolderPermissions,
+  notifyQAApprovalPending,
+} from "./IA_DB_Services.js";
 
 var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
@@ -1226,7 +1232,7 @@ export function m_fnRequeryRequest(oRequest) {
       "Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified)"
     );
 
-  function OnSuccess(sender, args) {
+  async function OnSuccess(sender, args) {
     //Update the item field on the request
     var listItemEnumerator = m_aRequestItem.getEnumerator();
     while (listItemEnumerator.moveNext()) {
@@ -1236,11 +1242,6 @@ export function m_fnRequeryRequest(oRequest) {
     }
 
     if (m_bIsSiteOwner) {
-      /*if( !oRequest.item.get_hasUniqueRoleAssignments() )
-				{
-					m_fnBreakRequestPermissions( oRequest.item, false );
-				}*/
-
       //07/06/2017 - if the permissions on the request are inheriting for any reason, then reset the permissions and refresh the page
       if (!oRequest.item.get_hasUniqueRoleAssignments()) {
         const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
@@ -1249,7 +1250,8 @@ export function m_fnRequeryRequest(oRequest) {
           200,
           400
         );
-        m_fnBreakRequestPermissions(oRequest.item, true);
+        await m_fnBreakRequestPermissions(oRequest.item, false);
+        m_fnRefresh();
         return;
       } //07/06/2017 - if the permissions on the request are inheriting for any reason, then reset the permissions and refresh the page
       else {
@@ -1283,7 +1285,8 @@ export function m_fnRequeryRequest(oRequest) {
             200,
             400
           );
-          m_fnBreakRequestPermissions(oRequest.item, true);
+          await m_fnBreakRequestPermissions(oRequest.item, false);
+          m_fnRefresh();
           return;
         }
       }
@@ -1609,7 +1612,7 @@ function m_fnCheckForEAEmailFolder(emailListFolderItemsEA) {
 //QA doesnt have edit permissions rights on the response/response folder
 //Therefore, when IA gets alerted that the response has been updated by QA, check if response status is updated
 //and then update the permissions
-function m_fnCheckIfResponsePermissionsNeedUpdating(
+async function m_fnCheckIfResponsePermissionsNeedUpdating(
   requestStatus,
   title,
   OnCompletedChecking
@@ -1619,17 +1622,15 @@ function m_fnCheckIfResponsePermissionsNeedUpdating(
     for (var y = 0; y < oRequest.responses.length; y++) {
       if (oRequest.responses[y].title == title) {
         var doneBreakingResponse = false;
-        m_fnBreakResponseAndFolderPermissions(
+        await m_fnBreakResponseAndFolderPermissions(
           requestStatus,
           oRequest.responses[y],
           false,
           true,
           false,
-          false,
-          function (doneBreakingResponse) {
-            OnCompletedChecking(true);
-          }
+          false
         );
+        OnCompletedChecking(true);
       }
     }
   }
@@ -3509,7 +3510,7 @@ function m_fnResendRejectedResponseDocToQA(itemID) {
 
 //if request is closed, re-open request and reset perms
 //reset perms on response
-function m_fnReOpenResponse(requestNumber, responseTitle) {
+async function m_fnReOpenResponse(requestNumber, responseTitle) {
   if (!m_bIsSiteOwner) {
     SP.UI.Notify.addNotification(
       "You do not have access to perform this action...",
@@ -3538,7 +3539,7 @@ function m_fnReOpenResponse(requestNumber, responseTitle) {
         if (oRequestBigMap.responses[z].title == responseTitle) {
           oRequestBigMap.responses[z].item.set_item("ResStatus", "1-Open");
           oRequestBigMap.responses[z].item.update();
-          m_fnBreakResponseAndFolderPermissions(
+          await m_fnBreakResponseAndFolderPermissions(
             "ReOpened",
             oRequestBigMap.responses[z],
             false,
@@ -3563,7 +3564,7 @@ function m_fnReOpenResponse(requestNumber, responseTitle) {
         oListItem.update();
       }
 
-      m_fnBreakRequestPermissions(oListItem, false);
+      await m_fnBreakRequestPermissions(oListItem, false);
     }
 
     currCtx2.executeQueryAsync(
@@ -4459,228 +4460,6 @@ function m_fnGetNewFileNameForSensitivity(
   return newFileName;
 }
 
-//This gets executed when on refresh if a request does not have broken permissions. When a new request is created from the list form, we
-//cant set the permissions until it's been created. So, on callback, refresh is called and checks for requests that don't have broken permissions
-function m_fnBreakRequestPermissions(
-  oListItem,
-  refreshPageOnUpdate,
-  responseStatus,
-  OnComplete
-) {
-  if (!m_bIsSiteOwner) {
-    return;
-  }
-
-  var currCtx = new SP.ClientContext.get_current();
-  var web = currCtx.get_web();
-
-  const currentUser = web.get_currentUser();
-  const ownerGroup = web.get_associatedOwnerGroup();
-  const memberGroup = web.get_associatedMemberGroup();
-  const visitorGroup = web.get_associatedVisitorGroup();
-
-  var qaHasRead = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
-    oListItem,
-    Audit.Common.Utilities.GetGroupNameQA(),
-    SP.PermissionKind.viewListItems
-  );
-  var special1HasRead = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
-    oListItem,
-    Audit.Common.Utilities.GetGroupNameSpecialPerm1(),
-    SP.PermissionKind.viewListItems
-  );
-  var special2HasRead = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
-    oListItem,
-    Audit.Common.Utilities.GetGroupNameSpecialPerm2(),
-    SP.PermissionKind.viewListItems
-  );
-
-  oListItem.resetRoleInheritance();
-  oListItem.breakRoleInheritance(false, false);
-
-  var roleDefBindingCollAdmin =
-    SP.RoleDefinitionBindingCollection.newObject(currCtx);
-  roleDefBindingCollAdmin.add(
-    web.get_roleDefinitions().getByType(SP.RoleType.administrator)
-  );
-
-  var roleDefBindingCollContribute =
-    SP.RoleDefinitionBindingCollection.newObject(currCtx);
-  roleDefBindingCollContribute.add(
-    web.get_roleDefinitions().getByType(SP.RoleType.contributor)
-  );
-
-  var roleDefBindingCollRestrictedRead =
-    SP.RoleDefinitionBindingCollection.newObject(currCtx);
-  roleDefBindingCollRestrictedRead.add(
-    web.get_roleDefinitions().getByName("Restricted Read")
-  );
-
-  var roleDefBindingCollRestrictedContribute =
-    SP.RoleDefinitionBindingCollection.newObject(currCtx);
-  roleDefBindingCollRestrictedContribute.add(
-    web.get_roleDefinitions().getByName("Restricted Contribute")
-  );
-
-  //add site associated groups
-  oListItem.get_roleAssignments().add(ownerGroup, roleDefBindingCollAdmin);
-  oListItem
-    .get_roleAssignments()
-    .add(memberGroup, roleDefBindingCollContribute);
-  oListItem
-    .get_roleAssignments()
-    .add(visitorGroup, roleDefBindingCollRestrictedRead);
-
-  if (qaHasRead || responseStatus == "4-Approved for QA") {
-    //make sure qa gets read if it had access
-    var spGroupQA = Audit.Common.Utilities.GetSPSiteGroup(
-      Audit.Common.Utilities.GetGroupNameQA()
-    );
-    if (spGroupQA != null)
-      oListItem
-        .get_roleAssignments()
-        .add(spGroupQA, roleDefBindingCollRestrictedRead);
-  }
-
-  if (special1HasRead) {
-    //make sure qa gets read if it had access
-    var group1SpecialPerm = Audit.Common.Utilities.GetSPSiteGroup(
-      Audit.Common.Utilities.GetGroupNameSpecialPerm1()
-    );
-    if (group1SpecialPerm != null)
-      oListItem
-        .get_roleAssignments()
-        .add(group1SpecialPerm, roleDefBindingCollRestrictedRead);
-  }
-
-  if (special2HasRead) {
-    //make sure qa gets read if it had access
-    var group2SpecialPerm = Audit.Common.Utilities.GetSPSiteGroup(
-      Audit.Common.Utilities.GetGroupNameSpecialPerm2()
-    );
-    if (group2SpecialPerm != null)
-      oListItem
-        .get_roleAssignments()
-        .add(group2SpecialPerm, roleDefBindingCollRestrictedRead);
-  }
-
-  oListItem.get_roleAssignments().getByPrincipal(currentUser).deleteObject();
-
-  function onUpdateReqPermsSucceeed() {
-    let m_CntRequestAOsToAdd = 0;
-    let m_CntRequestAOsAdded = 0;
-
-    //add action offices
-    var arrActionOffice = oListItem.get_item("ActionOffice");
-    if (arrActionOffice != null && arrActionOffice.length > 0) {
-      for (var x = 0; x < arrActionOffice.length; x++) {
-        var actionOfficeName = arrActionOffice[x].get_lookupValue();
-
-        var actionOfficeGroupName =
-          Audit.Common.Utilities.GetAOSPGroupName(actionOfficeName);
-        var actionOfficeGroup = Audit.Common.Utilities.GetSPSiteGroup(
-          actionOfficeGroupName
-        );
-
-        if (actionOfficeGroup != null) {
-          m_CntRequestAOsToAdd++;
-
-          var currCtx2 = new SP.ClientContext.get_current();
-          var web2 = currCtx2.get_web();
-
-          var roleDefBindingCollRestrictedRead =
-            SP.RoleDefinitionBindingCollection.newObject(currCtx2);
-          roleDefBindingCollRestrictedRead.add(
-            web2.get_roleDefinitions().getByName("Restricted Read")
-          );
-
-          this.oListItem
-            .get_roleAssignments()
-            .add(actionOfficeGroup, roleDefBindingCollRestrictedRead);
-
-          function onUpdatedReqAOSucceeded() {
-            m_CntRequestAOsAdded++;
-
-            if (m_CntRequestAOsAdded == m_CntRequestAOsToAdd) {
-              if (this.refreshPage) m_fnRefresh();
-              else if (this.OnComplete) this.OnComplete(true);
-            }
-          }
-          function onUpdatedReqAOFailed(sender, args) {
-            m_CntRequestAOsAdded++;
-
-            if (m_CntRequestAOsAdded == m_CntRequestAOsToAdd) {
-              if (this.refreshPage) m_fnRefresh();
-              else if (this.OnComplete) this.OnComplete(true); //return true to continue executing
-            }
-          }
-
-          var data = {
-            refreshPage: this.refreshPage,
-            OnComplete: this.OnComplete,
-          };
-          currCtx2.executeQueryAsync(
-            Function.createDelegate(data, onUpdatedReqAOSucceeded),
-            Function.createDelegate(data, onUpdatedReqAOFailed)
-          );
-        }
-      }
-    } else {
-      if (this.refreshPage) {
-        setTimeout(function () {
-          m_fnRefresh();
-        }, 500);
-      } else if (this.OnComplete) this.OnComplete(true);
-    }
-  }
-
-  function onUpdateReqPermsFailed(sender, args) {
-    if (this.OnComplete) {
-      this.OnComplete(true); //continue execution
-      SP.UI.Notify.addNotification(
-        "Failed to update permissions on Request: " +
-          this.title +
-          args.get_message() +
-          "\n" +
-          args.get_stackTrace(),
-        false
-      );
-    } else if (this.refreshPage) {
-      SP.UI.Notify.addNotification(
-        "Failed to update Request: " +
-          this.title +
-          args.get_message() +
-          "\n" +
-          args.get_stackTrace(),
-        false
-      );
-      setTimeout(function () {
-        m_fnRefresh();
-      }, 500);
-    } else {
-      SP.UI.Notify.addNotification(
-        "Failed to update permissions on Request: " +
-          this.title +
-          args.get_message() +
-          "\n" +
-          args.get_stackTrace(),
-        false
-      );
-    }
-  }
-
-  var data = {
-    title: oListItem.get_item("Title"),
-    refreshPage: refreshPageOnUpdate,
-    oListItem: oListItem,
-    OnComplete: OnComplete,
-  };
-  currCtx.executeQueryAsync(
-    Function.createDelegate(data, onUpdateReqPermsSucceeed),
-    Function.createDelegate(data, onUpdateReqPermsFailed)
-  );
-}
-
 var m_cntAOToAddToEmailFolder = 0;
 var m_cntAOAddedToEmailFolder = 0;
 function m_fnBreakEmailFolderPermissions(
@@ -4834,216 +4613,6 @@ var m_countCSToAdd = 0;
 var m_countCSAdded = 0;
 
 var oCntCSAOAdd = new Object();
-
-function m_fnBreakCoversheetPermissions(
-  oListItem,
-  grantQARead,
-  refreshPageOnUpdate,
-  OnComplete
-) {
-  if (oListItem == null) return;
-
-  var currCtx = new SP.ClientContext.get_current();
-  var web = currCtx.get_web();
-
-  var currentUser = currCtx.get_web().get_currentUser();
-  var ownerGroup = web.get_associatedOwnerGroup();
-  var memberGroup = web.get_associatedMemberGroup();
-  var visitorGroup = web.get_associatedVisitorGroup();
-
-  var qaHasRead = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
-    oListItem,
-    Audit.Common.Utilities.GetGroupNameQA(),
-    SP.PermissionKind.viewListItems
-  );
-  var special1HasRead = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
-    oListItem,
-    Audit.Common.Utilities.GetGroupNameSpecialPerm1(),
-    SP.PermissionKind.viewListItems
-  );
-  var special2HasRead = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
-    oListItem,
-    Audit.Common.Utilities.GetGroupNameSpecialPerm2(),
-    SP.PermissionKind.viewListItems
-  );
-
-  //check this because if it's inheriting, they'll have access
-  if (!oListItem.get_hasUniqueRoleAssignments()) {
-    qaHasRead = false;
-    special1HasRead = false;
-    special2HasRead = false;
-  }
-
-  oListItem.resetRoleInheritance();
-  oListItem.breakRoleInheritance(false, false);
-
-  var roleDefBindingCollAdmin =
-    SP.RoleDefinitionBindingCollection.newObject(currCtx);
-  roleDefBindingCollAdmin.add(
-    currCtx.get_web().get_roleDefinitions().getByType(SP.RoleType.administrator)
-  );
-
-  var roleDefBindingCollContribute =
-    SP.RoleDefinitionBindingCollection.newObject(currCtx);
-  roleDefBindingCollContribute.add(
-    currCtx.get_web().get_roleDefinitions().getByType(SP.RoleType.contributor)
-  );
-
-  var roleDefBindingCollRestrictedRead =
-    SP.RoleDefinitionBindingCollection.newObject(currCtx);
-  roleDefBindingCollRestrictedRead.add(
-    currCtx.get_web().get_roleDefinitions().getByName("Restricted Read")
-  );
-
-  var roleDefBindingCollRestrictedContribute =
-    SP.RoleDefinitionBindingCollection.newObject(currCtx);
-  roleDefBindingCollRestrictedContribute.add(
-    currCtx.get_web().get_roleDefinitions().getByName("Restricted Contribute")
-  );
-
-  //add associated site groups
-  oListItem.get_roleAssignments().add(ownerGroup, roleDefBindingCollAdmin);
-  oListItem
-    .get_roleAssignments()
-    .add(memberGroup, roleDefBindingCollContribute);
-  oListItem
-    .get_roleAssignments()
-    .add(visitorGroup, roleDefBindingCollRestrictedRead);
-
-  if (qaHasRead || grantQARead) {
-    //make sure qa gets read if it had access
-    var spGroupQA = Audit.Common.Utilities.GetSPSiteGroup(
-      Audit.Common.Utilities.GetGroupNameQA()
-    );
-    if (spGroupQA != null)
-      oListItem
-        .get_roleAssignments()
-        .add(spGroupQA, roleDefBindingCollRestrictedRead);
-  }
-
-  if (special1HasRead) {
-    //make sure qa gets read if it had access
-    var group1SpecialPerm = Audit.Common.Utilities.GetSPSiteGroup(
-      Audit.Common.Utilities.GetGroupNameSpecialPerm1()
-    );
-    if (group1SpecialPerm != null)
-      oListItem
-        .get_roleAssignments()
-        .add(group1SpecialPerm, roleDefBindingCollRestrictedRead);
-  }
-
-  if (special2HasRead) {
-    //make sure qa gets read if it had access
-    var group2SpecialPerm = Audit.Common.Utilities.GetSPSiteGroup(
-      Audit.Common.Utilities.GetGroupNameSpecialPerm2()
-    );
-    if (group2SpecialPerm != null)
-      oListItem
-        .get_roleAssignments()
-        .add(group2SpecialPerm, roleDefBindingCollRestrictedRead);
-  }
-
-  oListItem.get_roleAssignments().getByPrincipal(currentUser).deleteObject();
-
-  function onUpdatedCSSucceeded() {
-    var currCtx2 = new SP.ClientContext.get_current();
-
-    var roleDefBindingCollRestrictedRead =
-      SP.RoleDefinitionBindingCollection.newObject(currCtx2);
-    roleDefBindingCollRestrictedRead.add(
-      currCtx2.get_web().get_roleDefinitions().getByName("Restricted Read")
-    );
-
-    //add action offices
-    var arrActionOffice = this.oListItem.get_item("ActionOffice");
-    if (arrActionOffice == null || arrActionOffice.length == 0) {
-      if (this.refreshPage) m_fnRefresh();
-      else if (this.OnComplete) this.OnComplete(true);
-      return;
-    }
-
-    var csID = this.oListItem.get_item("ID");
-    oCntCSAOAdd[csID + "toAdd"] = 0;
-    oCntCSAOAdd[csID + "added"] = 0;
-
-    for (var x = 0; x < arrActionOffice.length; x++) {
-      var actionOfficeName = arrActionOffice[x].get_lookupValue();
-      var actionOfficeGroupName =
-        Audit.Common.Utilities.GetAOSPGroupName(actionOfficeName);
-      var actionOfficeGroup = Audit.Common.Utilities.GetSPSiteGroup(
-        actionOfficeGroupName
-      );
-      if (actionOfficeGroup != null) {
-        oCntCSAOAdd[csID + "toAdd"] = oCntCSAOAdd[csID + "toAdd"] + 1;
-
-        var roleDefBindingCollRestrictedRead =
-          SP.RoleDefinitionBindingCollection.newObject(currCtx2);
-        roleDefBindingCollRestrictedRead.add(
-          currCtx2.get_web().get_roleDefinitions().getByName("Restricted Read")
-        );
-        this.oListItem
-          .get_roleAssignments()
-          .add(actionOfficeGroup, roleDefBindingCollRestrictedRead);
-
-        function onUpdatedCSAOSucceeded() {
-          oCntCSAOAdd[this.csID + "added"] =
-            oCntCSAOAdd[this.csID + "added"] + 1;
-
-          if (
-            oCntCSAOAdd[this.csID + "added"] == oCntCSAOAdd[this.csID + "toAdd"]
-          ) {
-            if (this.refreshPage) m_fnRefresh();
-            else if (this.OnComplete) this.OnComplete(true);
-          }
-        }
-        function onUpdatedCSAOFailed(sender, args) {
-          oCntCSAOAdd[this.csID + "added"] =
-            oCntCSAOAdd[this.csID + "added"] + 1;
-
-          if (
-            oCntCSAOAdd[this.csID + "added"] == oCntCSAOAdd[this.csID + "toAdd"]
-          ) {
-            if (this.refreshPage) m_fnRefresh();
-            else if (this.OnComplete) this.OnComplete(true);
-          }
-        }
-
-        var data = {
-          refreshPage: this.refreshPage,
-          OnComplete: this.OnComplete,
-          csID: csID,
-        };
-        currCtx2.executeQueryAsync(
-          Function.createDelegate(data, onUpdatedCSAOSucceeded),
-          Function.createDelegate(data, onUpdatedCSAOFailed)
-        );
-      }
-    }
-  }
-
-  function onUpdatedCSFailed(sender, args) {
-    SP.UI.Notify.addNotification(
-      "Failed to update permissions on Coversheet" +
-        args.get_message() +
-        "\n" +
-        args.get_stackTrace(),
-      false
-    );
-
-    if (this.refreshPage) m_fnRefresh();
-    else if (this.OnComplete) this.OnComplete(true); //return true to continue executing
-  }
-
-  var data = {
-    refreshPage: refreshPageOnUpdate,
-    oListItem: oListItem,
-    OnComplete: OnComplete,
-  };
-  currCtx.executeQueryAsync(
-    Function.createDelegate(data, onUpdatedCSSucceeded),
-    Function.createDelegate(data, onUpdatedCSFailed)
-  );
-}
 
 function m_fnBreakCoversheetPermissionsOnSpecialPerms(
   currCtx,
@@ -5221,268 +4790,6 @@ function m_fnBreakCoversheetPermissionsOnSpecialPerms(
 
 //This gets executed when on refresh if a response does not have broken permissions. When a new response is created from the list form, we
 //cant set the permissions until it's been created. So, on callback, refresh is called and checks for responses that don't have broken permissions
-function m_fnBreakResponseAndFolderPermissions(
-  requestStatus,
-  oResponse,
-  refreshPageOnUpdate,
-  checkStatus,
-  bForceGrantSP,
-  bForceRemoveSP,
-  OnComplete
-) {
-  if (!m_bIsSiteOwner) {
-    OnComplete(true);
-    return;
-  }
-
-  var currCtx = new SP.ClientContext.get_current();
-  var web = currCtx.get_web();
-
-  const currentUser = currCtx.get_web().get_currentUser();
-  const ownerGroup = web.get_associatedOwnerGroup();
-  const memberGroup = web.get_associatedMemberGroup();
-  const visitorGroup = web.get_associatedVisitorGroup();
-
-  var qaHasRead = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
-    oResponse.item,
-    Audit.Common.Utilities.GetGroupNameQA(),
-    SP.PermissionKind.viewListItems
-  );
-  var special1HasRead = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
-    oResponse.item,
-    Audit.Common.Utilities.GetGroupNameSpecialPerm1(),
-    SP.PermissionKind.viewListItems
-  );
-  var special2HasRead = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
-    oResponse.item,
-    Audit.Common.Utilities.GetGroupNameSpecialPerm2(),
-    SP.PermissionKind.viewListItems
-  );
-
-  if (!oResponse.item.get_hasUniqueRoleAssignments()) {
-    qaHasRead = false;
-    special1HasRead = false;
-    special2HasRead = false;
-  }
-  if (bForceGrantSP) {
-    special1HasRead = true;
-    special2HasRead = true;
-  } else if (bForceRemoveSP) {
-    special1HasRead = false;
-    special2HasRead = false;
-  }
-
-  oResponse.item.resetRoleInheritance();
-  oResponse.item.breakRoleInheritance(false, false);
-
-  if (oResponse.responseFolderItem) {
-    oResponse.responseFolderItem.resetRoleInheritance();
-    oResponse.responseFolderItem.breakRoleInheritance(false, false);
-  }
-
-  var roleDefBindingCollAdmin =
-    SP.RoleDefinitionBindingCollection.newObject(currCtx);
-  roleDefBindingCollAdmin.add(
-    currCtx.get_web().get_roleDefinitions().getByType(SP.RoleType.administrator)
-  );
-
-  var roleDefBindingCollContribute =
-    SP.RoleDefinitionBindingCollection.newObject(currCtx);
-  roleDefBindingCollContribute.add(
-    currCtx.get_web().get_roleDefinitions().getByType(SP.RoleType.contributor)
-  );
-
-  var roleDefBindingCollRestrictedRead =
-    SP.RoleDefinitionBindingCollection.newObject(currCtx);
-  roleDefBindingCollRestrictedRead.add(
-    currCtx.get_web().get_roleDefinitions().getByName("Restricted Read")
-  );
-
-  var roleDefBindingCollRestrictedContribute =
-    SP.RoleDefinitionBindingCollection.newObject(currCtx);
-  roleDefBindingCollRestrictedContribute.add(
-    currCtx.get_web().get_roleDefinitions().getByName("Restricted Contribute")
-  );
-
-  //add associated site groups
-  oResponse.item.get_roleAssignments().add(ownerGroup, roleDefBindingCollAdmin);
-  oResponse.item
-    .get_roleAssignments()
-    .add(memberGroup, roleDefBindingCollContribute);
-  oResponse.item
-    .get_roleAssignments()
-    .add(visitorGroup, roleDefBindingCollRestrictedRead);
-
-  if (oResponse.responseFolderItem) {
-    //add associated site groups
-    oResponse.responseFolderItem
-      .get_roleAssignments()
-      .add(ownerGroup, roleDefBindingCollAdmin);
-    oResponse.responseFolderItem
-      .get_roleAssignments()
-      .add(memberGroup, roleDefBindingCollContribute);
-    oResponse.responseFolderItem
-      .get_roleAssignments()
-      .add(visitorGroup, roleDefBindingCollRestrictedRead);
-  }
-
-  if (
-    qaHasRead ||
-    oResponse.item.get_item("ResStatus") == "4-Approved for QA" ||
-    oResponse.item.get_item("ResStatus") == "6-Reposted After Rejection"
-  ) {
-    //make sure qa gets read if it had access
-    var spGroupQA = Audit.Common.Utilities.GetSPSiteGroup(
-      Audit.Common.Utilities.GetGroupNameQA()
-    );
-    if (spGroupQA != null) {
-      if (
-        checkStatus &&
-        (oResponse.item.get_item("ResStatus") == "4-Approved for QA" ||
-          oResponse.item.get_item("ResStatus") ==
-            "6-Reposted After Rejection") &&
-        (requestStatus == "Open" || requestStatus == "ReOpened")
-      ) {
-        oResponse.item
-          .get_roleAssignments()
-          .add(spGroupQA, roleDefBindingCollRestrictedContribute);
-        if (oResponse.responseFolderItem) {
-          oResponse.responseFolderItem
-            .get_roleAssignments()
-            .add(spGroupQA, roleDefBindingCollRestrictedContribute);
-        }
-      } else {
-        oResponse.item
-          .get_roleAssignments()
-          .add(spGroupQA, roleDefBindingCollRestrictedRead);
-        if (oResponse.responseFolderItem) {
-          oResponse.responseFolderItem
-            .get_roleAssignments()
-            .add(spGroupQA, roleDefBindingCollRestrictedRead);
-        }
-      }
-    }
-  }
-
-  if (
-    special1HasRead &&
-    (oResponse.item.get_item("ResStatus") == "4-Approved for QA" ||
-      oResponse.item.get_item("ResStatus") == "6-Reposted After Rejection" ||
-      oResponse.item.get_item("ResStatus") == "7-Closed")
-  ) {
-    var group1SpecialPerm = Audit.Common.Utilities.GetSPSiteGroup(
-      Audit.Common.Utilities.GetGroupNameSpecialPerm1()
-    );
-    if (group1SpecialPerm != null) {
-      oResponse.item
-        .get_roleAssignments()
-        .add(group1SpecialPerm, roleDefBindingCollRestrictedRead);
-      if (oResponse.responseFolderItem) {
-        oResponse.responseFolderItem
-          .get_roleAssignments()
-          .add(group1SpecialPerm, roleDefBindingCollRestrictedRead);
-      }
-    }
-  }
-
-  if (
-    special2HasRead &&
-    (oResponse.item.get_item("ResStatus") == "4-Approved for QA" ||
-      oResponse.item.get_item("ResStatus") == "6-Reposted After Rejection" ||
-      oResponse.item.get_item("ResStatus") == "7-Closed")
-  ) {
-    var group2SpecialPerm = Audit.Common.Utilities.GetSPSiteGroup(
-      Audit.Common.Utilities.GetGroupNameSpecialPerm2()
-    );
-    if (group2SpecialPerm != null) {
-      oResponse.item
-        .get_roleAssignments()
-        .add(group2SpecialPerm, roleDefBindingCollRestrictedRead);
-      if (oResponse.responseFolderItem) {
-        oResponse.responseFolderItem
-          .get_roleAssignments()
-          .add(group2SpecialPerm, roleDefBindingCollRestrictedRead);
-      }
-    }
-  }
-
-  //add action offices
-  var actionOffice = oResponse.item.get_item("ActionOffice");
-  if (actionOffice != null) {
-    var actionOfficeName = actionOffice.get_lookupValue();
-    var actionOfficeGroupName =
-      Audit.Common.Utilities.GetAOSPGroupName(actionOfficeName);
-    var actionOfficeGroup = Audit.Common.Utilities.GetSPSiteGroup(
-      actionOfficeGroupName
-    );
-
-    if (actionOfficeGroup != null) {
-      if (
-        checkStatus &&
-        (oResponse.item.get_item("ResStatus") == "1-Open" ||
-          oResponse.item.get_item("ResStatus") ==
-            "3-Returned to Action Office") &&
-        (requestStatus == "Open" || requestStatus == "ReOpened")
-      ) {
-        oResponse.item
-          .get_roleAssignments()
-          .add(actionOfficeGroup, roleDefBindingCollRestrictedContribute);
-        if (oResponse.responseFolderItem)
-          oResponse.responseFolderItem
-            .get_roleAssignments()
-            .add(actionOfficeGroup, roleDefBindingCollRestrictedContribute);
-      } else {
-        oResponse.item
-          .get_roleAssignments()
-          .add(actionOfficeGroup, roleDefBindingCollRestrictedRead);
-        if (oResponse.responseFolderItem) {
-          oResponse.responseFolderItem
-            .get_roleAssignments()
-            .add(actionOfficeGroup, roleDefBindingCollRestrictedRead);
-        }
-      }
-    }
-  }
-
-  oResponse.item
-    .get_roleAssignments()
-    .getByPrincipal(currentUser)
-    .deleteObject();
-  if (oResponse.responseFolderItem)
-    oResponse.responseFolderItem
-      .get_roleAssignments()
-      .getByPrincipal(currentUser)
-      .deleteObject();
-
-  function onUpdateResponsePermsSucceeed() {
-    if (this.refreshPage) m_fnRefresh();
-    else if (this.OnComplete) this.OnComplete(true);
-  }
-
-  function onUpdateResponsePermsFailed(sender, args) {
-    if (this.refreshPage) {
-      SP.UI.Notify.addNotification(
-        "Failed to update permissions on Response: " +
-          this.title +
-          args.get_message() +
-          "\n" +
-          args.get_stackTrace(),
-        false
-      );
-      m_fnRefresh();
-    } else if (this.OnComplete) this.OnComplete(false);
-  }
-
-  var data = {
-    title: oResponse.item.get_item("Title"),
-    refreshPage: refreshPageOnUpdate,
-    OnComplete: OnComplete,
-  };
-  currCtx.executeQueryAsync(
-    Function.createDelegate(data, onUpdateResponsePermsSucceeed),
-    Function.createDelegate(data, onUpdateResponsePermsFailed)
-  );
-}
 
 //This gets executed when on refresh if a response does not have broken permissions. When a new response is created from the list form, we
 //cant set the permissions until it's been created. So, on callback, refresh is called and checks for responses that don't have broken permissions
@@ -6036,7 +5343,7 @@ function m_fnGrantSpecialPermsOnCS(
 
 var m_countSPResFolderToAdd = 0;
 var m_countSPResFolderAdded = 0;
-function m_fnGrantSpecialPermsOnResponseAndFolder(
+async function m_fnGrantSpecialPermsOnResponseAndFolder(
   oRequest,
   addSpecialPerms,
   OnComplete
@@ -6067,33 +5374,28 @@ function m_fnGrantSpecialPermsOnResponseAndFolder(
       if (addSpecialPerms) bForceAdd = true;
       else bForceRemove = true;
 
-      m_fnBreakResponseAndFolderPermissions(
+      await m_fnBreakResponseAndFolderPermissions(
         oRequest.status,
         oResponse,
         false,
         true,
         bForceAdd,
-        bForceRemove,
-        function (bBrokeResponseAndFolderPermissions) {
-          if (bBrokeResponseAndFolderPermissions) {
-            m_countSPResFolderAdded++;
-          } else if (bBrokeResponseAndFolderPermissions) {
-            m_countSPResFolderAdded++; //log here, but continue executing
-          }
-
-          $("#divGrantCntr").text(
-            "Updated " +
-              m_countSPResFolderAdded +
-              " of " +
-              m_countSPResFolderToAdd +
-              " Response permissions"
-          );
-
-          if (m_countSPResFolderAdded == m_countSPResFolderToAdd) {
-            if (OnComplete) OnComplete(true);
-          }
-        }
+        bForceRemove
       );
+
+      m_countSPResFolderAdded++; //log here, but continue executing
+
+      $("#divGrantCntr").text(
+        "Updated " +
+          m_countSPResFolderAdded +
+          " of " +
+          m_countSPResFolderToAdd +
+          " Response permissions"
+      );
+
+      if (m_countSPResFolderAdded == m_countSPResFolderToAdd) {
+        if (OnComplete) OnComplete(true);
+      }
     }
   }
 }
@@ -6603,7 +5905,7 @@ function OnCallbackFormNewRequest(result, value) {
     currCtx.load(emailListFolderItems, "Include(ID, Title, DisplayName)");
 
     currCtx.executeQueryAsync(
-      function () {
+      async function () {
         var oListItem = null;
 
         var listItemEnumerator = requestItems.getEnumerator();
@@ -6617,23 +5919,15 @@ function OnCallbackFormNewRequest(result, value) {
 
           if (!oListItem.get_hasUniqueRoleAssignments()) {
             var bDoneBreakingReqPermisions = false;
-            m_fnBreakRequestPermissions(
+            await m_fnBreakRequestPermissions(oListItem, false, null);
+            var bDoneCreatingEmailFolder = false;
+            Audit.Common.Utilities.CreateEmailFolder(
+              emailList,
+              oListItem.get_item("Title"),
               oListItem,
-              false,
-              null,
-              function (bDoneBreakingReqPermisions) {
-                var bDoneCreatingEmailFolder = false;
-                Audit.Common.Utilities.CreateEmailFolder(
-                  emailList,
-                  oListItem.get_item("Title"),
-                  oListItem,
-                  function (bDoneCreatingEmailFolder) {
-                    _myViewModel.tabs.selectTab(
-                      _myViewModel.tabOpts.RequestDetail
-                    );
-                    m_fnRefresh(oListItem.get_item("Title"));
-                  }
-                );
+              function (bDoneCreatingEmailFolder) {
+                _myViewModel.tabs.selectTab(_myViewModel.tabOpts.RequestDetail);
+                m_fnRefresh(oListItem.get_item("Title"));
               }
             );
           } else {
@@ -6680,7 +5974,7 @@ function m_fnCreateRequestInternalItem(requestNumber) {
   );
 }
 
-function m_fnUpdateAllResponsePermissions(
+async function m_fnUpdateAllResponsePermissions(
   requestStatus,
   requestNum,
   bCheckStatus,
@@ -6694,31 +5988,26 @@ function m_fnUpdateAllResponsePermissions(
     for (var z = 0; z < oRequestBigMap.responses.length; z++) {
       cntResponsesToBreak++;
       var doneBreakingResponse = false;
-      m_fnBreakResponseAndFolderPermissions(
+      await m_fnBreakResponseAndFolderPermissions(
         requestStatus,
         oRequestBigMap.responses[z],
         false,
         bCheckStatus,
         false,
-        false,
-        function (doneBreakingResponse) {
-          if (doneBreakingResponse) {
-            cntResponsesBroken++;
-            $("#divMsgEditRequest").text(
-              "Updated " +
-                cntResponsesBroken +
-                " of " +
-                cntResponsesToBreak +
-                " Response permissions"
-            );
-            if (cntResponsesBroken == cntResponsesToBreak) {
-              OnCompleteUpdateResponsePerms(true);
-            }
-          } else {
-            OnCompleteUpdateResponsePerms(false);
-          }
-        }
+        false
       );
+
+      cntResponsesBroken++;
+      $("#divMsgEditRequest").text(
+        "Updated " +
+          cntResponsesBroken +
+          " of " +
+          cntResponsesToBreak +
+          " Response permissions"
+      );
+      if (cntResponsesBroken == cntResponsesToBreak) {
+        OnCompleteUpdateResponsePerms(true);
+      }
     }
   }
 
@@ -6891,7 +6180,7 @@ function OnCallbackFormEditRequest(result, value) {
     const eaListFolderItems = eaList.getItems(eaListQuery);
     currCtx.load(eaListFolderItems, "Include(ID, Title, DisplayName)");
 
-    function onSuccess() {
+    async function onSuccess() {
       function m_fnUpdateEmailFolderPerms(requestNum, bRefresh) {
         var listItemEnumerator1 = emailListFolderItems.getEnumerator();
         while (listItemEnumerator1.moveNext()) {
@@ -6930,46 +6219,39 @@ function OnCallbackFormEditRequest(result, value) {
           );
 
           var bDoneBreakingReqPermisions = false;
-          m_fnBreakRequestPermissions(
-            oListItem,
-            false,
-            null,
-            function (bDoneBreakingReqPermisions) {
-              if (bDoneBreakingReqPermisions) {
-                //should always be true even if an error occurred
-                $("#divMsgEditRequest").text("Updated Request permissions");
+          await m_fnBreakRequestPermissions(oListItem, false, null);
 
-                var doneUpdatingResponses = false;
-                //m_fnUpdateAllResponsePermissions( oListItem.get_item("ReqStatus"), m_requestNum, this.responseDocsFoldersItems,  true, function( doneUpdatingResponses )
-                m_fnUpdateAllResponsePermissions(
-                  oListItem.get_item("ReqStatus"),
-                  m_requestNum,
-                  true,
-                  function (doneUpdatingResponses) {
-                    if (doneUpdatingResponses) {
-                      if (!bChangeSensitivity)
+          //should always be true even if an error occurred
+          $("#divMsgEditRequest").text("Updated Request permissions");
+
+          var doneUpdatingResponses = false;
+          //m_fnUpdateAllResponsePermissions( oListItem.get_item("ReqStatus"), m_requestNum, this.responseDocsFoldersItems,  true, function( doneUpdatingResponses )
+          m_fnUpdateAllResponsePermissions(
+            oListItem.get_item("ReqStatus"),
+            m_requestNum,
+            true,
+            function (doneUpdatingResponses) {
+              if (doneUpdatingResponses) {
+                if (!bChangeSensitivity)
+                  m_fnUpdateEmailFolderPerms(m_requestNum, true);
+                else {
+                  $("#divMsgEditRequest").text(
+                    "Updating Response document names"
+                  );
+                  var doneUpdatingSensitivity = false;
+                  var oldSensitivity =
+                    m_bigMap["request-" + m_requestNum].sensitivity;
+                  m_fnUpdateSensitivityOnRequest(
+                    m_requestNum,
+                    curSensitivity,
+                    oldSensitivity,
+                    function (doneUpdatingSensitivity) {
+                      if (doneUpdatingSensitivity) {
                         m_fnUpdateEmailFolderPerms(m_requestNum, true);
-                      else {
-                        $("#divMsgEditRequest").text(
-                          "Updating Response document names"
-                        );
-                        var doneUpdatingSensitivity = false;
-                        var oldSensitivity =
-                          m_bigMap["request-" + m_requestNum].sensitivity;
-                        m_fnUpdateSensitivityOnRequest(
-                          m_requestNum,
-                          curSensitivity,
-                          oldSensitivity,
-                          function (doneUpdatingSensitivity) {
-                            if (doneUpdatingSensitivity) {
-                              m_fnUpdateEmailFolderPerms(m_requestNum, true);
-                            }
-                          }
-                        );
                       }
                     }
-                  }
-                );
+                  );
+                }
               }
             }
           );
@@ -6983,40 +6265,29 @@ function OnCallbackFormEditRequest(result, value) {
           );
 
           var bDoneBreakingReqPermisions = false;
-          m_fnBreakRequestPermissions(
-            oListItem,
-            false,
-            null,
-            function (bDoneBreakingReqPermisions) {
-              if (bDoneBreakingReqPermisions) {
-                //should always be true even if an error occurred
-                var oRequest = m_fnGetRequestByNumber(m_requestNum);
+          await m_fnBreakRequestPermissions(oListItem, false, null);
 
-                var newRequestNumber = oListItem.get_item("Title");
-                //TODO: break these up - may cause errors
-                m_fnRenameResponses(oRequest, m_requestNum, newRequestNumber);
-                m_fnRenameResponseFolders(
-                  m_ResponseDocsFoldersItems,
-                  m_requestNum,
-                  newRequestNumber
-                );
-                m_fnRenameEmailFolder(
-                  emailListFolderItems,
-                  m_requestNum,
-                  newRequestNumber
-                );
-                m_fnRenameEAFolder(
-                  eaListFolderItems,
-                  m_requestNum,
-                  newRequestNumber
-                );
+          //should always be true even if an error occurred
+          var oRequest = m_fnGetRequestByNumber(m_requestNum);
 
-                setTimeout(function () {
-                  m_fnRefresh(newRequestNumber);
-                }, 20000);
-              }
-            }
+          var newRequestNumber = oListItem.get_item("Title");
+          //TODO: break these up - may cause errors
+          m_fnRenameResponses(oRequest, m_requestNum, newRequestNumber);
+          m_fnRenameResponseFolders(
+            m_ResponseDocsFoldersItems,
+            m_requestNum,
+            newRequestNumber
           );
+          m_fnRenameEmailFolder(
+            emailListFolderItems,
+            m_requestNum,
+            newRequestNumber
+          );
+          m_fnRenameEAFolder(eaListFolderItems, m_requestNum, newRequestNumber);
+
+          setTimeout(function () {
+            m_fnRefresh(newRequestNumber);
+          }, 20000);
         }
       }
     }
@@ -7053,7 +6324,7 @@ function OnCallbackFormCoverSheet(result, value) {
     var requestSensitivity = m_bigMap["request-" + m_requestNum].sensitivity;
 
     currCtx.executeQueryAsync(
-      function () {
+      async function () {
         var listItemEnumerator = coversheetItems.getEnumerator();
         var oListItem = null;
         while (listItemEnumerator.moveNext()) {
@@ -7073,41 +6344,35 @@ function OnCallbackFormCoverSheet(result, value) {
             requestSensitivity == null ||
             requestSensitivity == "" ||
             requestSensitivity == "None"
-          )
-            m_fnBreakCoversheetPermissions(oListItem, false, true);
-          else {
+          ) {
+            await m_fnBreakCoversheetPermissions(oListItem, false);
+            m_fnRefresh();
+          } else {
             var doneBreakingCS = false;
-            m_fnBreakCoversheetPermissions(
+            await m_fnBreakCoversheetPermissions(oListItem, false);
+
+            var newFileName = m_fnGetNewFileNameForSensitivity(
               oListItem,
-              false,
-              false,
-              function (doneBreakingCS) {
-                if (doneBreakingCS) {
-                  var newFileName = m_fnGetNewFileNameForSensitivity(
-                    oListItem,
-                    null,
-                    requestSensitivity
-                  );
-                  if (newFileName != "") {
-                    oListItem.set_item("FileLeafRef", newFileName);
-                    oListItem.update();
-                  }
+              null,
+              requestSensitivity
+            );
+            if (newFileName != "") {
+              oListItem.set_item("FileLeafRef", newFileName);
+              oListItem.update();
+            }
 
-                  function OnSuccessUpdateSensitivityCS(sender, args) {
-                    m_fnRefresh();
-                  }
-                  function OnFailureUpdateSensitivityCS(sender, args) {
-                    alert("Error updating coversheet name with sensitivity");
-                    m_fnRefresh();
-                  }
+            function OnSuccessUpdateSensitivityCS(sender, args) {
+              m_fnRefresh();
+            }
+            function OnFailureUpdateSensitivityCS(sender, args) {
+              alert("Error updating coversheet name with sensitivity");
+              m_fnRefresh();
+            }
 
-                  var data = { newFileName: newFileName };
-                  currCtx.executeQueryAsync(
-                    Function.createDelegate(data, OnSuccessUpdateSensitivityCS),
-                    Function.createDelegate(data, OnFailureUpdateSensitivityCS)
-                  );
-                }
-              }
+            var data = { newFileName: newFileName };
+            currCtx.executeQueryAsync(
+              Function.createDelegate(data, OnSuccessUpdateSensitivityCS),
+              Function.createDelegate(data, OnFailureUpdateSensitivityCS)
             );
           }
         }
@@ -7426,7 +6691,7 @@ function OnCallbackFormEditResponse(result, value) {
           responseFolder.update();
         }
 
-        function onUpdated1Succeeded() {
+        async function onUpdated1Succeeded() {
           var currCtx2 = new SP.ClientContext.get_current();
           var web2 = currCtx2.get_web();
 
@@ -7581,182 +6846,125 @@ function OnCallbackFormEditResponse(result, value) {
             //status changed
             var oRequest = m_fnGetRequestByNumber(m_requestNum);
 
+            var oResponse = oRequest.responses.find(
+              (response) => response.ID == this.oListItem.get_item("ID")
+            );
+
             var bDoneBreakingReqPermisions = false;
-            m_fnBreakRequestPermissions(
+            await m_fnBreakRequestPermissions(
               oRequest.item,
               false,
-              this.oListItem.get_item("ResStatus"),
-              function (bDoneBreakingReqPermisions) {
-                var cntForQA = 0;
-                if (responseDocSubmittedItems != null) {
-                  var listItemEnumerator1 =
-                    responseDocSubmittedItems.getEnumerator();
-                  while (listItemEnumerator1.moveNext()) {
-                    var oListItem1 = listItemEnumerator1.get_current();
+              this.oListItem.get_item("ResStatus")
+            );
 
-                    oListItem1.set_item(
-                      "FileLeafRef",
-                      m_fnGetNewResponseDocTitle(
-                        oListItem1,
-                        newResponseFolderTitle,
-                        oRequest.sensitivity
-                      )
-                    );
-                    oListItem1.set_item("DocumentStatus", "Sent to QA");
-                    oListItem1.update();
-                    cntForQA++;
-                  }
-                }
-                if (responseDocOpenItems != null) {
-                  var listItemEnumerator1 =
-                    responseDocOpenItems.getEnumerator();
-                  while (listItemEnumerator1.moveNext()) {
-                    var oListItem1 = listItemEnumerator1.get_current();
+            var cntForQA = 0;
+            if (responseDocSubmittedItems != null) {
+              var listItemEnumerator1 =
+                responseDocSubmittedItems.getEnumerator();
+              while (listItemEnumerator1.moveNext()) {
+                var oListItem1 = listItemEnumerator1.get_current();
 
-                    oListItem1.set_item(
-                      "FileLeafRef",
-                      m_fnGetNewResponseDocTitle(
-                        oListItem1,
-                        newResponseFolderTitle,
-                        oRequest.sensitivity
-                      )
-                    );
-                    oListItem1.set_item("DocumentStatus", "Sent to QA");
-                    oListItem1.update();
-                    cntForQA++;
-                  }
-                }
-                if (responseDocSentToQAItems != null) {
-                  var listItemEnumerator1 =
-                    responseDocSentToQAItems.getEnumerator();
-                  while (listItemEnumerator1.moveNext()) {
-                    var oListItem1 = listItemEnumerator1.get_current();
-                    cntForQA++;
-                  }
-                }
-
-                //these are the documents that are marked for deletion by the AO
-                if (responseDocMarkedForDeletionItems != null) {
-                  const arrItemsToRecyle = new Array();
-
-                  var listItemEnumerator1 =
-                    responseDocMarkedForDeletionItems.getEnumerator();
-                  while (listItemEnumerator1.moveNext()) {
-                    var oListItem1 = listItemEnumerator1.get_current();
-                    arrItemsToRecyle.push(oListItem1);
-                  }
-
-                  for (var x = 0; x < arrItemsToRecyle.length; x++) {
-                    arrItemsToRecyle[x].deleteObject(); //change this to delete to remove from recycle bin
-                  }
-                }
-
-                var cntRejected = 0;
-                if (responseDocRejectedItems != null) {
-                  var listItemEnumerator1 =
-                    responseDocRejectedItems.getEnumerator();
-                  while (listItemEnumerator1.moveNext()) {
-                    var oListItem1 = listItemEnumerator1.get_current();
-                    oListItem1.set_item("DocumentStatus", "Archived");
-                    oListItem1.update();
-                    cntRejected++;
-                  }
-                }
-
-                var requestNumber = oRequest.number;
-                var requestSubject = oRequest.subject;
-                var internalDueDate = oRequest.internalDueDate;
-
-                var emailSubject =
-                  "Your Approval Has Been Requested for Response Number: " +
-                  newResponseFolderTitle;
-                var emailText =
-                  "<div>Audit Request Reference: <b>" +
-                  m_requestNum +
-                  "</b></div>" +
-                  "<div>Audit Request Subject: <b>" +
-                  requestSubject +
-                  "</b></div>" +
-                  "<div>Audit Request Due Date: <b>" +
-                  internalDueDate +
-                  "</b></div><br/>" +
-                  "<div>Response: <b><ul><li>" +
-                  newResponseFolderTitle +
-                  "</li></ul></b></div><br/>" +
-                  "<div>Please review: <b>" +
-                  cntForQA +
-                  "</b> documents.</div><br/>";
-
-                var itemCreateInfo = new SP.ListItemCreationInformation();
-                itemCreateInfo.set_folderUrl(
-                  location.protocol +
-                    "//" +
-                    location.host +
-                    Audit.Common.Utilities.GetSiteUrl() +
-                    "/Lists/" +
-                    Audit.Common.Utilities.GetListNameEmailHistory() +
-                    "/" +
-                    m_requestNum
+                oListItem1.set_item(
+                  "FileLeafRef",
+                  m_fnGetNewResponseDocTitle(
+                    oListItem1,
+                    newResponseFolderTitle,
+                    oRequest.sensitivity
+                  )
                 );
-                const oListItemEmail = emailList.addItem(itemCreateInfo);
-                oListItemEmail.set_item("Title", emailSubject);
-                oListItemEmail.set_item("Body", emailText);
-                oListItemEmail.set_item(
-                  "To",
-                  Audit.Common.Utilities.GetGroupNameQA()
+                oListItem1.set_item("DocumentStatus", "Sent to QA");
+                oListItem1.update();
+                cntForQA++;
+              }
+            }
+            if (responseDocOpenItems != null) {
+              var listItemEnumerator1 = responseDocOpenItems.getEnumerator();
+              while (listItemEnumerator1.moveNext()) {
+                var oListItem1 = listItemEnumerator1.get_current();
+
+                oListItem1.set_item(
+                  "FileLeafRef",
+                  m_fnGetNewResponseDocTitle(
+                    oListItem1,
+                    newResponseFolderTitle,
+                    oRequest.sensitivity
+                  )
                 );
-                oListItemEmail.set_item("NotificationType", "QA Notification");
-                oListItemEmail.set_item("ReqNum", m_requestNum);
-                oListItemEmail.set_item("ResID", newResponseFolderTitle);
-                oListItemEmail.update();
+                oListItem1.set_item("DocumentStatus", "Sent to QA");
+                oListItem1.update();
+                cntForQA++;
+              }
+            }
+            if (responseDocSentToQAItems != null) {
+              var listItemEnumerator1 =
+                responseDocSentToQAItems.getEnumerator();
+              while (listItemEnumerator1.moveNext()) {
+                var oListItem1 = listItemEnumerator1.get_current();
+                cntForQA++;
+              }
+            }
 
-                currCtx2.executeQueryAsync(
-                  function () {
-                    if (
-                      oRequest.coversheets == null ||
-                      oRequest.coversheets.length == 0
-                    ) {
-                      setTimeout(function () {
-                        m_fnRefresh();
-                      }, 200);
-                    } else {
-                      for (var x = 0; x < oRequest.coversheets.length; x++) {
-                        m_countCSToUpdateOnEditResponse++;
+            //these are the documents that are marked for deletion by the AO
+            if (responseDocMarkedForDeletionItems != null) {
+              const arrItemsToRecyle = new Array();
 
-                        //give QA access to the coversheet
-                        var bDoneBreakingCSOnEditResponse = false;
-                        m_fnBreakCoversheetPermissions(
-                          oRequest.coversheets[x].item,
-                          true,
-                          false,
-                          function () {
-                            m_countCSUpdatedOnEditResponse++;
+              var listItemEnumerator1 =
+                responseDocMarkedForDeletionItems.getEnumerator();
+              while (listItemEnumerator1.moveNext()) {
+                var oListItem1 = listItemEnumerator1.get_current();
+                arrItemsToRecyle.push(oListItem1);
+              }
 
-                            if (
-                              m_countCSToUpdateOnEditResponse ==
-                              m_countCSUpdatedOnEditResponse
-                            ) {
-                              setTimeout(function () {
-                                m_fnRefresh();
-                              }, 200);
-                            }
-                          }
-                        );
-                      }
-                    }
-                  },
-                  function (sender, args) {
-                    alert(
-                      "Request failed: " +
-                        args.get_message() +
-                        "\n" +
-                        args.get_stackTrace()
-                    );
-                    setTimeout(function () {
-                      m_fnRefresh();
-                    }, 200);
-                  }
+              for (var x = 0; x < arrItemsToRecyle.length; x++) {
+                arrItemsToRecyle[x].deleteObject(); //change this to delete to remove from recycle bin
+              }
+            }
+
+            var cntRejected = 0;
+            if (responseDocRejectedItems != null) {
+              var listItemEnumerator1 =
+                responseDocRejectedItems.getEnumerator();
+              while (listItemEnumerator1.moveNext()) {
+                var oListItem1 = listItemEnumerator1.get_current();
+                oListItem1.set_item("DocumentStatus", "Archived");
+                oListItem1.update();
+                cntRejected++;
+              }
+            }
+
+            const oResponseDocsForQA = oResponse.responseDocs.filter(
+              (responseDoc) => {
+                return ["Sent to QA", "Submitted", "Open"].includes(
+                  responseDoc.documentStatus
                 );
+              }
+            );
+
+            await notifyQAApprovalPending(oRequest, oResponseDocsForQA);
+            currCtx2.executeQueryAsync(
+              async function () {
+                // Break Coversheet permissions
+                if (oRequest.coversheets?.length) {
+                  await Promise.all(
+                    oRequest.coversheets.map((coversheet) =>
+                      m_fnBreakCoversheetPermissions(coversheet.item, true)
+                    )
+                  );
+                }
+                setTimeout(function () {
+                  m_fnRefresh();
+                }, 200);
+              },
+              function (sender, args) {
+                alert(
+                  "Request failed: " +
+                    args.get_message() +
+                    "\n" +
+                    args.get_stackTrace()
+                );
+                setTimeout(function () {
+                  m_fnRefresh();
+                }, 200);
               }
             );
           } else {

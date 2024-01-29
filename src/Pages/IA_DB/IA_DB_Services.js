@@ -87,7 +87,7 @@ export async function approveResponseDocsForQA(oRequest, oResponseDocs) {
   await notifyQAApprovalPending(oRequest, oResponseDocs);
 }
 
-async function notifyQAApprovalPending(oRequest, oResponseDocs) {
+export async function notifyQAApprovalPending(oRequest, oResponseDocs) {
   var currCtx = new SP.ClientContext.get_current();
   var web = currCtx.get_web();
 
@@ -184,6 +184,7 @@ export async function m_fnBreakRequestPermissions(
   responseStatus,
   OnComplete
 ) {
+  if (refreshPageOnUpdate) alert("trying to refresh page!");
   // if (!m_bIsSiteOwner) {
   //   return;
   // }
@@ -320,16 +321,14 @@ export async function m_fnBreakRequestPermissions(
               m_CntRequestAOsAdded++;
 
               if (m_CntRequestAOsAdded == m_CntRequestAOsToAdd) {
-                if (this.refreshPage) m_fnRefresh();
-                else resolve(true);
+                resolve(true);
               }
             }
             function onUpdatedReqAOFailed(sender, args) {
               m_CntRequestAOsAdded++;
 
               if (m_CntRequestAOsAdded == m_CntRequestAOsToAdd) {
-                if (this.refreshPage) m_fnRefresh();
-                else resolve(true); //return true to continue executing
+                resolve(true); //return true to continue executing
               }
             }
 
@@ -344,39 +343,21 @@ export async function m_fnBreakRequestPermissions(
           }
         }
       } else {
-        if (this.refreshPage) {
-          setTimeout(function () {
-            m_fnRefresh();
-          }, 500);
-        } else if (this.OnComplete) this.OnComplete(true);
+        resolve(true);
       }
     }
 
     function onUpdateReqPermsFailed(sender, args) {
-      if (this.refreshPage) {
-        SP.UI.Notify.addNotification(
-          "Failed to update Request: " +
-            this.title +
-            args.get_message() +
-            "\n" +
-            args.get_stackTrace(),
-          false
-        );
-        setTimeout(function () {
-          m_fnRefresh();
-        }, 500);
-      } else {
-        SP.UI.Notify.addNotification(
-          "Failed to update permissions on Request: " +
-            this.title +
-            args.get_message() +
-            "\n" +
-            args.get_stackTrace(),
-          false
-        );
-        // Continue regardless of success?
-        this.reject(true);
-      }
+      SP.UI.Notify.addNotification(
+        "Failed to update permissions on Request: " +
+          this.title +
+          args.get_message() +
+          "\n" +
+          args.get_stackTrace(),
+        false
+      );
+      // Continue regardless of success?
+      this.reject(sender, args);
     }
 
     var data = {
@@ -512,9 +493,7 @@ export async function m_fnBreakCoversheetPermissions(oListItem, grantQARead) {
       //add action offices
       var arrActionOffice = this.oListItem.get_item("ActionOffice");
       if (arrActionOffice == null || arrActionOffice.length == 0) {
-        if (this.refreshPage) m_fnRefresh();
-        else if (this.OnComplete) this.OnComplete(true);
-        return;
+        resolve();
       }
 
       // Map Action Office to sp groups,
@@ -810,26 +789,19 @@ export async function m_fnBreakResponseAndFolderPermissions(
   return new Promise((resolve, reject) => {
     currCtx.executeQueryAsync(
       () => {
-        if (refreshPageOnUpdate) m_fnRefresh();
-        else resolve();
+        resolve();
       },
       (sender, args) => {
-        if (refreshPageOnUpdate) {
-          SP.UI.Notify.addNotification(
-            "Failed to update permissions on Response: " +
-              oResponse.item.get_item("Title") +
-              args.get_message() +
-              "\n" +
-              args.get_stackTrace(),
-            false
-          );
-          m_fnRefresh();
-        } else reject();
+        SP.UI.Notify.addNotification(
+          "Failed to update permissions on Response: " +
+            oResponse.item.get_item("Title") +
+            args.get_message() +
+            "\n" +
+            args.get_stackTrace(),
+          false
+        );
+        reject();
       }
     );
   });
-}
-
-function m_fnRefresh(requestNumber) {
-  window.location.reload();
 }
