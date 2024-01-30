@@ -1,14 +1,10 @@
-<div id="approveResponseDocDlg" style="">
-  <div style="padding: 20px">
+<div id="approveResponseDocDlg" class="audit-form">
+  <div>
     Are you sure you would like to
-    <span style="font-weight: bold; color: green">Approve</span> the Response
-    Document(s)?
+    <span class="fw-bold text-success">Approve</span> the Response Document(s)?
     <ul>
       <!-- ko foreach: responseDocs -->
-      <li
-        style="font-weight: bold; color: green"
-        data-bind="text: fileName"
-      ></li>
+      <li class="fw-bold text-success" data-bind="text: fileName"></li>
       <!-- /ko -->
     </ul>
   </div>

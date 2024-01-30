@@ -11,6 +11,7 @@ import { AuditResponseStates } from "../../entities/AuditResponse.js";
 import { AuditResponseDocStates } from "../../entities/AuditResponseDocs.js";
 import { AUDITREQUESTSTATES } from "../../entities/AuditRequest.js";
 import { m_fnRequeryRequest } from "../../pages/IA_DB/IA_DB.js";
+import { ConfirmRejectResponseDocForm } from "../Forms/ResponseDoc/ConfirmReject/ConfirmRejectResponseDocForm.js";
 
 const componentName = "component-request-detail-view";
 
@@ -175,24 +176,6 @@ export class RequestDetailView {
     ModalDialog.showModalDialog(options);
   };
 
-  responseDocCanBeApproved = (responseDocSummary, responseDoc) => {
-    return (
-      responseDoc.documentStatus == AuditResponseDocStates.Submitted &&
-      (responseDocSummary.responseStatus == AuditResponseStates.Submitted ||
-        responseDocSummary.responseStatus ==
-          AuditResponseStates.ApprovedForQA) &&
-      (responseDocSummary.requestStatus == AUDITREQUESTSTATES.OPEN ||
-        responseDocSummary.requestStatus == AUDITREQUESTSTATES.REOPENED)
-    );
-  };
-
-  async OnCallBackApproveResponseDoc(result) {
-    if (result) {
-      // Update is handled in the form, just need to refresh page/data
-      this.refreshRequest();
-    }
-  }
-
   CheckResponseDocs = () => {
     const allDocs = this.arrCurrentRequestResponseDocs()
       .filter(
@@ -233,6 +216,42 @@ export class RequestDetailView {
 
     ModalDialog.showModalDialog(options);
   };
+
+  responseDocCanBeApproved = (responseDocSummary, responseDoc) => {
+    return (
+      responseDoc.documentStatus == AuditResponseDocStates.Submitted &&
+      (responseDocSummary.responseStatus == AuditResponseStates.Submitted ||
+        responseDocSummary.responseStatus ==
+          AuditResponseStates.ApprovedForQA) &&
+      (responseDocSummary.requestStatus == AUDITREQUESTSTATES.OPEN ||
+        responseDocSummary.requestStatus == AUDITREQUESTSTATES.REOPENED)
+    );
+  };
+
+  async OnCallBackApproveResponseDoc(result) {
+    if (result) {
+      // Update is handled in the form, just need to refresh page/data
+      this.refreshRequest();
+    }
+  }
+
+  ClickRejectResponseDoc = (oResponseDoc) => {
+    const request = this.currentRequest();
+
+    const newResponseDocForm = new ConfirmRejectResponseDocForm(request, null, [
+      oResponseDoc,
+    ]);
+
+    const options = {
+      form: newResponseDocForm,
+      dialogReturnValueCallback: this.OnCallbackRejectResponseDoc.bind(this),
+      title: "Reject Response Doc?",
+    };
+
+    ModalDialog.showModalDialog(options);
+  };
+
+  async OnCallbackRejectResponseDoc(result) {}
 }
 
 registerComponent({

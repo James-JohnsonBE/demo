@@ -48,6 +48,7 @@ div.cell-margin {
 
   --danger-color: rgb(182, 49, 49);
   --danger-hover-color: rgb(179, 26, 26);
+  --danger-disabled-color: rgb(203, 113, 113);
 
   --primary-color: #3bbfc3;
   --primary-muted-color: #b9dfe2;

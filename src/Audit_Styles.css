@@ -159,6 +159,7 @@ button.btn {
 
 button.btn[disabled] {
   cursor: not-allowed;
+  color: white;
 }
 
 .btn.btn-link {
@@ -202,12 +203,18 @@ button.btn.btn-link:hover {
 .btn.btn-warn:hover {
   background-color: var(--warn-hover-color);
 }
+.btn.btn-warn[disabled] {
+  background-color: var(--warn-hover-color);
+}
 
 .btn.btn-danger {
   background-color: var(--danger-color);
 }
 .btn.btn-danger:hover {
   background-color: var(--danger-hover-color);
+}
+.btn.btn-danger[disabled] {
+  background-color: var(--danger-disabled-color);
 }
 
 .form-control,
@@ -282,12 +289,24 @@ button.btn.btn-link:hover {
   font-weight: 600;
 }
 
+.fw-bold {
+  font-weight: bold;
+}
+
 .h-1 {
   height: 1rem;
 }
 
 .w-fit {
   width: fit-content;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.text-success {
+  color: var(--success-color);
 }
 
 .text-danger {
