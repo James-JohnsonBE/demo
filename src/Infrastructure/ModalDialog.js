@@ -26,6 +26,10 @@ class ModalDialog {
     this.form.onComplete = this.close.bind(this);
   }
 
+  clickClose = () => {
+    this.close(false);
+  };
+
   close(result) {
     dlgElement.close();
     dlgElement.classList.remove("active");

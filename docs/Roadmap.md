@@ -59,6 +59,8 @@ AuditResponseDoc
 
 ## General Todos
 
+Add response doc rejection pathway.
+Prepopulate new Request with all reminders selected.
 Fix refresh on every action
 Fix file rename (created has conflict with drag n drop edit)
 

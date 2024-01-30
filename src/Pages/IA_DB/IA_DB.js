@@ -3530,7 +3530,7 @@ async function m_fnReOpenResponse(requestNumber, responseTitle) {
   }
 }
 
-function m_fnCloseRequest() {
+async function m_fnCloseRequest() {
   if (!m_bIsSiteOwner) {
     SP.UI.Notify.addNotification(
       "You do not have access to perform this action...",
@@ -3585,21 +3585,14 @@ function m_fnCloseRequest() {
       //Added 06/05/2017
       //ensure this will always update the permissions
       var doneUpdatingResponses = false;
-      m_fnUpdateAllResponsePermissions(
+      await m_fnUpdateAllResponsePermissions(
         "Closed",
         requestNumberToClose,
-        true,
-        function (doneUpdatingResponses) {
-          if (doneUpdatingResponses) {
-            setTimeout(function () {
-              m_fnRefresh();
-            }, 100);
-
-            //defined in another function
-            //m_fnUpdateEmailFolderPerms( requestNumberToClose, true );
-          }
-        }
+        true
       );
+      setTimeout(function () {
+        m_fnRefresh();
+      }, 100);
 
       break;
     }
@@ -4018,16 +4011,13 @@ function m_fnSendEmail(requestID) {
   }
 }
 
-var m_cntResponseDocsSensToUpdate = 0;
-var m_cntResponseDocsSensUpdated = 0;
-function m_fnUpdateSensitivityOnRequest(
+async function m_fnUpdateSensitivityOnRequest(
   requestNumber,
   requestSensitivity,
   oldSensitivity,
   OnComplete
 ) {
-  m_cntResponseDocsSensToUpdate = 0;
-  m_cntResponseDocsSensUpdated = 0;
+  let m_cntResponseDocsSensToUpdate = 0;
 
   var currCtx = new SP.ClientContext.get_current();
   var web = currCtx.get_web();
@@ -4092,284 +4082,197 @@ function m_fnUpdateSensitivityOnRequest(
     "Include(ID, Title, ReqNum, ActionOffice, FileLeafRef, FileDirRef)"
   );
 
-  function OnSuccessUpdateSensiLoadDocs(sender, args) {
-    var listItemEnumerator = responseDocsItems.getEnumerator();
-    while (listItemEnumerator.moveNext()) {
-      var oListItem = listItemEnumerator.get_current();
-      var docStatus = oListItem.get_item("DocumentStatus");
-      if (docStatus != "Open" && docStatus != "Submitted") {
-        m_cntResponseDocsSensToUpdate++;
-      }
-    }
-
-    var listItemEnumerator = earesponseDocsItems.getEnumerator();
-    while (listItemEnumerator.moveNext()) {
-      m_cntResponseDocsSensToUpdate++;
-    }
-
-    var listItemEnumerator = requestDocItems.getEnumerator();
-    while (listItemEnumerator.moveNext()) {
-      m_cntResponseDocsSensToUpdate++;
-    }
-
-    var listItemEnumerator = coverSheetItems.getEnumerator();
-    while (listItemEnumerator.moveNext()) {
-      m_cntResponseDocsSensToUpdate++;
-    }
-
-    if (m_cntResponseDocsSensToUpdate == 0) {
-      this.OnComplete(true);
-    } else {
-      //update the names in the response document folders
-      var listItemEnumerator = responseDocsItems.getEnumerator();
-      while (listItemEnumerator.moveNext()) {
-        var oListItem = listItemEnumerator.get_current();
-        var docStatus = oListItem.get_item("DocumentStatus");
-        if (docStatus != "Open" && docStatus != "Submitted") {
-          var responseTitle = oListItem.get_item("ResID");
-          if (responseTitle) responseTitle = responseTitle.get_lookupValue();
-
-          var curFileName = oListItem.get_item("FileLeafRef");
-          var newFileName = m_fnGetNewResponseDocTitle(
-            oListItem,
-            responseTitle,
-            requestSensitivity
-          );
-          oListItem.set_item("FileLeafRef", newFileName);
-          oListItem.update();
-
-          function OnSuccessUpdateSensitivityResponseDoc(sender, args) {
-            m_cntResponseDocsSensUpdated++;
-            if (m_cntResponseDocsSensUpdated == m_cntResponseDocsSensToUpdate) {
-              this.OnComplete(true);
-            }
-          }
-          function OnFailureUpdateSensitivityResponseDoc(sender, args) {
-            alert(
-              "Error occurred updating sensitivity title on Response document: " +
-                this.curFileName +
-                " to " +
-                this.newFileName +
-                " " +
-                args.get_message() +
-                "\n" +
-                args.get_stackTrace()
-            );
-            m_cntResponseDocsSensUpdated++;
-            if (m_cntResponseDocsSensUpdated == m_cntResponseDocsSensToUpdate) {
-              this.OnComplete(true);
-            }
-          }
-
-          var data = {
-            OnComplete: this.OnComplete,
-            curFileName: curFileName,
-            newFileName: newFileName,
-          };
-          currCtx.executeQueryAsync(
-            Function.createDelegate(
-              data,
-              OnSuccessUpdateSensitivityResponseDoc
-            ),
-            Function.createDelegate(data, OnFailureUpdateSensitivityResponseDoc)
-          );
-        }
-      }
-
-      //update the names in the external auditors folders
-      var listItemEnumerator2 = earesponseDocsItems.getEnumerator();
-      while (listItemEnumerator2.moveNext()) {
-        var oListItem = listItemEnumerator2.get_current();
-
-        var curDocFileNameAndExt = oListItem.get_item("FileLeafRef");
-        var curDocFileName = curDocFileNameAndExt.substring(
-          0,
-          curDocFileNameAndExt.lastIndexOf(".")
-        );
-        var curDocExt = curDocFileNameAndExt.replace(curDocFileName, "");
-
-        //var curDocRequest = oListItem.get_item("RequestNumber");
-        var curDocResponseTitle = oListItem.get_item("ResponseID");
-        var dateStamp = curDocFileName.replace(curDocResponseTitle + "_", "");
-        if (dateStamp.indexOf("_") >= 0) {
-          //then it had some sensitivity
-          dateStamp = dateStamp.substring(0, dateStamp.indexOf("_"));
-        }
-
-        var newFileName = "";
-
-        if (
-          requestSensitivity != null &&
-          requestSensitivity != "" &&
-          requestSensitivity != "None"
-        )
-          newFileName =
-            curDocResponseTitle +
-            "_" +
-            dateStamp +
-            "_" +
-            requestSensitivity +
-            curDocExt;
-        else newFileName = curDocResponseTitle + "_" + dateStamp + curDocExt;
-
-        if (newFileName != "") {
-          oListItem.set_item("FileLeafRef", newFileName);
-          oListItem.update();
-        }
-
-        function OnSuccessUpdateSensitivityEAResponseDoc(sender, args) {
-          m_cntResponseDocsSensUpdated++;
-          if (m_cntResponseDocsSensUpdated == m_cntResponseDocsSensToUpdate) {
-            this.OnComplete(true);
-          }
-        }
-        function OnFailureUpdateSensitivityEAResponseDoc(sender, args) {
-          alert(
-            "Error occurred updating sensitivity title on External Auditor Response document: " +
-              this.curFileName +
-              " to " +
-              this.newFileName +
-              " " +
-              args.get_message() +
-              "\n" +
-              args.get_stackTrace()
-          );
-
-          m_cntResponseDocsSensUpdated++;
-          if (m_cntResponseDocsSensUpdated == m_cntResponseDocsSensToUpdate) {
-            this.OnComplete(true);
-          }
-        }
-
-        var data = {
-          OnComplete: this.OnComplete,
-          curFileName: curDocFileNameAndExt,
-          newFileName: newFileName,
-        };
-        currCtx.executeQueryAsync(
-          Function.createDelegate(
-            data,
-            OnSuccessUpdateSensitivityEAResponseDoc
-          ),
-          Function.createDelegate(data, OnFailureUpdateSensitivityEAResponseDoc)
-        );
-      }
-
-      if (oldSensitivity == null) oldSensitivity = "";
-
-      //update the names in the request docs
-      var listItemEnumerator3 = requestDocItems.getEnumerator();
-      while (listItemEnumerator3.moveNext()) {
-        var oListItem = listItemEnumerator3.get_current();
-        var curDocFileNameAndExt = oListItem.get_item("FileLeafRef");
-        var newFileName = m_fnGetNewFileNameForSensitivity(
-          oListItem,
-          oldSensitivity,
-          requestSensitivity
-        );
-        if (newFileName != "") {
-          oListItem.set_item("FileLeafRef", newFileName);
-          oListItem.update();
-        }
-
-        function OnSuccessUpdateSensitivityRequestDoc(sender, args) {
-          m_cntResponseDocsSensUpdated++;
-          if (m_cntResponseDocsSensUpdated == m_cntResponseDocsSensToUpdate) {
-            this.OnComplete(true);
-          }
-        }
-        function OnFailureUpdateSensitivityRequestDoc(sender, args) {
-          alert(
-            "Error occurred updating sensitivity title on Request document: " +
-              this.curFileName +
-              " to " +
-              this.newFileName +
-              " " +
-              args.get_message() +
-              "\n" +
-              args.get_stackTrace()
-          );
-
-          m_cntResponseDocsSensUpdated++;
-          if (m_cntResponseDocsSensUpdated == m_cntResponseDocsSensToUpdate) {
-            this.OnComplete(true);
-          }
-        }
-
-        var data = {
-          OnComplete: this.OnComplete,
-          curFileName: curDocFileNameAndExt,
-          newFileName: newFileName,
-        };
-        currCtx.executeQueryAsync(
-          Function.createDelegate(data, OnSuccessUpdateSensitivityRequestDoc),
-          Function.createDelegate(data, OnFailureUpdateSensitivityRequestDoc)
-        );
-      }
-
-      //update the names in the coversheets docs
-      var listItemEnumerator4 = coverSheetItems.getEnumerator();
-      while (listItemEnumerator4.moveNext()) {
-        var oListItem = listItemEnumerator4.get_current();
-        var curDocFileNameAndExt = oListItem.get_item("FileLeafRef");
-        var newFileName = m_fnGetNewFileNameForSensitivity(
-          oListItem,
-          oldSensitivity,
-          requestSensitivity
-        );
-        if (newFileName != "") {
-          oListItem.set_item("FileLeafRef", newFileName);
-          oListItem.update();
-        }
-
-        function OnSuccessUpdateSensitivityCSDoc(sender, args) {
-          m_cntResponseDocsSensUpdated++;
-          if (m_cntResponseDocsSensUpdated == m_cntResponseDocsSensToUpdate) {
-            this.OnComplete(true);
-          }
-        }
-        function OnFailureUpdateSensitivityCSDoc(sender, args) {
-          alert(
-            "Error occurred updating sensitivity title on Coversheet document: " +
-              this.curFileName +
-              " to " +
-              this.newFileName +
-              " " +
-              args.get_message() +
-              "\n" +
-              args.get_stackTrace()
-          );
-
-          m_cntResponseDocsSensUpdated++;
-          if (m_cntResponseDocsSensUpdated == m_cntResponseDocsSensToUpdate) {
-            this.OnComplete(true);
-          }
-        }
-
-        var data = {
-          OnComplete: this.OnComplete,
-          curFileName: curDocFileNameAndExt,
-          newFileName: newFileName,
-        };
-        currCtx.executeQueryAsync(
-          Function.createDelegate(data, OnSuccessUpdateSensitivityCSDoc),
-          Function.createDelegate(data, OnFailureUpdateSensitivityCSDoc)
-        );
-      }
-    }
-  }
-  function OnFailureUpdateSensiLoadDocs(sender, args) {
+  await new Promise((resolve, reject) =>
+    currCtx.executeQueryAsync(resolve, reject)
+  ).catch((sender, args) => {
     const statusId = SP.UI.Status.addStatus(
       "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
     );
     SP.UI.Status.setStatusPriColor(statusId, "red");
+  });
+
+  var listItemEnumerator = responseDocsItems.getEnumerator();
+  while (listItemEnumerator.moveNext()) {
+    var oListItem = listItemEnumerator.get_current();
+    var docStatus = oListItem.get_item("DocumentStatus");
+    if (docStatus != "Open" && docStatus != "Submitted") {
+      m_cntResponseDocsSensToUpdate++;
+    }
   }
 
-  var data = { requestNumber: requestNumber, OnComplete: OnComplete };
-  currCtx.executeQueryAsync(
-    Function.createDelegate(data, OnSuccessUpdateSensiLoadDocs),
-    Function.createDelegate(data, OnFailureUpdateSensiLoadDocs)
-  );
+  m_cntResponseDocsSensToUpdate += earesponseDocsItems.get_count();
+  m_cntResponseDocsSensToUpdate += requestDocItems.get_count();
+  m_cntResponseDocsSensToUpdate += coverSheetItems.get_count();
+
+  if (m_cntResponseDocsSensToUpdate == 0) {
+    return true;
+  }
+
+  //update the names in the response document folders
+  const updateDocPromises = [];
+  var listItemEnumerator = responseDocsItems.getEnumerator();
+  while (listItemEnumerator.moveNext()) {
+    var oListItem = listItemEnumerator.get_current();
+    var docStatus = oListItem.get_item("DocumentStatus");
+    if (docStatus != "Open" && docStatus != "Submitted") {
+      var responseTitle = oListItem.get_item("ResID");
+      if (responseTitle) responseTitle = responseTitle.get_lookupValue();
+
+      var curFileName = oListItem.get_item("FileLeafRef");
+      var newFileName = m_fnGetNewResponseDocTitle(
+        oListItem,
+        responseTitle,
+        requestSensitivity
+      );
+      oListItem.set_item("FileLeafRef", newFileName);
+      oListItem.update();
+
+      updateDocPromises.push(
+        new Promise((resolve, reject) => {
+          currCtx.executeQueryAsync(resolve, reject);
+        }).catch((sender, args) => {
+          alert(
+            "Error occurred updating sensitivity title on Response document: " +
+              curFileName +
+              " to " +
+              newFileName +
+              " " +
+              args.get_message() +
+              "\n" +
+              args.get_stackTrace()
+          );
+        })
+      );
+    }
+  }
+
+  //update the names in the external auditors folders
+  var listItemEnumerator2 = earesponseDocsItems.getEnumerator();
+  while (listItemEnumerator2.moveNext()) {
+    var oListItem = listItemEnumerator2.get_current();
+
+    var curDocFileNameAndExt = oListItem.get_item("FileLeafRef");
+    var curDocFileName = curDocFileNameAndExt.substring(
+      0,
+      curDocFileNameAndExt.lastIndexOf(".")
+    );
+    var curDocExt = curDocFileNameAndExt.replace(curDocFileName, "");
+
+    //var curDocRequest = oListItem.get_item("RequestNumber");
+    var curDocResponseTitle = oListItem.get_item("ResponseID");
+    var dateStamp = curDocFileName.replace(curDocResponseTitle + "_", "");
+    if (dateStamp.indexOf("_") >= 0) {
+      //then it had some sensitivity
+      dateStamp = dateStamp.substring(0, dateStamp.indexOf("_"));
+    }
+
+    var newFileName = "";
+
+    if (
+      requestSensitivity != null &&
+      requestSensitivity != "" &&
+      requestSensitivity != "None"
+    )
+      newFileName =
+        curDocResponseTitle +
+        "_" +
+        dateStamp +
+        "_" +
+        requestSensitivity +
+        curDocExt;
+    else newFileName = curDocResponseTitle + "_" + dateStamp + curDocExt;
+
+    if (newFileName != "") {
+      oListItem.set_item("FileLeafRef", newFileName);
+      oListItem.update();
+    }
+
+    updateDocPromises.push(
+      new Promise((resolve, reject) => {
+        currCtx.executeQueryAsync(resolve, reject);
+      }).catch((sender, args) => {
+        alert(
+          "Error occurred updating sensitivity title on External Auditor Response document: " +
+            curFileName +
+            " to " +
+            newFileName +
+            " " +
+            args.get_message() +
+            "\n" +
+            args.get_stackTrace()
+        );
+      })
+    );
+  }
+
+  if (oldSensitivity == null) oldSensitivity = "";
+
+  //update the names in the request docs
+  var listItemEnumerator3 = requestDocItems.getEnumerator();
+  while (listItemEnumerator3.moveNext()) {
+    var oListItem = listItemEnumerator3.get_current();
+    var curDocFileNameAndExt = oListItem.get_item("FileLeafRef");
+    var newFileName = m_fnGetNewFileNameForSensitivity(
+      oListItem,
+      oldSensitivity,
+      requestSensitivity
+    );
+    if (newFileName != "") {
+      oListItem.set_item("FileLeafRef", newFileName);
+      oListItem.update();
+    }
+
+    updateDocPromises.push(
+      new Promise((resolve, reject) => {
+        currCtx.executeQueryAsync(resolve, reject);
+      }).catch((sender, args) => {
+        alert(
+          "Error occurred updating sensitivity title on Request document: " +
+            curFileName +
+            " to " +
+            newFileName +
+            " " +
+            args.get_message() +
+            "\n" +
+            args.get_stackTrace()
+        );
+      })
+    );
+  }
+
+  //update the names in the coversheets docs
+  var listItemEnumerator4 = coverSheetItems.getEnumerator();
+  while (listItemEnumerator4.moveNext()) {
+    var oListItem = listItemEnumerator4.get_current();
+    var curDocFileNameAndExt = oListItem.get_item("FileLeafRef");
+    var newFileName = m_fnGetNewFileNameForSensitivity(
+      oListItem,
+      oldSensitivity,
+      requestSensitivity
+    );
+    if (newFileName != "") {
+      oListItem.set_item("FileLeafRef", newFileName);
+      oListItem.update();
+    }
+    updateDocPromises.push(
+      new Promise((resolve, reject) => {
+        currCtx.executeQueryAsync(resolve, reject);
+      }).catch((sender, args) => {
+        alert(
+          "Error occurred updating sensitivity title on Coversheet document: " +
+            curFileName +
+            " to " +
+            newFileName +
+            " " +
+            args.get_message() +
+            "\n" +
+            args.get_stackTrace()
+        );
+      })
+    );
+  }
+  await Promise.all(updateDocPromises);
+  return true;
 }
 
 function m_fnGetNewFileNameForSensitivity(
@@ -5929,19 +5832,20 @@ async function m_fnUpdateAllResponsePermissions(
   var cntResponsesBroken = 0;
 
   var oRequestBigMap = m_bigMap["request-" + requestNum];
-  if (oRequestBigMap) {
-    for (var z = 0; z < oRequestBigMap.responses.length; z++) {
+  if (!oRequestBigMap) return;
+
+  await Promise.all(
+    oRequestBigMap.responses.map(async (response) => {
       cntResponsesToBreak++;
-      var doneBreakingResponse = false;
+
       await m_fnBreakResponseAndFolderPermissions(
         requestStatus,
-        oRequestBigMap.responses[z],
+        response,
         false,
         bCheckStatus,
         false,
         false
       );
-
       cntResponsesBroken++;
       $("#divMsgEditRequest").text(
         "Updated " +
@@ -5950,15 +5854,8 @@ async function m_fnUpdateAllResponsePermissions(
           cntResponsesToBreak +
           " Response permissions"
       );
-      if (cntResponsesBroken == cntResponsesToBreak) {
-        OnCompleteUpdateResponsePerms(true);
-      }
-    }
-  }
-
-  if (cntResponsesToBreak == 0) {
-    OnCompleteUpdateResponsePerms(true);
-  }
+    })
+  );
 }
 
 //reset permissions on EA folder here
@@ -6078,174 +5975,163 @@ function m_fnRenameEAFolder(
 }
 
 function OnCallbackFormEditRequest(result, value) {
-  if (result === SP.UI.DialogResult.OK) {
-    m_bIsTransactionExecuting = true;
+  if (result !== SP.UI.DialogResult.OK) {
+    m_bIsTransactionExecuting = false;
+    return;
+  }
+  m_bIsTransactionExecuting = true;
 
-    notifyId = SP.UI.Notify.addNotification("Please wait...", false);
-    document.body.style.cursor = "wait";
+  const notifyId = SP.UI.Notify.addNotification("Please wait...", false);
+  document.body.style.cursor = "wait";
 
-    //alert( "must grant the new updated action offices permissions to this request");
+  //alert( "must grant the new updated action offices permissions to this request");
 
-    var currCtx = new SP.ClientContext.get_current();
-    var web = currCtx.get_web();
+  var currCtx = new SP.ClientContext.get_current();
+  var web = currCtx.get_web();
 
-    var requestList = web
-      .get_lists()
-      .getByTitle(Audit.Common.Utilities.GetListTitleRequests());
-    var requestQuery = new SP.CamlQuery();
-    requestQuery.set_viewXml(
-      '<View><Query><Where><Eq><FieldRef Name="ID"/><Value Type="Text">' +
-        m_itemID +
-        "</Value></Eq></Where></Query></View>"
-    );
-    const requestItems = requestList.getItems(requestQuery);
-    //request status has internal name as response status in the request list
-    currCtx.load(
-      requestItems,
-      "Include(ID, Title, ActionOffice, ReqStatus, Sensitivity, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
-    );
+  var requestList = web
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetListTitleRequests());
+  var requestQuery = new SP.CamlQuery();
+  requestQuery.set_viewXml(
+    '<View><Query><Where><Eq><FieldRef Name="ID"/><Value Type="Text">' +
+      m_itemID +
+      "</Value></Eq></Where></Query></View>"
+  );
+  const requestItems = requestList.getItems(requestQuery);
+  //request status has internal name as response status in the request list
+  currCtx.load(
+    requestItems,
+    "Include(ID, Title, ActionOffice, ReqStatus, Sensitivity, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+  );
 
-    var emailList = web
-      .get_lists()
-      .getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory());
-    var emailListQuery = new SP.CamlQuery();
-    emailListQuery.set_viewXml(
-      '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
-    );
-    const emailListFolderItems = emailList.getItems(emailListQuery);
-    currCtx.load(emailListFolderItems, "Include(ID, Title, DisplayName)");
+  var emailList = web
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory());
+  var emailListQuery = new SP.CamlQuery();
+  emailListQuery.set_viewXml(
+    '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
+  );
+  const emailListFolderItems = emailList.getItems(emailListQuery);
+  currCtx.load(emailListFolderItems, "Include(ID, Title, DisplayName)");
 
-    var eaList = web
-      .get_lists()
-      .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocsEA());
-    var eaListQuery = new SP.CamlQuery();
-    eaListQuery.set_viewXml(
-      '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
-    );
-    const eaListFolderItems = eaList.getItems(eaListQuery);
-    currCtx.load(eaListFolderItems, "Include(ID, Title, DisplayName)");
+  var eaList = web
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocsEA());
+  var eaListQuery = new SP.CamlQuery();
+  eaListQuery.set_viewXml(
+    '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
+  );
+  const eaListFolderItems = eaList.getItems(eaListQuery);
+  currCtx.load(eaListFolderItems, "Include(ID, Title, DisplayName)");
 
-    async function onSuccess() {
-      function m_fnUpdateEmailFolderPerms(requestNum, bRefresh) {
-        var listItemEnumerator1 = emailListFolderItems.getEnumerator();
-        while (listItemEnumerator1.moveNext()) {
-          //reset action offices if they were changes in the request form
-          var oEmailFolderItem = listItemEnumerator1.get_current();
-
-          if (oEmailFolderItem.get_displayName() == requestNum) {
-            m_fnBreakEmailFolderPermissions(
-              oEmailFolderItem,
-              oListItem,
-              bRefresh
-            );
-            break;
-          }
-        }
-      }
-
-      var listItemEnumerator = requestItems.getEnumerator();
-      while (listItemEnumerator.moveNext()) {
+  async function onSuccess() {
+    function m_fnUpdateEmailFolderPerms(requestNum, bRefresh) {
+      var listItemEnumerator1 = emailListFolderItems.getEnumerator();
+      while (listItemEnumerator1.moveNext()) {
         //reset action offices if they were changes in the request form
-        var oListItem = listItemEnumerator.get_current();
+        var oEmailFolderItem = listItemEnumerator1.get_current();
 
-        var curSensitivity = oListItem.get_item("Sensitivity");
-        var bChangeSensitivity = false;
-        if (m_bigMap["request-" + m_requestNum].sensitivity != curSensitivity) {
-          bChangeSensitivity = true;
-        }
-
-        if (m_requestNum == oListItem.get_item("Title")) {
-          //if request number hasn't changed
-          const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-            "Information",
-            "Please wait... Updating Request and Response permissions <div id='divMsgEditRequest'></div>",
-            200,
-            400
+        if (oEmailFolderItem.get_displayName() == requestNum) {
+          m_fnBreakEmailFolderPermissions(
+            oEmailFolderItem,
+            oListItem,
+            bRefresh
           );
-
-          var bDoneBreakingReqPermisions = false;
-          await m_fnBreakRequestPermissions(oListItem, false, null);
-
-          //should always be true even if an error occurred
-          $("#divMsgEditRequest").text("Updated Request permissions");
-
-          var doneUpdatingResponses = false;
-          //m_fnUpdateAllResponsePermissions( oListItem.get_item("ReqStatus"), m_requestNum, this.responseDocsFoldersItems,  true, function( doneUpdatingResponses )
-          m_fnUpdateAllResponsePermissions(
-            oListItem.get_item("ReqStatus"),
-            m_requestNum,
-            true,
-            function (doneUpdatingResponses) {
-              if (doneUpdatingResponses) {
-                if (!bChangeSensitivity)
-                  m_fnUpdateEmailFolderPerms(m_requestNum, true);
-                else {
-                  $("#divMsgEditRequest").text(
-                    "Updating Response document names"
-                  );
-                  var doneUpdatingSensitivity = false;
-                  var oldSensitivity =
-                    m_bigMap["request-" + m_requestNum].sensitivity;
-                  m_fnUpdateSensitivityOnRequest(
-                    m_requestNum,
-                    curSensitivity,
-                    oldSensitivity,
-                    function (doneUpdatingSensitivity) {
-                      if (doneUpdatingSensitivity) {
-                        m_fnUpdateEmailFolderPerms(m_requestNum, true);
-                      }
-                    }
-                  );
-                }
-              }
-            }
-          );
-        } //if request number changed, update responses; otherwise it will refresh and not hit this
-        else {
-          const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-            "Renaming Responses",
-            "Please wait... Renaming Responses",
-            200,
-            400
-          );
-
-          var bDoneBreakingReqPermisions = false;
-          await m_fnBreakRequestPermissions(oListItem, false, null);
-
-          //should always be true even if an error occurred
-          var oRequest = m_fnGetRequestByNumber(m_requestNum);
-
-          var newRequestNumber = oListItem.get_item("Title");
-          //TODO: break these up - may cause errors
-          m_fnRenameResponses(oRequest, m_requestNum, newRequestNumber);
-          m_fnRenameResponseFolders(
-            m_ResponseDocsFoldersItems,
-            m_requestNum,
-            newRequestNumber
-          );
-          m_fnRenameEmailFolder(
-            emailListFolderItems,
-            m_requestNum,
-            newRequestNumber
-          );
-          m_fnRenameEAFolder(eaListFolderItems, m_requestNum, newRequestNumber);
-
-          setTimeout(function () {
-            m_fnRefresh(newRequestNumber);
-          }, 20000);
+          break;
         }
       }
     }
-    function onFail(sender, args) {
-      m_fnRefresh();
-    }
 
-    var data = { requestItemId: m_itemID };
-    currCtx.executeQueryAsync(
-      Function.createDelegate(data, onSuccess),
-      Function.createDelegate(data, onFail)
-    );
-  } else m_bIsTransactionExecuting = false;
+    var listItemEnumerator = requestItems.getEnumerator();
+    while (listItemEnumerator.moveNext()) {
+      //reset action offices if they were changes in the request form
+      var oListItem = listItemEnumerator.get_current();
+
+      var curSensitivity = oListItem.get_item("Sensitivity");
+      var bChangeSensitivity = false;
+      if (m_bigMap["request-" + m_requestNum].sensitivity != curSensitivity) {
+        bChangeSensitivity = true;
+      }
+
+      if (m_requestNum == oListItem.get_item("Title")) {
+        //if request number hasn't changed
+        const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+          "Information",
+          "Please wait... Updating Request and Response permissions <div id='divMsgEditRequest'></div>",
+          200,
+          400
+        );
+
+        var bDoneBreakingReqPermisions = false;
+        await m_fnBreakRequestPermissions(oListItem, false, null);
+
+        //should always be true even if an error occurred
+        $("#divMsgEditRequest").text("Updated Request permissions");
+
+        var doneUpdatingResponses = false;
+        //m_fnUpdateAllResponsePermissions( oListItem.get_item("ReqStatus"), m_requestNum, this.responseDocsFoldersItems,  true, function( doneUpdatingResponses )
+        await m_fnUpdateAllResponsePermissions(
+          oListItem.get_item("ReqStatus"),
+          m_requestNum,
+          true
+        );
+
+        if (bChangeSensitivity) {
+          $("#divMsgEditRequest").text("Updating Response document names");
+          var oldSensitivity = m_bigMap["request-" + m_requestNum].sensitivity;
+          const doneUpdatingSensitivity = await m_fnUpdateSensitivityOnRequest(
+            m_requestNum,
+            curSensitivity,
+            oldSensitivity
+          );
+        }
+        m_fnUpdateEmailFolderPerms(m_requestNum, true);
+      } //if request number changed, update responses; otherwise it will refresh and not hit this
+      else {
+        const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+          "Renaming Responses",
+          "Please wait... Renaming Responses",
+          200,
+          400
+        );
+
+        var bDoneBreakingReqPermisions = false;
+        await m_fnBreakRequestPermissions(oListItem, false, null);
+
+        //should always be true even if an error occurred
+        var oRequest = m_fnGetRequestByNumber(m_requestNum);
+
+        var newRequestNumber = oListItem.get_item("Title");
+        //TODO: break these up - may cause errors
+        m_fnRenameResponses(oRequest, m_requestNum, newRequestNumber);
+        m_fnRenameResponseFolders(
+          m_ResponseDocsFoldersItems,
+          m_requestNum,
+          newRequestNumber
+        );
+        m_fnRenameEmailFolder(
+          emailListFolderItems,
+          m_requestNum,
+          newRequestNumber
+        );
+        m_fnRenameEAFolder(eaListFolderItems, m_requestNum, newRequestNumber);
+
+        setTimeout(function () {
+          m_fnRefresh(newRequestNumber);
+        }, 20000);
+      }
+    }
+  }
+  function onFail(sender, args) {
+    m_fnRefresh();
+  }
+
+  var data = { requestItemId: m_itemID };
+  currCtx.executeQueryAsync(
+    Function.createDelegate(data, onSuccess),
+    Function.createDelegate(data, onFail)
+  );
 }
 
 function OnCallbackFormCoverSheet(result, value) {
