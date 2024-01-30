@@ -251,7 +251,10 @@ export class RequestDetailView {
     ModalDialog.showModalDialog(options);
   };
 
-  async OnCallbackRejectResponseDoc(result) {}
+  async OnCallbackRejectResponseDoc(result) {
+    if (!result) return;
+    this.refreshRequest();
+  }
 }
 
 registerComponent({

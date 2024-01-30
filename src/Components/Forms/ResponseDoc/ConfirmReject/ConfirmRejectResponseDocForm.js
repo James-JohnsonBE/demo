@@ -1,6 +1,9 @@
 import { appContext } from "../../../../infrastructure/ApplicationDbContext.js";
 import { registerComponent } from "../../../../infrastructure/RegisterComponents.js";
-import { approveResponseDocsForQA } from "../../../../pages/IA_DB/IA_DB_Services.js";
+import {
+  approveResponseDocsForQA,
+  rejectResponseDoc,
+} from "../../../../pages/IA_DB/IA_DB_Services.js";
 const componentName = "confirm-reject-response-doc";
 export class ConfirmRejectResponseDocForm {
   constructor(request, response, responseDocs) {
@@ -20,7 +23,15 @@ export class ConfirmRejectResponseDocForm {
   }
 
   async submit() {
-    await approveResponseDocsForQA(this.request, this.responseDocs());
+    await Promise.all(
+      this.responseDocs().map((responseDoc) => {
+        return rejectResponseDoc(
+          this.request,
+          responseDoc,
+          this.rejectReason()
+        );
+      })
+    );
     this.onComplete(true);
   }
 

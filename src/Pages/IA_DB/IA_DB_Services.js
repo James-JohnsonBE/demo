@@ -1,6 +1,7 @@
 import { AuditResponseStates } from "../../entities/AuditResponse.js";
 import { AuditResponseDocStates } from "../../entities/AuditResponseDocs.js";
 
+export const m_bigMap = {};
 /**
  * Approves all response docs for a given request, updates permissions for
  * response, request, response doc folder, and coversheets.
@@ -36,6 +37,10 @@ export async function approveResponseDocsForQA(oRequest, oResponseDocs) {
           );
 
           const oListItem = oList.getItemById(oResponseDoc.item.get_item("ID"));
+          ctx2.load(oListItem);
+          await new Promise((resolve, reject) => {
+            ctx2.executeQueryAsync(resolve, reject);
+          });
 
           oListItem.set_item("DocumentStatus", AuditResponseDocStates.SentToQA);
           oListItem.set_item("RejectReason", "");
@@ -85,6 +90,133 @@ export async function approveResponseDocsForQA(oRequest, oResponseDocs) {
 
   // Finally, notify QA
   await notifyQAApprovalPending(oRequest, oResponseDocs);
+}
+
+export async function rejectResponseDoc(oRequest, oResponseDoc, rejectReason) {
+  // const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+  //   "Rejecting Response Document",
+  //   "Please wait... Rejecting Response Document",
+  //   200,
+  //   400
+  // );
+
+  var clientContext = SP.ClientContext.get_current();
+  var oList = clientContext
+    .get_web()
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
+
+  const oListItem = oList.getItemById(oResponseDoc.ID);
+  clientContext.load(oListItem);
+
+  await new Promise((resolve, reject) =>
+    clientContext.executeQueryAsync(resolve, (sender, args) =>
+      reject({ sender, args })
+    )
+  ).catch(({ sender, args }) => {
+    alert(
+      "Request failed. " + args.get_message() + "\n" + args.get_stackTrace()
+    );
+  });
+
+  var ctx2 = new SP.ClientContext.get_current();
+
+  var oList = ctx2
+    .get_web()
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
+
+  //refetch to avoid version conflict
+  // oListItem = oList.getItemById(m_itemID);
+  oListItem.set_item("DocumentStatus", "Rejected");
+  oListItem.set_item("RejectReason", rejectReason);
+  //changed - updating response doc file name here
+
+  var sensitivity = "";
+  if (oRequest) sensitivity = oRequest.sensitivity;
+  var newResponseDocFileName = m_fnGetNewResponseDocTitle(
+    oListItem,
+    oResponseDoc.responseTitle,
+    sensitivity
+  );
+
+  oListItem.set_item("FileLeafRef", newResponseDocFileName);
+  oListItem.set_item("RejectReason", rejectReason);
+
+  oListItem.update();
+
+  var siteUrl =
+    location.protocol +
+    "//" +
+    location.host +
+    _spPageContextInfo.webServerRelativeUrl +
+    "/";
+  const filePath = oListItem.get_item("FileDirRef");
+  // fileName = oListItem.get_item("FileLeafRef");
+  var lastInd = filePath.lastIndexOf("/");
+  var urlpath = filePath.substring(0, lastInd + 1);
+  var responseTitle = filePath.replace(urlpath, "");
+
+  var folderPath =
+    Audit.Common.Utilities.GetSiteUrl() +
+    "/" +
+    Audit.Common.Utilities.GetLibNameResponseDocs() +
+    "/" +
+    responseTitle;
+  var aresponseDocList = ctx2
+    .get_web()
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
+  var aresponseDocQuery = new SP.CamlQuery();
+  aresponseDocQuery.set_viewXml(
+    '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><And><Eq><FieldRef Name="FSObjType"/><Value Type="Text">0</Value></Eq><Eq><FieldRef Name="FileDirRef"/><Value Type="Text">' +
+      folderPath +
+      "</Value></Eq></And></Where></Query></View>"
+  );
+  const aresponseDocItems = aresponseDocList.getItems(aresponseDocQuery);
+  ctx2.load(aresponseDocItems);
+
+  var aresponseList = ctx2
+    .get_web()
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetListTitleResponses());
+  var aresponseQuery = new SP.CamlQuery();
+  aresponseQuery.set_viewXml(
+    '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><Eq><FieldRef Name="Title"/><Value Type="Text">' +
+      responseTitle +
+      "</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>"
+  );
+  const aresponseItems = aresponseList.getItems(aresponseQuery);
+  ctx2.load(aresponseItems);
+
+  var emailList = ctx2
+    .get_web()
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory());
+  var emailListQuery = new SP.CamlQuery();
+  emailListQuery.set_viewXml(
+    '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
+  );
+  const emailListFolderItems = emailList.getItems(emailListQuery);
+  ctx2.load(emailListFolderItems, "Include(ID, FSObjType, Title, DisplayName)");
+
+  await new Promise((resolve, reject) =>
+    ctx2.executeQueryAsync(resolve, (sender, args) => reject({ sender, args }))
+  ).catch(({ sender, args }) => {
+    alert(
+      "Request failed. " + args.get_message() + "\n" + args.get_stackTrace()
+    );
+    return;
+  });
+
+  // TODO: Notify Action Office? If all docs rejected, Reject Response?
+  const notifyId = SP.UI.Notify.addNotification(
+    "Rejected Response Document",
+    false
+  );
+
+  //added
+  // m_waitDialog.close();
 }
 
 export async function notifyQAApprovalPending(oRequest, oResponseDocs) {
@@ -261,6 +393,15 @@ export function m_fnGetNewResponseDocTitle(
   var docExt = oldResponseDocTitle.replace(docName, "");
   newResponseDocTitle += docExt;
   return newResponseDocTitle;
+}
+
+function m_fnGetResponseByTitle(title) {
+  var oResponse = null;
+  try {
+    oResponse = m_bigMap["response-" + title];
+  } catch (err) {}
+
+  return oResponse;
 }
 
 export async function m_fnBreakRequestPermissions(

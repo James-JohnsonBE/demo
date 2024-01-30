@@ -19,6 +19,7 @@ import { EditResponseForm } from "../../components/Forms/Response/EditForm/EditR
 import { EditResponseDocForm } from "../../components/Forms/ResponseDoc/EditForm/EditResponseDocForm.js";
 
 import {
+  m_bigMap,
   m_fnGetNewResponseDocTitle,
   m_fnBreakRequestPermissions,
   m_fnBreakCoversheetPermissions,
@@ -105,7 +106,7 @@ var m_coversheetDocsLibrary = null;
 var m_requestDocsLibrary = null;
 var m_responseDocsLibrary = null;
 
-var m_bigMap = new Object();
+// var m_bigMap = new Object();
 var m_arrRequests = new Array();
 var m_arrRequestsToClose = new Array();
 var m_arrPermissionsResponseFolders = new Array();
@@ -1639,7 +1640,7 @@ async function m_fnCheckIfResponsePermissionsNeedUpdating(
 }
 
 function LoadRequests() {
-  m_bigMap = new Object();
+  // m_bigMap = new Object();
   m_arrRequests = new Array();
 
   try {
@@ -3441,7 +3442,7 @@ function m_fnResendRejectedResponseDocToQA(itemID) {
     oListItem.update();
 
     function OnSuccess(sender, args) {
-      m_fnRefresh();
+      m_fnRequeryRequest(_myViewModel.currentRequest());
     }
     function OnFailure(sender, args) {
       const statusId = SP.UI.Status.addStatus(
