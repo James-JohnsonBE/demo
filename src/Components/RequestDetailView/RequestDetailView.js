@@ -28,7 +28,7 @@ export class RequestDetailView {
     ClickEditCoversheet,
   }) {
     // this.report = args;
-    this.bDisplayClose = bDisplayClose;
+    this.bDisplayClose = bDisplayClose; // This can be converted to an observable
     this.currentRequest = currentRequest;
     this.arrCurrentRequestCoverSheets = arrCurrentRequestCoverSheets;
     this.arrCurrentRequestResponses = arrCurrentRequestResponses;
@@ -117,6 +117,10 @@ export class RequestDetailView {
     this.tabs.selectTab(defaultTab);
   }
 
+  refreshRequest() {
+    m_fnRequeryRequest(this.currentRequest());
+  }
+
   // Coversheets
   onCoverSheetFileAttachedHandler = async (newFiles) => {
     if (!newFiles.length) return;
@@ -185,7 +189,7 @@ export class RequestDetailView {
   async OnCallBackApproveResponseDoc(result) {
     if (result) {
       // Update is handled in the form, just need to refresh page/data
-      m_fnRequeryRequest(this.currentRequest());
+      this.refreshRequest();
     }
   }
 

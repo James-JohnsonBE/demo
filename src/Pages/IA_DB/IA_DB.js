@@ -24,6 +24,7 @@ import {
   m_fnBreakCoversheetPermissions,
   m_fnBreakResponseAndFolderPermissions,
   notifyQAApprovalPending,
+  mapResponseDocs,
 } from "./IA_DB_Services.js";
 
 var Audit = window.Audit || {};
@@ -1253,7 +1254,7 @@ export function m_fnRequeryRequest(oRequest) {
         await m_fnBreakRequestPermissions(oRequest.item, false);
         m_fnRefresh();
         return;
-      } //07/06/2017 - if the permissions on the request are inheriting for any reason, then reset the permissions and refresh the page
+      } //07/06/2017 - ensure each action office has access to the request
       else {
         var bUpdateRequestPermissions = false;
         for (var x = 0; x < oRequest.actionOffices.length; x++) {
@@ -1327,7 +1328,7 @@ export function m_fnRequeryRequest(oRequest) {
 
     LoadTabRequestInfoRequestDocs(oRequest);
     LoadTabRequestInfoCoverSheets(oRequest);
-    LoadTabRequestInfoResponses(oRequest);
+    LoadTabRequestInfoResponses(oRequest); // This call LoadTabRequestInfoResponseDocs
   }
   function OnFailure(sender, args) {
     console.error("Unable to requery request: " + oRequest.number);
@@ -1631,6 +1632,7 @@ async function m_fnCheckIfResponsePermissionsNeedUpdating(
           false
         );
         OnCompletedChecking(true);
+        return true;
       }
     }
   }
@@ -1888,99 +1890,29 @@ function LoadResponseDocs() {
   _myViewModel.arrResponseDocsCheckedOut.valueHasMutated();
   var arrResponseDocsCheckedOut = new Array();
 
-  try {
-    var listItemEnumerator = m_ResponseDocsItems.getEnumerator();
-    while (listItemEnumerator.moveNext()) {
-      var oListItem = listItemEnumerator.get_current();
+  mapResponseDocs(m_ResponseDocsItems, m_bigMap);
 
-      var responseDocID = oListItem.get_item("ID");
+  var listItemEnumerator = m_ResponseDocsItems.getEnumerator();
+  while (listItemEnumerator.moveNext()) {
+    var oListItem = listItemEnumerator.get_current();
 
+    const checkedOutBy = Audit.Common.Utilities.GetFriendlyDisplayName(
+      oListItem,
+      "CheckoutUser"
+    );
+
+    if (checkedOutBy != "") {
       var requestNumber = oListItem.get_item("ReqNum");
       if (requestNumber != null)
         requestNumber = requestNumber.get_lookupValue();
 
-      var responseID = oListItem.get_item("ResID");
-      if (responseID != null) responseID = responseID.get_lookupValue();
+      var oResponseDocCheckedOut = new Object();
+      oResponseDocCheckedOut["number"] = requestNumber;
+      oResponseDocCheckedOut["title"] = oListItem.get_item("Title");
+      oResponseDocCheckedOut["checkedOutBy"] = checkedOutBy;
 
-      if (requestNumber == null || responseID == null) continue;
-
-      var oRequest = m_bigMap["request-" + requestNumber];
-      if (oRequest) {
-        for (var y = 0; y < oRequest.responses.length; y++) {
-          if (oRequest.responses[y]["title"] == responseID) {
-            var responseDocObject = new Object();
-            responseDocObject["ID"] = oListItem.get_item("ID");
-            responseDocObject["fileName"] = oListItem.get_item("FileLeafRef");
-            responseDocObject["title"] = oListItem.get_item("Title");
-            if (responseDocObject["title"] == null)
-              responseDocObject["title"] = "";
-            responseDocObject["folder"] = oListItem.get_item("FileDirRef");
-            responseDocObject["documentStatus"] =
-              oListItem.get_item("DocumentStatus");
-            responseDocObject["rejectReason"] =
-              oListItem.get_item("RejectReason");
-            if (responseDocObject["rejectReason"] == null)
-              responseDocObject["rejectReason"] = "";
-            else
-              responseDocObject["rejectReason"] = responseDocObject[
-                "rejectReason"
-              ].replace(/(\r\n|\n|\r)/gm, "<br/>");
-
-            var fileSize = oListItem.get_item("File_x0020_Size");
-            fileSize = Audit.Common.Utilities.GetFriendlyFileSize(fileSize);
-            responseDocObject["fileSize"] = fileSize;
-
-            var receiptDate = "";
-            if (
-              oListItem.get_item("ReceiptDate") != null &&
-              oListItem.get_item("ReceiptDate") != ""
-            )
-              receiptDate = oListItem
-                .get_item("ReceiptDate")
-                .format("MM/dd/yyyy");
-            responseDocObject["receiptDate"] = receiptDate;
-
-            var modifiedDate = "";
-            if (
-              oListItem.get_item("Modified") != null &&
-              oListItem.get_item("Modified") != ""
-            )
-              modifiedDate = oListItem
-                .get_item("Modified")
-                .format("MM/dd/yyyy hh:mm tt");
-            responseDocObject["modifiedDate"] = modifiedDate;
-
-            responseDocObject["modifiedBy"] =
-              Audit.Common.Utilities.GetFriendlyDisplayName(
-                oListItem,
-                "Editor"
-              );
-            responseDocObject["checkedOutBy"] =
-              Audit.Common.Utilities.GetFriendlyDisplayName(
-                oListItem,
-                "CheckoutUser"
-              );
-
-            if (responseDocObject["checkedOutBy"] != "") {
-              responseDocObject["response"] = oRequest.responses[y];
-              responseDocObject["request"] = oRequest;
-
-              var oResponseDocCheckedOut = new Object();
-              oResponseDocCheckedOut["number"] = requestNumber;
-              oResponseDocCheckedOut["title"] = responseDocObject["title"];
-              oResponseDocCheckedOut["checkedOutBy"] =
-                responseDocObject["checkedOutBy"];
-              arrResponseDocsCheckedOut.push(oResponseDocCheckedOut);
-            }
-            responseDocObject["item"] = oListItem;
-
-            oRequest.responses[y]["responseDocs"].push(responseDocObject);
-          }
-        }
-      }
+      arrResponseDocsCheckedOut.push(oResponseDocCheckedOut);
     }
-  } catch (err) {
-    alert(err);
   }
 
   ko.utils.arrayPushAll(
@@ -2241,7 +2173,7 @@ function LoadTabRequestInfoCoverSheets(oRequest) {
 //when action office or qa updates the response and it comes back to IA, IA gets emailed a link with the response number; When they open the link in the browser, it will ]
 //take them to 2nd tab; When they click on the response (which is filtered), it will display tab 3 with the request details. At that point, it will try to check to see if the response permissions
 //need to be updated
-function m_fnLoadResponseDocFolder(responseTitle, OnComplete) {
+async function m_fnLoadResponseDocFolder(responseTitle, OnComplete) {
   var currCtx = new SP.ClientContext.get_current();
   var web = currCtx.get_web();
 
@@ -2280,61 +2212,52 @@ function m_fnLoadResponseDocFolder(responseTitle, OnComplete) {
     "Include( DisplayName, Title, Id, EncodedAbsUrl, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
   );
 
-  function OnSuccess(sender, args) {
-    var oResponseItem = null;
-    //Requery the response item to now have the permissions on the responses; Avoid doing it at the top because it impacts load time
-    var listItemEnumerator = m_aResponseItem.getEnumerator();
-    while (listItemEnumerator.moveNext()) {
-      var oListItem = listItemEnumerator.get_current();
+  await new Promise((resolve, reject) =>
+    currCtx.executeQueryAsync(resolve, reject)
+  ).catch((sender, args) => {
+    return false;
+  });
 
-      for (var x = 0; x < m_arrRequests.length; x++) {
-        var oRequest = m_arrRequests[x];
-        for (var y = 0; y < oRequest.responses.length; y++) {
-          if (oRequest.responses[y].title == responseTitle) {
-            oRequest.responses[y].item = oListItem;
-            break;
-          }
+  var oResponseItem = null;
+  //Requery the response item to now have the permissions on the responses; Avoid doing it at the top because it impacts load time
+  var listItemEnumerator = m_aResponseItem.getEnumerator();
+  while (listItemEnumerator.moveNext()) {
+    var oListItem = listItemEnumerator.get_current();
+
+    for (var x = 0; x < m_arrRequests.length; x++) {
+      var oRequest = m_arrRequests[x];
+      for (var y = 0; y < oRequest.responses.length; y++) {
+        if (oRequest.responses[y].title == responseTitle) {
+          oRequest.responses[y].item = oListItem;
+          break;
         }
       }
-
-      break;
     }
 
-    LoadResponseDocFolders(); //really, this only runs through the one response and we're only doing this to set the response item's folder so that we can query the permissions on it
+    break;
+  }
 
-    OnComplete(true);
-  }
-  function OnFailure(sender, args) {
-    OnComplete(false);
-  }
-  currCtx.executeQueryAsync(OnSuccess, OnFailure);
+  LoadResponseDocFolders(); //really, this only runs through the one response and we're only doing this to set the response item's folder so that we can query the permissions on it
+  return true;
 }
 
-function LoadTabRequestInfoResponses(oRequest) {
+async function LoadTabRequestInfoResponses(oRequest) {
   if (m_bIsSiteOwner) {
     /* for this specific response selected, check that the permissions don't need updating*/
     if (m_sGoToResponseTitle != null && m_sGoToResponseTitle != "") {
-      m_fnLoadResponseDocFolder(
-        m_sGoToResponseTitle,
-        function (doneLoadingThisResponseFolder) {
-          if (doneLoadingThisResponseFolder) {
-            m_fnCheckIfResponsePermissionsNeedUpdating(
-              oRequest.status,
-              m_sGoToResponseTitle,
-              function (doneCheckingResponseFolder) {
-                if (doneCheckingResponseFolder) {
-                  LoadTabRequestInfoResponses2(oRequest);
-                }
-              }
-            );
-          } else LoadTabRequestInfoResponses2(oRequest);
-        }
+      const doneLoadingThisResponseFolder = await m_fnLoadResponseDocFolder(
+        m_sGoToResponseTitle
       );
-    } else LoadTabRequestInfoResponses2(oRequest);
-  } else LoadTabRequestInfoResponses2(oRequest);
-}
+      if (doneLoadingThisResponseFolder) {
+        const doneCheckingResponseFolder =
+          await m_fnCheckIfResponsePermissionsNeedUpdating(
+            oRequest.status,
+            m_sGoToResponseTitle
+          );
+      }
+    }
+  }
 
-function LoadTabRequestInfoResponses2(oRequest) {
   _myViewModel.arrCurrentRequestResponses([]);
   _myViewModel.arrCurrentRequestResponses.valueHasMutated();
 
@@ -2548,28 +2471,44 @@ function m_fnHighlightResponse() {
   }
 }
 
-function LoadTabRequestInfoResponseDocs(oRequest) {
+async function LoadTabRequestInfoResponseDocs(oRequest) {
   _myViewModel.arrCurrentRequestResponseDocs([]);
   _myViewModel.arrCurrentRequestResponseDocs.valueHasMutated();
 
   _myViewModel.cntResponseDocs(0);
   _myViewModel.cntResponseDocs.valueHasMutated();
 
-  function OnSuccess(sender, args) {
-    RenderResponses(oRequest);
-  }
-  function OnFailure(sender, args) {
-    const statusId = SP.UI.Status.addStatus(
-      "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
-    );
-    SP.UI.Status.setStatusPriColor(statusId, "red");
-  }
+  let currCtx = new SP.ClientContext.get_current();
+  let web = currCtx.get_web();
+
+  var responseDocsLib = web
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
+
+  var responseDocsQuery = new SP.CamlQuery();
+  responseDocsQuery.set_viewXml(
+    '<View Scope="RecursiveAll"><Query><Where><Eq><FieldRef Name="ReqNum"/><Value Type="Text">' +
+      oRequest.number +
+      '</Value></Eq></Where><OrderBy><FieldRef Name="ReqNum"/><FieldRef Name="ResID"/></OrderBy><Where><Eq><FieldRef Name="ContentType"/><Value Type="Text">Document</Value></Eq></Where></Query></View>'
+  );
+  const requestResponseDocsItems = responseDocsLib.getItems(responseDocsQuery);
+  currCtx.load(
+    requestResponseDocsItems,
+    "Include(ID, Title, ReqNum, ResID, DocumentStatus, RejectReason, ReceiptDate, FileLeafRef, FileDirRef, File_x0020_Size, CheckoutUser, Modified, Editor, Created)"
+  );
+
+  await new Promise((resolve, reject) =>
+    currCtx.executeQueryAsync(resolve, reject)
+  );
+
+  oRequest.responses.map((response) => (response.responseDocs = []));
+  mapResponseDocs(requestResponseDocsItems, m_bigMap);
+
+  currCtx = new SP.ClientContext.get_current();
+  web = currCtx.get_web();
 
   var bHasResponseDoc = false;
   if (oRequest && oRequest.responses && oRequest.responses.length > 0) {
-    var currCtx = new SP.ClientContext.get_current();
-    var web = currCtx.get_web();
-
     for (var y = 0; y < oRequest.responses.length; y++) {
       var oResponse = oRequest.responses[y];
       if (
@@ -2593,80 +2532,86 @@ function LoadTabRequestInfoResponseDocs(oRequest) {
     }
   }
 
-  if (bHasResponseDoc) {
-    currCtx.executeQueryAsync(OnSuccess, OnFailure);
-  } else {
+  if (!bHasResponseDoc) {
     RequestFinishedLoading();
+    return;
   }
 
-  function RenderResponses(oRequest) {
-    var sReponseDocs = "";
-    var cnt = 0;
-
-    oRequest.responses.sort(Audit.Common.Utilities.SortResponseObjects);
-
-    var onc =
-      "onclick=\"return DispEx(this,event,'TRUE','FALSE','FALSE','SharePoint.OpenDocuments.3','1','SharePoint.OpenDocuments','','','','2','0','0','0x7fffffffffffffff','','')\"";
-
-    var arrResponseSummaries = new Array();
-    for (var y = 0; y < oRequest.responses.length; y++) {
-      var oResponse = oRequest.responses[y];
-
-      var showBulkApprove = false;
-
-      var arrResponseDocs = new Array();
-      for (var z = 0; z < oResponse.responseDocs.length; z++) {
-        var oResponseDoc = oResponse.responseDocs[z];
-
-        oResponseDoc.chkApproveResDoc = ko.observable(false);
-
-        if (oResponseDoc.documentStatus == "Marked for Deletion") continue;
-
-        oResponseDoc.docIcon = oResponseDoc.docIcon.get_value();
-        oResponseDoc.styleTag = Audit.Common.Utilities.GetResponseDocStyleTag2(
-          oResponseDoc.documentStatus
-        );
-        oResponseDoc.requestID = oRequest.ID; //needed for view document
-        oResponseDoc.responseID = oResponse.ID;
-        oResponseDoc.responseTitle = oResponse.title; //needed for view document
-        oResponseDoc.responseDocOpenInIELink =
-          "<a target='_blank' title='Click to Open the document' onmousedown=\"return VerifyHref(this,event,'1','SharePoint.OpenDocuments','')\" " +
-          onc +
-          ' href="' +
-          oResponseDoc.folder +
-          "/" +
-          oResponseDoc.fileName +
-          '">' +
-          oResponseDoc.fileName +
-          "</a>";
-        arrResponseDocs.push(oResponseDoc);
-        cnt++;
-
-        if (
-          oResponse.resStatus == "2-Submitted" &&
-          oResponseDoc.documentStatus == "Submitted"
-        ) {
-          showBulkApprove = true;
-        }
-      }
-      arrResponseSummaries.push({
-        responseId: oResponse.ID,
-        responseTitle: oResponse.title,
-        responseDocs: arrResponseDocs,
-        responseStatus: oResponse.resStatus,
-        requestStatus: oRequest.status,
-        showBulkApprove,
-      });
-    }
-
-    ko.utils.arrayPushAll(
-      _myViewModel.arrCurrentRequestResponseDocs(),
-      arrResponseSummaries
+  await new Promise((resolve, reject) =>
+    currCtx.executeQueryAsync(resolve, reject)
+  ).catch((sender, args) => {
+    const statusId = SP.UI.Status.addStatus(
+      "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
     );
-    _myViewModel.arrCurrentRequestResponseDocs.valueHasMutated();
-    _myViewModel.cntResponseDocs(cnt);
-    RequestFinishedLoading();
+    SP.UI.Status.setStatusPriColor(statusId, "red");
+  });
+
+  var sReponseDocs = "";
+  var cnt = 0;
+
+  oRequest.responses.sort(Audit.Common.Utilities.SortResponseObjects);
+
+  var onc =
+    "onclick=\"return DispEx(this,event,'TRUE','FALSE','FALSE','SharePoint.OpenDocuments.3','1','SharePoint.OpenDocuments','','','','2','0','0','0x7fffffffffffffff','','')\"";
+
+  var arrResponseSummaries = new Array();
+  for (var y = 0; y < oRequest.responses.length; y++) {
+    var oResponse = oRequest.responses[y];
+
+    var showBulkApprove = false;
+
+    var arrResponseDocs = new Array();
+    for (var z = 0; z < oResponse.responseDocs.length; z++) {
+      var oResponseDoc = oResponse.responseDocs[z];
+
+      oResponseDoc.chkApproveResDoc = ko.observable(false);
+
+      if (oResponseDoc.documentStatus == "Marked for Deletion") continue;
+
+      oResponseDoc.docIcon = oResponseDoc.docIcon.get_value();
+      oResponseDoc.styleTag = Audit.Common.Utilities.GetResponseDocStyleTag2(
+        oResponseDoc.documentStatus
+      );
+      oResponseDoc.requestID = oRequest.ID; //needed for view document
+      oResponseDoc.responseID = oResponse.ID;
+      oResponseDoc.responseTitle = oResponse.title; //needed for view document
+      oResponseDoc.responseDocOpenInIELink =
+        "<a target='_blank' title='Click to Open the document' onmousedown=\"return VerifyHref(this,event,'1','SharePoint.OpenDocuments','')\" " +
+        onc +
+        ' href="' +
+        oResponseDoc.folder +
+        "/" +
+        oResponseDoc.fileName +
+        '">' +
+        oResponseDoc.fileName +
+        "</a>";
+      arrResponseDocs.push(oResponseDoc);
+      cnt++;
+
+      if (
+        oResponse.resStatus == "2-Submitted" &&
+        oResponseDoc.documentStatus == "Submitted"
+      ) {
+        showBulkApprove = true;
+      }
+    }
+    arrResponseSummaries.push({
+      responseId: oResponse.ID,
+      responseTitle: oResponse.title,
+      responseDocs: arrResponseDocs,
+      responseStatus: oResponse.resStatus,
+      requestStatus: oRequest.status,
+      showBulkApprove,
+    });
   }
+
+  ko.utils.arrayPushAll(
+    _myViewModel.arrCurrentRequestResponseDocs(),
+    arrResponseSummaries
+  );
+  _myViewModel.arrCurrentRequestResponseDocs.valueHasMutated();
+  _myViewModel.cntResponseDocs(cnt);
+  RequestFinishedLoading();
 }
 
 function DisplayRequestsThatShouldClose() {

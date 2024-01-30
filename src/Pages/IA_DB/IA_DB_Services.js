@@ -152,6 +152,91 @@ export async function notifyQAApprovalPending(oRequest, oResponseDocs) {
   });
 }
 
+export function mapResponseDocs(responseDocItemsColl, m_bigMap) {
+  try {
+    var listItemEnumerator = responseDocItemsColl.getEnumerator();
+    while (listItemEnumerator.moveNext()) {
+      var oListItem = listItemEnumerator.get_current();
+
+      var responseDocID = oListItem.get_item("ID");
+
+      var requestNumber = oListItem.get_item("ReqNum");
+      if (requestNumber != null)
+        requestNumber = requestNumber.get_lookupValue();
+
+      var responseID = oListItem.get_item("ResID");
+      if (responseID != null) responseID = responseID.get_lookupValue();
+
+      if (requestNumber == null || responseID == null) continue;
+
+      var oRequest = m_bigMap["request-" + requestNumber];
+      if (!oRequest) continue;
+
+      const oResponse = oRequest.responses.find(
+        (response) => response.title == responseID
+      );
+      if (!oResponse) continue;
+
+      var responseDocObject = new Object();
+      responseDocObject["ID"] = oListItem.get_item("ID");
+      responseDocObject["response"] = oResponse;
+      responseDocObject["request"] = oRequest;
+      responseDocObject["fileName"] = oListItem.get_item("FileLeafRef");
+      responseDocObject["title"] = oListItem.get_item("Title");
+      if (responseDocObject["title"] == null) responseDocObject["title"] = "";
+      responseDocObject["folder"] = oListItem.get_item("FileDirRef");
+      responseDocObject["documentStatus"] =
+        oListItem.get_item("DocumentStatus");
+      responseDocObject["rejectReason"] = oListItem.get_item("RejectReason");
+      if (responseDocObject["rejectReason"] == null)
+        responseDocObject["rejectReason"] = "";
+      else
+        responseDocObject["rejectReason"] = responseDocObject[
+          "rejectReason"
+        ].replace(/(\r\n|\n|\r)/gm, "<br/>");
+
+      var fileSize = oListItem.get_item("File_x0020_Size");
+      fileSize = Audit.Common.Utilities.GetFriendlyFileSize(fileSize);
+      responseDocObject["fileSize"] = fileSize;
+
+      var receiptDate = "";
+      if (
+        oListItem.get_item("ReceiptDate") != null &&
+        oListItem.get_item("ReceiptDate") != ""
+      )
+        receiptDate = oListItem.get_item("ReceiptDate").format("MM/dd/yyyy");
+      responseDocObject["receiptDate"] = receiptDate;
+
+      var modifiedDate = "";
+      if (
+        oListItem.get_item("Modified") != null &&
+        oListItem.get_item("Modified") != ""
+      )
+        modifiedDate = oListItem
+          .get_item("Modified")
+          .format("MM/dd/yyyy hh:mm tt");
+      responseDocObject["modifiedDate"] = modifiedDate;
+
+      responseDocObject["modifiedBy"] =
+        Audit.Common.Utilities.GetFriendlyDisplayName(oListItem, "Editor");
+      responseDocObject["checkedOutBy"] =
+        Audit.Common.Utilities.GetFriendlyDisplayName(
+          oListItem,
+          "CheckoutUser"
+        );
+
+      if (responseDocObject["checkedOutBy"] != "") {
+        // arrResponseDocsCheckedOut.push(oResponseDocCheckedOut);
+      }
+      responseDocObject["item"] = oListItem;
+
+      oResponse["responseDocs"].push(responseDocObject);
+    }
+  } catch (err) {
+    alert(err);
+  }
+}
+
 export function m_fnGetNewResponseDocTitle(
   responseDocItem,
   responseName,
