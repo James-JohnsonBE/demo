@@ -92,6 +92,7 @@ export async function approveResponseDocsForQA(oRequest, oResponseDocs) {
   await notifyQAApprovalPending(oRequest, oResponseDocs);
 }
 
+// TODO: This is the basic functionality of the QA OnCallbackRejectResponseDoc function
 export async function rejectResponseDoc(oRequest, oResponseDoc, rejectReason) {
   // const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
   //   "Rejecting Response Document",
