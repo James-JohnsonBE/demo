@@ -80,8 +80,8 @@ div.cell-margin {
 }
 
 .audit-body .reports-container {
-  flex: 1 0 1200px;
   margin: 1rem;
+  min-width: 1200px;
 }
 
 .audit-body .quick-links {

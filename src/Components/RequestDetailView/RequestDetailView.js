@@ -104,6 +104,12 @@ export class RequestDetailView {
     );
   });
 
+  showResponseActions = ko.pureComputed(() => {
+    return [AUDITREQUESTSTATES.OPEN, AUDITREQUESTSTATES.REOPENED].includes(
+      this.currentRequest()?.status
+    );
+  });
+
   // Behaviors
   setInitialTab() {
     if (getUrlParam(requestDetailUrlParamKey)) {

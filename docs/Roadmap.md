@@ -59,10 +59,28 @@ AuditResponseDoc
 
 ## General Todos
 
-Add response doc rejection pathway.
-Prepopulate new Request with all reminders selected.
-Fix refresh on every action
-Fix file rename (created has conflict with drag n drop edit)
+[x] IA Add response doc rejection pathway.
+[ ] Prepopulate new Request with all reminders selected.
+[x] Fix file rename (created has conflict with drag n drop edit)
+[ ] Lookup field shouldn't trigger load of every record.
+
+## Refresh Fix!
+
+[ ] finish building out m_fnRequeryRequest
+
+- [ ] Update Coversheets
+- [ ] Update Responses
+- [x] Update Response Docs
+- [ ] Update Request
+- [ ] Update Quick-Info sections (Should this be a standalone function?)
+
+[ ] Update actions to call m_fnRequeryRequest instead of m_fnRefresh
+
+## UI Updates
+
+[ ] Request Info Coversheets tab should be Quick Links
+[ ] Request Info Responses tab should be Quick Links
+[ ] Request Info Request Detail new layout
 
 ## Search Select Todos
 

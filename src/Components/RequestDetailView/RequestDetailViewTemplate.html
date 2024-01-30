@@ -427,6 +427,29 @@
 
 <script id="requestDetailCoversheetsTabTemplate" type="text/html">
   <div id="divCoverSheets" data-bind="visible: currentRequest">
+    <div id="divCoverSheetActions" class="w-fit">
+      <div data-bind="visible: coverSheetFiles().length">
+        Uploading Coversheet!
+        <progress></progress>
+      </div>
+      <div class="quick-links secondary">
+        <label data-bind="visible: !coverSheetFiles().length">
+          <div
+            class="text-link"
+            title="Upload Cover Sheet or Supplemental Document"
+            data-bind=""
+          >
+            <span class="ui-icon ui-icon-circle-arrow-n"></span>Upload Cover
+            Sheet or Supplemental Document
+          </div>
+          <input
+            style="display: none"
+            type="file"
+            data-bind="files: coverSheetFiles"
+          />
+        </label>
+      </div>
+    </div>
     <div
       id="divEmptyCoversheetsMsg"
       style="border: 0px !important; font-style: italic"
@@ -504,38 +527,14 @@
         </tr>
       </tfoot>
     </table>
-    <div id="divCoverSheetActions" style="padding-top: 5px" class="w-fit">
-      <div data-bind="visible: coverSheetFiles().length">
-        Uploading Coversheet!
-        <progress></progress>
-      </div>
-      <label data-bind="visible: !coverSheetFiles().length">
-        <div
-          class="text-link"
-          title="Upload Cover Sheet or Supplemental Document"
-          data-bind=""
-        >
-          <span class="ui-icon ui-icon-circle-arrow-n"></span>Upload Cover Sheet
-          or Supplemental Document
-        </div>
-        <input
-          style="display: none"
-          type="file"
-          data-bind="files: coverSheetFiles"
-        />
-      </label>
-    </div>
   </div>
 </script>
 
 <script id="requestDetailResponsesTabTemplate" type="text/html">
   <div id="divResponses" data-bind="visible: currentRequest">
-    <div data-bind="with: currentRequest">
-      <div
-        id="divResponsesActions"
-        style="padding-top: 5px"
-        data-bind="visible: status == 'Open' || status == 'ReOpened'"
-      >
+    <div data-bind="">
+      <div id="divResponsesActions" class="quick-links secondary">
+        <!-- ko if:  showResponseActions-->
         <div>
           <a
             title="Add Response"
@@ -553,9 +552,7 @@
             Responses</a
           >
         </div>
-        <div
-          data-bind="visible: $root.currentRequest && $root.arrCurrentRequestResponses().length > 0"
-        >
+        <div data-bind="visible: $root.arrCurrentRequestResponses().length > 0">
           <a
             title="Bulk Edit Responses"
             href="javascript:void(0)"
@@ -563,21 +560,23 @@
             ><span class="fa-solid fa-pencil"></span>Bulk Edit Responses</a
           >
         </div>
+        <!-- /ko -->
+        <div
+          id="divResponsesShowHideFolderPerms"
+          data-bind="visible: arrCurrentRequestResponses().length > 0"
+        >
+          <a
+            title="Show/Hide Response Folder Permissions"
+            style="color: #0072bc !important"
+            href="javascript:void(0)"
+            data-bind="toggleClick: $data, toggleClass: 'response-permissions', containerType: 'any'"
+            ><i class="fa-solid fa-gear"></i>Show/Hide Response Folder
+            Permissions</a
+          >
+        </div>
       </div>
     </div>
-    <div
-      id="divResponsesShowHideFolderPerms"
-      data-bind="visible: currentRequest && arrCurrentRequestResponses().length > 0"
-    >
-      <a
-        title="Show/Hide Response Folder Permissions"
-        style="color: #0072bc !important"
-        href="javascript:void(0)"
-        data-bind="toggleClick: $data, toggleClass: 'response-permissions', containerType: 'any'"
-        ><i class="fa-solid fa-gear"></i>Show/Hide Response Folder
-        Permissions</a
-      >
-    </div>
+
     <table
       id="tblResponses"
       class="tablesorter report"
@@ -778,7 +777,10 @@
       There are 0 response documents
     </div>
 
-    <div class="quick-links" data-bind="visible: cntResponseDocs() > 0">
+    <div
+      class="quick-links secondary"
+      data-bind="visible: cntResponseDocs() > 0"
+    >
       <div>
         <a
           class="btnApprovedCheckedResponseDocs"
