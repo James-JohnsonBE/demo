@@ -1004,25 +1004,25 @@
               data-bind="visible: $parent.responseStatus == '2-Submitted' && documentStatus == 'Submitted'"
             >
               <button
-            type="button"
-            class="btn btn-link"
+                type="button"
+                class="btn btn-link"
                 title="Approve this Document"
 
                 data-bind="click: $parents[1].ClickApproveResponseDoc"
               >
                 <span class="fa-solid fa-circle-check"
-                  >Approve Response Doc</span
+                  ></span
                 >
               </button>
               <button
-            type="button"
-            class="btn btn-link"
+                type="button"
+                class="btn btn-link"
                 title="Reject this Document"
 
                 data-bind="click: $parents[1].ClickRejectResponseDoc"
               >
                 <span class="fa-solid fa-circle-xmark"
-                  >Reject Response Doc</span
+                  ></span
                 >
               </button>
             </span>
@@ -1033,22 +1033,22 @@
               ><i class="fa-solid fa-download"></i
             ></a>
             <button
-            type="button"
-            class="btn btn-link"
+              type="button"
+              class="btn btn-link"
               title="View Response Document Properties"
 
               data-bind="click: $root.ClickViewResponseDoc"
               ><span class="fa-solid fa-magnifying-glass"
-                >View Response Doc</span
+                ></span
               ></a
             >
             <button
-            type="button"
-            class="btn btn-link"
+              type="button"
+              class="btn btn-link"
               title="Edit Response Document Properties"
 
               data-bind="visible: $parent.responseStatus != '7-Closed' && $parent.requestStatus != 'Closed' && $parent.requestStatus != 'Canceled' && ( documentStatus == 'Sent to QA' || documentStatus == 'Open' || documentStatus == 'Submitted' ), click: $root.ClickEditResponseDoc"
-              ><span class="fa-solid fa-pencil">Edit Response Doc</span></a
+              ><span class="fa-solid fa-pencil"></span></a
             >
           </td>
         </tr>
