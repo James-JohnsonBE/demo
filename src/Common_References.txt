@@ -12,6 +12,14 @@
 />
 <link
   rel="stylesheet"
+  href="/sites/CGFS/Style Library/apps/audit/lib/fontawesome-6.5.1/css/fontawesome.min.css"
+/>
+<link
+  rel="stylesheet"
+  href="/sites/CGFS/Style Library/apps/audit/lib/fontawesome-6.5.1/css/solid.min.css"
+/>
+<link
+  rel="stylesheet"
   type="text/css"
   href="/sites/CGFS/Style Library/apps/audit/src/Audit_Styles.css"
 />
@@ -63,14 +71,14 @@
 <script type="text/javascript" src="../Apps/_layouts/15/autofill.js"></script>
 <!-- /SharePoint Cruft -->
 
-<script
+<!-- <script
   defer
   src="/sites/CGFS/Style Library/apps/audit/lib/fontawesome-6.5.1/js/fontawesome.min.js"
 ></script>
 <script
   defer
   src="/sites/CGFS/Style Library/apps/audit/lib/fontawesome-6.5.1/js/solid.min.js"
-></script>
+></script> -->
 <script
   type="text/javascript"
   src="/sites/CGFS/Style Library/apps/audit/lib/tablesorter-2.31.3/js/jquery.tablesorter.min.js"

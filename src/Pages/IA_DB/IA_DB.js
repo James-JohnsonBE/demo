@@ -1063,7 +1063,7 @@ function LoadInfo() {
   //currCtx.load( m_requestItems, 'Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))');
   currCtx.load(
     m_requestItems,
-    "Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
+    "Include(ID, Title, ReqSubject, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
   );
 
   var requestInternalList = web
@@ -1658,6 +1658,7 @@ function LoadRequests() {
       var sensitivity = oListItem.get_item("Sensitivity");
       if (sensitivity == null) sensitivity = "None";
 
+      var fiscalYear = oListItem.get_item("FiscalYear");
       var sample = oListItem.get_item("IsSample");
       var dueDate = oListItem.get_item("ReqDueDate");
       var internalDueDate = oListItem.get_item("InternalDueDate");
@@ -1728,6 +1729,7 @@ function LoadRequests() {
       requestObject["number"] = number;
       requestObject["subject"] = subject;
       requestObject["sensitivity"] = sensitivity;
+      requestObject["fiscalYear"] = fiscalYear;
       requestObject["dueDate"] = dueDate;
       requestObject["status"] = status;
       requestObject["internalDueDate"] = internalDueDate;

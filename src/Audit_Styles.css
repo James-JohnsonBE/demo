@@ -145,7 +145,7 @@ TABLE.tablesorter THEAD TR .header {
 
 /* input styles */
 
-button.btn {
+.btn {
   color: white;
   cursor: pointer;
   font-size: 1rem;
@@ -157,7 +157,7 @@ button.btn {
   margin-left: 0;
 }
 
-button.btn[disabled] {
+.btn[disabled] {
   cursor: not-allowed;
   color: white;
 }
@@ -165,7 +165,7 @@ button.btn[disabled] {
 .btn.btn-link {
   color: #0072c6;
   border: none;
-  font-weight: normal;
+  font-weight: inherit;
   background-color: inherit;
   padding: 0;
   min-width: 0;
@@ -173,7 +173,7 @@ button.btn[disabled] {
   font-size: inherit;
 }
 
-button.btn.btn-link:hover {
+.btn.btn-link:hover {
   text-decoration: underline;
 }
 
@@ -228,15 +228,48 @@ button.btn.btn-link:hover {
   border-radius: 4px;
   padding: 4px;
   font-size: 1rem;
+  box-sizing: border-box;
 }
 
-/* Utilities */
+/* 
+* UTILITIES 
+*/
+
 .pointer {
   cursor: pointer;
 }
 
+/* Colors */
 .white {
   color: white;
+}
+
+.primary {
+  color: var(--primary-color) !important;
+}
+
+.primary-muted {
+  color: var(--primary-muted-color) !important;
+}
+
+.secondary {
+  color: var(--secondary-color) !important;
+}
+
+.success {
+  color: var(--success-color) !important;
+}
+
+.warn {
+  color: var(--warn-color) !important;
+}
+
+.danger {
+  color: var(--danger-color) !important;
+}
+
+.text-danger {
+  color: var(--primary-color) !important;
 }
 
 .bg-dark {
@@ -293,6 +326,10 @@ button.btn.btn-link:hover {
   font-weight: bold;
 }
 
+.uppercase {
+  text-transform: uppercase;
+}
+
 .h-1 {
   height: 1rem;
 }
@@ -305,40 +342,34 @@ button.btn.btn-link:hover {
   width: 100%;
 }
 
-.text-success {
-  color: var(--success-color);
-}
-
-.text-danger {
-  color: var(--primary-color);
-}
-
-.text-link {
-  cursor: pointer;
-  color: #0072c6;
-  background-color: inherit;
-  padding: 0;
-  min-width: 0;
-  vertical-align: inherit;
-  font-size: inherit;
-}
-
-.text-link:hover {
-  text-decoration: underline;
+.commentChain {
+  margin-top: 0.5rem;
 }
 
 .commentChain .comment {
-  padding-bottom: 1em;
+  margin-bottom: 1rem;
 }
 
 .commentChain .comment .text {
-  font-size: 12px;
-  color: black;
+  font-size: 1rem;
+  color: var(--primary-muted-color);
   padding-bottom: 0.4em;
+}
+
+.commentChain .comment .info {
+  font-size: 0.75rem;
+  font-style: italic;
 }
 
 .commentChain .comment .remove {
   cursor: pointer;
+}
+
+.commentChain .new-comment {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-end;
 }
 
 .active-viewer {

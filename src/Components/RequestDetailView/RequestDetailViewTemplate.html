@@ -1,5 +1,5 @@
 <button type="button" class="btn btn-link" data-bind="click: refreshRequest">
-  <i class="fa-solid fa-arrows-rotate">Refresh Request</i>
+  <i title="Refresh Request" class="fa-solid fa-arrows-rotate"></i>
 </button>
 <div class="request-detail-view" data-bind="">
   <div>
@@ -11,395 +11,399 @@
       <fieldset style="border-color: GreenYellow">
         <legend style="font-weight: bold; font-size: 12pt">Action</legend>
         <span class="fa-solid fa-lock"></span
-        ><a
+        ><button
+          type="button"
+          class="btn btn-link"
           id="btnCloseRequest"
-          href="javascript:void(0)"
           title="Close this Request"
           data-bind="click: $root.ClickCloseRequest"
-          >Close this Request</a
         >
+          Close this Request
+        </button>
       </fieldset>
     </div>
 
-    <div id="divRequestInfo" data-bind="with: currentRequest">
-      <fieldset>
-        <legend>Request Information</legend>
-        <!-- ko if: typeof(activeViewers) != 'undefined' -->
-        <div
-          id="divRequestActiveViewers"
-          data-bind="visible: activeViewers.viewers().length, with: activeViewers"
-        >
-          <fieldset>
-            <legend>
-              <span class="fa-solid fa-triangle-exclamation"></span
-              ><span data-bind="text: viewers().length"></span> Active Viewers
-            </legend>
-            <ul data-bind="foreach: viewers">
-              <li>
-                <div class="active-viewer">
-                  <div
-                    data-bind="text: viewer + ' @ ' + timestamp.toLocaleString()"
-                  ></div>
-                  <div
-                    style="cursor: pointer"
-                    data-bind="click: $parent.onRemove"
-                    class="fa-solid fa-xmark"
-                  ></div>
-                </div>
-              </li>
-            </ul>
-          </fieldset>
-        </div>
-        <!-- /ko -->
-        <table id="tblRequestInfo" class="tablesorter">
-          <tbody>
-            <tr>
-              <td>Request #</td>
-              <td>
-                <span id="requestInfoNum" data-bind="text: number"></span>
-              </td>
-            </tr>
-            <tr>
-              <td>Subject</td>
-              <td>
-                <span id="requestInfoSub" data-bind="text: subject"></span>
-              </td>
-            </tr>
-            <tr>
-              <td>Sensitivity</td>
-              <td>
-                <span
-                  id="requestInfoSensitivity"
-                  data-bind="text: sensitivity"
-                ></span>
-              </td>
-            </tr>
-            <tr>
-              <td>Internal Due Date</td>
-              <td>
-                <span
-                  id="requestInfoInternalDueDate"
-                  data-bind="text: internalDueDate"
-                ></span>
-              </td>
-            </tr>
-            <tr>
-              <td>Due Date</td>
-              <td>
-                <span id="requestInfoDueDate" data-bind="text: dueDate"></span>
-              </td>
-            </tr>
-            <tr>
-              <td>Status</td>
-              <td>
-                <span
-                  id="requestInfoStatus"
-                  data-bind="text: status, style: { color:  status == 'Closed' ? 'red' : 'green' }"
-                ></span>
-                <span
-                  data-bind="visible: status == 'Closed', style: { color: 'red'}"
-                  >on
-                  <span
-                    data-bind="text: closedDate, style: { color: 'red'}"
-                  ></span>
-                </span>
-              </td>
-            </tr>
-            <tr>
-              <td>Sample?</td>
-              <td>
-                <span id="requestInfoSample">
-                  <span data-bind="if: sample"
-                    ><span class="fa-solid fa-check"></span> Yes</span
-                  >
-                  <span data-bind="if: !sample"
-                    ><span class="fa-solid fa-xmark"></span> No</span
-                  >
-                </span>
-              </td>
-            </tr>
-            <tr>
-              <td>Receipt Date</td>
-              <td>
-                <span
-                  id="requestInfoReceiptDate"
-                  data-bind="text: receiptDate"
-                ></span>
-              </td>
-            </tr>
-            <tr>
-              <td>Memo Date</td>
-              <td>
-                <span
-                  id="requestInfoMemoDate"
-                  data-bind="text: memoDate"
-                ></span>
-              </td>
-            </tr>
-            <tr>
-              <td>Related Audit</td>
-              <td>
-                <span
-                  id="requestInfoRelatedAudit"
-                  data-bind="text: relatedAudit"
-                ></span>
-              </td>
-            </tr>
-            <tr>
-              <td>Action Items</td>
-              <td>
-                <span
-                  id="requestInfoActionItems"
-                  data-bind="html: actionItems"
-                ></span>
-              </td>
-            </tr>
-            <tr>
-              <td>Comments</td>
-              <td>
-                <span
-                  id="requestInfoComments"
-                  data-bind="html: comments"
-                ></span>
-              </td>
-            </tr>
-            <tr>
-              <td>Internal Status Comments</td>
-              <td>
-                <!-- ko if: typeof(internalStatus) != 'undefined' -->
-                <div class="commentChain" data-bind="with: internalStatus">
-                  <!-- ko if: showHistoryBool -->
-                  <!-- ko foreach: comments -->
-                  <div class="comment">
-                    <div class="text" data-bind="text: text"></div>
+    <div
+      id="divRequestInfo"
+      class="audit-form bg-dark"
+      data-bind="with: currentRequest"
+    >
+      <div class="form-title">
+        <h3 class="white">
+          AUDIT REQUEST DETAILS
+          <span class="text-primary"
+            >FY-<span data-bind="text: fiscalYear"></span
+          ></span>
+        </h3>
+      </div>
+      <!-- ko if: typeof(activeViewers) != 'undefined' -->
+      <div
+        id="divRequestActiveViewers"
+        data-bind="visible: activeViewers.viewers().length, with: activeViewers"
+      >
+        <fieldset>
+          <legend>
+            <span class="fa-solid fa-triangle-exclamation"></span
+            ><span data-bind="text: viewers().length"></span> Active Viewers
+          </legend>
+          <ul data-bind="foreach: viewers">
+            <li>
+              <div class="active-viewer">
+                <div
+                  data-bind="text: viewer + ' @ ' + timestamp.toLocaleString()"
+                ></div>
+                <div
+                  style="cursor: pointer"
+                  data-bind="click: $parent.onRemove"
+                  class="fa-solid fa-xmark"
+                ></div>
+              </div>
+            </li>
+          </ul>
+        </fieldset>
+      </div>
+      <!-- /ko -->
+      <div class="form-row uppercase">
+        <dl class="">
+          <dt>Request #</dt>
+          <dd data-bind="text: number"></dd>
+          <dt>Subject</dt>
+          <dd data-bind="text: subject"></dd>
+          <dt>Sensitivity</dt>
+          <dd data-bind="text: sensitivity"></dd>
+          <dt>Internal Due Date</dt>
+          <dd data-bind="text: internalDueDate"></dd>
+          <dt>Due Date</dt>
+          <dd data-bind="text: dueDate"></dd>
+        </dl>
+        <dl>
+          <dt>Status</dt>
+          <dd>
+            <span
+              id="requestInfoStatus"
+              class="uppercase"
+              data-bind="text: status, class: status == 'Closed' ? 'danger' : 'success' "
+            ></span>
+            <span class="danger" data-bind="visible: status == 'Closed'"
+              >on
+              <span data-bind="text: closedDate"></span>
+            </span>
+          </dd>
+          <dt>Sample?</dt>
+          <dd>
+            <span id="requestInfoSample">
+              <span data-bind="if: sample"
+                ><span class="fa-solid fa-check"></span> Yes</span
+              >
+              <span data-bind="if: !sample"
+                ><span class="fa-solid fa-xmark"></span> No</span
+              >
+            </span>
+          </dd>
+          <dt>Receipt Date</dt>
+          <dd data-bind="text: receiptDate"></dd>
+          <dt>Memo Date</dt>
+          <dd data-bind="text: memoDate"></dd>
+          <dt>Related Audit</dt>
+          <dd data-bind="text: relatedAudit"></dd>
+        </dl>
+      </div>
+      <div class="form-row">
+        <dl>
+          <dt>Action Items</dt>
+          <dd data-bind="html: actionItems"></dd>
+          <dt>Comments</dt>
+          <dd data-bind="html: comments"></dd>
+        </dl>
+      </div>
+
+      <div class="form-row">
+        <div class="emphasized-section">
+          <div class="fw-semibold">Internal Status Comments</div>
+          <!-- ko if: typeof(internalStatus) != 'undefined' -->
+          <div class="commentChain" data-bind="with: internalStatus">
+            <div data-bind="if: comments().length">
+              <!-- ko if: showHistoryBool -->
+              <!-- ko foreach: comments -->
+              <div class="comment card">
+                <div class="card-body">
+                  <div class="text" data-bind="text: text"></div>
+                  <div>
                     <span
+                      class="info"
                       data-bind="text: author + ' @ ' + timestamp.toLocaleString()"
                     ></span>
-                    <span class="remove" data-bind="click: $parent.onRemove"
-                      >x</span
+                    <button
+                      type="button"
+                      title="Delete Comment"
+                      class="remove btn btn-link danger"
+                      data-bind="click: $parent.onRemove"
                     >
-                  </div>
-                  <!-- /ko -->
-                  <!-- /ko -->
-                  <!-- ko ifnot: showHistoryBool -->
-                  <div
-                    class="comment"
-                    data-bind="with: comments()[comments().length - 1]"
-                  >
-                    <div class="text" data-bind="text: text"></div>
-                    <span
-                      data-bind="text: author + ' @ ' + timestamp.toLocaleString()"
-                    ></span>
-                    <span class="remove" data-bind="click: $parent.onRemove"
-                      >x</span
-                    >
-                  </div>
-                  <!-- /ko -->
-                  <a
-                    title="Show hidden comments"
-                    href="javascript:void(0)"
-                    data-bind="click: toggleShowHistory"
-                  >
-                    <span class="ui-icon ui-icon-comment"></span>
-                    Toggle Comment History (<span
-                      data-bind="text: comments().length"
-                    ></span>
-                    Total)
-                  </a>
-                  <div class="newComment">
-                    <textarea
-                      cols="50"
-                      data-bind="value: newCommentText"
-                    ></textarea>
-                    <button type="button" data-bind="click: onSubmit">
-                      Submit
+                      <i class="fa-solid fa-trash"></i>
                     </button>
                   </div>
                 </div>
-                <!-- /ko -->
-              </td>
-            </tr>
-            <tr>
-              <td>Action Office(s)</td>
-              <td>
-                <span id="requestInfoActionOffice">
-                  <div
-                    style="cursor: pointer; white-space: nowrap"
-                    title="Click to view"
-                  >
-                    <span
-                      class="actionOfficeContainerRequestInfo"
-                      data-bind="toggleClick: $data, toggleClass: 'collapsed', classContainer: '.sr1-request-actionOfficeContainerRequestInfo-item'"
-                    >
-                      <span class="fa-solid fa-magnifying-glass"></span
-                      ><a href="javascript:void(0)">View Action Offices</a>
-                      <!-- ko foreach: actionOffices -->
-                      <div
-                        class="sr1-request-actionOfficeContainerRequestInfo-item collapsed"
-                        data-bind="text: ao"
-                      ></div>
-                      <!-- /ko -->
-                    </span>
-                  </div>
-                </span>
-              </td>
-            </tr>
-            <tr>
-              <td>Email Action Office(s)</td>
-              <td>
-                <span id="requestInfoActionOffice">
-                  <div
-                    style="cursor: pointer; white-space: nowrap"
-                    title="Click to view"
-                  >
-                    <span
-                      class="actionOfficeContainerRequestInfo"
-                      data-bind="toggleClick: $data, toggleClass: 'collapsed', classContainer: '.sr1-request-actionOfficeContainerRequestInfo-item'"
-                    >
-                      <span class="fa-solid fa-magnifying-glass"></span
-                      ><a href="javascript:void(0)"
-                        >View Email Action Offices</a
-                      >
-                      <!-- ko foreach: emailActionOffices -->
-                      <div
-                        class="sr1-request-actionOfficeContainerRequestInfo-item collapsed"
-                        data-bind="text: ao"
-                      ></div>
-                      <!-- /ko -->
-                    </span>
-                  </div>
-                </span>
-              </td>
-            </tr>
-            <tr>
-              <td>Email Sent?</td>
-              <td>
-                <span data-bind="if: emailSent"
-                  ><span class="fa-solid fa-check"></span> Yes</span
-                >
-                <span data-bind="if: !emailSent"
-                  ><span class="fa-solid fa-xmark"></span> No</span
-                >
-
-                <fieldset
-                  style="
-                    width: 225px;
-                    margin-top: 5px;
-                    margin-left: 10px;
-                    padding-left: 10px;
-                  "
-                >
-                  <legend>Email Actions</legend>
-                  <div
-                    id="divSendEmailAction"
-                    style="padding-top: 5px"
-                    data-bind="visible: status == 'Open' || status == 'ReOpened'"
-                  >
-                    <span class="ui-icon ui-icon-mail-closed"></span>
-                    <a
-                      data-bind="visible: !emailSent, click: $root.ClickSendEmail"
-                      title="Send Email to Action Offices"
-                      href="javascript:void(0)"
-                      >Send Email to Action Offices</a
-                    >
-                    <a
-                      data-bind="visible: emailSent, click: $root.ClickSendEmail"
-                      title="ReSend Email to Action Offices"
-                      href="javascript:void(0)"
-                      >Re-Send Email to Action Offices</a
-                    >
-                  </div>
-                  <div id="divEmailHistory" style="padding-top: 5px">
-                    <a
-                      title="View Email History"
-                      href="javascript:void(0)"
-                      data-bind="click: $root.ClickViewEmailHistoryFolder"
-                      ><span class="fa-solid fa-magnifying-glass"></span>View
-                      Email History</a
-                    >
-                  </div>
-                  <div id="divSyncEmailActionOffices" style="padding-top: 5px">
-                    <a
-                      title="Synchronize Email Action Offices"
-                      href="javascript:void(0)"
-                      data-bind="click: $root.ClickSyncEmailActionOffices"
-                      ><span class="ui-icon ui-icon-transferthick-e-w"></span
-                      >Synchronize Email Action Offices</a
-                    >
-                  </div>
-                </fieldset>
-              </td>
-            </tr>
-            <tr>
-              <td>Special Permissions?</td>
-              <td>
-                <span data-bind="if: specialPerms == true"
-                  ><span class="fa-solid fa-check"></span> Yes</span
-                >
-                <span data-bind="if: specialPerms == false"
-                  ><span class="fa-solid fa-xmark"></span> No</span
-                >
-                <fieldset
-                  style="
-                    width: 200px;
-                    margin-top: 5px;
-                    margin-left: 10px;
-                    padding-left: 10px;
-                  "
-                >
-                  <legend>Special Permission Actions</legend>
-                  <div
-                    id="divResponsesGrantSpecialPermissions"
-                    style="padding-top: 5px"
-                  >
-                    <a
-                      title="Grant Special Permissions"
-                      href="javascript:void(0)"
-                      data-bind="click: $root.ClickGrantSpecialPermissions"
-                      ><span class="ui-icon ui-icon-unlocked"></span>Grant
-                      Special Permissions</a
-                    >
-                  </div>
-                  <div
-                    id="divResponsesRemoveSpecialPermissions"
-                    style="padding-top: 5px"
-                  >
-                    <a
-                      title="Remove Special Permissions"
-                      href="javascript:void(0)"
-                      data-bind="click: $root.ClickRemoveSpecialPermissions"
-                      ><span class="fa-solid fa-lock"></span>Remove Special
-                      Permissions</a
-                    >
-                  </div>
-                </fieldset>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div id="divRequestInfoActions" style="padding-top: 5px">
-          <fieldset style="width: 200px; margin-left: 10px; padding-left: 10px">
-            <legend>Request Actions</legend>
-            <div>
-              <a
-                title="View Request"
-                href="javascript:void(0)"
-                data-bind="click: $root.ClickViewRequest"
-                ><span class="fa-solid fa-magnifying-glass"></span>View
-                Request</a
+              </div>
+              <!-- /ko -->
+              <!-- /ko -->
+              <!-- ko ifnot: showHistoryBool -->
+              <div
+                class="comment card"
+                data-bind="with: comments()[comments().length - 1]"
               >
+                <div class="card-body">
+                  <div class="text" data-bind="text: text"></div>
+                  <div>
+                    <span
+                      class="info"
+                      data-bind="text: author + ' @ ' + timestamp.toLocaleString()"
+                    ></span>
+                    <button
+                      type="button"
+                      title="Delete Comment"
+                      class="remove btn btn-link danger"
+                      data-bind="click: $parent.onRemove"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <!-- /ko -->
             </div>
-            <div>
-              <a
-                title="Edit Request"
-                href="javascript:void(0)"
-                data-bind="click: $root.ClickEditRequest"
-                ><span class="fa-solid fa-pencil"></span>Edit Request</a
+            <button
+              type="button"
+              class="btn btn-link"
+              title="Show hidden comments"
+              data-bind="click: toggleShowHistory"
+            >
+              <span class="fa-solid fa-comments"></span>
+              Toggle Comment History (<span
+                data-bind="text: comments().length"
+              ></span>
+              Total)
+            </button>
+            <div class="new-comment">
+              <textarea
+                class="form-control w-full"
+                cols="50"
+                data-bind="value: newCommentText"
+                placeholder="Leave a new comment..."
+              ></textarea>
+              <button
+                type="button"
+                class="btn btn-primary"
+                data-bind="click: onSubmit"
               >
+                Submit
+              </button>
             </div>
-          </fieldset>
+          </div>
+          <!-- /ko -->
         </div>
-      </fieldset>
+      </div>
+      <div class="form-row">
+        <dl>
+          <dt>Action Office(s)</dt>
+          <dd>
+            <span id="requestInfoActionOffice">
+              <div
+                style="cursor: pointer; white-space: nowrap"
+                title="Click to view"
+              >
+                <span
+                  class="actionOfficeContainerRequestInfo"
+                  data-bind="toggleClick: $data, toggleClass: 'collapsed', classContainer: '.sr1-request-actionOfficeContainerRequestInfo-item'"
+                >
+                  <span class="fa-solid fa-magnifying-glass"></span
+                  ><button type="button" class="btn btn-link">
+                    View Action Offices
+                  </button>
+                  <!-- ko foreach: actionOffices -->
+                  <div
+                    class="sr1-request-actionOfficeContainerRequestInfo-item collapsed"
+                    data-bind="text: ao"
+                  ></div>
+                  <!-- /ko -->
+                </span>
+              </div>
+            </span>
+          </dd>
+        </dl>
+        <dl>
+          <dt>Email Action Office(s)</dt>
+          <dd>
+            <span id="requestInfoActionOffice">
+              <div
+                style="cursor: pointer; white-space: nowrap"
+                title="Click to view"
+              >
+                <span
+                  class="actionOfficeContainerRequestInfo"
+                  data-bind="toggleClick: $data, toggleClass: 'collapsed', classContainer: '.sr1-request-actionOfficeContainerRequestInfo-item'"
+                >
+                  <span class="fa-solid fa-magnifying-glass"></span
+                  ><button type="button" class="btn btn-link">
+                    View Email Action Offices
+                  </button>
+                  <!-- ko foreach: emailActionOffices -->
+                  <div
+                    class="sr1-request-actionOfficeContainerRequestInfo-item collapsed"
+                    data-bind="text: ao"
+                  ></div>
+                  <!-- /ko -->
+                </span>
+              </div>
+            </span>
+          </dd>
+        </dl>
+      </div>
+      <div class="form-row">
+        <dl>
+          <dt>Email Sent?</dt>
+          <dd>
+            <span data-bind="if: emailSent"
+              ><span class="fa-solid fa-check"></span> Yes</span
+            >
+            <span data-bind="if: !emailSent"
+              ><span class="fa-solid fa-xmark"></span> No</span
+            >
+          </dd>
+        </dl>
+        <fieldset
+          class="emphasized-section"
+          style="
+            width: 225px;
+            margin-top: 5px;
+            margin-left: 10px;
+            padding-left: 10px;
+          "
+        >
+          <legend>Email Actions</legend>
+          <div
+            id="divSendEmailAction"
+            style="padding-top: 5px"
+            data-bind="visible: status == 'Open' || status == 'ReOpened'"
+          >
+            <span class="fa-solid fa-paper-plane"></span>
+            <button
+              type="button"
+              class="btn btn-link"
+              data-bind="visible: !emailSent, click: $root.ClickSendEmail"
+              title="Send Email to Action Offices"
+            >
+              Send Email to Action Offices
+            </button>
+            <button
+              type="button"
+              class="btn btn-link"
+              data-bind="visible: emailSent, click: $root.ClickSendEmail"
+              title="ReSend Email to Action Offices"
+            >
+              Re-Send Email to Action Offices
+            </button>
+          </div>
+          <div id="divEmailHistory" style="padding-top: 5px">
+            <button
+              type="button"
+              class="btn btn-link"
+              title="View Email History"
+              data-bind="click: $root.ClickViewEmailHistoryFolder"
+            >
+              <span class="fa-solid fa-magnifying-glass"></span> View Email
+              History
+            </button>
+          </div>
+          <div id="divSyncEmailActionOffices" style="padding-top: 5px">
+            <button
+              type="button"
+              class="btn btn-link"
+              title="Synchronize Email Action Offices"
+              data-bind="click: $root.ClickSyncEmailActionOffices"
+            >
+              <span class="fa-solid fa-right-left"></span> Synchronize Email
+              Action Offices
+            </button>
+          </div>
+        </fieldset>
+      </div>
+      <div class="form-row">
+        <dl>
+          <dt>Special Permissions?</dt>
+          <dd>
+            <span data-bind="if: specialPerms == true"
+              ><span class="fa-solid fa-check"></span> Yes</span
+            >
+            <span data-bind="if: specialPerms == false"
+              ><span class="fa-solid fa-xmark"></span> No</span
+            >
+          </dd>
+        </dl>
+        <fieldset
+          class="emphasized-section"
+          style="
+            width: 200px;
+            margin-top: 5px;
+            margin-left: 10px;
+            padding-left: 10px;
+          "
+        >
+          <legend>Special Permission Actions</legend>
+          <div
+            id="divResponsesGrantSpecialPermissions"
+            style="padding-top: 5px"
+          >
+            <button
+              type="button"
+              class="btn btn-link"
+              title="Grant Special Permissions"
+              data-bind="click: $root.ClickGrantSpecialPermissions"
+            >
+              <span class="fa-solid fa-unlock"></span> Grant Special Permissions
+            </button>
+          </div>
+          <div
+            id="divResponsesRemoveSpecialPermissions"
+            style="padding-top: 5px"
+          >
+            <button
+              type="button"
+              class="btn btn-link"
+              title="Remove Special Permissions"
+              data-bind="click: $root.ClickRemoveSpecialPermissions"
+            >
+              <span class="fa-solid fa-lock"></span> Remove Special Permissions
+            </button>
+          </div>
+        </fieldset>
+      </div>
+      <tr></tr>
+
+      <div id="divRequestInfoActions" class="form-row">
+        <fieldset class="form-actions emphasized-section">
+          <legend>Request Actions</legend>
+          <div>
+            <button
+              type="button"
+              class="btn btn-primary"
+              title="View Request"
+              data-bind="click: $root.ClickViewRequest"
+            >
+              <span class="fa-solid fa-magnifying-glass"></span> View Request
+            </button>
+          </div>
+          <div>
+            <button
+              type="button"
+              class="btn btn-success"
+              title="Edit Request"
+              data-bind="click: $root.ClickEditRequest"
+            >
+              <span class="fa-solid fa-pencil"></span> Edit Request
+            </button>
+          </div>
+        </fieldset>
+      </div>
     </div>
   </div>
 
@@ -434,14 +438,14 @@
       </div>
       <div class="quick-links secondary">
         <label data-bind="visible: !coverSheetFiles().length">
-          <div
-            class="text-link"
+          <button
+            class="btn btn-link"
             title="Upload Cover Sheet or Supplemental Document"
             data-bind=""
           >
-            <span class="ui-icon ui-icon-circle-arrow-n"></span>Upload Cover
-            Sheet or Supplemental Document
-          </div>
+            <span class="fa-solid fa-upload"></span> Upload Cover Sheet or
+            Supplemental Document
+          </button>
           <input
             style="display: none"
             type="file"
@@ -485,7 +489,9 @@
             >
               <span class="fa-solid fa-magnifying-glass"></span
               ><span class="actionOfficeContainerRequestInfo"
-                ><a href="javascript:void(0)">View Action Offices</a></span
+                ><button type="button" class="btn btn-link">
+                  View Action Offices
+                </button></span
               >
               <!-- ko foreach: actionOffices -->
               <div
@@ -497,20 +503,25 @@
             </div>
           </td>
           <td class="coversheet-action">
-            <a
+            <button
+              type="button"
+              class="btn btn-link"
               title="View Coversheet"
-              href="javascript:void(0)"
               data-bind="click: $root.ClickViewCoversheet"
-              ><span class="fa-solid fa-magnifying-glass"
-                >View Coversheet</span
-              ></a
             >
-            <a
+              <span
+                title="View Coversheet"
+                class="fa-solid fa-magnifying-glass"
+              ></span>
+            </button>
+            <button
+              type="button"
+              class="btn btn-link"
               title="Edit Coversheet"
-              href="javascript:void(0)"
               data-bind="visible: requestStatus != 'Closed' && requestStatus != 'Canceled', click: $root.ClickEditCoversheet"
-              ><span class="fa-solid fa-pencil">Edit Coversheet</span></a
             >
+              <span title="Edit Coversheet" class="fa-solid fa-pencil"></span>
+            </button>
           </td>
         </tr>
       </tbody>
@@ -536,26 +547,30 @@
       <div id="divResponsesActions" class="quick-links secondary">
         <!-- ko if:  showResponseActions-->
         <div>
-          <a
+          <button
+          type="button"
+          class="btn btn-link"
             title="Add Response"
-            href="javascript:void(0)"
             data-bind="click: $root.ClickAddResponse"
-            ><span class="ui-icon ui-icon-circle-plus"></span>Add Response</a
+            ><span class="fa-solid fa-plus"></span>Add Response</button
           >
         </div>
         <div>
-          <a
+          <button
+            type="button"
+            class="btn btn-link"
             title="Bulk Add Responses"
-            href="javascript:void(0)"
+
             data-bind="click: $root.ClickBulkAddResponse"
-            ><span class="ui-icon ui-icon-circle-plus"></span>Bulk Add
-            Responses</a
+            ><span class="fa-solid fa-circle-plus"></span>Bulk Add Responses</a
           >
         </div>
         <div data-bind="visible: $root.arrCurrentRequestResponses().length > 0">
-          <a
+          <button
+            type="button"
+            class="btn btn-link"
             title="Bulk Edit Responses"
-            href="javascript:void(0)"
+
             data-bind="click: $root.ClickBulkEditResponse"
             ><span class="fa-solid fa-pencil"></span>Bulk Edit Responses</a
           >
@@ -565,10 +580,12 @@
           id="divResponsesShowHideFolderPerms"
           data-bind="visible: arrCurrentRequestResponses().length > 0"
         >
-          <a
+          <button
+            type="button"
+            class="btn btn-link"
             title="Show/Hide Response Folder Permissions"
             style="color: #0072bc !important"
-            href="javascript:void(0)"
+
             data-bind="toggleClick: $data, toggleClass: 'response-permissions', containerType: 'any'"
             ><i class="fa-solid fa-gear"></i>Show/Hide Response Folder
             Permissions</a
@@ -640,9 +657,11 @@
               data-bind="visible: resStatus == '7-Closed'"
             >
               <i class="fa-solid fa-gear"></i
-              ><a
+              ><button
+            type="button"
+            class="btn btn-link"
                 title="Click to Open Response"
-                href="javascript:void(0)"
+
                 data-bind="click: $root.ClickReOpenResponse"
                 >Open Response?</a
               >
@@ -692,10 +711,10 @@
               type="button"
               class="btn btn-link"
               title="View Response"
-              href="javascript:void(0)"
+
               data-bind="click: $root.ClickViewResponse"
             >
-              <i class="fa-solid fa-magnifying-glass">View Response</i>
+              <i class="fa-solid fa-magnifying-glass"></i>
             </button>
             <button
               type="button"
@@ -703,15 +722,15 @@
               title="Edit Response"
               data-bind="visible: resStatus != '7-Closed' && $parent.status != 'Closed' && $parent.status != 'Canceled', click: $root.ClickEditResponse"
             >
-              <i class="fa-solid fa-pen">Edit Response</i>
+              <i class="fa-solid fa-pen"></i>
             </button>
             <button
               type="button"
               class="btn btn-link"
-              title="Reviewing Response"
+              title="Flag Response as Under Review"
               data-bind="visible: resStatus != '7-Closed' && $parent.status != 'Closed' && $parent.status != 'Canceled', click: $root.ClickReviewingResponse"
             >
-              <i class="fa-solid fa-flag"> Reviewing Response </i>
+              <i class="fa-solid fa-flag"></i>
             </button>
           </td>
           <td class="response-responseDocs">
@@ -721,13 +740,13 @@
               title="View Response Documents"
               data-bind="visible: resStatus != '7-Closed' && $parent.status != 'Closed' && $parent.status != 'Canceled', click: $root.ClickViewResponseDocFolder"
             >
-              <i class="fa-solid fa-folder-open">View Folder</i>
+              <i class="fa-solid fa-folder-open"></i>
             </button>
             <label
-              class="text-link"
+              class="btn btn-link"
               title="Upload Response Documents"
               data-bind="visible: $parent.status != 'Closed' && $parent.status != 'Canceled' && ( resStatus == '1-Open' || resStatus == '2-Submitted' || resStatus == '3-Returned to Action Office' ||resStatus == '5-Returned to GFS' )"
-              ><i class="fa-solid fa-file-arrow-up">Upload Docs</i>
+              ><i class="fa-solid fa-file-arrow-up"></i>
               <input
                 type="file"
                 multiple
@@ -737,10 +756,13 @@
             </label>
             <label
               title="Upload Coversheets for Action Office"
-              class="text-link"
+              class="btn btn-link"
               data-bind="visible: $parent.status != 'Closed' && $parent.status != 'Canceled' && ( resStatus == '1-Open' || resStatus == '2-Submitted' || resStatus == '3-Returned to Action Office' ||resStatus == '5-Returned to GFS' )"
             >
-              <i class="fa-solid fa-file-invoice">Upload Coversheets</i>
+              <i
+                title="Upload Coversheets"
+                class="fa-solid fa-file-invoice"
+              ></i>
               <input
                 type="file"
                 multiple
@@ -782,37 +804,48 @@
       data-bind="visible: cntResponseDocs() > 0"
     >
       <div>
-        <a
+        <button
+            type="button"
+            class="btn btn-link"
           class="btnApprovedCheckedResponseDocs"
-          href="javascript:void(0)"
+
           title="Approve Checked Response Documents"
           data-bind="click: ApproveCheckedResponseDocs, visible: currentRequest() && (currentRequest().status == 'Open' || currentRequest().status == 'ReOpened')"
         >
-          <span class="ui-icon ui-icon-circle-check"></span>
+          <span class="fa-solid fa-circle-check"></span>
           Approve Checked Response Documents
-        </a>
+        </button>
       </div>
       <div>
-        <a
+        <button
+            type="button"
+            class="btn btn-link"
           class="btnCheckResponseDocs"
-          href="javascript:void(0)"
+
           title="Check/Un-Check Response Documents"
           data-bind="click: CheckResponseDocs, visible: currentRequest() && (currentRequest().status == 'Open' || currentRequest().status == 'ReOpened')"
         >
-          <span class="ui-icon ui-icon-check"></span>
+          <span class="fa-solid fa-check-double"></span>
           Check Response Documents
-        </a>
+        </button>
       </div>
       <div>
-        <a
+        <button
+            type="button"
+            class="btn btn-link"
           class="btnToggleExpand"
-          href="javascript:void(0)"
+
           title="Click to Expand/Collapse"
           data-bind="toggles: showCollapsed"
         >
-          <span class="ui-icon ui-icon-gear"></span>
-          Expand/Collapse Documents
-        </a>
+          <span
+            class="fa-solid"
+            data-bind="class: showCollapsed() ? 'fa-expand' : 'fa-compress'"
+          ></span>
+          <span
+            data-bind="text: showCollapsed() ? 'Expand Documents' : 'Collapse Documents'"
+          ></span>
+        </button>
       </div>
     </div>
 
@@ -832,9 +865,11 @@
           <th class="sorter-false" nowrap="nowrap">
             Status
             <span class="linkHelpResponseDocs"
-              ><a
+              ><button
+            type="button"
+            class="btn btn-link"
                 title="View Help"
-                href="javascript:void(0)"
+
                 style="color: #0072bc"
                 ><i class="fa-solid fa-question"></i></a
             ></span>
@@ -870,15 +905,17 @@
         >
           <td colspan="11">
             <span class="divBulkApprove">
-              <a
+              <button
+            type="button"
+            class="btn btn-link"
                 class="btnApproveAll"
-                href="javascript:void(0)"
+
                 title="Click to Approve Remaining Documents"
                 data-bind="click: $parent.ClickBulkApprove"
               >
-                <span class="ui-icon ui-icon-circle-check"></span>
+                <span class="fa-solid fa-circle-check"></span>
                 Approve 'Submitted' Documents for this Response below
-              </a>
+              </button>
             </span>
           </td>
         </tr>
@@ -912,9 +949,11 @@
             <span
               style="float: right"
               data-bind="visible: ( documentStatus == 'Open' || documentStatus == 'Marked for Deletion') && ($parent.requestStatus == 'Open' || $parent.requestStatus == 'ReOpened') "
-              ><a
+              ><button
+            type="button"
+            class="btn btn-link"
                 title="Delete Response Document"
-                href="javascript:void(0)"
+
                 data-bind="click: $root.ClickDeleteResponseDoc"
                 ><i class="fa-solid fa-trash"></i></a
             ></span>
@@ -928,8 +967,10 @@
                 style="background-color: transparent"
                 src="/_layouts/images/checkin.gif"
                 title="Check In Document"
-              /><a
-                href="javascript:void(0)"
+              /><button
+            type="button"
+            class="btn btn-link"
+
                 title="Check In Document"
                 data-bind="click: $root.ClickCheckInResponseDocument"
                 >Check In Document</a
@@ -940,9 +981,11 @@
             <span data-bind="text: documentStatus"></span>
             <span
               data-bind="visible: documentStatus == 'Rejected' && ( $parent.requestStatus == 'Open' || $parent.requestStatus == 'ReOpened' ) "
-              ><a
+              ><button
+            type="button"
+            class="btn btn-link"
                 title="Clear Rejected Status"
-                href="javascript:void(0)"
+
                 data-bind="click: $root.ClickResendRejectedResponseDocToQA"
                 ><i class="fa-solid fa-circle-check"></i></a
             ></span>
@@ -960,24 +1003,28 @@
             <span
               data-bind="visible: $parent.responseStatus == '2-Submitted' && documentStatus == 'Submitted'"
             >
-              <a
+              <button
+            type="button"
+            class="btn btn-link"
                 title="Approve this Document"
-                href="javascript:void(0)"
+
                 data-bind="click: $parents[1].ClickApproveResponseDoc"
               >
-                <span class="ui-icon ui-icon-circle-check"
+                <span class="fa-solid fa-circle-check"
                   >Approve Response Doc</span
                 >
-              </a>
-              <a
+              </button>
+              <button
+            type="button"
+            class="btn btn-link"
                 title="Reject this Document"
-                href="javascript:void(0)"
+
                 data-bind="click: $parents[1].ClickRejectResponseDoc"
               >
-                <span class="ui-icon ui-icon-circle-close"
+                <span class="fa-solid fa-circle-xmark"
                   >Reject Response Doc</span
                 >
-              </a>
+              </button>
             </span>
 
             <a
@@ -985,17 +1032,21 @@
               data-bind="downloadLink: '../_layouts/download.aspx?SourceUrl=:folder/:fileName'"
               ><i class="fa-solid fa-download"></i
             ></a>
-            <a
+            <button
+            type="button"
+            class="btn btn-link"
               title="View Response Document Properties"
-              href="javascript:void(0)"
+
               data-bind="click: $root.ClickViewResponseDoc"
               ><span class="fa-solid fa-magnifying-glass"
                 >View Response Doc</span
               ></a
             >
-            <a
+            <button
+            type="button"
+            class="btn btn-link"
               title="Edit Response Document Properties"
-              href="javascript:void(0)"
+
               data-bind="visible: $parent.responseStatus != '7-Closed' && $parent.requestStatus != 'Closed' && $parent.requestStatus != 'Canceled' && ( documentStatus == 'Sent to QA' || documentStatus == 'Open' || documentStatus == 'Submitted' ), click: $root.ClickEditResponseDoc"
               ><span class="fa-solid fa-pencil">Edit Response Doc</span></a
             >
