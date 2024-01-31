@@ -32,7 +32,8 @@ ko.observableArray.fn.subscribeAdded = function (callback) {
 
 ko.bindingHandlers.searchSelect = {
   init: function (element, valueAccessor, allBindingsAccessor) {
-    const { options, selectedOptions, optionsText } = valueAccessor();
+    const { options, selectedOptions, optionsText, onSearchInput } =
+      valueAccessor();
 
     function populateOpts() {
       const optionItems = ko.unwrap(options);
@@ -63,6 +64,12 @@ ko.bindingHandlers.searchSelect = {
         element.selectedOptions.map((opt) => ko.selectExtensions.readValue(opt))
       );
     });
+
+    if (onSearchInput) {
+      ko.utils.registerEventHandler(element, "input", (e) => {
+        onSearchInput(e.originalEvent.target.searchInputElement.value);
+      });
+    }
   },
   update: function (
     element,

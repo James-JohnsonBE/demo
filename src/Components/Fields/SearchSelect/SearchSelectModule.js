@@ -12,6 +12,7 @@ export default class SearchSelectModule extends BaseFieldModule {
       });
     this.multiple = field.multiple;
     this.OptionsCaption = field.OptionsCaption ?? "Select...";
+    this.onSearchInput = field.onSearchInput;
   }
 
   GetSelectedOptions = ko.pureComputed(() => {

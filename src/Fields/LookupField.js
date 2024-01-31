@@ -24,41 +24,44 @@ export default class LookupField extends BaseField {
     isRequired = false,
     Visible,
     entitySet,
-    optionsFilter = (val) => val,
+    options = null,
+    optionsFilter = null,
     optionsText = null,
-    isSearch = false,
     multiple = false,
     lookupCol = "Title",
   }) {
     super({ Visible, displayName, isRequired });
+    this.entitySet = entitySet ?? appContext.Set(entityType);
     // Support passing in options
     // if options are not passed, assume this is a search input
-    this.entitySet = entitySet ?? appContext.Set(entityType);
-    this.isSearch = isSearch;
+    if (!options) {
+      this.isSearch = true;
+    } else {
+      this.isSearch = false;
+      this.allOpts(options);
+    }
+    this.isSearch = !options;
     this.multiple = multiple;
     this.Value = multiple ? ko.observableArray() : ko.observable();
 
     this.entityType = entityType;
     this.lookupCol = lookupCol;
     this.optionsText = optionsText ?? ((item) => item[this.lookupCol]);
-    this.optionsFilter = optionsFilter;
+    if (optionsFilter) this.optionsFilter = optionsFilter;
     this.components = this.multiple ? searchSelectComponents : components;
-
-    this.init();
   }
-
-  init = async () => {
-    this.Options = ko.pureComputed(() => {
-      const optsFilter = ko.unwrap(this.optionsFilter);
-      const allOpts = ko.unwrap(this.entitySet._store);
-      return allOpts.filter(optsFilter);
-    });
-    this.entitySet.ToList();
-  };
 
   isSearch = false;
 
-  Options;
+  allOpts = ko.observableArray();
+  optionsFilter = (val) => val;
+
+  Options = ko.pureComputed(() => {
+    const optsFilter = ko.unwrap(this.optionsFilter);
+    const allOpts = ko.unwrap(this.allOpts);
+    return allOpts.filter(optsFilter);
+  });
+
   IsLoading = ko.observable(false);
   HasLoaded = ko.observable(false);
 
@@ -177,6 +180,11 @@ export default class LookupField extends BaseField {
     const newEntity = new this.entityType();
     newEntity.ID = val.ID;
     return newEntity;
+  };
+
+  // Text input event fired by search-select web component
+  onSearchInput = (searchVal) => {
+    console.log(searchVal);
   };
 
   components = components;
