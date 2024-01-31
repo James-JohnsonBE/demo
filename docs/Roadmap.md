@@ -60,7 +60,8 @@ AuditResponseDoc
 ## General Todos
 
 [x] IA Add response doc rejection pathway.
-[ ] Prepopulate new Request with all reminders selected.
+[x] Prepopulate new Request with all reminders selected.
+[x] - And on Bulk Add Request
 [x] Fix file rename (created has conflict with drag n drop edit)
 [ ] Lookup field shouldn't trigger load of every record.
 
@@ -78,9 +79,9 @@ AuditResponseDoc
 
 ## UI Updates
 
-[ ] Request Info Coversheets tab should be Quick Links
-[ ] Request Info Responses tab should be Quick Links
-[ ] Request Info Request Detail new layout
+[x] Request Info Coversheets tab should be Quick Links
+[x] Request Info Responses tab should be Quick Links
+[x] Request Info Request Detail new layout
 
 ## Search Select Todos
 

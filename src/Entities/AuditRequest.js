@@ -46,9 +46,8 @@ export class AuditRequest extends ConstrainedEntity {
     isRequired: true,
   });
 
-  FiscalYear = new SelectField({
+  FiscalYear = new TextField({
     displayName: "Fiscal Year",
-    options: ["2024", "2025"],
     isRequired: true,
   });
 

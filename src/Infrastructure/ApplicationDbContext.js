@@ -7,6 +7,7 @@ import { AuditRequestsInternal } from "../entities/AuditRequestsInternal.js";
 import { AuditResponse } from "../entities/AuditResponse.js";
 import { AuditResponseDoc } from "../entities/AuditResponseDocs.js";
 import { AuditCoversheet } from "../entities/AuditCoversheet.js";
+import { AuditConfiguration } from "../entities/Config.js";
 
 const DEBUG = false;
 
@@ -28,6 +29,8 @@ export class ApplicationDbContext {
   AuditRequests = new EntitySet(AuditRequest);
 
   AuditRequestsInternals = new EntitySet(AuditRequestsInternal);
+
+  AuditConfigurations = new EntitySet(AuditConfiguration);
 
   virtualSets = new Map();
 

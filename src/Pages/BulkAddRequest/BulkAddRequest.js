@@ -1,6 +1,9 @@
 import { appContext } from "../../infrastructure/ApplicationDbContext.js";
 import { InitSal } from "../../infrastructure/SAL.js";
-import { AddNewRequest } from "../../services/AuditRequestService.js";
+import {
+  onAddNewRequest,
+  AddNewRequest,
+} from "../../services/AuditRequestService.js";
 
 $(document).ready(function () {
   SP.SOD.executeFunc(
@@ -69,11 +72,14 @@ class BulkAddRequestPage {
       bulkRequestItem.status("pending");
       // Map the bulk request to a an AuditRequest
       const bulkRequest = bulkRequestItem.bulkRequest;
+
       const newRequest = bulkRequest.toRequest();
+      newRequest.Reminders.Value(request.Reminders.Options());
+
       // a. Insert new Request
       try {
         await AddNewRequest(newRequest);
-        // await OnAddNewRequest()
+        await onAddNewRequest();
       } catch (e) {
         failedInserts.push([e, bulkRequest]);
         bulkRequestItem.status("failed");

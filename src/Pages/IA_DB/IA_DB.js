@@ -27,6 +27,7 @@ import {
   notifyQAApprovalPending,
   mapResponseDocs,
 } from "./IA_DB_Services.js";
+import { configurationsStore } from "../../infrastructure/Store.js";
 
 var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
@@ -46,6 +47,14 @@ async function InitReport() {
   /*********NOTE: the Contribute permission level needs to have manage permissions turned on ************/
 
   await InitSal();
+
+  const configurations = await appContext.AuditConfigurations.ToList();
+
+  if (configurations.length) {
+    configurations.map(
+      (config) => (configurationsStore[config.key] = config.value)
+    );
+  }
 
   Audit.IAReport.Report = new Audit.IAReport.NewReportPage();
   Audit.IAReport.Init();
@@ -73,7 +82,6 @@ Audit.IAReport.Init = function () {
 };
 
 Audit.IAReport.NewReportPage = function () {
-  // Keep this for legacy reasons
   _myViewModel = new ViewModel();
   ko.applyBindings(_myViewModel);
 

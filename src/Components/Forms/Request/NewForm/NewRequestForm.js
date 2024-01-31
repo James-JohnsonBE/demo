@@ -1,9 +1,13 @@
-import { AuditRequest } from "../../../../entities/AuditRequest.js";
+import {
+  AUDITREQUESTSTATES,
+  AuditRequest,
+} from "../../../../entities/AuditRequest.js";
 import { appContext } from "../../../../infrastructure/ApplicationDbContext.js";
 import { registerComponent } from "../../../../infrastructure/RegisterComponents.js";
 import { ValidationError } from "../../../../primitives/ValidationError.js";
 import { AddNewRequest } from "../../../../services/AuditRequestService.js";
 import { BaseForm } from "../../BaseForm.js";
+import { configurationsStore } from "../../../../infrastructure/Store.js";
 
 export const newRequestFormComponentName = "newRequestForm";
 
@@ -32,11 +36,22 @@ export default class NewRequestFormModule extends BaseForm {
     super({ entity: newRequest, view: AuditRequest.Views.New });
 
     this.onComplete = onComplete;
+    this.prepopulateRequestFields();
   }
 
   saving = ko.observable(false);
 
-  init() {}
+  prepopulateRequestFields() {
+    const request = ko.unwrap(this.entity);
+
+    if (!request) return;
+
+    const fy = configurationsStore["CurrentFY"];
+    request.FiscalYear.Value(fy);
+
+    request.Reminders.Value(request.Reminders.Options());
+    request.ReqStatus.Value(AUDITREQUESTSTATES.OPEN);
+  }
 
   async clickSubmit() {
     this.saving(true);
@@ -60,6 +75,7 @@ export default class NewRequestFormModule extends BaseForm {
 
   clearForm() {
     this.entity(new AuditRequest());
+    this.prepopulateRequestFields();
   }
 }
 
