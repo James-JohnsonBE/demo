@@ -1,59 +1,17 @@
-import { AuditOrganization } from "../entities/AuditOrganization.js";
-import { AuditRequest } from "../entities/AuditRequest.js";
-import { AuditBulkRequest } from "../entities/AuditBulkRequest.js";
 import { SPList } from "../infrastructure/SAL.js";
-import { AuditEmail } from "../entities/AuditEmail.js";
-import { AuditRequestsInternal } from "../entities/AuditRequestsInternal.js";
-import { AuditResponse } from "../entities/AuditResponse.js";
-import { AuditResponseDoc } from "../entities/AuditResponseDocs.js";
-import { AuditCoversheet } from "../entities/AuditCoversheet.js";
-import { AuditConfiguration } from "../entities/Config.js";
-import { EntitySet } from "../common/ORM.js";
 
-const DEBUG = false;
+export class CachedEntitySet {
+  constructor(entityType) {
+    this.entitySet = new EntitySet(entityType);
 
-export class ApplicationDbContext {
-  constructor() {}
+    this.AllDeclaredFields = this.entitySet.AllDeclaredFields;
+  }
+  _cache = ko.observable({});
 
-  AuditBulkRequests = new EntitySet(AuditBulkRequest);
-
-  AuditCoversheets = new EntitySet(AuditCoversheet);
-
-  AuditEmails = new EntitySet(AuditEmail);
-
-  AuditOrganizations = new EntitySet(AuditOrganization);
-
-  AuditResponses = new EntitySet(AuditResponse);
-
-  AuditResponseDocs = new EntitySet(AuditResponseDoc);
-
-  AuditRequests = new EntitySet(AuditRequest);
-
-  AuditRequestsInternals = new EntitySet(AuditRequestsInternal);
-
-  AuditConfigurations = new EntitySet(AuditConfiguration);
-
-  virtualSets = new Map();
-
-  Set = (entityType) => {
-    const key = entityType.ListDef.name;
-
-    // If we have a defined entityset, return that
-    const set = Object.values(this)
-      .filter((val) => val.constructor.name == EntitySet.name)
-      .find((set) => set.ListDef?.name == key);
-    if (set) return set;
-
-    if (!this.virtualSets.has(key)) {
-      const newSet = new EntitySet(listDef);
-      this.virtualSets.set(key, newSet);
-      return newSet;
-    }
-    return this.virtualSets.get(key);
-  };
+  FindById = async (id, fields = this.AllDeclaredFields) => {};
 }
 
-class EntitySetDep {
+export class EntitySet {
   constructor(entityType) {
     if (!entityType.ListDef) {
       console.error("Missing entityType listdef for", entityType);
@@ -92,41 +50,18 @@ class EntitySetDep {
       this.entityType.FindInStore || this.entityType.Create || this.entityType;
   }
 
-  // TODO: Caching should be broken out via decorator pattern
-  // OPTIONAL cache using array or knockout observable
-  // _store = [];
-  _store = ko.observableArray();
-  _queryingAllItems = ko.observable(false);
-  _allItemsQueried = false;
-
   // Queries
-  // TODO: Feature - Queries should return options to read e.g. toList, first, toCursor
   FindById = async (id, fields = this.AllDeclaredFields) => {
     // Hit our cache first
-    const cachedEntity = this._store().find((entity) => entity.ID == id);
-    if (cachedEntity) return cachedEntity;
-
-    // Next, check if we are querying the cache
-    if (this._queryingAllItems()) {
-      const foundEntity = await new Promise((resolve) => {
-        const subscriber = this._queryingAllItems.subscribe(() => {
-          subscriber.dispose();
-          resolve(this._store().find((entity) => entity.ID == id));
-        });
-      });
-      if (foundEntity) return foundEntity;
-    }
 
     const result = await this.ListRef.getById(id, fields);
     if (!result) return null;
     const newEntity = new this.entityType(result);
     mapObjectToEntity(result, newEntity);
-    this._store.push(newEntity);
     return newEntity;
   };
 
-  FindInStore = (id) => this._store().find((entity) => entity.ID == id);
-
+  // TODO: Feature - Queries should return options to read e.g. toList, first, toCursor
   /**
    * Takes an array of columns and filter values with an optional comparison operator
    * @param {[{column, op?, value}]} columnFilters
@@ -197,35 +132,14 @@ class EntitySetDep {
    * Return all items in list
    */
   ToList = async (refresh = false) => {
-    if (this._allItemsQueried && !refresh) return this._store();
-
-    if (this._queryingAllItems()) {
-      return new Promise((resolve) => {
-        const hasLoadedSubscription = this._queryingAllItems.subscribe(
-          (bool) => {
-            hasLoadedSubscription.dispose();
-            resolve(this._store());
-          }
-        );
-      });
-    }
-
-    this._queryingAllItems(true);
-    if (DEBUG)
-      console.log(
-        `ApplicationDbContext: Initializing ${this.ListDef.name} cache`
-      );
     const fields = this.Views.All;
     const results = await this.ListRef.getListItemsAsync({ fields });
     const allItems = results.map((item) => {
-      let entityToLoad = this.FindInStore(item.ID) ?? new this.entityType(item);
+      let entityToLoad = new this.entityType(item);
       mapObjectToEntity(item, entityToLoad);
       return entityToLoad;
     });
-    this._store(allItems);
-    this._queryingAllItems(false);
-    this._allItemsQueried = true;
-    return this._store();
+    return allItems;
   };
 
   LoadEntity = async function (entity, refresh = false) {
@@ -233,26 +147,15 @@ class EntitySetDep {
       console.error("entity missing Id", entity);
       return false;
     }
-    let cachedEntity = this.FindInStore(entity.ID);
-
-    if (!refresh && cachedEntity == entity) {
-      console.warn("entity already in cache");
-      return;
-    }
-
-    if (!cachedEntity) {
-      cachedEntity = entity;
-      this._store.push(cachedEntity);
-    }
 
     const result = await this.ListRef.getById(
-      cachedEntity.ID,
+      entity.ID,
       this.AllDeclaredFields
     );
     if (!result) return null;
 
-    mapObjectToEntity(result, cachedEntity);
-    return cachedEntity;
+    mapObjectToEntity(result, entity);
+    return entity;
   };
 
   // Mutators
@@ -399,7 +302,7 @@ class EntitySetDep {
   EnsureList = async function () {};
 }
 
-export function mapObjectToEntity(inputObject, targetEntity) {
+function mapObjectToEntity(inputObject, targetEntity) {
   if (DEBUG)
     console.log(
       `ApplicationDBContext: ${targetEntity.constructor.name}: `,
@@ -532,7 +435,3 @@ function mapViewFieldToValue(fieldMap) {
   // console.error("Error setting fieldMap", fieldMap);
   // throw "Error getting fieldmap";
 }
-
-// export const _context = new ApplicationDbContext();
-
-export const appContext = new ApplicationDbContext();
