@@ -126,16 +126,22 @@ var m_requestDocsLibrary = null;
 var m_responseDocsLibrary = null;
 
 // var m_bigMap = new Object();
-var m_arrRequests = new Array();
+function m_getArrRequests() {
+  return Object.entries(m_bigMap)
+    .filter(([key, value]) => {
+      return key.startsWith("request-");
+    })
+    .map(([key, value]) => value);
+}
 var m_arrRequestsToClose = new Array();
 var m_arrPermissionsResponseFolders = new Array();
 
-var m_requestItems = null;
-var m_requestInternalItems = null;
+// var m_requestItems = null;
+// var m_requestInternalItems = null;
 
-var m_responseItems = null;
-var m_ResponseDocsItems = null;
-var m_ResponseDocsFoldersItems = null;
+// var m_responseItems = null;
+// var m_ResponseDocsItems = null;
+// var m_ResponseDocsFoldersItems = null;
 
 var m_groupColl = null;
 var m_aoItems = null;
@@ -1077,7 +1083,7 @@ function LoadInfo() {
   requestQuery.set_viewXml(
     '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
   );
-  m_requestItems = requestList.getItems(requestQuery);
+  const m_requestItems = requestList.getItems(requestQuery);
   //need to check permissions because of displaying special perms and granting special perms
   //currCtx.load( m_requestItems, 'Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))');
   currCtx.load(
@@ -1092,7 +1098,8 @@ function LoadInfo() {
   requestInternalQuery.set_viewXml(
     '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
   );
-  m_requestInternalItems = requestInternalList.getItems(requestInternalQuery);
+  const m_requestInternalItems =
+    requestInternalList.getItems(requestInternalQuery);
   currCtx.load(
     m_requestInternalItems,
     "Include(ID, Title, ReqNum, InternalStatus, ActiveViewers)"
@@ -1105,7 +1112,7 @@ function LoadInfo() {
   responseQuery.set_viewXml(
     '<View><Query><OrderBy><FieldRef Name="ReqNum"/></OrderBy></Query></View>'
   );
-  m_responseItems = responseList.getItems(responseQuery);
+  const m_responseItems = responseList.getItems(responseQuery);
   //need to check permissions because of granting/removing special perms
   //currCtx.load( m_responseItems, 'Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, Comments, Modified, ClosedDate, ClosedBy, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))' );
   currCtx.load(
@@ -1121,7 +1128,7 @@ function LoadInfo() {
   responseDocsQuery.set_viewXml(
     '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="ReqNum"/><FieldRef Name="ResID"/></OrderBy><Where><Eq><FieldRef Name="ContentType"/><Value Type="Text">Document</Value></Eq></Where></Query></View>'
   );
-  m_ResponseDocsItems = responseDocsLib.getItems(responseDocsQuery);
+  const m_ResponseDocsItems = responseDocsLib.getItems(responseDocsQuery);
   currCtx.load(
     m_ResponseDocsItems,
     "Include(ID, Title, ReqNum, ResID, DocumentStatus, RejectReason, ReceiptDate, FileLeafRef, FileDirRef, File_x0020_Size, CheckoutUser, Modified, Editor, Created)"
@@ -1178,20 +1185,35 @@ function LoadInfo() {
       function OnSuccessLoadPages(sender, args) {
         $("#divIA").show();
         //if they can iterate the pages and the permissions on the pages, we'll consider them a site owner
-        m_fnLoadData();
+        m_fnLoadData(
+          m_requestItems,
+          m_requestInternalItems,
+          m_responseItems,
+          m_ResponseDocsItems
+        );
         m_fnResetAODBPerms(m_PageItems);
 
         m_fnCheckForEAEmailFolder(emailListFolderItemsEA);
       }
       function OnFailureLoadPages(sender, args) {
         $("#divIA").show();
-        m_fnLoadData();
+        m_fnLoadData(
+          m_requestItems,
+          m_requestInternalItems,
+          m_responseItems,
+          m_ResponseDocsItems
+        );
       }
       currCtx.executeQueryAsync(OnSuccessLoadPages, OnFailureLoadPages);
     } else {
       $("#divIA").show();
       m_bIsSiteOwner = false;
-      m_fnLoadData();
+      m_fnLoadData(
+        m_requestItems,
+        m_requestInternalItems,
+        m_responseItems,
+        m_ResponseDocsItems
+      );
     }
 
     setTimeout(function () {
@@ -1212,22 +1234,30 @@ function m_fnRefresh(requestNumber) {
   window.location.reload();
 }
 
-function m_fnLoadData() {
+function m_fnLoadData(
+  m_requestItems,
+  m_requestInternalItems,
+  m_responseItems,
+  m_ResponseDocsItems
+) {
   Audit.Common.Utilities.LoadSiteGroups(m_groupColl);
   Audit.Common.Utilities.LoadActionOffices(m_aoItems);
 
-  LoadRequests();
-  LoadResponses();
-  LoadResponseDocs();
+  LoadRequests(m_requestItems);
+  LoadRequestsInternal(m_requestInternalItems);
+  LoadResponses(m_responseItems);
+  LoadResponseDocs(m_ResponseDocsItems);
   LoadResponseCounts();
 
   DisplayRequestsThatShouldClose();
 
-  LoadTabStatusReport1(m_arrRequests, "fbody1");
-  LoadTabStatusReport2(m_arrRequests, "fbody2");
+  LoadTabStatusReport1();
+  LoadTabStatusReport2();
 }
 
-export function m_fnRequeryRequest(oRequest) {
+export async function m_fnRequeryRequest(oRequest = null) {
+  if (!oRequest) oRequest = _myViewModel.currentRequest();
+
   var currCtx = new SP.ClientContext.get_current();
   var web = currCtx.get_web();
 
@@ -1245,26 +1275,87 @@ export function m_fnRequeryRequest(oRequest) {
     $(".response-permissions").hide(); //resets this in case it was toggled to show
     currCtx.load(
       m_aRequestItem,
-      "Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+      "Include(ID, Title, ReqSubject, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
     );
-  } else
+  } else {
     currCtx.load(
       m_aRequestItem,
-      "Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified)"
+      "Include(ID, Title, ReqSubject, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
     );
+  }
 
-  async function OnSuccess(sender, args) {
-    //Update the item field on the request
-    var listItemEnumerator = m_aRequestItem.getEnumerator();
-    while (listItemEnumerator.moveNext()) {
-      var oListItem = listItemEnumerator.get_current();
-      oRequest.item = oListItem;
-      break;
-    }
+  var requestInternalList = web
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetListTitleRequestsInternal());
+  var requestInternalQuery = new SP.CamlQuery();
+  requestInternalQuery.set_viewXml(
+    '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
+  );
+  const m_requestInternalItems =
+    requestInternalList.getItems(requestInternalQuery);
+  currCtx.load(
+    m_requestInternalItems,
+    "Include(ID, Title, ReqNum, InternalStatus, ActiveViewers)"
+  );
 
-    if (m_bIsSiteOwner) {
-      //07/06/2017 - if the permissions on the request are inheriting for any reason, then reset the permissions and refresh the page
-      if (!oRequest.item.get_hasUniqueRoleAssignments()) {
+  await new Promise((resolve, reject) =>
+    currCtx.executeQueryAsync(resolve, (sender, args) =>
+      reject({ sender, args })
+    )
+  ).catch(({ sender, args }) => {
+    console.error("Unable to requery request: " + oRequest.number);
+    return;
+  });
+
+  LoadRequests(m_aRequestItem);
+  LoadRequestsInternal(m_requestInternalItems);
+
+  //Update the item field on the request
+  var listItemEnumerator = m_aRequestItem.getEnumerator();
+  while (listItemEnumerator.moveNext()) {
+    var oListItem = listItemEnumerator.get_current();
+    oRequest.item = oListItem;
+    break;
+  }
+
+  if (m_bIsSiteOwner) {
+    //07/06/2017 - if the permissions on the request are inheriting for any reason, then reset the permissions and refresh the page
+    if (!oRequest.item.get_hasUniqueRoleAssignments()) {
+      const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+        "Information",
+        "Please wait... Updating Request permissions",
+        200,
+        400
+      );
+      await m_fnBreakRequestPermissions(oRequest.item, false);
+      m_fnRefresh();
+      return;
+    } //07/06/2017 - ensure each action office has access to the request
+    else {
+      var bUpdateRequestPermissions = false;
+      for (var x = 0; x < oRequest.actionOffices.length; x++) {
+        var sActionOfficeGroupNameTitle = oRequest.actionOffices[x].ao;
+        var sActionOfficeGroupName = Audit.Common.Utilities.GetAOSPGroupName(
+          sActionOfficeGroupNameTitle
+        );
+        if (
+          sActionOfficeGroupName != null &&
+          $.trim(sActionOfficeGroupName) != ""
+        ) {
+          var bAOHasAccess =
+            Audit.Common.Utilities.CheckSPItemHasGroupPermission(
+              oRequest.item,
+              sActionOfficeGroupName,
+              SP.PermissionKind.viewListItems
+            );
+          if (!bAOHasAccess) {
+            bUpdateRequestPermissions = true;
+            break;
+          }
+        }
+      }
+
+      if (bUpdateRequestPermissions) {
         const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
           "Information",
           "Please wait... Updating Request permissions",
@@ -1274,86 +1365,52 @@ export function m_fnRequeryRequest(oRequest) {
         await m_fnBreakRequestPermissions(oRequest.item, false);
         m_fnRefresh();
         return;
-      } //07/06/2017 - ensure each action office has access to the request
-      else {
-        var bUpdateRequestPermissions = false;
-        for (var x = 0; x < oRequest.actionOffices.length; x++) {
-          var sActionOfficeGroupNameTitle = oRequest.actionOffices[x].ao;
-          var sActionOfficeGroupName = Audit.Common.Utilities.GetAOSPGroupName(
-            sActionOfficeGroupNameTitle
-          );
-          if (
-            sActionOfficeGroupName != null &&
-            $.trim(sActionOfficeGroupName) != ""
-          ) {
-            var bAOHasAccess =
-              Audit.Common.Utilities.CheckSPItemHasGroupPermission(
-                oRequest.item,
-                sActionOfficeGroupName,
-                SP.PermissionKind.viewListItems
-              );
-            if (!bAOHasAccess) {
-              bUpdateRequestPermissions = true;
-              break;
-            }
-          }
-        }
-
-        if (bUpdateRequestPermissions) {
-          const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-            "Information",
-            "Please wait... Updating Request permissions",
-            200,
-            400
-          );
-          await m_fnBreakRequestPermissions(oRequest.item, false);
-          m_fnRefresh();
-          return;
-        }
       }
     }
+  }
 
-    var match1 = false;
-    var match2 = false;
+  var match1 = false;
+  var match2 = false;
 
-    if (m_bIsSiteOwner) {
-      var permissionsToCheck = SP.PermissionKind.viewListItems;
-      match1 = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
-        oRequest.item,
-        Audit.Common.Utilities.GetGroupNameSpecialPerm1(),
-        permissionsToCheck
-      );
-      match2 = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
-        oRequest.item,
-        Audit.Common.Utilities.GetGroupNameSpecialPerm2(),
-        permissionsToCheck
-      );
+  if (m_bIsSiteOwner) {
+    var permissionsToCheck = SP.PermissionKind.viewListItems;
+    match1 = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
+      oRequest.item,
+      Audit.Common.Utilities.GetGroupNameSpecialPerm1(),
+      permissionsToCheck
+    );
+    match2 = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
+      oRequest.item,
+      Audit.Common.Utilities.GetGroupNameSpecialPerm2(),
+      permissionsToCheck
+    );
 
-      if (match1 && match2) oRequest.specialPerms = true;
-      else oRequest.specialPerms = false;
-    }
+    if (match1 && match2) oRequest.specialPerms = true;
+    else oRequest.specialPerms = false;
+  }
 
-    _myViewModel.currentRequest(oRequest);
+  _myViewModel.currentRequest(oRequest);
 
-    _myViewModel.bDisplayClose(false);
-    if (m_arrRequestsToClose && m_arrRequestsToClose.length > 0) {
-      for (var x = 0; x < m_arrRequestsToClose.length; x++) {
-        var oIt = m_arrRequestsToClose[x];
-        if (oIt.number == oRequest.number) {
-          _myViewModel.bDisplayClose(true);
-          break;
-        }
+  _myViewModel.bDisplayClose(false);
+  if (m_arrRequestsToClose && m_arrRequestsToClose.length > 0) {
+    for (var x = 0; x < m_arrRequestsToClose.length; x++) {
+      var oIt = m_arrRequestsToClose[x];
+      if (oIt.number == oRequest.number) {
+        _myViewModel.bDisplayClose(true);
+        break;
       }
     }
+  }
 
-    LoadTabRequestInfoRequestDocs(oRequest);
-    LoadTabRequestInfoCoverSheets(oRequest);
-    LoadTabRequestInfoResponses(oRequest); // This call LoadTabRequestInfoResponseDocs
-  }
-  function OnFailure(sender, args) {
-    console.error("Unable to requery request: " + oRequest.number);
-  }
-  currCtx.executeQueryAsync(OnSuccess, OnFailure);
+  // LoadTabRequestInfoRequestDocs(oRequest);
+  // these can be loaded in parallel
+  await Promise.all([
+    LoadTabRequestInfoCoverSheets(oRequest),
+    LoadTabRequestInfoResponses(oRequest),
+  ]);
+
+  // This needs to run after the responses have been loaded
+  await LoadTabRequestInfoResponseDocs(oRequest);
 }
 
 function RequestFinishedLoading() {
@@ -1638,29 +1695,23 @@ async function m_fnCheckIfResponsePermissionsNeedUpdating(
   title,
   OnCompletedChecking
 ) {
-  for (var x = 0; x < m_arrRequests.length; x++) {
-    var oRequest = m_arrRequests[x];
-    for (var y = 0; y < oRequest.responses.length; y++) {
-      if (oRequest.responses[y].title == title) {
-        var doneBreakingResponse = false;
-        await m_fnBreakResponseAndFolderPermissions(
-          requestStatus,
-          oRequest.responses[y],
-          false,
-          true,
-          false,
-          false
-        );
-        OnCompletedChecking(true);
-        return true;
-      }
-    }
-  }
+  const oResponse = m_bigMap["response-" + title];
+
+  if (!oResponse) return;
+  await m_fnBreakResponseAndFolderPermissions(
+    requestStatus,
+    oResponse,
+    false,
+    true,
+    false,
+    false
+  );
+  return true;
 }
 
-function LoadRequests() {
+function LoadRequests(m_requestItems) {
   // m_bigMap = new Object();
-  m_arrRequests = new Array();
+  const arrRequests = new Array();
 
   try {
     var listItemEnumerator = m_requestItems.getEnumerator();
@@ -1743,7 +1794,8 @@ function LoadRequests() {
         "ClosedBy"
       );
 
-      var requestObject = new Object();
+      // We may be reloading data from another query, don't break any references
+      var requestObject = m_bigMap["request-" + number] ?? {};
       requestObject["ID"] = id;
       requestObject["number"] = number;
       requestObject["subject"] = subject;
@@ -1772,14 +1824,16 @@ function LoadRequests() {
       requestObject["specialPerms"] = null;
       requestObject["item"] = oListItem;
 
-      m_arrRequests.push(requestObject);
+      arrRequests.push(requestObject);
 
       m_bigMap["request-" + number] = requestObject;
     }
   } catch (err) {
     alert(err);
   }
-
+  return arrRequests;
+}
+function LoadRequestsInternal(m_requestInternalItems) {
   // Also load our Internal Request Status here and bolt these objects onto the requests
   try {
     var listItemEnumerator = m_requestInternalItems.getEnumerator();
@@ -1794,7 +1848,8 @@ function LoadRequests() {
         continue;
       }
 
-      var requestObject = m_bigMap["request-" + reqNum.get_lookupValue()];
+      var requestObject = m_fnGetRequestByNumber(reqNum.get_lookupValue());
+      if (!requestObject) continue;
 
       requestObject.internalStatus = new CommentChainModuleDeprecated(id, {
         requestListTitle: Audit.Common.Utilities.GetListTitleRequestsInternal(),
@@ -1813,9 +1868,9 @@ function LoadRequests() {
   }
 }
 
-function LoadResponses() {
+function LoadResponses(responseItemsColl) {
   try {
-    var listItemEnumerator = m_responseItems.getEnumerator();
+    var listItemEnumerator = responseItemsColl.getEnumerator();
     while (listItemEnumerator.moveNext()) {
       var oListItem = listItemEnumerator.get_current();
 
@@ -1832,10 +1887,10 @@ function LoadResponses() {
         var returnReason = oListItem.get_item("ReturnReason");
         if (returnReason == null) returnReason = "";
 
-        var responseObject = new Object();
+        var title = oListItem.get_item("Title");
+        var responseObject = m_bigMap["response-" + title] ?? new Object();
         responseObject["ID"] = oListItem.get_item("ID");
         responseObject["number"] = number;
-        var title = oListItem.get_item("Title");
         responseObject["title"] = title;
         responseObject["item"] = oListItem;
 
@@ -1907,7 +1962,7 @@ function LoadResponses() {
   }
 }
 
-function LoadResponseDocs() {
+function LoadResponseDocs(m_ResponseDocsItems) {
   _myViewModel.arrResponseDocsCheckedOut([]);
   _myViewModel.arrResponseDocsCheckedOut.valueHasMutated();
   var arrResponseDocsCheckedOut = new Array();
@@ -1945,6 +2000,7 @@ function LoadResponseDocs() {
 }
 
 function LoadResponseCounts() {
+  const m_arrRequests = m_getArrRequests();
   m_oRequestTitleAndDocCount = new Object();
   m_oResponseTitleAndDocCount = new Object();
 
@@ -1967,7 +2023,7 @@ function LoadResponseCounts() {
   }
 }
 
-function LoadResponseDocFolders() {
+function LoadResponseDocFolders(m_ResponseDocsFoldersItems) {
   m_arrPermissionsResponseFolders = new Array();
 
   try {
@@ -2035,16 +2091,22 @@ function LoadResponseDocFolders() {
 
         m_arrPermissionsResponseFolders.push(objFold);
 
-        for (var x = 0; x < m_arrRequests.length; x++) {
-          var oRequest = m_arrRequests[x];
-          for (var y = 0; y < oRequest.responses.length; y++) {
-            if (oRequest.responses[y].title == itemName) {
-              oRequest.responses[y].responseFolderItem = oListItem;
-              m_bigMap["response-" + itemName].responseFolderItem = oListItem;
-              break;
-            }
-          }
-        }
+        const oResponse = m_bigMap["response-" + itemName];
+        if (!oResponse) continue;
+        oResponse.responseFolderItem = oListItem;
+
+        // const oRequest = m_bigMap["request-" + oResponse.number];
+
+        // for (var x = 0; x < m_arrRequests.length; x++) {
+        //   var oRequest = m_arrRequests[x];
+        //   for (var y = 0; y < oRequest.responses.length; y++) {
+        //     if (oRequest.responses[y].title == itemName) {
+        //       oRequest.responses[y].responseFolderItem = oListItem;
+        //       m_bigMap["response-" + itemName].responseFolderItem = oListItem;
+        //       break;
+        //     }
+        //   }
+        // }
       }
     }
   } catch (err) {}
@@ -2110,7 +2172,7 @@ function LoadTabRequestInfoRequestDocs(oRequest) {
   );
 }
 
-function LoadTabRequestInfoCoverSheets(oRequest) {
+async function LoadTabRequestInfoCoverSheets(oRequest) {
   _myViewModel.arrCurrentRequestCoverSheets([]);
   _myViewModel.arrCurrentRequestCoverSheets.valueHasMutated();
   oRequest.coversheets = new Array();
@@ -2141,55 +2203,52 @@ function LoadTabRequestInfoCoverSheets(oRequest) {
       "Include(ID, Title, ReqNum, ActionOffice, FileLeafRef, FileDirRef)"
     );
 
-  var data = { oRequest: oRequest };
-  function OnSuccess(sender, args) {
-    var listItemEnumerator = m_CoverSheetItems.getEnumerator();
-    while (listItemEnumerator.moveNext()) {
-      var oListItem = listItemEnumerator.get_current();
+  await new Promise((resolve, reject) => {
+    currCtx.executeQueryAsync(resolve, reject);
+  }).catch((e) => {
+    console.error("Unable to load Coversheets.");
+  });
 
-      var number = oListItem.get_item("ReqNum");
-      if (number != null) {
-        number = number.get_lookupValue();
-        if (number == oRequest.number) {
-          //just double checking here
-          var coversheetObject = new Object();
-          coversheetObject["ID"] = oListItem.get_item("ID");
-          coversheetObject["number"] = number;
+  var listItemEnumerator = m_CoverSheetItems.getEnumerator();
+  while (listItemEnumerator.moveNext()) {
+    var oListItem = listItemEnumerator.get_current();
 
-          var arrActionOffice = new Array();
-          var actionOffices = oListItem.get_item("ActionOffice");
+    var number = oListItem.get_item("ReqNum");
+    if (number != null) {
+      number = number.get_lookupValue();
+      if (number == oRequest.number) {
+        //just double checking here
+        var coversheetObject = new Object();
+        coversheetObject["ID"] = oListItem.get_item("ID");
+        coversheetObject["number"] = number;
 
-          if (actionOffices && actionOffices.length > 0) {
-            for (var y = 0; y < actionOffices.length; y++) {
-              arrActionOffice.push({
-                actionOffice: actionOffices[y].get_lookupValue(),
-              });
-            }
+        var arrActionOffice = new Array();
+        var actionOffices = oListItem.get_item("ActionOffice");
+
+        if (actionOffices && actionOffices.length > 0) {
+          for (var y = 0; y < actionOffices.length; y++) {
+            arrActionOffice.push({
+              actionOffice: actionOffices[y].get_lookupValue(),
+            });
           }
-
-          coversheetObject["actionOffices"] = arrActionOffice;
-          coversheetObject["title"] = oListItem.get_item("FileLeafRef");
-          coversheetObject["folder"] = oListItem.get_item("FileDirRef");
-          coversheetObject["item"] = oListItem;
-          coversheetObject["requestStatus"] = oRequest.status;
-
-          oRequest.coversheets.push(coversheetObject);
         }
+
+        coversheetObject["actionOffices"] = arrActionOffice;
+        coversheetObject["title"] = oListItem.get_item("FileLeafRef");
+        coversheetObject["folder"] = oListItem.get_item("FileDirRef");
+        coversheetObject["item"] = oListItem;
+        coversheetObject["requestStatus"] = oRequest.status;
+
+        oRequest.coversheets.push(coversheetObject);
       }
     }
-
-    ko.utils.arrayPushAll(
-      _myViewModel.arrCurrentRequestCoverSheets(),
-      oRequest.coversheets
-    );
-    _myViewModel.arrCurrentRequestCoverSheets.valueHasMutated();
   }
-  function OnFailure(sender, args) {}
 
-  currCtx.executeQueryAsync(
-    Function.createDelegate(data, OnSuccess),
-    Function.createDelegate(data, OnFailure)
+  ko.utils.arrayPushAll(
+    _myViewModel.arrCurrentRequestCoverSheets(),
+    oRequest.coversheets
   );
+  _myViewModel.arrCurrentRequestCoverSheets.valueHasMutated();
 }
 
 //when action office or qa updates the response and it comes back to IA, IA gets emailed a link with the response number; When they open the link in the browser, it will ]
@@ -2226,7 +2285,7 @@ async function m_fnLoadResponseDocFolder(responseTitle, OnComplete) {
       responseTitle +
       '</Value></Eq><Eq><FieldRef Name="ContentType" /><Value Type="Text">Folder</Value></Eq></And></Where></Query></View>'
   );
-  m_ResponseDocsFoldersItems = responseDocsLibFolderslist.getItems(
+  const m_ResponseDocsFoldersItems = responseDocsLibFolderslist.getItems(
     responseDocsLibFolderslistQuery
   );
   currCtx.load(
@@ -2246,20 +2305,15 @@ async function m_fnLoadResponseDocFolder(responseTitle, OnComplete) {
   while (listItemEnumerator.moveNext()) {
     var oListItem = listItemEnumerator.get_current();
 
-    for (var x = 0; x < m_arrRequests.length; x++) {
-      var oRequest = m_arrRequests[x];
-      for (var y = 0; y < oRequest.responses.length; y++) {
-        if (oRequest.responses[y].title == responseTitle) {
-          oRequest.responses[y].item = oListItem;
-          break;
-        }
-      }
-    }
+    const oResponse = m_bigMap["response-" + responseTitle];
+
+    if (!oResponse) continue;
+    oResponse.item = oListItem;
 
     break;
   }
 
-  LoadResponseDocFolders(); //really, this only runs through the one response and we're only doing this to set the response item's folder so that we can query the permissions on it
+  LoadResponseDocFolders(m_ResponseDocsFoldersItems); //really, this only runs through the one response and we're only doing this to set the response item's folder so that we can query the permissions on it
   return true;
 }
 
@@ -2306,12 +2360,12 @@ async function LoadTabRequestInfoResponses(oRequest) {
   if (m_bIsSiteOwner)
     currCtx.load(
       m_subsetResponseItems,
-      "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, Comments, ActiveViewers, Modified, ClosedDate, ClosedBy, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+      "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, Comments, ActiveViewers, Modified, ClosedDate, ClosedBy, POC, POCCC, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
     );
   else
     currCtx.load(
       m_subsetResponseItems,
-      "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, Comments, ActiveViewers, Modified, ClosedDate, ClosedBy)"
+      "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, Comments, ActiveViewers, Modified, ClosedDate, ClosedBy, POC, POCCC)"
     );
 
   var responseDocsLibFolderslist = currCtx
@@ -2325,7 +2379,7 @@ async function LoadTabRequestInfoResponses(oRequest) {
       oRequest.number +
       '-</Value></BeginsWith><Eq><FieldRef Name="ContentType" /><Value Type="Text">Folder</Value></Eq></And></Where></Query></View>'
   );
-  m_ResponseDocsFoldersItems = responseDocsLibFolderslist.getItems(
+  const m_ResponseDocsFoldersItems = responseDocsLibFolderslist.getItems(
     responseDocsLibFolderslistQuery
   );
   if (m_bIsSiteOwner)
@@ -2339,136 +2393,137 @@ async function LoadTabRequestInfoResponses(oRequest) {
       "Include( DisplayName, Title, Id, EncodedAbsUrl)"
     );
 
-  function OnSuccess(sender, args) {
-    var listItemEnumerator = m_subsetResponseItems.getEnumerator();
-    while (listItemEnumerator.moveNext()) {
-      var oListItem = listItemEnumerator.get_current();
-      var responseTitle = oListItem.get_item("Title");
-
-      if (m_bigMap["response-" + responseTitle])
-        m_bigMap["response-" + responseTitle].item = oListItem; //update the response item with an item that has the permission attributes
-
-      if (m_bIsSiteOwner) {
-        if (!oListItem.get_hasUniqueRoleAssignments()) {
-          m_fnBreakResponsePermissions(oListItem, false, true);
-        }
-      }
-    }
-
-    LoadResponseDocFolders();
-
-    var sResponses = "";
-    var responseCount = oRequest.responses.length;
-
-    oRequest.responses.sort(function (a, b) {
-      a = parseInt(a.sample, 10);
-      b = parseInt(b.sample, 10);
-      return a - b;
-    });
-
-    if (responseCount == 0)
-      notifyId = SP.UI.Notify.addNotification(
-        oRequest.number + " has 0 responses. Please create a Response",
-        false
-      );
-
-    var arrResponses = new Array();
-
-    for (var y = 0; y < responseCount; y++) {
-      var oResponse = oRequest.responses[y];
-
-      var groupPerms = "";
-      for (var x = 0; x < m_arrPermissionsResponseFolders.length; x++) {
-        if (m_arrPermissionsResponseFolders[x].ItemName == oResponse.title) {
-          const arrGroupPerms =
-            m_arrPermissionsResponseFolders[x].GroupPermissions;
-
-          var grouppermissionsArr = arrGroupPerms.sort();
-          grouppermissionsArr.sort(function (a, b) {
-            return a.toLowerCase().localeCompare(b.toLowerCase());
-          });
-
-          for (var z = 0; z < grouppermissionsArr.length; z++) {
-            groupPerms += "<div>" + grouppermissionsArr[z] + "</div>";
-          }
-          break;
-        }
-      }
-      var specialPerms = false;
-      if (
-        groupPerms.indexOf(Audit.Common.Utilities.GetGroupNameSpecialPerm1()) >=
-          0 &&
-        groupPerms.indexOf(Audit.Common.Utilities.GetGroupNameSpecialPerm2()) >=
-          0
-      ) {
-        specialPerms = true;
-      }
-
-      var arrRequestActionOffices = oRequest.item.get_item("ActionOffice");
-      var responseActionOfficeIsInRequest = false;
-      if (arrRequestActionOffices != null) {
-        for (var x = 0; x < arrRequestActionOffices.length; x++) {
-          if (
-            arrRequestActionOffices[x].get_lookupValue() ==
-            oResponse.actionOffice
-          ) {
-            responseActionOfficeIsInRequest = true;
-          }
-        }
-      }
-
-      var styleTag = new Object();
-      var toolTip = "";
-      if (!responseActionOfficeIsInRequest) {
-        styleTag = {
-          "background-color": "lightsalmon",
-          "font-style": "italic",
-          "font-weight": "bold",
-          color: "red",
-        };
-
-        toolTip =
-          "This Action Office is not found in the Action Office list for the Request";
-      }
-
-      oResponse["groupPerms"] = groupPerms;
-      oResponse["specialPerms"] = specialPerms;
-      oResponse["styleTag"] = styleTag;
-      oResponse["toolTip"] = toolTip;
-      oResponse["activeViewers"] = new ActiveViewersModuleDeprecated(
-        oResponse.ID,
-        {
-          requestListTitle: Audit.Common.Utilities.GetListTitleResponses(),
-          columnName: "ActiveViewers",
-          initialValue: oResponse.item.get_item("ActiveViewers"),
-        }
-      );
-
-      arrResponses.push(oResponse);
-    }
-
-    SP.UI.Notify.removeNotification(m_notifyIDLoadingResponses);
-    m_notifyIDLoadingResponses = null;
-
-    ko.utils.arrayPushAll(
-      _myViewModel.arrCurrentRequestResponses(),
-      arrResponses
-    );
-    _myViewModel.arrCurrentRequestResponses.valueHasMutated();
-
-    document.body.style.cursor = "default";
-
-    m_fnHighlightResponse();
-
-    LoadTabRequestInfoResponseDocs(oRequest);
-  }
-  function OnFailure(sender, args) {
+  await new Promise((resolve, reject) =>
+    currCtx.executeQueryAsync(resolve, (sender, args) =>
+      reject({ sender, args })
+    )
+  ).catch(({ sender, args }) => {
     const statusId = SP.UI.Status.addStatus(
       "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
     );
     SP.UI.Status.setStatusPriColor(statusId, "red");
+    return;
+  });
+
+  LoadResponses(m_subsetResponseItems);
+
+  var listItemEnumerator = m_subsetResponseItems.getEnumerator();
+  while (listItemEnumerator.moveNext()) {
+    var oListItem = listItemEnumerator.get_current();
+    var responseTitle = oListItem.get_item("Title");
+
+    if (m_bigMap["response-" + responseTitle])
+      m_bigMap["response-" + responseTitle].item = oListItem; //update the response item with an item that has the permission attributes
+
+    if (m_bIsSiteOwner) {
+      if (!oListItem.get_hasUniqueRoleAssignments()) {
+        m_fnBreakResponsePermissions(oListItem, false, true);
+      }
+    }
   }
-  currCtx.executeQueryAsync(OnSuccess, OnFailure);
+
+  LoadResponseDocFolders(m_ResponseDocsFoldersItems);
+
+  var sResponses = "";
+  var responseCount = oRequest.responses.length;
+
+  oRequest.responses.sort(function (a, b) {
+    a = parseInt(a.sample, 10);
+    b = parseInt(b.sample, 10);
+    return a - b;
+  });
+
+  if (responseCount == 0)
+    notifyId = SP.UI.Notify.addNotification(
+      oRequest.number + " has 0 responses. Please create a Response",
+      false
+    );
+
+  var arrResponses = new Array();
+
+  for (var y = 0; y < responseCount; y++) {
+    var oResponse = oRequest.responses[y];
+
+    var groupPerms = "";
+    for (var x = 0; x < m_arrPermissionsResponseFolders.length; x++) {
+      if (m_arrPermissionsResponseFolders[x].ItemName == oResponse.title) {
+        const arrGroupPerms =
+          m_arrPermissionsResponseFolders[x].GroupPermissions;
+
+        var grouppermissionsArr = arrGroupPerms.sort();
+        grouppermissionsArr.sort(function (a, b) {
+          return a.toLowerCase().localeCompare(b.toLowerCase());
+        });
+
+        for (var z = 0; z < grouppermissionsArr.length; z++) {
+          groupPerms += "<div>" + grouppermissionsArr[z] + "</div>";
+        }
+        break;
+      }
+    }
+    var specialPerms = false;
+    if (
+      groupPerms.indexOf(Audit.Common.Utilities.GetGroupNameSpecialPerm1()) >=
+        0 &&
+      groupPerms.indexOf(Audit.Common.Utilities.GetGroupNameSpecialPerm2()) >= 0
+    ) {
+      specialPerms = true;
+    }
+
+    var arrRequestActionOffices = oRequest.item.get_item("ActionOffice");
+    var responseActionOfficeIsInRequest = false;
+    if (arrRequestActionOffices != null) {
+      for (var x = 0; x < arrRequestActionOffices.length; x++) {
+        if (
+          arrRequestActionOffices[x].get_lookupValue() == oResponse.actionOffice
+        ) {
+          responseActionOfficeIsInRequest = true;
+        }
+      }
+    }
+
+    var styleTag = new Object();
+    var toolTip = "";
+    if (!responseActionOfficeIsInRequest) {
+      styleTag = {
+        "background-color": "lightsalmon",
+        "font-style": "italic",
+        "font-weight": "bold",
+        color: "red",
+      };
+
+      toolTip =
+        "This Action Office is not found in the Action Office list for the Request";
+    }
+
+    oResponse["groupPerms"] = groupPerms;
+    oResponse["specialPerms"] = specialPerms;
+    oResponse["styleTag"] = styleTag;
+    oResponse["toolTip"] = toolTip;
+    oResponse["activeViewers"] = new ActiveViewersModuleDeprecated(
+      oResponse.ID,
+      {
+        requestListTitle: Audit.Common.Utilities.GetListTitleResponses(),
+        columnName: "ActiveViewers",
+        initialValue: oResponse.item.get_item("ActiveViewers"),
+      }
+    );
+
+    arrResponses.push(oResponse);
+  }
+
+  SP.UI.Notify.removeNotification(m_notifyIDLoadingResponses);
+  m_notifyIDLoadingResponses = null;
+
+  ko.utils.arrayPushAll(
+    _myViewModel.arrCurrentRequestResponses(),
+    arrResponses
+  );
+  _myViewModel.arrCurrentRequestResponses.valueHasMutated();
+
+  document.body.style.cursor = "default";
+
+  m_fnHighlightResponse();
 }
 
 function m_fnHighlightResponse() {
@@ -2640,6 +2695,7 @@ function DisplayRequestsThatShouldClose() {
   _myViewModel.arrRequestsThatNeedClosing([]);
   _myViewModel.arrRequestsThatNeedClosing.valueHasMutated();
 
+  const m_arrRequests = m_getArrRequests();
   if (m_arrRequests == null || m_arrRequests.length == 0) return;
 
   m_arrRequestsToClose = new Array();
@@ -2696,7 +2752,9 @@ function DisplayRequestsThatShouldClose() {
   _myViewModel.arrRequestsThatNeedClosing.valueHasMutated();
 }
 
-function LoadTabStatusReport1(arr, fbody) {
+function LoadTabStatusReport1() {
+  const arr = m_getArrRequests();
+
   _myViewModel.arrRequests([]);
   _myViewModel.arrRequests.valueHasMutated();
 
@@ -2849,7 +2907,8 @@ function LoadTabStatusReport1(arr, fbody) {
   _myViewModel.arrRequestsWithNoEmailSent.valueHasMutated();
 }
 
-function LoadTabStatusReport2(arr, fbody) {
+function LoadTabStatusReport2() {
+  const arr = m_getArrRequests();
   if (arr == null) return;
 
   var arrSubmittedResponsesByAO = new Array();
@@ -3160,20 +3219,17 @@ function m_fnBulkEditResponse(id) {
   SP.UI.ModalDialog.showModalDialog(options);
 }
 
-function m_fnGetNextSampleNumber(id) {
+function m_fnGetNextSampleNumber(requestNumber) {
   var sampleNumber = 0;
-  for (var x = 0; x < m_arrRequests.length; x++) {
-    if (m_arrRequests[x].number == id) {
-      for (var y = 0; y < m_arrRequests[x].responses.length; y++) {
-        if (m_arrRequests[x].responses[y].sample > sampleNumber)
-          sampleNumber = m_arrRequests[x].responses[y].sample;
-      }
+  const oRequest = m_fnGetRequestByNumber(requestNumber);
 
-      if (m_arrRequests[x].responses.length > 0) sampleNumber++;
-
-      break;
-    }
+  for (var y = 0; y < oRequest.responses.length; y++) {
+    if (oRequest.responses[y].sample > sampleNumber)
+      sampleNumber = oRequest.responses[y].sample;
   }
+
+  if (oRequest.responses.length > 0) sampleNumber++;
+
   return sampleNumber;
 }
 
@@ -3654,15 +3710,15 @@ function m_fnGetRequestByNumber(requestNumber) {
 }
 
 function m_fnGetRequestByID(requestID) {
-  var oRequest = null;
-  for (var y = 0; y < m_arrRequests.length; y++) {
-    if (m_arrRequests[y].ID == requestID) {
-      oRequest = m_arrRequests[y];
-      break;
-    }
-  }
+  const oRequest = Object.entries(m_bigMap).find(([key, value]) => {
+    return key.startsWith("request-") && value.ID == requestID;
+  });
+  if (!oRequest) return;
+  return oRequest[1];
+}
 
-  return oRequest;
+function m_fnGetResponseByTitle(responseTitle) {
+  return m_bigMap["response-" + responseTitle];
 }
 
 function m_fnFormatEmailBodyToAO(oRequest, responseTitles, poc) {
@@ -4392,8 +4448,9 @@ function m_fnBreakEmailFolderPermissions(
 
   oListItem.get_roleAssignments().getByPrincipal(currentUser).deleteObject();
 
-  function onUpdateEmailFolderPermsSucceeed() {
-    if (this.oRequestItem) {
+  return new Promise((resolve, reject) => {
+    function onUpdateEmailFolderPermsSucceeed() {
+      if (!this.oRequestItem) resolve();
       //add action offices
       var arrActionOffice = this.oRequestItem.get_item("ActionOffice");
       if (arrActionOffice != null && arrActionOffice.length > 0) {
@@ -4426,16 +4483,14 @@ function m_fnBreakEmailFolderPermissions(
               m_cntAOAddedToEmailFolder++;
 
               if (m_cntAOAddedToEmailFolder == m_cntAOToAddToEmailFolder) {
-                if (this.refreshPage) m_fnRefresh();
-                else if (this.OnComplete) this.OnComplete(true);
+                resolve();
               }
             }
             function onAOAddedToEmailFolderFailed(sender, args) {
               m_cntAOAddedToEmailFolder++;
 
               if (m_cntAOAddedToEmailFolder == m_cntAOToAddToEmailFolder) {
-                if (this.refreshPage) m_fnRefresh();
-                else if (this.OnComplete) this.OnComplete(true); //log and continue execution
+                reject({ sender, args });
               }
             }
 
@@ -4449,34 +4504,25 @@ function m_fnBreakEmailFolderPermissions(
             );
           }
         }
-      } else {
-        if (this.refreshPage) m_fnRefresh();
-        else if (this.OnComplete) this.OnComplete(true);
       }
     }
-  }
 
-  function onUpdateEmailFolderPermsFailed(sender, args) {
-    if (this.refreshPage) {
-      setTimeout(function () {
-        m_fnRefresh();
-      }, 500);
-    } else if (this.OnComplete) {
-      OnComplete(false);
+    function onUpdateEmailFolderPermsFailed(sender, args) {
+      reject({ sender, args });
     }
-  }
 
-  var data = {
-    title: oListItem.get_item("Title"),
-    refreshPage: refreshPageOnUpdate,
-    oListItem: oListItem,
-    oRequestItem: oRequestItem,
-    OnComplete: OnComplete,
-  };
-  currCtx.executeQueryAsync(
-    Function.createDelegate(data, onUpdateEmailFolderPermsSucceeed),
-    Function.createDelegate(data, onUpdateEmailFolderPermsFailed)
-  );
+    var data = {
+      title: oListItem.get_item("Title"),
+      refreshPage: refreshPageOnUpdate,
+      oListItem: oListItem,
+      oRequestItem: oRequestItem,
+      OnComplete: OnComplete,
+    };
+    currCtx.executeQueryAsync(
+      Function.createDelegate(data, onUpdateEmailFolderPermsSucceeed),
+      Function.createDelegate(data, onUpdateEmailFolderPermsFailed)
+    );
+  });
 }
 
 var m_countCSToAdd = 0;
@@ -6002,6 +6048,7 @@ function OnCallbackFormEditRequest(result, value) {
     return;
   }
   m_bIsTransactionExecuting = true;
+  const oRequest = _myViewModel.currentRequest();
 
   const notifyId = SP.UI.Notify.addNotification("Please wait...", false);
   document.body.style.cursor = "wait";
@@ -6027,12 +6074,42 @@ function OnCallbackFormEditRequest(result, value) {
     "Include(ID, Title, ActionOffice, ReqStatus, Sensitivity, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
   );
 
+  var responseDocsLibFolderslist = currCtx
+    .get_web()
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
+  var responseDocsLibFolderslistQuery = new SP.CamlQuery();
+  //include the dash
+  responseDocsLibFolderslistQuery.set_viewXml(
+    '<View><Query><Where><And><BeginsWith><FieldRef Name="Title"/><Value Type="Text">' +
+      oRequest.number +
+      '-</Value></BeginsWith><Eq><FieldRef Name="ContentType" /><Value Type="Text">Folder</Value></Eq></And></Where></Query></View>'
+  );
+  const m_ResponseDocsFoldersItems = responseDocsLibFolderslist.getItems(
+    responseDocsLibFolderslistQuery
+  );
+  if (m_bIsSiteOwner)
+    currCtx.load(
+      m_ResponseDocsFoldersItems,
+      "Include( DisplayName, Title, Id, EncodedAbsUrl, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+    );
+  else
+    currCtx.load(
+      m_ResponseDocsFoldersItems,
+      "Include( DisplayName, Title, Id, EncodedAbsUrl)"
+    );
+
   var emailList = web
     .get_lists()
     .getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory());
   var emailListQuery = new SP.CamlQuery();
   emailListQuery.set_viewXml(
-    '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
+    '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><And>' +
+      '<Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq>' +
+      '<Eq><FieldRef Name="Title"/><Value Type="Text">' +
+      oRequest.number +
+      "</Value></Eq>" +
+      "</And></Where></Query></View>"
   );
   const emailListFolderItems = emailList.getItems(emailListQuery);
   currCtx.load(emailListFolderItems, "Include(ID, Title, DisplayName)");
@@ -6048,14 +6125,14 @@ function OnCallbackFormEditRequest(result, value) {
   currCtx.load(eaListFolderItems, "Include(ID, Title, DisplayName)");
 
   async function onSuccess() {
-    function m_fnUpdateEmailFolderPerms(requestNum, bRefresh) {
+    async function m_fnUpdateEmailFolderPerms(requestNum, bRefresh) {
       var listItemEnumerator1 = emailListFolderItems.getEnumerator();
       while (listItemEnumerator1.moveNext()) {
         //reset action offices if they were changes in the request form
         var oEmailFolderItem = listItemEnumerator1.get_current();
 
         if (oEmailFolderItem.get_displayName() == requestNum) {
-          m_fnBreakEmailFolderPermissions(
+          await m_fnBreakEmailFolderPermissions(
             oEmailFolderItem,
             oListItem,
             bRefresh
@@ -6108,7 +6185,8 @@ function OnCallbackFormEditRequest(result, value) {
             oldSensitivity
           );
         }
-        m_fnUpdateEmailFolderPerms(m_requestNum, true);
+        await m_fnUpdateEmailFolderPerms(m_requestNum, true);
+        m_waitDialog.close();
       } //if request number changed, update responses; otherwise it will refresh and not hit this
       else {
         const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
@@ -6144,6 +6222,8 @@ function OnCallbackFormEditRequest(result, value) {
         }, 20000);
       }
     }
+
+    m_fnRequeryRequest();
   }
   function onFail(sender, args) {
     m_fnRefresh();
