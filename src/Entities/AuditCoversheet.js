@@ -4,6 +4,8 @@ import { AuditRequest } from "./AuditRequest.js";
 import { AuditOrganization } from "./AuditOrganization.js";
 import TextField from "../fields/TextField.js";
 
+import { auditOrganizationStore } from "../infrastructure/Store.js";
+
 export class AuditCoversheet extends ConstrainedEntity {
   constructor(params) {
     super(params);
@@ -35,6 +37,7 @@ export class AuditCoversheet extends ConstrainedEntity {
   ActionOffice = new LookupField({
     displayName: "Action Offices",
     type: AuditOrganization,
+    options: auditOrganizationStore,
     optionsFilter: ko.pureComputed(() => {
       // Only allow action offices from this coversheets associated request
       const request = ko.unwrap(this.ReqNum.Value);

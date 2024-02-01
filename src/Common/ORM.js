@@ -1,5 +1,7 @@
 import { SPList } from "../infrastructure/SAL.js";
 
+const DEBUG = false;
+
 export class CachedEntitySet {
   constructor(entityType) {
     this.entitySet = new EntitySet(entityType);

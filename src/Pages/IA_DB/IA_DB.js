@@ -27,7 +27,10 @@ import {
   notifyQAApprovalPending,
   mapResponseDocs,
 } from "./IA_DB_Services.js";
-import { configurationsStore } from "../../infrastructure/Store.js";
+import {
+  auditOrganizationStore,
+  configurationsStore,
+} from "../../infrastructure/Store.js";
 
 var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
@@ -48,13 +51,21 @@ async function InitReport() {
 
   await InitSal();
 
-  const configurations = await appContext.AuditConfigurations.ToList();
+  const configurationsPromise = appContext.AuditConfigurations.ToList().then(
+    (configurations) => {
+      configurations.map(
+        (config) => (configurationsStore[config.key] = config.value)
+      );
+    }
+  );
 
-  if (configurations.length) {
-    configurations.map(
-      (config) => (configurationsStore[config.key] = config.value)
-    );
-  }
+  const auditOrganizationsPromise = appContext.AuditOrganizations.ToList().then(
+    (organizations) => {
+      ko.utils.arrayPushAll(auditOrganizationStore, organizations);
+    }
+  );
+
+  await Promise.all([configurationsPromise, auditOrganizationsPromise]);
 
   Audit.IAReport.Report = new Audit.IAReport.NewReportPage();
   Audit.IAReport.Init();

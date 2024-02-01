@@ -12,6 +12,8 @@ import { AuditOrganization } from "./AuditOrganization.js";
 import { ActiveViewer } from "../valueObjects/ActiveViewer.js";
 import { ActiveViewersComponent } from "../components/ActiveViewers/ActiveViewersModule.js";
 
+import { auditOrganizationStore } from "../infrastructure/Store.js";
+
 // import { appContext } from "../infrastructure/ServiceContainer.js";
 
 export const AuditResponseStates = {
@@ -77,6 +79,7 @@ export class AuditResponse extends ConstrainedEntity {
   ActionOffice = new LookupField({
     displayName: "Action Office",
     type: AuditOrganization,
+    options: auditOrganizationStore,
     optionsFilter: ko.pureComputed(() => {
       // Only allow action offices from this coversheets associated request
       const request = ko.unwrap(this.ReqNum.Value);

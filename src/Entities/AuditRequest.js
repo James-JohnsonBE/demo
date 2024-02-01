@@ -10,6 +10,7 @@ import ConstrainedEntity from "../primitives/ConstrainedEntity.js";
 import BaseField from "../fields/BaseField.js";
 
 import { ValidationError } from "../primitives/ValidationError.js";
+import { auditOrganizationStore } from "../infrastructure/Store.js";
 // import { appContext } from "../infrastructure/ApplicationDbContext.js";
 
 export const AUDITREQUESTSTATES = {
@@ -125,7 +126,7 @@ export class AuditRequest extends ConstrainedEntity {
   ActionOffice = new LookupField({
     displayName: "Action Offices",
     type: AuditOrganization,
-    // entitySet: appContext.AuditOrganizations,
+    options: auditOrganizationStore,
     lookupCol: "Title",
     multiple: true,
   });
@@ -133,7 +134,7 @@ export class AuditRequest extends ConstrainedEntity {
   EmailActionOffice = new LookupField({
     displayName: "Email Action Offices",
     type: AuditOrganization,
-    // entitySet: appContext.AuditOrganizations,
+    options: auditOrganizationStore,
     lookupCol: "Title",
     multiple: true,
   });

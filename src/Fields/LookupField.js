@@ -24,7 +24,7 @@ export default class LookupField extends BaseField {
     isRequired = false,
     Visible,
     entitySet,
-    options = null,
+    options = ko.observableArray(),
     optionsFilter = null,
     optionsText = null,
     multiple = false,
@@ -38,7 +38,7 @@ export default class LookupField extends BaseField {
       this.isSearch = true;
     } else {
       this.isSearch = false;
-      this.allOpts(options);
+      this.allOpts = options;
     }
     this.isSearch = !options;
     this.multiple = multiple;
@@ -53,7 +53,7 @@ export default class LookupField extends BaseField {
 
   isSearch = false;
 
-  allOpts = ko.observableArray();
+  allOpts;
   optionsFilter = (val) => val;
 
   Options = ko.pureComputed(() => {
@@ -151,13 +151,13 @@ export default class LookupField extends BaseField {
       const values = valArr.map((value) => this.findOrCreateNewEntity(value));
 
       this.Value(values);
-      this.ensure();
-      return;
+      // this.ensure();
+    } else {
+      this.Value(this.findOrCreateNewEntity(val));
     }
 
-    this.Value(this.findOrCreateNewEntity(val));
     if (val && !this.toString()) {
-      this.ensure();
+      // this.ensure();
     }
   };
 
@@ -174,11 +174,14 @@ export default class LookupField extends BaseField {
     const optionEntity = this.Options().find((entity) => entity.ID == val.ID);
     if (optionEntity) return optionEntity;
 
-    const cachedEntity = this.entitySet.FindInStore(val.ID);
-    if (cachedEntity) return cachedEntity;
+    // const cachedEntity = this.entitySet.FindInStore(val.ID);
+    // if (cachedEntity) return cachedEntity;
 
     const newEntity = new this.entityType();
     newEntity.ID = val.ID;
+    // Kick off the load process in the background
+    this.entitySet.LoadEntity(newEntity);
+
     return newEntity;
   };
 
