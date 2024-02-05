@@ -7,13 +7,17 @@ Audit.AOReport = Audit.AOReport || {};
 
 const responseParam = "ResNum";
 
-$(document).ready(function () {
-  SP.SOD.executeFunc(
-    "sp.js",
-    "SP.ClientContext",
-    ExecuteOrDelayUntilScriptLoaded(InitReport, "sp.js")
-  );
-});
+if (document.readyState === "ready" || document.readyState === "complete") {
+  InitReport();
+} else {
+  document.onreadystatechange = () => {
+    if (document.readyState === "complete" || document.readyState === "ready") {
+      ExecuteOrDelayUntilScriptLoaded(function () {
+        SP.SOD.executeFunc("sp.js", "SP.ClientContext", InitReport);
+      }, "sp.js");
+    }
+  };
+}
 
 function InitReport() {
   Audit.AOReport.Report = new Audit.AOReport.NewReportPage();

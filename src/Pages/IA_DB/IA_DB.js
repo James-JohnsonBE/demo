@@ -38,13 +38,17 @@ Audit.IAReport = Audit.IAReport || {};
 const requestParam = "ReqNum";
 const responseParam = "ResNum";
 
-$(document).ready(function () {
-  SP.SOD.executeFunc(
-    "sp.js",
-    "SP.ClientContext",
-    ExecuteOrDelayUntilScriptLoaded(InitReport, "sp.js")
-  );
-});
+if (document.readyState === "ready" || document.readyState === "complete") {
+  InitReport();
+} else {
+  document.onreadystatechange = () => {
+    if (document.readyState === "complete" || document.readyState === "ready") {
+      ExecuteOrDelayUntilScriptLoaded(function () {
+        SP.SOD.executeFunc("sp.js", "SP.ClientContext", InitReport);
+      }, "sp.js");
+    }
+  };
+}
 
 async function InitReport() {
   /*********NOTE: the Contribute permission level needs to have manage permissions turned on ************/
