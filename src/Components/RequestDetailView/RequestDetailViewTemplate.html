@@ -1,6 +1,3 @@
-<button type="button" class="btn btn-link" data-bind="click: refreshRequest">
-  <i title="Refresh Request" class="fa-solid fa-arrows-rotate"></i>
-</button>
 <div class="request-detail-view" data-bind="">
   <div>
     <div
@@ -28,13 +25,20 @@
       class="audit-form bg-dark"
       data-bind="with: currentRequest"
     >
-      <div class="form-title">
-        <h3 class="white">
+      <div class="form-header">
+        <h3 class="white form-title">
           AUDIT REQUEST DETAILS
           <span class="text-primary"
             >FY-<span data-bind="text: fiscalYear"></span
           ></span>
         </h3>
+        <button
+          type="button"
+          class="btn btn-link form-title"
+          data-bind="click: $parent.refreshRequest"
+        >
+          <i title="Refresh Request" class="fa-solid fa-arrows-rotate"></i>
+        </button>
       </div>
       <!-- ko if: typeof(activeViewers) != 'undefined' -->
       <div
@@ -407,7 +411,7 @@
     </div>
   </div>
 
-  <div>
+  <div class="ui-tabs-secondary">
     <!-- ko using: tabs -->
     <ul class="ui-tabs-nav" data-bind="foreach: tabOpts">
       <li
