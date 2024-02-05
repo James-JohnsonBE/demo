@@ -41,7 +41,7 @@
           >
         </div>
       </div>
-      <div id="tabs" style="margin-top: 20px">
+      <div id="" style="margin-top: 20px">
         <!-- ko using: tabs -->
         <ul class="ui-tabs-nav" data-bind="foreach: tabOpts">
           <li

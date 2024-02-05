@@ -54,8 +54,8 @@ AuditResponse
 
 AuditResponseDoc
 
-- [ ] m_fnViewResponseDoc
-- [ ] m_fnEditResponseDoc
+- [x] m_fnViewResponseDoc
+- [x] m_fnEditResponseDoc
 
 ## General Todos
 
@@ -63,19 +63,52 @@ AuditResponseDoc
 [x] Prepopulate new Request with all reminders selected.
 [x] - And on Bulk Add Request
 [x] Fix file rename (created has conflict with drag n drop edit)
-[ ] Lookup field shouldn't trigger load of every record.
+[x] Lookup field shouldn't trigger load of every record.
 
 ## Refresh Fix!
 
 [ ] finish building out m_fnRequeryRequest
 
-- [ ] Update Coversheets
-- [ ] Update Responses
-- [x] Update Response Docs
-- [ ] Update Request
-- [ ] Update Quick-Info sections (Should this be a standalone function?)
+### Components/data to be refreshed
 
-[ ] Update actions to call m_fnRequeryRequest instead of m_fnRefresh
+- [x] Update Request Info Responses Section
+- [x] Update Request Info Response Docs Section
+- [x] Update Request Info Request Detail Section
+- [ ] Update Quick-Info sections (Should this be a standalone function?)
+- [ ] Update Request Status Report
+- [ ] Update Response Status Report
+
+### Actions triggering full refresh
+
+Quick Actions
+
+- [ ] Bulk Add Request
+- [ ] Create New Request
+
+Request Detail
+
+- [ ] Send Email to Action Offices
+- [ ] Synchronize Email Action Offices
+- [ ] Grant Special Permissions
+- [ ] Remove Special Permissions
+- [ ] Close Request
+
+Coversheets
+
+- [ ] Edit Coversheets
+
+Responses
+
+- [ ] Bulk Edit Responses
+- [ ] Bulk Add Responses
+- [ ] Add Response
+- [ ] Edit Response
+
+Response Docs
+
+- [ ] Edit Response Docs
+- [ ] Approve Response Doc
+- [ ] Reject Response Doc
 
 ## UI Updates
 
