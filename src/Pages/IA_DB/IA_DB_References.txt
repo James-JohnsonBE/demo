@@ -69,11 +69,12 @@
             <tbody data-bind="foreach: arrRequestsThatNeedClosing">
               <tr>
                 <td>
-                  <a
-                    href="javascript:void(0)"
+                  <button
+                    type="button"
+                    class="btn btn-link primary fw-bold"
                     title="Click here to Go to this Request"
                     data-bind="click: $root.ClickGoToRequest, text: number"
-                  ></a>
+                  ></button>
                 </td>
                 <td>
                   <b><span data-bind="text: lastResponseId"></span></b
@@ -295,6 +296,62 @@
                 ></a>
               </li>
             </ul>
+          </div>
+        </fieldset>
+      </div>
+      <div
+        id="divResponsesWithUnsubmittedResponsDocs"
+        class="status-set-container"
+        data-bind="visible: arrResponsesWithUnsubmittedResponseDocs().length > 0"
+      >
+        <fieldset style="border: 0px solid white">
+          <legend class="warning" style="color: red">
+            <span class="ui-icon ui-icon-alert"></span
+            ><a href="javascript:void(0)" title="Click here to View"
+              ><span
+                data-bind="text: arrResponsesWithUnsubmittedResponseDocs().length"
+              ></span>
+              Responses have Unsubmitted Response Documents</a
+            >
+          </legend>
+          <div
+            id="divResponsesWithUnsubmittedResponseDocsItems"
+            class="collapsed"
+          >
+            <table class="tablesorter">
+              <thead>
+                <tr>
+                  <!-- <th>Response ID</th> -->
+                  <th>Title</th>
+                  <th>Modified</th>
+                </tr>
+              </thead>
+              <tbody
+                data-bind="foreach: arrResponsesWithUnsubmittedResponseDocs"
+              >
+                <tr>
+                  <td colspan="2">
+                    <span
+                      title="Go to Response Details"
+                      class="btn btn-link fw-semibold primary"
+                      data-bind="text: title + ' (' + unsubmittedDocs.length + ' documents)', 
+                        click: $root.ClickGoToRequest"
+                    ></span>
+                  </td>
+                </tr>
+                <!-- ko foreach: unsubmittedDocs -->
+                <tr>
+                  <td>
+                    <a
+                      title="Click to Download"
+                      data-bind="text: fileName, downloadLink: '../_layouts/download.aspx?SourceUrl=:folder/:fileName'"
+                    ></a>
+                  </td>
+                  <td data-bind="text: modifiedDate"></td>
+                </tr>
+                <!-- /ko -->
+              </tbody>
+            </table>
           </div>
         </fieldset>
       </div>

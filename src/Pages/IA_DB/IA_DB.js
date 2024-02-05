@@ -13,7 +13,10 @@ import { NewRequestFormComponent } from "../../components/Forms/Request/NewForm/
 import { RequestDetailView } from "../../components/RequestDetailView/RequestDetailView.js";
 import { EditRequestForm } from "../../components/Forms/Request/EditForm/EditRequestForm.js";
 import { EditCoverSheetForm } from "../../components/Forms/CoverSheet/EditForm/EditCoversheetForm.js";
-import { AuditResponse } from "../../entities/AuditResponse.js";
+import {
+  AuditResponse,
+  AuditResponseStates,
+} from "../../entities/AuditResponse.js";
 import { NewResponseForm } from "../../components/Forms/Response/NewForm/NewResponseForm.js";
 import { EditResponseForm } from "../../components/Forms/Response/EditForm/EditResponseForm.js";
 import { EditResponseDocForm } from "../../components/Forms/ResponseDoc/EditForm/EditResponseDocForm.js";
@@ -31,6 +34,7 @@ import {
   auditOrganizationStore,
   configurationsStore,
 } from "../../infrastructure/Store.js";
+import { AuditResponseDocStates } from "../../entities/AuditResponseDocs.js";
 
 var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
@@ -191,6 +195,7 @@ function ViewModel() {
   self.arrRequestsThatNeedClosing = ko.observableArray(null);
   self.arrResponseDocsCheckedOut = ko.observableArray(null);
   self.arrResponsesSubmittedByAO = ko.observableArray(null);
+  self.arrResponsesWithUnsubmittedResponseDocs = ko.observableArray();
   self.arrRequestsInternalAlmostDue = ko.observableArray(null);
   self.arrRequestsInternalPastDue = ko.observableArray(null);
   self.arrRequestsAlmostDue = ko.observableArray(null);
@@ -2916,6 +2921,7 @@ function LoadTabStatusReport2() {
   if (arr == null) return;
 
   var arrSubmittedResponsesByAO = new Array();
+  var arrUnsubmittedResponseDocs = [];
 
   //var bLoadTest = GetUrlKeyValue("LoadTest");
   var responseArr = new Array();
@@ -2933,6 +2939,20 @@ function LoadTabStatusReport2() {
 
       var resCount = m_oResponseTitleAndDocCount[oResponse.title];
       if (!resCount) resCount = 0;
+
+      var responseUnsubmittedDocs = [];
+      if (
+        resCount &&
+        [AuditResponseStates.Open, AuditResponseStates.ReturnedToAO].includes(
+          responseStatus
+        )
+      ) {
+        // Check if there are unsubmitted response docs
+        responseUnsubmittedDocs = oResponse.responseDocs.filter(
+          (responseDoc) =>
+            responseDoc.documentStatus == AuditResponseDocStates.Open
+        );
+      }
 
       var aResponse = {
         visibleRow: ko.observable(true),
@@ -2961,6 +2981,14 @@ function LoadTabStatusReport2() {
           title: oResponse.title,
           number: oRequest.number,
         });
+
+      if (responseUnsubmittedDocs.length) {
+        arrUnsubmittedResponseDocs.push({
+          title: oResponse.title,
+          number: oRequest.number,
+          unsubmittedDocs: responseUnsubmittedDocs,
+        });
+      }
     }
   }
 
@@ -2984,6 +3012,11 @@ function LoadTabStatusReport2() {
     arrSubmittedResponsesByAO
   );
   _myViewModel.arrResponsesSubmittedByAO.valueHasMutated();
+
+  ko.utils.arrayPushAll(
+    _myViewModel.arrResponsesWithUnsubmittedResponseDocs,
+    arrUnsubmittedResponseDocs
+  );
 }
 
 function m_fnViewLateRequests() {

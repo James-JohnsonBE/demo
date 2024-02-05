@@ -73,10 +73,15 @@ div.cell-margin {
   background-color: #2a3c48;
 }
 
-.audit-body .quick-info fieldset a {
+.audit-body .quick-info fieldset legend a {
   /* text-decoration: none; */
   color: white;
   font-weight: bold;
+}
+
+.audit-body .quick-info a {
+  /* text-decoration: none; */
+  color: var(--primary-muted-color);
 }
 
 .audit-body .reports-container {
@@ -308,7 +313,7 @@ legend {
 }
 
 .colorRedLegend {
-  color: red;
+  /* color: red; */
   border: 1px solid red !important;
 }
 

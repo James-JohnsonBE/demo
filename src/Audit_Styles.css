@@ -241,7 +241,7 @@ TABLE.tablesorter THEAD TR .header {
 
 /* Colors */
 .white {
-  color: white;
+  color: white !important;
 }
 
 .primary {
@@ -319,11 +319,11 @@ TABLE.tablesorter THEAD TR .header {
   font-weight: 400;
 }
 .fw-semibold {
-  font-weight: 600;
+  font-weight: 600 !important;
 }
 
 .fw-bold {
-  font-weight: bold;
+  font-weight: bold !important;
 }
 
 .uppercase {
