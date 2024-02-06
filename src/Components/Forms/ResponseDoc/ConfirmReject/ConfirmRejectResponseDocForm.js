@@ -1,7 +1,5 @@
 import { registerComponent } from "../../../../infrastructure/RegisterComponents.js";
-import {
-  rejectResponseDoc,
-} from "../../../../pages/IA_DB/IA_DB.js";
+import { m_fnRejectResponseDoc } from "../../../../pages/IA_DB/IA_DB.js";
 const componentName = "confirm-reject-response-doc";
 export class ConfirmRejectResponseDocForm {
   constructor(request, response, responseDocs) {
@@ -23,7 +21,7 @@ export class ConfirmRejectResponseDocForm {
   async submit() {
     await Promise.all(
       this.responseDocs().map((responseDoc) => {
-        return rejectResponseDoc(
+        return m_fnRejectResponseDoc(
           this.request,
           responseDoc,
           this.rejectReason()

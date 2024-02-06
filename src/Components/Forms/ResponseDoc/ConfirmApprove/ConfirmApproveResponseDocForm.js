@@ -1,5 +1,5 @@
 import { registerComponent } from "../../../../infrastructure/RegisterComponents.js";
-import { approveResponseDocsForQA } from "../../../../pages/IA_DB/IA_DB.js";
+import { m_fnApproveResponseDocsForQA } from "../../../../pages/IA_DB/IA_DB.js";
 const componentName = "confirm-approve-response-doc";
 export class ConfirmApproveResponseDocForm {
   constructor(request, response, responseDocs) {
@@ -18,7 +18,7 @@ export class ConfirmApproveResponseDocForm {
   }
 
   async submit() {
-    await approveResponseDocsForQA(this.request, this.responseDocs());
+    await m_fnApproveResponseDocsForQA(this.request, this.responseDocs());
     this.onComplete(true);
   }
 

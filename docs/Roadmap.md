@@ -44,7 +44,7 @@ AuditCoverSheet
 
 - [x] m_fnViewCoverSheet
 - [x] m_fnEditCoverSheet
-- [ ] m_fnUploadCoverSheet
+- [x] m_fnUploadCoverSheet (removed)
 
 AuditResponse
 
