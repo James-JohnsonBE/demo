@@ -70,7 +70,7 @@ registerComponent({
   template: "CommentChainTemplate",
 });
 
-export class CommentChainModuleDeprecated {
+export class CommentChainModuleLegacy {
   constructor(requestId, props) {
     this.requestId = requestId;
     this.requestListTitle = props.requestListTitle;

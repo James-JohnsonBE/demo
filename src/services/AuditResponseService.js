@@ -93,7 +93,14 @@ export async function updateResponseDoc(request, response, responseDoc) {
   );
 }
 
-export async function approveResponseDocsForQA(
+function getResponseTitle(request, response) {
+  return `${request.ReqNum.Value()}-${
+    response.ActionOffice.Value()?.Title
+  }-${response.SampleNumber.Value()}`;
+}
+
+/* Begin Unreferenced Service Rewrites */
+async function approveResponseDocsForQA(
   requestId,
   responseId = null,
   responseDocsToApproveIds
@@ -169,12 +176,6 @@ export async function approveResponseDocsForQA(
     await breakRequestPermissions(request, AuditResponseStates.ApprovedForQA);
     await breakRequestCoversheetPerms(request, true);
   }
-}
-
-function getResponseTitle(request, response) {
-  return `${request.ReqNum.Value()}-${
-    response.ActionOffice.Value()?.Title
-  }-${response.SampleNumber.Value()}`;
 }
 
 function getNewResponseDocTtitle(request, response, responseDoc) {

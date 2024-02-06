@@ -2,13 +2,12 @@
 import { appContext } from "../../infrastructure/ApplicationDbContext.js";
 import { TabsModule, Tab } from "../../components/Tabs/TabsModule.js";
 import { setUrlParam } from "../../common/Router.js";
-import { CommentChainModuleDeprecated } from "../../components/CommentChain/CommentChainModule.js";
-import { ActiveViewersModuleDeprecated } from "../../components/ActiveViewers/ActiveViewersModule.js";
+import { CommentChainModuleLegacy } from "../../components/CommentChain/CommentChainModule.js";
+import { ActiveViewersModuleLegacy } from "../../components/ActiveViewers/ActiveViewersModule.js";
 
 import * as ModalDialog from "../../infrastructure/ModalDialog.js";
 import * as FormManager from "../../services/FormManager.js";
 
-import { AuditRequest } from "../../entities/AuditRequest.js";
 import { NewRequestFormComponent } from "../../components/Forms/Request/NewForm/NewRequestForm.js";
 import { RequestDetailView } from "../../components/RequestDetailView/RequestDetailView.js";
 import { EditRequestForm } from "../../components/Forms/Request/EditForm/EditRequestForm.js";
@@ -1865,12 +1864,12 @@ function LoadRequestsInternal(m_requestInternalItems) {
       var requestObject = m_fnGetRequestByNumber(reqNum.get_lookupValue());
       if (!requestObject) continue;
 
-      requestObject.internalStatus = new CommentChainModuleDeprecated(id, {
+      requestObject.internalStatus = new CommentChainModuleLegacy(id, {
         requestListTitle: Audit.Common.Utilities.GetListTitleRequestsInternal(),
         columnName: "InternalStatus",
         initialValue: oListItem.get_item("InternalStatus"),
       });
-      requestObject.activeViewers = new ActiveViewersModuleDeprecated(id, {
+      requestObject.activeViewers = new ActiveViewersModuleLegacy(id, {
         requestListTitle: Audit.Common.Utilities.GetListTitleRequestsInternal(),
         columnName: "ActiveViewers",
         initialValue: oListItem.get_item("ActiveViewers"),
@@ -2599,14 +2598,11 @@ async function LoadTabRequestInfoResponses(oRequest) {
     oResponse["specialPerms"] = specialPerms;
     oResponse["styleTag"] = styleTag;
     oResponse["toolTip"] = toolTip;
-    oResponse["activeViewers"] = new ActiveViewersModuleDeprecated(
-      oResponse.ID,
-      {
-        requestListTitle: Audit.Common.Utilities.GetListTitleResponses(),
-        columnName: "ActiveViewers",
-        initialValue: oResponse.item.get_item("ActiveViewers"),
-      }
-    );
+    oResponse["activeViewers"] = new ActiveViewersModuleLegacy(oResponse.ID, {
+      requestListTitle: Audit.Common.Utilities.GetListTitleResponses(),
+      columnName: "ActiveViewers",
+      initialValue: oResponse.item.get_item("ActiveViewers"),
+    });
 
     arrResponses.push(oResponse);
   }

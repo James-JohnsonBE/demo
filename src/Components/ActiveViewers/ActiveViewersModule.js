@@ -71,7 +71,7 @@ export class ActiveViewersComponent {
 }
 
 // TODO: convert to class
-export function ActiveViewersModuleDeprecated(requestId, props) {
+export function ActiveViewersModuleLegacy(requestId, props) {
   var requestListTitle = props.requestListTitle;
   var columnName = props.columnName;
   var initialValue = props.initialValue;

@@ -46,19 +46,20 @@ export async function AddNewRequest(request) {
   // await onAddNewRequest(request);
 }
 
+export async function updateRequest(request) {
+  await appContext.AuditRequests.UpdateEntity(
+    request,
+    AuditRequest.Views.AOCanUpdate
+  );
+}
+
+/* Begin Unreferenced Service Rewrites */
 export async function onAddNewRequest(request) {
   await Promise.all([
     ensureRequestPermissions(request),
     ensureAuditEmailFolder(request),
     ensureRequestInternalItem(request),
   ]);
-}
-
-export async function updateRequest(request) {
-  await appContext.AuditRequests.UpdateEntity(
-    request,
-    AuditRequest.Views.AOCanUpdate
-  );
 }
 
 async function ensureAuditEmailFolder(request) {
@@ -98,7 +99,7 @@ async function ensureAuditEmailFolder(request) {
   );
 }
 
-export async function ensureRequestPermissions(request) {
+async function ensureRequestPermissions(request) {
   const perms = await appContext.AuditRequests.GetItemPermissions(request);
   if (!perms.hasUniqueRoleAssignments) {
     if (window.DEBUG) console.log("Request does not have unique permissions");
@@ -106,7 +107,7 @@ export async function ensureRequestPermissions(request) {
   }
 }
 
-export async function ensureRequestInternalItem(request) {
+async function ensureRequestInternalItem(request) {
   const requestInternalResult =
     await appContext.AuditRequestsInternals.FindByColumnValue(
       [{ column: "ReqNum", op: "eq", value: request.ID }],
