@@ -64,10 +64,18 @@ div.cell-margin {
   gap: 1rem;
 }
 
+#divLoading {
+  color: lightgray;
+  padding: 0.2rem 0;
+}
 .audit-body .quick-info {
   min-width: 275px;
   flex: 0;
   background-color: var(--bg-dark-color);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  color: white;
 }
 
 .audit-body .quick-info .status-set-container {

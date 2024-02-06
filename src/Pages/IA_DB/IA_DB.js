@@ -2933,6 +2933,8 @@ function LoadTabStatusReport2() {
   const arr = m_getArrRequests();
   if (arr == null) return;
 
+  _myViewModel.arrResponsesWithUnsubmittedResponseDocs([]);
+
   var arrSubmittedResponsesByAO = new Array();
   var arrUnsubmittedResponseDocs = [];
 
