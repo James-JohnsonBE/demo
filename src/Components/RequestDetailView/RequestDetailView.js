@@ -10,7 +10,7 @@ import { ConfirmApproveResponseDocForm } from "../Forms/ResponseDoc/ConfirmAppro
 import { AuditResponseStates } from "../../entities/AuditResponse.js";
 import { AuditResponseDocStates } from "../../entities/AuditResponseDocs.js";
 import { AUDITREQUESTSTATES } from "../../entities/AuditRequest.js";
-import { m_fnRequeryRequest } from "../../pages/IA_DB/IA_DB.js";
+import { m_fnRefreshData } from "../../pages/IA_DB/IA_DB.js";
 import { ConfirmRejectResponseDocForm } from "../Forms/ResponseDoc/ConfirmReject/ConfirmRejectResponseDocForm.js";
 
 const componentName = "component-request-detail-view";
@@ -125,7 +125,7 @@ export class RequestDetailView {
   }
 
   refreshRequest() {
-    m_fnRequeryRequest(this.currentRequest());
+    m_fnRefreshData();
   }
 
   // Coversheets
@@ -138,6 +138,7 @@ export class RequestDetailView {
     // Only allow 1 coversheet at a time
     const file = newFiles[0];
     const coversheet = await uploadRequestCoversheetFile(file, request);
+    this.coverSheetFiles([]);
     this.editCoversheet({ ID: coversheet.ID });
   };
 

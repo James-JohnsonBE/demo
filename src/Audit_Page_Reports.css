@@ -61,10 +61,12 @@ div.cell-margin {
 .audit-body {
   display: flex;
   justify-content: start;
+  gap: 1rem;
 }
 
 .audit-body .quick-info {
-  width: 275px;
+  min-width: 275px;
+  flex: 0;
   background-color: var(--bg-dark-color);
 }
 
@@ -85,7 +87,6 @@ div.cell-margin {
 }
 
 .audit-body .reports-container {
-  margin: 1rem;
   min-width: 1200px;
 }
 
@@ -396,6 +397,10 @@ table.tablesorter tbody td:hover {
 
 #divRequestInfo {
   max-width: 600px;
+}
+
+.request-detail-view .request-detail-documents {
+  min-width: 860px;
 }
 
 #tblCoverSheets tbody td {

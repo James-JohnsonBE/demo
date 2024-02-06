@@ -1021,7 +1021,7 @@ function ViewModel() {
         currentEventHandler = requestUnloadEventHandler(oRequest);
         window.addEventListener("beforeunload", currentEventHandler);
       }
-      m_fnRequeryRequest(oRequest);
+      m_fnRequeryRequest(oRequest.ID);
     } else {
     }
   });
@@ -1264,9 +1264,15 @@ function m_fnLoadData(
   LoadTabStatusReport2();
 }
 
-export async function m_fnRequeryRequest(oRequest = null) {
-  if (!oRequest) oRequest = _myViewModel.currentRequest();
+export async function m_fnRefreshData(requestId = null) {
+  if (!requestId) requestId = _myViewModel.currentRequest()?.ID;
+  await m_fnRequeryRequest(requestId);
 
+  // TODO: Update status reports and other data.
+  // LoadTabStatusReport1();
+  // LoadTabStatusReport2();
+}
+export async function m_fnRequeryRequest(requestId = null) {
   var currCtx = new SP.ClientContext.get_current();
   var web = currCtx.get_web();
 
@@ -1276,7 +1282,7 @@ export async function m_fnRequeryRequest(oRequest = null) {
   var requestQuery = new SP.CamlQuery();
   requestQuery.set_viewXml(
     '<View><Query><Where><Eq><FieldRef Name="ID"/><Value Type="Text">' +
-      oRequest.ID +
+      requestId +
       "</Value></Eq></Where></Query></View>"
   );
   var m_aRequestItem = requestList.getItems(requestQuery);
@@ -1312,12 +1318,19 @@ export async function m_fnRequeryRequest(oRequest = null) {
       reject({ sender, args })
     )
   ).catch(({ sender, args }) => {
-    console.error("Unable to requery request: " + oRequest.number);
+    console.error("Unable to requery request: " + requestId);
     return;
   });
 
   LoadRequests(m_aRequestItem);
   LoadRequestsInternal(m_requestInternalItems);
+
+  const oRequest = m_fnGetRequestByID(requestId);
+
+  if (!oRequest) {
+    alert("Request was not successfully reloaded!");
+    return;
+  }
 
   //Update the item field on the request
   var listItemEnumerator = m_aRequestItem.getEnumerator();
@@ -1510,10 +1523,10 @@ function m_fnResetAODBPerms(pageItems) {
       var currCtx = new SP.ClientContext.get_current();
       var web = currCtx.get_web();
 
-      this.currentUser = web.get_currentUser();
-      this.ownerGroup = web.get_associatedOwnerGroup();
-      this.memberGroup = web.get_associatedMemberGroup();
-      this.visitorGroup = web.get_associatedVisitorGroup();
+      const currentUser = web.get_currentUser();
+      const ownerGroup = web.get_associatedOwnerGroup();
+      const memberGroup = web.get_associatedMemberGroup();
+      const visitorGroup = web.get_associatedVisitorGroup();
 
       oListItem.resetRoleInheritance();
       oListItem.breakRoleInheritance(false, false);
@@ -1533,17 +1546,17 @@ function m_fnResetAODBPerms(pageItems) {
       //add site associated groups
       oListItem
         .get_roleAssignments()
-        .add(this.ownerGroup, roleDefBindingCollContribute);
+        .add(ownerGroup, roleDefBindingCollContribute);
       oListItem
         .get_roleAssignments()
-        .add(this.memberGroup, roleDefBindingCollContribute);
+        .add(memberGroup, roleDefBindingCollContribute);
       oListItem
         .get_roleAssignments()
-        .add(this.visitorGroup, roleDefBindingCollRestrictedRead);
+        .add(visitorGroup, roleDefBindingCollRestrictedRead);
 
       oListItem
         .get_roleAssignments()
-        .getByPrincipal(this.currentUser)
+        .getByPrincipal(currentUser)
         .deleteObject();
 
       //Need to break up adding AOs because it exceeds the resource limit (request uses too many resources)
@@ -1621,10 +1634,10 @@ function m_fnCheckForEAEmailFolder(emailListFolderItemsEA) {
     oNewEmailFolder.set_item("Title", "EANotifications");
     oNewEmailFolder.update();
 
-    this.currentUser = web.get_currentUser();
-    this.ownerGroup = web.get_associatedOwnerGroup();
-    this.memberGroup = web.get_associatedMemberGroup();
-    this.visitorGroup = web.get_associatedVisitorGroup();
+    const currentUser = web.get_currentUser();
+    const ownerGroup = web.get_associatedOwnerGroup();
+    const memberGroup = web.get_associatedMemberGroup();
+    const visitorGroup = web.get_associatedVisitorGroup();
 
     oNewEmailFolder.resetRoleInheritance();
     oNewEmailFolder.breakRoleInheritance(false, false);
@@ -1656,13 +1669,13 @@ function m_fnCheckForEAEmailFolder(emailListFolderItemsEA) {
     //add associated site groups
     oNewEmailFolder
       .get_roleAssignments()
-      .add(this.ownerGroup, roleDefBindingCollAdmin);
+      .add(ownerGroup, roleDefBindingCollAdmin);
     oNewEmailFolder
       .get_roleAssignments()
-      .add(this.memberGroup, roleDefBindingCollContribute);
+      .add(memberGroup, roleDefBindingCollContribute);
     oNewEmailFolder
       .get_roleAssignments()
-      .add(this.visitorGroup, roleDefBindingCollRestrictedRead);
+      .add(visitorGroup, roleDefBindingCollRestrictedRead);
 
     var spGroupQA = Audit.Common.Utilities.GetSPSiteGroup(
       Audit.Common.Utilities.GetGroupNameQA()
@@ -1674,7 +1687,7 @@ function m_fnCheckForEAEmailFolder(emailListFolderItemsEA) {
 
     oNewEmailFolder
       .get_roleAssignments()
-      .getByPrincipal(this.currentUser)
+      .getByPrincipal(currentUser)
       .deleteObject();
 
     //Need to break up adding AOs because it exceeds the resource limit (request uses too many resources)
@@ -3556,7 +3569,7 @@ function m_fnResendRejectedResponseDocToQA(itemID) {
     oListItem.update();
 
     function OnSuccess(sender, args) {
-      m_fnRequeryRequest(_myViewModel.currentRequest());
+      m_fnRefreshData();
     }
     function OnFailure(sender, args) {
       const statusId = SP.UI.Status.addStatus(
@@ -3858,7 +3871,7 @@ function m_fnSyncEmailActionOffices(requestID) {
       function () {
         SP.UI.Notify.addNotification("Email Action Offices Set. ", false);
         setTimeout(function () {
-          m_fnRefresh();
+          m_fnRefreshData();
         }, 1000);
       },
       function (sender, args) {
@@ -4086,7 +4099,8 @@ function m_fnSendEmail(requestID) {
                     false
                   );
                   setTimeout(function () {
-                    m_fnRefresh();
+                    m_waitDialog.close();
+                    m_fnRefreshData();
                   }, 1000);
                 },
                 function (sender, args) {
@@ -4578,10 +4592,10 @@ function m_fnBreakCoversheetPermissionsOnSpecialPerms(
 
   var web = currCtx.get_web();
 
-  this.currentUser = currCtx.get_web().get_currentUser();
-  this.ownerGroup = web.get_associatedOwnerGroup();
-  this.memberGroup = web.get_associatedMemberGroup();
-  this.visitorGroup = web.get_associatedVisitorGroup();
+  const currentUser = currCtx.get_web().get_currentUser();
+  const ownerGroup = web.get_associatedOwnerGroup();
+  const memberGroup = web.get_associatedMemberGroup();
+  const visitorGroup = web.get_associatedVisitorGroup();
 
   oListItem.resetRoleInheritance();
   oListItem.breakRoleInheritance(false, false);
@@ -4617,13 +4631,13 @@ function m_fnBreakCoversheetPermissionsOnSpecialPerms(
   );
 
   //add associated site groups
-  oListItem.get_roleAssignments().add(this.ownerGroup, roleDefBindingCollAdmin);
+  oListItem.get_roleAssignments().add(ownerGroup, roleDefBindingCollAdmin);
   oListItem
     .get_roleAssignments()
-    .add(this.memberGroup, roleDefBindingCollContribute);
+    .add(memberGroup, roleDefBindingCollContribute);
   oListItem
     .get_roleAssignments()
-    .add(this.visitorGroup, roleDefBindingCollRestrictedRead);
+    .add(visitorGroup, roleDefBindingCollRestrictedRead);
 
   if (qaHasRead) {
     //make sure qa gets read if it had access
@@ -4655,10 +4669,7 @@ function m_fnBreakCoversheetPermissionsOnSpecialPerms(
         .add(group2SpecialPerm, roleDefBindingCollRestrictedRead);
   }
 
-  oListItem
-    .get_roleAssignments()
-    .getByPrincipal(this.currentUser)
-    .deleteObject();
+  oListItem.get_roleAssignments().getByPrincipal(currentUser).deleteObject();
 
   function onUpdatedCSSPSucceeded() {
     var currCtx2 = new SP.ClientContext.get_current();
@@ -5514,7 +5525,8 @@ function m_fnGrantSpecialPermissions(requestNumber) {
                           false
                         );
                         setTimeout(function () {
-                          m_fnRefresh();
+                          m_waitDialog.close();
+                          m_fnRefreshData();
                         }, 200);
                       },
                       function (sender, args) {
@@ -5550,7 +5562,8 @@ function m_fnGrantSpecialPermissions(requestNumber) {
                             false
                           );
                           setTimeout(function () {
-                            m_fnRefresh();
+                            m_waitDialog();
+                            m_fnRefreshData();
                           }, 200);
                         } else {
                           document.body.style.cursor = "default";
@@ -5817,7 +5830,7 @@ function GetSourceUrlForForms() {
 function OnCallbackForm(result, value) {
   if (result === SP.UI.DialogResult.OK) {
     //alert( value );
-    m_fnRefresh();
+    m_fnRefreshData();
   } else m_bIsTransactionExecuting = false;
 }
 
@@ -5880,7 +5893,8 @@ function OnCallbackFormNewRequest(result, value) {
               oListItem,
               function (bDoneCreatingEmailFolder) {
                 _myViewModel.tabs.selectTab(_myViewModel.tabOpts.RequestDetail);
-                m_fnRefresh(oListItem.get_item("Title"));
+                m_waitDialog.close();
+                m_fnRefreshData(oListItem.get_item("ID"));
               }
             );
           } else {
@@ -5891,7 +5905,7 @@ function OnCallbackFormNewRequest(result, value) {
               oListItem,
               function (bDoneCreatingEmailFolder) {
                 _myViewModel.tabs.selectTab(_myViewModel.tabOpts.RequestDetail);
-                m_fnRefresh(oListItem.get_item("Title"));
+                m_fnRefreshData(oListItem.get_item("ID"));
               }
             );
           }
@@ -6260,7 +6274,7 @@ function OnCallbackFormEditRequest(result, value) {
       }
     }
 
-    m_fnRequeryRequest();
+    m_fnRefreshData();
   }
   function onFail(sender, args) {
     m_fnRefresh();
@@ -6310,14 +6324,8 @@ function OnCallbackFormCoverSheet(result, value) {
             600
           );
 
-          if (
-            requestSensitivity == null ||
-            requestSensitivity == "" ||
-            requestSensitivity == "None"
-          ) {
-            await m_fnBreakCoversheetPermissions(oListItem, false);
-            m_fnRefresh();
-          } else {
+          await m_fnBreakCoversheetPermissions(oListItem, false);
+          if (requestSensitivity && requestSensitivity != "None") {
             var doneBreakingCS = false;
             await m_fnBreakCoversheetPermissions(oListItem, false);
 
@@ -6331,20 +6339,17 @@ function OnCallbackFormCoverSheet(result, value) {
               oListItem.update();
             }
 
-            function OnSuccessUpdateSensitivityCS(sender, args) {
-              m_fnRefresh();
-            }
-            function OnFailureUpdateSensitivityCS(sender, args) {
+            var data = { newFileName: newFileName };
+            await new Promise((resolve, reject) => {
+              currCtx.executeQueryAsync(resolve, reject);
+            }).catch((e) => {
               alert("Error updating coversheet name with sensitivity");
               m_fnRefresh();
-            }
-
-            var data = { newFileName: newFileName };
-            currCtx.executeQueryAsync(
-              Function.createDelegate(data, OnSuccessUpdateSensitivityCS),
-              Function.createDelegate(data, OnFailureUpdateSensitivityCS)
-            );
+              return;
+            });
           }
+          m_waitDialog.close();
+          m_fnRefreshData();
         }
       },
       function (sender, args) {
@@ -6357,12 +6362,12 @@ function OnCallbackFormCoverSheet(result, value) {
 
 function OnCallbackFormBulkAddResponse(result, value) {
   //this is a field on this page that gets updated by the bulkupdate page if a bulk update operation has run
-  if ($("#divRanBulkUpdate").text() == 1) m_fnRefresh();
+  if ($("#divRanBulkUpdate").text() == 1) m_fnRefreshData();
 }
 
 function OnCallbackFormBulkEditResponse(result, value) {
   //this is a field on this page that gets updated by the bulkupdate page if a bulk update operation has run
-  if ($("#divRanBulkUpdate").text() == 1) m_fnRefresh();
+  if ($("#divRanBulkUpdate").text() == 1) m_fnRefreshData();
 }
 
 function OnCallbackFormNewResponse(result, value) {
@@ -6485,7 +6490,7 @@ function OnCallbackFormNewResponse(result, value) {
 
         currCtx.executeQueryAsync(
           function () {
-            m_fnRefresh();
+            m_fnRefreshData();
           },
           function (sender, args) {
             //alert( "Request failed: "  + args.get_message() + "\n" + args.get_stackTrace() );
@@ -6792,7 +6797,7 @@ function OnCallbackFormEditResponse(result, value) {
               function () {
                 document.body.style.cursor = "default";
                 setTimeout(function () {
-                  m_fnRefresh();
+                  m_fnRefreshData();
                 }, 1000);
               },
               function (sender, args) {
@@ -6922,7 +6927,7 @@ function OnCallbackFormEditResponse(result, value) {
                   );
                 }
                 setTimeout(function () {
-                  m_fnRefresh();
+                  m_fnRefreshData();
                 }, 200);
               },
               function (sender, args) {
@@ -6940,7 +6945,7 @@ function OnCallbackFormEditResponse(result, value) {
           } else {
             document.body.style.cursor = "default";
             setTimeout(function () {
-              m_fnRefresh();
+              m_fnRefreshData();
             }, 1000);
           }
         }

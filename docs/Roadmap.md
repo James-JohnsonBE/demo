@@ -82,33 +82,34 @@ AuditResponseDoc
 
 Quick Actions
 
-- [ ] Bulk Add Request
-- [ ] Create New Request
+- [x] Bulk Add Request
+- [x] Create New Request
 
 Request Detail
 
-- [ ] Send Email to Action Offices
-- [ ] Synchronize Email Action Offices
-- [ ] Grant Special Permissions
+- [x] Send Email to Action Offices
+- [x] Synchronize Email Action Offices
+- [x] Grant Special Permissions
 - [ ] Remove Special Permissions
 - [ ] Close Request
+- [x] Edit Request
 
 Coversheets
 
-- [ ] Edit Coversheets
+- [x] Edit Coversheets
 
 Responses
 
-- [ ] Bulk Edit Responses
-- [ ] Bulk Add Responses
-- [ ] Add Response
-- [ ] Edit Response
+- [x] Bulk Edit Responses
+- [x] Bulk Add Responses
+- [x] Add Response
+- [x] Edit Response
 
 Response Docs
 
-- [ ] Edit Response Docs
-- [ ] Approve Response Doc
-- [ ] Reject Response Doc
+- [x] Edit Response Docs
+- [x] Approve Response Doc
+- [x] Reject Response Doc
 
 ## UI Updates
 
@@ -123,5 +124,5 @@ Support query to update options
 
 ## Cleanup!
 
-[ ] Lookupfield shouldn't query entire list.
-[ ] Caching was a mistake (remove?)
+[x] Lookupfield shouldn't query entire list.
+[x] Caching was a mistake (remove?)

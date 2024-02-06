@@ -1,4 +1,4 @@
-<div class="request-detail-view" data-bind="">
+<div class="request-detail-view" data-bind="visible: currentRequest">
   <div>
     <div
       id="divRequestClose"
@@ -411,7 +411,7 @@
     </div>
   </div>
 
-  <div class="ui-tabs-secondary">
+  <div class="ui-tabs-secondary request-detail-documents">
     <!-- ko using: tabs -->
     <ul class="ui-tabs-nav" data-bind="foreach: tabOpts">
       <li
