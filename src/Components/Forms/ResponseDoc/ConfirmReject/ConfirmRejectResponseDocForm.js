@@ -1,9 +1,7 @@
-import { appContext } from "../../../../infrastructure/ApplicationDbContext.js";
 import { registerComponent } from "../../../../infrastructure/RegisterComponents.js";
 import {
-  approveResponseDocsForQA,
   rejectResponseDoc,
-} from "../../../../pages/IA_DB/IA_DB_Services.js";
+} from "../../../../pages/IA_DB/IA_DB.js";
 const componentName = "confirm-reject-response-doc";
 export class ConfirmRejectResponseDocForm {
   constructor(request, response, responseDocs) {
