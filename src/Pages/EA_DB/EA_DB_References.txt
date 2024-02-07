@@ -1,15 +1,16 @@
-﻿<div style="padding-bottom: 10px">
-  <a
-    title="Refresh this page"
-    href="javascript:void(0)"
-    onclick="Audit.Common.Utilities.Refresh()"
-    ><span class="ui-icon ui-icon-refresh"></span>Refresh</a
-  >
-  <span id="lblFilteredOn" style="padding-left: 10px"></span>
+﻿<div class="audit">
+  <div style="padding-bottom: 10px">
+    <a
+      title="Refresh this page"
+      href="javascript:void(0)"
+      onclick="Audit.Common.Utilities.Refresh()"
+      ><span class="ui-icon ui-icon-refresh"></span>Refresh</a
+    >
+    <span id="lblFilteredOn" style="padding-left: 10px"></span>
+  </div>
+
+  <div id="divExplorerView"></div>
 </div>
-
-<div id="divExplorerView"></div>
-
 <link
   rel="stylesheet"
   type="text/css"
