@@ -35,10 +35,16 @@
 ></script>
 
 <!-- to remove -->
-<!-- <script
+<!-- Still referenced in pages: 
+  Permissions 
+  Report_RequestStatus 
+  SP_DB
+-->
+
+<script
   type="text/javascript"
   src="/sites/CGFS/Style Library/apps/audit/lib/jquery-ui-1.13.2/jquery-ui.min.js"
-></script> -->
+></script>
 
 <!-- <script type="text/javascript" src="../SiteAssets/js/jsrender.min.js"></script> -->
 

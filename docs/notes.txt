@@ -10,3 +10,16 @@ m_fnUpdateAllResponsePermissions m_fnCheckIfResponsePermissionsNeedUpdating
 m_fnBreakResponsePermissions OnCallbackFormNewResponse
 OnCallbackFormEditResponse LoadTabRequestInfoResponses2
 m_fnBreakResponseFolderPermissions OnCallbackFormEditResponse
+
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="/sites/CGFS/Style Library/apps/audit/src/Audit_Styles_Hide_Ribbon.css"
+/>
+<!-- 
+    
+/sites/CGFS/Style Library/apps/audit/src/Common_References.txt 
+/sites/CGFS/Style Library/apps/audit/src/components/Alerts_DB/Alerts_DB_References.txt
+/sites/CGFS/Style Library/apps/audit/src/pages/ 
+
+-->

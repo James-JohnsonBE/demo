@@ -1,5 +1,5 @@
 import { registerComponent } from "../../../../infrastructure/RegisterComponents.js";
-import { m_fnRejectResponseDoc } from "../../../../pages/IA_DB/IA_DB.js";
+import { m_fnRejectResponseDoc } from "../../../../pages/IA_DB/IA_DB_Services.js";
 const componentName = "confirm-reject-response-doc";
 export class ConfirmRejectResponseDocForm {
   constructor(request, response, responseDocs) {

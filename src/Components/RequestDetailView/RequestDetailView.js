@@ -10,7 +10,7 @@ import { ConfirmApproveResponseDocForm } from "../Forms/ResponseDoc/ConfirmAppro
 import { AuditResponseStates } from "../../entities/AuditResponse.js";
 import { AuditResponseDocStates } from "../../entities/AuditResponseDocs.js";
 import { AUDITREQUESTSTATES } from "../../entities/AuditRequest.js";
-import { m_fnRefreshData } from "../../pages/IA_DB/IA_DB.js";
+import { m_fnRefreshData } from "../../pages/IA_DB/IA_DB_Services.js";
 import { ConfirmRejectResponseDocForm } from "../Forms/ResponseDoc/ConfirmReject/ConfirmRejectResponseDocForm.js";
 
 const componentName = "component-request-detail-view";
