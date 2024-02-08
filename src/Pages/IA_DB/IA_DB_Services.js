@@ -3049,7 +3049,7 @@ function LoadTabStatusReport2() {
 					for( var z = 0; z < 99; z++ )
 					{
 						responseArr.push( aResponse );
-					}	
+					}
 				}*/
 
       if (oResponse.resStatus == "2-Submitted")
@@ -3196,7 +3196,7 @@ function m_fnBulkAddRequest() {
 
   var options = SP.UI.$create_DialogOptions();
   options.title = "Bulk Add Requests";
-  // options.dialogReturnValueCallback = m_fnRefresh;
+  options.dialogReturnValueCallback = m_fnRefresh;
   options.height = 800;
   options.url =
     Audit.Common.Utilities.GetSiteUrl() + "/pages/AuditBulkAddRequest.aspx";
@@ -5734,23 +5734,18 @@ async function m_fnBreakResponseAndFolderPermissions(
       .getByPrincipal(currentUser)
       .deleteObject();
 
-  return new Promise((resolve, reject) => {
-    currCtx.executeQueryAsync(
-      () => {
-        resolve();
-      },
-      (sender, args) => {
-        SP.UI.Notify.addNotification(
-          "Failed to update permissions on Response: " +
-            oResponse.item.get_item("Title") +
-            args.get_message() +
-            "\n" +
-            args.get_stackTrace(),
-          false
-        );
-        reject();
-      }
-    );
+  await new Promise((resolve, reject) => {
+    currCtx.executeQueryAsync(resolve, (sender, args) => {
+      SP.UI.Notify.addNotification(
+        "Failed to update permissions on Response: " +
+          oResponse.item.get_item("Title") +
+          args.get_message() +
+          "\n" +
+          args.get_stackTrace(),
+        false
+      );
+      reject({ sender, args });
+    });
   });
 }
 //This gets executed when on refresh if a response does not have broken permissions. When a new response is created from the list form, we
@@ -6945,34 +6940,29 @@ async function m_fnUpdateAllResponsePermissions(
   bCheckStatus,
   OnCompleteUpdateResponsePerms
 ) {
-  var cntResponsesToBreak = 0;
   var cntResponsesBroken = 0;
 
   var oRequestBigMap = m_bigMap["request-" + requestNum];
   if (!oRequestBigMap) return;
+  var cntResponsesToBreak = oRequestBigMap.responses.length;
 
-  await Promise.all(
-    oRequestBigMap.responses.map(async (response) => {
-      cntResponsesToBreak++;
-
-      await m_fnBreakResponseAndFolderPermissions(
-        requestStatus,
-        response,
-        false,
-        bCheckStatus,
-        false,
-        false
-      );
-      cntResponsesBroken++;
-      $("#divMsgEditRequest").text(
-        "Updated " +
-          cntResponsesBroken +
-          " of " +
-          cntResponsesToBreak +
-          " Response permissions"
-      );
-    })
-  );
+  for (const response of oRequestBigMap.responses) {
+    await m_fnBreakResponseAndFolderPermissions(
+      requestStatus,
+      response,
+      false,
+      bCheckStatus,
+      false,
+      false
+    );
+    cntResponsesBroken++;
+    document.getElementById("divMsgEditRequest").innerText =
+      "Updated " +
+      cntResponsesBroken +
+      " of " +
+      cntResponsesToBreak +
+      " Response permissions";
+  }
 }
 
 //reset permissions on EA folder here
@@ -7091,7 +7081,7 @@ function m_fnRenameEAFolder(
   }
 }
 
-function OnCallbackFormEditRequest(result, value) {
+async function OnCallbackFormEditRequest(result, value) {
   if (result !== SP.UI.DialogResult.OK) {
     m_bIsTransactionExecuting = false;
     return;
@@ -7173,116 +7163,110 @@ function OnCallbackFormEditRequest(result, value) {
   const eaListFolderItems = eaList.getItems(eaListQuery);
   currCtx.load(eaListFolderItems, "Include(ID, Title, DisplayName)");
 
-  async function onSuccess() {
-    async function m_fnUpdateEmailFolderPerms(requestNum, bRefresh) {
+  await new Promise((resolve, reject) => {
+    currCtx.executeQueryAsync(resolve, reject);
+  }).catch((e) => {
+    m_fnRefresh();
+    return;
+  });
+
+  const requestItemId = m_itemID;
+
+  var listItemEnumerator = requestItems.getEnumerator();
+  while (listItemEnumerator.moveNext()) {
+    //reset action offices if they were changes in the request form
+    var oListItem = listItemEnumerator.get_current();
+
+    var curSensitivity = oListItem.get_item("Sensitivity");
+    var bChangeSensitivity = false;
+    if (m_bigMap["request-" + m_requestNum].sensitivity != curSensitivity) {
+      bChangeSensitivity = true;
+    }
+
+    if (m_requestNum == oListItem.get_item("Title")) {
+      //if request number hasn't changed
+      const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+        "Information",
+        "Please wait... Updating Request and Response permissions <div id='divMsgEditRequest'></div>",
+        200,
+        400
+      );
+
+      var bDoneBreakingReqPermisions = false;
+      await m_fnBreakRequestPermissions(oListItem, false, null);
+
+      //should always be true even if an error occurred
+      $("#divMsgEditRequest").text("Updated Request permissions");
+
+      var doneUpdatingResponses = false;
+      await m_fnUpdateAllResponsePermissions(
+        oListItem.get_item("ReqStatus"),
+        m_requestNum,
+        true
+      );
+
+      if (bChangeSensitivity) {
+        $("#divMsgEditRequest").text("Updating Response document names");
+        var oldSensitivity = m_bigMap["request-" + m_requestNum].sensitivity;
+        const doneUpdatingSensitivity = await m_fnUpdateSensitivityOnRequest(
+          m_requestNum,
+          curSensitivity,
+          oldSensitivity
+        );
+      }
+
       var listItemEnumerator1 = emailListFolderItems.getEnumerator();
       while (listItemEnumerator1.moveNext()) {
         //reset action offices if they were changes in the request form
         var oEmailFolderItem = listItemEnumerator1.get_current();
 
-        if (oEmailFolderItem.get_displayName() == requestNum) {
+        if (oEmailFolderItem.get_displayName() == m_requestNum) {
           await m_fnBreakEmailFolderPermissions(
             oEmailFolderItem,
             oListItem,
-            bRefresh
+            false
           );
           break;
         }
       }
+      m_waitDialog.close();
+    } //if request number changed, update responses; otherwise it will refresh and not hit this
+    else {
+      const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+        "Renaming Responses",
+        "Please wait... Renaming Responses",
+        200,
+        400
+      );
+
+      var bDoneBreakingReqPermisions = false;
+      await m_fnBreakRequestPermissions(oListItem, false, null);
+
+      //should always be true even if an error occurred
+      var oRequest2 = m_fnGetRequestByNumber(m_requestNum);
+
+      var newRequestNumber = oListItem.get_item("Title");
+      //TODO: break these up - may cause errors
+      m_fnRenameResponses(oRequest2, m_requestNum, newRequestNumber);
+      m_fnRenameResponseFolders(
+        m_ResponseDocsFoldersItems,
+        m_requestNum,
+        newRequestNumber
+      );
+      m_fnRenameEmailFolder(
+        emailListFolderItems,
+        m_requestNum,
+        newRequestNumber
+      );
+      m_fnRenameEAFolder(eaListFolderItems, m_requestNum, newRequestNumber);
+
+      setTimeout(function () {
+        m_fnRefresh(newRequestNumber);
+      }, 20000);
     }
-
-    var listItemEnumerator = requestItems.getEnumerator();
-    while (listItemEnumerator.moveNext()) {
-      //reset action offices if they were changes in the request form
-      var oListItem = listItemEnumerator.get_current();
-
-      var curSensitivity = oListItem.get_item("Sensitivity");
-      var bChangeSensitivity = false;
-      if (m_bigMap["request-" + m_requestNum].sensitivity != curSensitivity) {
-        bChangeSensitivity = true;
-      }
-
-      if (m_requestNum == oListItem.get_item("Title")) {
-        //if request number hasn't changed
-        const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-          "Information",
-          "Please wait... Updating Request and Response permissions <div id='divMsgEditRequest'></div>",
-          200,
-          400
-        );
-
-        var bDoneBreakingReqPermisions = false;
-        await m_fnBreakRequestPermissions(oListItem, false, null);
-
-        //should always be true even if an error occurred
-        $("#divMsgEditRequest").text("Updated Request permissions");
-
-        var doneUpdatingResponses = false;
-        //m_fnUpdateAllResponsePermissions( oListItem.get_item("ReqStatus"), m_requestNum, this.responseDocsFoldersItems,  true, function( doneUpdatingResponses )
-        await m_fnUpdateAllResponsePermissions(
-          oListItem.get_item("ReqStatus"),
-          m_requestNum,
-          true
-        );
-
-        if (bChangeSensitivity) {
-          $("#divMsgEditRequest").text("Updating Response document names");
-          var oldSensitivity = m_bigMap["request-" + m_requestNum].sensitivity;
-          const doneUpdatingSensitivity = await m_fnUpdateSensitivityOnRequest(
-            m_requestNum,
-            curSensitivity,
-            oldSensitivity
-          );
-        }
-        await m_fnUpdateEmailFolderPerms(m_requestNum, true);
-        m_waitDialog.close();
-      } //if request number changed, update responses; otherwise it will refresh and not hit this
-      else {
-        const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-          "Renaming Responses",
-          "Please wait... Renaming Responses",
-          200,
-          400
-        );
-
-        var bDoneBreakingReqPermisions = false;
-        await m_fnBreakRequestPermissions(oListItem, false, null);
-
-        //should always be true even if an error occurred
-        var oRequest = m_fnGetRequestByNumber(m_requestNum);
-
-        var newRequestNumber = oListItem.get_item("Title");
-        //TODO: break these up - may cause errors
-        m_fnRenameResponses(oRequest, m_requestNum, newRequestNumber);
-        m_fnRenameResponseFolders(
-          m_ResponseDocsFoldersItems,
-          m_requestNum,
-          newRequestNumber
-        );
-        m_fnRenameEmailFolder(
-          emailListFolderItems,
-          m_requestNum,
-          newRequestNumber
-        );
-        m_fnRenameEAFolder(eaListFolderItems, m_requestNum, newRequestNumber);
-
-        setTimeout(function () {
-          m_fnRefresh(newRequestNumber);
-        }, 20000);
-      }
-    }
-
-    m_fnRefreshData();
-  }
-  function onFail(sender, args) {
-    m_fnRefresh();
   }
 
-  var data = { requestItemId: m_itemID };
-  currCtx.executeQueryAsync(
-    Function.createDelegate(data, onSuccess),
-    Function.createDelegate(data, onFail)
-  );
+  m_fnRefreshData();
 }
 
 function OnCallbackFormCoverSheet(result, value) {

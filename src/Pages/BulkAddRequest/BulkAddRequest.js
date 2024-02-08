@@ -74,12 +74,12 @@ class BulkAddRequestPage {
       const bulkRequest = bulkRequestItem.bulkRequest;
 
       const newRequest = bulkRequest.toRequest();
-      newRequest.Reminders.Value(request.Reminders.Options());
+      newRequest.Reminders.Value(newRequest.Reminders.Options());
 
       // a. Insert new Request
       try {
         await AddNewRequest(newRequest);
-        await onAddNewRequest();
+        await onAddNewRequest(newRequest);
       } catch (e) {
         failedInserts.push([e, bulkRequest]);
         bulkRequestItem.status("failed");

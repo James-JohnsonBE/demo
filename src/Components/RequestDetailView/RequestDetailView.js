@@ -313,9 +313,8 @@ class ResponseItem {
 
     await Promise.all(promises);
     // TODO: need to requery coversheets
-    window.location.reload();
-
     this.responseCoversheetFiles.removeAll();
+    m_fnRefreshData();
   };
 
   onResponseDocFilesAttachedHandler = async (files) => {
@@ -336,6 +335,7 @@ class ResponseItem {
 
     await Promise.all(promises);
     // TODO: need to requery responsedocs
-    window.location.reload();
+    this.responseDocFiles.removeAll();
+    m_fnRefreshData();
   };
 }

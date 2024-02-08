@@ -64,6 +64,14 @@ AuditResponseDoc
 [x] - And on Bulk Add Request
 [x] Fix file rename (created has conflict with drag n drop edit)
 [x] Lookup field shouldn't trigger load of every record.
+[x] Fix Updating permissions 1 of xxx
+[x] BulkAddRequest.js: 77 newRequest.Reminders...
+[x] BulkAddRequest callback should refresh page
+[x] Upload coversheet/response docs refresh data, not page
+[ ] add overlay to block input when forms are working (e.g. approving response doc)
+[ ] Sensitivity on request before approval.
+[ ] Internal status comments component
+[ ] Update QA/AO Dashboards to match IA
 
 ## Refresh Fix!
 
@@ -75,7 +83,7 @@ AuditResponseDoc
 - [x] Update Request Info Response Docs Section
 - [x] Update Request Info Request Detail Section
 - [ ] Update Quick-Info sections (Should this be a standalone function?)
-- [ ] Update Request Status Report
+- [ ] Update Request Status Report (issues with tablesorter)
 - [ ] Update Response Status Report
 
 ### Actions triggering full refresh
