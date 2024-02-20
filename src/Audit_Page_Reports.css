@@ -365,6 +365,11 @@ legend {
   margin-top: 0;
 }
 
+.tablesorter.report thead {
+  position: sticky;
+  top: 0;
+}
+
 .tablesorter tbody {
   /*text-align:center !important;*/
 }

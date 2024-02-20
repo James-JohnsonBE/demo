@@ -18,15 +18,23 @@
   border-collapse: collapse !important;
 }
 .tablesorter th {
-  border: 1px DarkGray solid !important;
+  border: 1px DarkGray solid;
+  border-left: none;
+  border-right: none;
   background-color: Gainsboro;
 }
 
 table.tablesorter td {
-  border: 1px DarkGray solid !important;
+  border: 1px DarkGray solid;
+  border-left: none;
+  border-right: none;
   vertical-align: top;
   /* color: #595959 !important; */
   vertical-align: top;
+}
+
+table.tablesorter tr {
+  border: 1px DarkGray solid;
 }
 
 #tblCommitStatus td span {
@@ -57,11 +65,11 @@ TABLE.tablesorter THEAD TR .header {
 }
 
 .request-item:hover {
-  background-color: lemonchiffon !important;
+  background-color: var(--primary-muted-color) !important;
 }
 
 #tblResponses tr:hover {
-  background-color: lemonchiffon !important;
+  background-color: var(--primary-muted-color) !important;
 }
 
 .clear {
@@ -163,7 +171,7 @@ TABLE.tablesorter THEAD TR .header {
 }
 
 .btn.btn-link {
-  color: #0072c6;
+  color: var(--text-primary);
   border: none;
   font-weight: inherit;
   background-color: inherit;
@@ -174,6 +182,7 @@ TABLE.tablesorter THEAD TR .header {
 }
 
 .btn.btn-link:hover {
+  color: var(--primary-color);
   text-decoration: underline;
 }
 

@@ -2736,7 +2736,7 @@ async function LoadTabRequestInfoResponseDocs(oRequest) {
       oResponseDoc.responseID = oResponse.ID;
       oResponseDoc.responseTitle = oResponse.title; //needed for view document
       oResponseDoc.responseDocOpenInIELink =
-        "<a target='_blank' title='Click to Open the document' onmousedown=\"return VerifyHref(this,event,'1','SharePoint.OpenDocuments','')\" " +
+        "<a class='btn btn-link' target='_blank' title='Click to Open the document' onmousedown=\"return VerifyHref(this,event,'1','SharePoint.OpenDocuments','')\" " +
         onc +
         ' href="' +
         oResponseDoc.folder +

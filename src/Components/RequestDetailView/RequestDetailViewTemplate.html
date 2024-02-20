@@ -481,6 +481,7 @@
         <tr class="coversheet-item">
           <td class="coversheet-title" title="Click to Download">
             <a
+              class="btn btn-link"
               data-bind="downloadLink: '../_layouts/download.aspx?SourceUrl=:folder/:title'"
               ><span data-bind="text: title"></span
             ></a>
@@ -588,8 +589,6 @@
             type="button"
             class="btn btn-link"
             title="Show/Hide Response Folder Permissions"
-            style="color: #0072bc !important"
-
             data-bind="toggleClick: $data, toggleClass: 'response-permissions', containerType: 'any'"
             ><i class="fa-solid fa-gear"></i>Show/Hide Response Folder
             Permissions</a
