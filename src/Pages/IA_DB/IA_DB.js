@@ -1,5 +1,7 @@
 ﻿import { InitReport } from "./IA_DB_Services.js";
 
+const Audit = window.Audit || {};
+
 if (document.readyState === "ready" || document.readyState === "complete") {
   InitReport();
 } else {

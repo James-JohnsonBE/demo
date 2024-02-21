@@ -110,6 +110,25 @@
 
 <!-- TODO: Break these out into their individual files! -->
 <div class="audit">
+  <!-- ko if: 'blockingTasks' in $root -->
+  <!-- ko with: blockingTasks -->
+  <div class="tasks blocking dimmer" data-bind="css: {'active': $data.length}">
+    <span class="loader"></span>
+    <ul class="" data-bind="foreach: $data">
+      <li data-bind="text: msg + '...'"></li>
+    </ul>
+  </div>
+  <!-- /ko -->
+
+  <!-- ko with: runningTasks -->
+  <div class="tasks running">
+    <ul class="" data-bind="foreach: $data">
+      <li data-bind="text: msg + '... ' + Status()"></li>
+    </ul>
+  </div>
+  <!-- /ko -->
+  <!-- /ko -->
+
   <template id="componentUploadDoc">
     <!-- ko if: isUploading -->
     <progress></progress>

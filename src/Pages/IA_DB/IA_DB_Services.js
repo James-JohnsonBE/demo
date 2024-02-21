@@ -25,6 +25,13 @@ import {
   configurationsStore,
 } from "../../infrastructure/Store.js";
 import { AuditResponseDocStates } from "../../entities/AuditResponseDocs.js";
+import {
+  addTask,
+  blockingTasks,
+  finishTask,
+  runningTasks,
+  taskDefs,
+} from "../../services/Tasks.js";
 
 var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
@@ -316,6 +323,9 @@ function ViewModel() {
   };
 
   self.tabs = new TabsModule(Object.values(self.tabOpts));
+
+  self.runningTasks = runningTasks;
+  self.blockingTasks = blockingTasks;
 
   /** Behaviors **/
 
@@ -1252,6 +1262,7 @@ export async function m_fnRefreshData(requestId = null) {
   // LoadTabStatusReport2();
 }
 export async function m_fnRequeryRequest(requestId = null) {
+  const refreshTask = addTask(taskDefs.refresh);
   var currCtx = new SP.ClientContext.get_current();
   var web = currCtx.get_web();
 
@@ -1412,6 +1423,8 @@ export async function m_fnRequeryRequest(requestId = null) {
 
   // This needs to run after the responses have been loaded
   await LoadTabRequestInfoResponseDocs(oRequest);
+
+  finishTask(refreshTask);
 }
 
 function RequestFinishedLoading() {
@@ -4817,9 +4830,10 @@ async function m_fnBreakRequestPermissions(
   OnComplete
 ) {
   if (refreshPageOnUpdate) alert("trying to refresh page!");
-  // if (!m_bIsSiteOwner) {
-  //   return;
-  // }
+  if (!m_bIsSiteOwner) {
+    return;
+  }
+  const breakRequestPermissionsTask = addTask(taskDefs.permissionsRequest);
 
   var currCtx = new SP.ClientContext.get_current();
   var web = currCtx.get_web();
@@ -4916,7 +4930,7 @@ async function m_fnBreakRequestPermissions(
 
   oListItem.get_roleAssignments().getByPrincipal(currentUser).deleteObject();
 
-  return new Promise((resolve, reject) => {
+  await new Promise((resolve, reject) => {
     function onUpdateReqPermsSucceeed() {
       let m_CntRequestAOsToAdd = 0;
       let m_CntRequestAOsAdded = 0;
@@ -5005,16 +5019,22 @@ async function m_fnBreakRequestPermissions(
       Function.createDelegate(data, onUpdateReqPermsFailed)
     );
   });
+
+  finishTask(breakRequestPermissionsTask);
 }
 
 var m_cntAOToAddToEmailFolder = 0;
 var m_cntAOAddedToEmailFolder = 0;
-function m_fnBreakEmailFolderPermissions(
+async function m_fnBreakEmailFolderPermissions(
   oListItem,
   oRequestItem,
   refreshPageOnUpdate,
   OnComplete
 ) {
+  const breakEmailFolderPermissionsTask = addTask(
+    taskDefs.permissionsEmailFolder
+  );
+
   var currCtx = new SP.ClientContext.get_current();
   var web = currCtx.get_web();
 
@@ -5069,7 +5089,7 @@ function m_fnBreakEmailFolderPermissions(
 
   oListItem.get_roleAssignments().getByPrincipal(currentUser).deleteObject();
 
-  return new Promise((resolve, reject) => {
+  await new Promise((resolve, reject) => {
     function onUpdateEmailFolderPermsSucceeed() {
       if (!this.oRequestItem) resolve();
       //add action offices
@@ -5144,6 +5164,8 @@ function m_fnBreakEmailFolderPermissions(
       Function.createDelegate(data, onUpdateEmailFolderPermsFailed)
     );
   });
+
+  finishTask(breakEmailFolderPermissionsTask);
 }
 
 var m_countCSToAdd = 0;
@@ -5152,6 +5174,9 @@ var m_countCSAdded = 0;
 var oCntCSAOAdd = new Object();
 async function m_fnBreakCoversheetPermissions(oListItem, grantQARead) {
   if (oListItem == null) return;
+  const breakCoversheetPermissionsTask = addTask(
+    taskDefs.permissionsCoversheet
+  );
 
   var currCtx = new SP.ClientContext.get_current();
   var web = currCtx.get_web();
@@ -5255,7 +5280,7 @@ async function m_fnBreakCoversheetPermissions(oListItem, grantQARead) {
 
   oListItem.get_roleAssignments().getByPrincipal(currentUser).deleteObject();
 
-  return new Promise((resolve, reject) => {
+  await new Promise((resolve, reject) => {
     async function onUpdatedCSSucceeded() {
       var currCtx2 = new SP.ClientContext.get_current();
 
@@ -5328,9 +5353,11 @@ async function m_fnBreakCoversheetPermissions(oListItem, grantQARead) {
       Function.createDelegate(data, onUpdatedCSFailed)
     );
   });
+
+  finishTask(breakCoversheetPermissionsTask);
 }
 
-function m_fnBreakCoversheetPermissionsOnSpecialPerms(
+async function m_fnBreakCoversheetPermissionsOnSpecialPerms(
   currCtx,
   oListItem,
   addSpecialPerms,
@@ -5338,6 +5365,9 @@ function m_fnBreakCoversheetPermissionsOnSpecialPerms(
   OnComplete
 ) {
   if (oListItem == null) return;
+  const breakCoversheetPermissionsTask = addTask(
+    taskDefs.permissionsCoversheet
+  );
 
   var web = currCtx.get_web();
 
@@ -5420,85 +5450,57 @@ function m_fnBreakCoversheetPermissionsOnSpecialPerms(
 
   oListItem.get_roleAssignments().getByPrincipal(currentUser).deleteObject();
 
-  function onUpdatedCSSPSucceeded() {
-    var currCtx2 = new SP.ClientContext.get_current();
+  await new Promise((resolve, reject) => {
+    currCtx.executeQueryAsync(resolve, (sender, args) =>
+      reject({ sender, args })
+    );
+  }).catch((e) => {
+    return;
+  });
 
-    //add action offices
-    var arrActionOffice = this.oListItem.get_item("ActionOffice");
+  var currCtx2 = new SP.ClientContext.get_current();
 
-    if (arrActionOffice == null || arrActionOffice.length == 0) {
-      if (this.OnComplete) this.OnComplete(true);
-      return;
-    }
+  //add action offices
+  var arrActionOffice = this.oListItem.get_item("ActionOffice");
 
-    var csID = this.oListItem.get_item("ID");
-    oCntCSAOAdd[csID + "toAdd"] = 0;
-    oCntCSAOAdd[csID + "added"] = 0;
+  if (arrActionOffice == null || arrActionOffice.length == 0) {
+    if (this.OnComplete) this.OnComplete(true);
+    return;
+  }
 
-    for (var x = 0; x < arrActionOffice.length; x++) {
-      var actionOfficeName = arrActionOffice[x].get_lookupValue();
-      var actionOfficeGroupName =
-        Audit.Common.Utilities.GetAOSPGroupName(actionOfficeName);
-      var actionOfficeGroup = Audit.Common.Utilities.GetSPSiteGroup(
-        actionOfficeGroupName
+  var csID = this.oListItem.get_item("ID");
+  oCntCSAOAdd[csID + "toAdd"] = 0;
+  oCntCSAOAdd[csID + "added"] = 0;
+
+  for (var x = 0; x < arrActionOffice.length; x++) {
+    var actionOfficeName = arrActionOffice[x].get_lookupValue();
+    var actionOfficeGroupName =
+      Audit.Common.Utilities.GetAOSPGroupName(actionOfficeName);
+    var actionOfficeGroup = Audit.Common.Utilities.GetSPSiteGroup(
+      actionOfficeGroupName
+    );
+    if (actionOfficeGroup != null) {
+      oCntCSAOAdd[csID + "toAdd"] = oCntCSAOAdd[csID + "toAdd"] + 1;
+
+      var roleDefBindingCollRestrictedRead =
+        SP.RoleDefinitionBindingCollection.newObject(currCtx2);
+      roleDefBindingCollRestrictedRead.add(
+        currCtx2.get_web().get_roleDefinitions().getByName("Restricted Read")
       );
-      if (actionOfficeGroup != null) {
-        oCntCSAOAdd[csID + "toAdd"] = oCntCSAOAdd[csID + "toAdd"] + 1;
 
-        var roleDefBindingCollRestrictedRead =
-          SP.RoleDefinitionBindingCollection.newObject(currCtx2);
-        roleDefBindingCollRestrictedRead.add(
-          currCtx2.get_web().get_roleDefinitions().getByName("Restricted Read")
-        );
+      this.oListItem
+        .get_roleAssignments()
+        .add(actionOfficeGroup, roleDefBindingCollRestrictedRead);
 
-        this.oListItem
-          .get_roleAssignments()
-          .add(actionOfficeGroup, roleDefBindingCollRestrictedRead);
-
-        function onUpdatedCSSPAOSucceeded() {
-          oCntCSAOAdd[this.csID + "added"] =
-            oCntCSAOAdd[this.csID + "added"] + 1;
-
-          if (
-            oCntCSAOAdd[this.csID + "added"] == oCntCSAOAdd[this.csID + "toAdd"]
-          ) {
-            if (this.OnComplete) this.OnComplete(true);
-          }
-        }
-        function onUpdatedCSSPAOFailed(sender, args) {
-          oCntCSAOAdd[this.csID + "added"] =
-            oCntCSAOAdd[this.csID + "added"] + 1;
-
-          if (
-            oCntCSAOAdd[this.csID + "added"] == oCntCSAOAdd[this.csID + "toAdd"]
-          ) {
-            if (this.OnComplete) this.OnComplete(true);
-          }
-        }
-
-        var data = {
-          refreshPage: this.refreshPage,
-          OnComplete: this.OnComplete,
-          csID: csID,
-        };
-        currCtx2.executeQueryAsync(
-          Function.createDelegate(data, onUpdatedCSSPAOSucceeded),
-          Function.createDelegate(data, onUpdatedCSSPAOFailed)
-        );
-      }
+      await new Promise((resolve, reject) => {
+        currCtx2.executeQueryAsync(resolve, reject);
+      }).catch((e) => {
+        console.error("Error setting special perms: ", actionOfficeGroupName);
+      });
     }
   }
-  function onUpdatedCSSPFailed(sender, args) {
-    if (this.OnComplete)
-      //return true to continue execution
-      this.OnComplete(true);
-  }
 
-  var data = { oListItem: oListItem, OnComplete: OnComplete };
-  currCtx.executeQueryAsync(
-    Function.createDelegate(data, onUpdatedCSSPSucceeded),
-    Function.createDelegate(data, onUpdatedCSSPFailed)
-  );
+  finishTask(breakCoversheetPermissionsTask);
 }
 
 //This gets executed when on refresh if a response does not have broken permissions. When a new response is created from the list form, we
@@ -5511,9 +5513,13 @@ async function m_fnBreakResponseAndFolderPermissions(
   bForceGrantSP = false,
   bForceRemoveSP = false
 ) {
-  // if (!m_bIsSiteOwner) {
-  //   return;
-  // }
+  if (!m_bIsSiteOwner) {
+    return;
+  }
+
+  const breakResponsePermissionsTask = addTask(
+    taskDefs.permissionsResponseAndFolder(oResponse.title)
+  );
 
   var currCtx = new SP.ClientContext.get_current();
   var web = currCtx.get_web();
@@ -5747,10 +5753,13 @@ async function m_fnBreakResponseAndFolderPermissions(
       reject({ sender, args });
     });
   });
+
+  finishTask(breakResponsePermissionsTask);
 }
+
 //This gets executed when on refresh if a response does not have broken permissions. When a new response is created from the list form, we
 //cant set the permissions until it's been created. So, on callback, refresh is called and checks for responses that don't have broken permissions
-function m_fnBreakResponsePermissions(
+async function m_fnBreakResponsePermissions(
   oListItem,
   refreshPageOnUpdate,
   checkStatus
@@ -5758,6 +5767,9 @@ function m_fnBreakResponsePermissions(
   if (!m_bIsSiteOwner) {
     return;
   }
+  const breakResponsePermissionsTask = addTask(
+    taskDefs.permissionsResponse(oListItem.get_item("Title"))
+  );
 
   var currCtx = new SP.ClientContext.get_current();
   var web = currCtx.get_web();
@@ -5910,42 +5922,19 @@ function m_fnBreakResponsePermissions(
 
   oListItem.get_roleAssignments().getByPrincipal(currentUser).deleteObject();
 
-  var data = {
-    title: oListItem.get_item("Title"),
-    refreshPage: refreshPageOnUpdate,
-    item: oListItem,
-  };
-  function onUpdateResponsePermsSucceeed() {
-    if (this.refreshPage) {
-      SP.UI.Notify.addNotification(
-        "Updated permissions on Response: " + this.title,
-        false
-      );
-      m_fnRefresh();
-    }
-  }
+  await new Promise((resolve, reject) =>
+    currCtx.executeQueryAsync(resolve, (sender, args) =>
+      reject({ sender, args })
+    )
+  ).catch((e) => {
+    console.error("Failed to update permissions on response: ", oListItem);
+  });
 
-  function onUpdateResponsePermsFailed(sender, args) {
-    if (this.refreshPage) {
-      SP.UI.Notify.addNotification(
-        "Failed to update permissions on Response: " +
-          this.title +
-          args.get_message() +
-          "\n" +
-          args.get_stackTrace(),
-        false
-      );
-      m_fnRefresh();
-    }
-  }
-
-  currCtx.executeQueryAsync(
-    Function.createDelegate(data, onUpdateResponsePermsSucceeed),
-    Function.createDelegate(data, onUpdateResponsePermsFailed)
-  );
+  if (refreshPageOnUpdate) m_fnRefreshData();
+  finishTask(breakResponsePermissionsTask);
 }
 
-function m_fnBreakResponseFolderPermissions(
+async function m_fnBreakResponseFolderPermissions(
   oListItemFolder,
   oListItemResponse,
   refreshPageOnUpdate,
@@ -5953,9 +5942,11 @@ function m_fnBreakResponseFolderPermissions(
   OnComplete
 ) {
   if (!m_bIsSiteOwner) {
-    OnComplete(true);
     return;
   }
+  const breakResponsePermissionsTask = addTask(
+    taskDefs.permissionsResponseFolder(oListItemResponse.get_item("Title"))
+  );
 
   var currCtx = new SP.ClientContext.get_current();
   var web = currCtx.get_web();
@@ -6113,45 +6104,14 @@ function m_fnBreakResponseFolderPermissions(
     .getByPrincipal(currentUser)
     .deleteObject();
 
-  var data = {
-    title: oListItemResponse.get_item("Title"),
-    refreshPage: refreshPageOnUpdate,
-    OnComplete: OnComplete,
-  };
-  function onUpdateResponseFolderPermsSucceeed() {
-    if (this.refreshPage) {
-      SP.UI.Notify.addNotification(
-        "Updated permissions on Response Folder: " + this.title,
-        false
-      );
-      setTimeout(function () {
-        m_fnRefresh();
-      }, 200);
-    } else if (this.OnComplete) this.OnComplete(true);
-  }
-
-  function onUpdateResponseFolderPermsFailed(sender, args) {
-    if (this.refreshPage) {
-      SP.UI.Notify.addNotification(
-        "Failed to update permissions on Response Folder: " +
-          this.title +
-          args.get_message() +
-          "\n" +
-          args.get_stackTrace(),
-        false
-      );
-      setTimeout(function () {
-        m_fnRefresh();
-      }, 200);
-    } else if (this.OnComplete) {
-      this.OnComplete(true);
-    }
-  }
-
-  currCtx.executeQueryAsync(
-    Function.createDelegate(data, onUpdateResponseFolderPermsSucceeed),
-    Function.createDelegate(data, onUpdateResponseFolderPermsFailed)
+  await new Promise(currCtx.executeQueryAsync).catch((e) =>
+    console.error(
+      "Failed to update permissions on Response Folder: ",
+      oListItemResponse.get_item("Title")
+    )
   );
+
+  finishTask(breakResponsePermissionsTask);
 }
 
 var m_countAOSPToAdd = 0;
@@ -6828,88 +6788,90 @@ function OnCallbackForm(result, value) {
 }
 
 function OnCallbackFormNewRequest(result, value) {
-  if (result === SP.UI.DialogResult.OK) {
-    const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-      "Information",
-      "Please wait... Updating Request Permissions",
-      200,
-      400
-    );
+  if (result !== SP.UI.DialogResult.OK) return;
+  const newRequestTask = addTask(taskDefs.newRequest);
 
-    var currCtx = new SP.ClientContext.get_current();
-    var web = currCtx.get_web();
+  // const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+  //   "Information",
+  //   "Please wait... Updating Request Permissions",
+  //   200,
+  //   400
+  // );
 
-    var requestList = web
-      .get_lists()
-      .getByTitle(Audit.Common.Utilities.GetListTitleRequests());
-    var requestQuery = new SP.CamlQuery();
-    requestQuery.set_viewXml(
-      '<View><Query><OrderBy><FieldRef Name="ID" Ascending="FALSE"/></OrderBy></Query><RowLimit>1</RowLimit></View>'
-    );
-    const requestItems = requestList.getItems(requestQuery);
-    //request status has internal name as response status in the request list
-    currCtx.load(
-      requestItems,
-      "Include(ID, Title, ActionOffice, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
-    );
+  var currCtx = new SP.ClientContext.get_current();
+  var web = currCtx.get_web();
 
-    const emailList = web
-      .get_lists()
-      .getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory());
-    var emailListQuery = new SP.CamlQuery();
-    emailListQuery.set_viewXml(
-      '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
-    );
-    const emailListFolderItems = emailList.getItems(emailListQuery);
-    currCtx.load(emailListFolderItems, "Include(ID, Title, DisplayName)");
+  var requestList = web
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetListTitleRequests());
+  var requestQuery = new SP.CamlQuery();
+  requestQuery.set_viewXml(
+    '<View><Query><OrderBy><FieldRef Name="ID" Ascending="FALSE"/></OrderBy></Query><RowLimit>1</RowLimit></View>'
+  );
+  const requestItems = requestList.getItems(requestQuery);
+  //request status has internal name as response status in the request list
+  currCtx.load(
+    requestItems,
+    "Include(ID, Title, ActionOffice, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+  );
 
-    currCtx.executeQueryAsync(
-      async function () {
-        var oListItem = null;
+  const emailList = web
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory());
+  var emailListQuery = new SP.CamlQuery();
+  emailListQuery.set_viewXml(
+    '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
+  );
+  const emailListFolderItems = emailList.getItems(emailListQuery);
+  currCtx.load(emailListFolderItems, "Include(ID, Title, DisplayName)");
 
-        var listItemEnumerator = requestItems.getEnumerator();
-        while (listItemEnumerator.moveNext()) {
-          oListItem = listItemEnumerator.get_current();
-          break;
-        }
+  currCtx.executeQueryAsync(
+    async function () {
+      var oListItem = null;
 
-        if (oListItem) {
-          m_fnCreateRequestInternalItem(oListItem.get_item("ID"));
-
-          if (!oListItem.get_hasUniqueRoleAssignments()) {
-            var bDoneBreakingReqPermisions = false;
-            await m_fnBreakRequestPermissions(oListItem, false, null);
-            var bDoneCreatingEmailFolder = false;
-            Audit.Common.Utilities.CreateEmailFolder(
-              emailList,
-              oListItem.get_item("Title"),
-              oListItem,
-              function (bDoneCreatingEmailFolder) {
-                _myViewModel.tabs.selectTab(_myViewModel.tabOpts.RequestDetail);
-                m_waitDialog.close();
-                m_fnRefreshData(oListItem.get_item("ID"));
-              }
-            );
-          } else {
-            var bDoneCreatingEmailFolder = false;
-            Audit.Common.Utilities.CreateEmailFolder(
-              emailList,
-              oListItem.get_item("Title"),
-              oListItem,
-              function (bDoneCreatingEmailFolder) {
-                _myViewModel.tabs.selectTab(_myViewModel.tabOpts.RequestDetail);
-                m_fnRefreshData(oListItem.get_item("ID"));
-              }
-            );
-          }
-        }
-      },
-      function (sender, args) {
-        //alert( "Request failed: "  + args.get_message() + "\n" + args.get_stackTrace() );
-        m_fnRefresh();
+      var listItemEnumerator = requestItems.getEnumerator();
+      while (listItemEnumerator.moveNext()) {
+        oListItem = listItemEnumerator.get_current();
+        break;
       }
-    );
-  }
+
+      if (oListItem) {
+        m_fnCreateRequestInternalItem(oListItem.get_item("ID"));
+
+        if (!oListItem.get_hasUniqueRoleAssignments()) {
+          var bDoneBreakingReqPermisions = false;
+          await m_fnBreakRequestPermissions(oListItem, false, null);
+          var bDoneCreatingEmailFolder = false;
+          Audit.Common.Utilities.CreateEmailFolder(
+            emailList,
+            oListItem.get_item("Title"),
+            oListItem,
+            function (bDoneCreatingEmailFolder) {
+              _myViewModel.tabs.selectTab(_myViewModel.tabOpts.RequestDetail);
+              finishTask(newRequestTask);
+              m_fnRefreshData(oListItem.get_item("ID"));
+            }
+          );
+        } else {
+          var bDoneCreatingEmailFolder = false;
+          Audit.Common.Utilities.CreateEmailFolder(
+            emailList,
+            oListItem.get_item("Title"),
+            oListItem,
+            function (bDoneCreatingEmailFolder) {
+              _myViewModel.tabs.selectTab(_myViewModel.tabOpts.RequestDetail);
+              finishTask(newRequestTask);
+              m_fnRefreshData(oListItem.get_item("ID"));
+            }
+          );
+        }
+      }
+    },
+    function (sender, args) {
+      //alert( "Request failed: "  + args.get_message() + "\n" + args.get_stackTrace() );
+      m_fnRefresh();
+    }
+  );
 }
 
 function m_fnCreateRequestInternalItem(requestNumber) {
@@ -6956,12 +6918,12 @@ async function m_fnUpdateAllResponsePermissions(
       false
     );
     cntResponsesBroken++;
-    document.getElementById("divMsgEditRequest").innerText =
-      "Updated " +
-      cntResponsesBroken +
-      " of " +
-      cntResponsesToBreak +
-      " Response permissions";
+    // document.getElementById("divMsgEditRequest").innerText =
+    //   "Updated " +
+    //   cntResponsesBroken +
+    //   " of " +
+    //   cntResponsesToBreak +
+    //   " Response permissions";
   }
 }
 
@@ -7185,18 +7147,18 @@ async function OnCallbackFormEditRequest(result, value) {
 
     if (m_requestNum == oListItem.get_item("Title")) {
       //if request number hasn't changed
-      const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-        "Information",
-        "Please wait... Updating Request and Response permissions <div id='divMsgEditRequest'></div>",
-        200,
-        400
-      );
+      // const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+      //   "Information",
+      //   "Please wait... Updating Request and Response permissions <div id='divMsgEditRequest'></div>",
+      //   200,
+      //   400
+      // );
 
       var bDoneBreakingReqPermisions = false;
       await m_fnBreakRequestPermissions(oListItem, false, null);
 
       //should always be true even if an error occurred
-      $("#divMsgEditRequest").text("Updated Request permissions");
+      // $("#divMsgEditRequest").text("Updated Request permissions");
 
       var doneUpdatingResponses = false;
       await m_fnUpdateAllResponsePermissions(
@@ -7206,7 +7168,7 @@ async function OnCallbackFormEditRequest(result, value) {
       );
 
       if (bChangeSensitivity) {
-        $("#divMsgEditRequest").text("Updating Response document names");
+        // $("#divMsgEditRequest").text("Updating Response document names");
         var oldSensitivity = m_bigMap["request-" + m_requestNum].sensitivity;
         const doneUpdatingSensitivity = await m_fnUpdateSensitivityOnRequest(
           m_requestNum,
@@ -7229,7 +7191,7 @@ async function OnCallbackFormEditRequest(result, value) {
           break;
         }
       }
-      m_waitDialog.close();
+      // m_waitDialog.close();
     } //if request number changed, update responses; otherwise it will refresh and not hit this
     else {
       const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
@@ -7372,14 +7334,14 @@ function OnCallbackFormNewResponse(result, value) {
     );
 
     currCtx.executeQueryAsync(
-      function () {
+      async function () {
         var oListItem = null;
 
         var listItemEnumerator = responseItems.getEnumerator();
         while (listItemEnumerator.moveNext()) {
           oListItem = listItemEnumerator.get_current();
           if (oListItem && !oListItem.get_hasUniqueRoleAssignments())
-            m_fnBreakResponsePermissions(oListItem, false, true);
+            await m_fnBreakResponsePermissions(oListItem, false, true);
 
           break;
         }
@@ -7613,14 +7575,14 @@ function OnCallbackFormEditResponse(result, value) {
     currCtx.load(emailListFolderItems, "Include(ID, Title, DisplayName)");
 
     currCtx.executeQueryAsync(
-      function () {
+      async function () {
         var oListItem = null;
         var newResponseFolderTitle = null;
         var listItemEnumerator = responseItems.getEnumerator();
         while (listItemEnumerator.moveNext()) {
           oListItem = listItemEnumerator.get_current();
           newResponseFolderTitle = oListItem.get_item("Title");
-          m_fnBreakResponsePermissions(oListItem, false, true);
+          await m_fnBreakResponsePermissions(oListItem, false, true);
           break;
         }
 
@@ -7633,7 +7595,7 @@ function OnCallbackFormEditResponse(result, value) {
         var listItemEnumerator = responseFolderItems.getEnumerator();
         while (listItemEnumerator.moveNext()) {
           responseFolder = listItemEnumerator.get_current();
-          m_fnBreakResponseFolderPermissions(
+          await m_fnBreakResponseFolderPermissions(
             responseFolder,
             oListItem,
             false,

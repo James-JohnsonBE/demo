@@ -68,9 +68,11 @@ export default class BaseField {
 function isRequiredValidationRequirement(field) {
   return {
     requirement: ko.pureComputed(() => {
+      // Return true if field fails validation
       const isRequired = ko.utils.unwrapObservable(field.isRequired);
-      if (!isRequired || field.Value()) return false;
-      return true;
+      const value = ko.unwrap(field.Value);
+      if (!isRequired || value) return false;
+      return value === null || value === undefined;
     }),
     error: new ValidationError(
       "text-field",

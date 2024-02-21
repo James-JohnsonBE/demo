@@ -15,6 +15,7 @@ import {
   getRequestResponses,
 } from "./AuditRequestService.js";
 import { breakRequestCoversheetPerms } from "./CoversheetManager.js";
+import { addTask, finishTask, taskDefs } from "./Tasks.js";
 
 export async function showBulkAddResponseModal(request) {
   const options = {
@@ -30,8 +31,9 @@ export async function showBulkAddResponseModal(request) {
 }
 
 export async function addResponse(request, response) {
-  // Update title
   const responseTitle = getResponseTitle(request, response);
+  const newResponseTask = addTask(taskDefs.newResponse(responseTitle));
+  // Update title
 
   response.Title.Value(responseTitle);
 
@@ -54,9 +56,14 @@ export async function addResponse(request, response) {
   }
 
   await appContext.AuditResponses.AddEntity(response);
+  finishTask(newResponseTask);
 }
 
 export async function updateResponse(request, response) {
+  const updateResponseTask = addTask(
+    taskDefs.updateResponse(response.Title.Value())
+  );
+
   // FPRA Check
   const actionOfficeTitle = response.ActionOffice.Value()?.Title?.toLowerCase();
   if (!actionOfficeTitle.includes("fpra")) {
@@ -84,13 +91,21 @@ export async function updateResponse(request, response) {
     response,
     AuditResponse.Views.AOCanUpdate
   );
+
+  finishTask(updateResponseTask);
 }
 
 export async function updateResponseDoc(request, response, responseDoc) {
+  const updateResponseDocTask = addTask(
+    taskDefs.updateResponseDoc(responseDoc.Title.Value())
+  );
+
   await appContext.AuditResponseDocs.UpdateEntity(
     responseDoc,
     AuditResponseDoc.Views.AOCanUpdate
   );
+
+  finishTask(updateResponseDocTask);
 }
 
 function getResponseTitle(request, response) {

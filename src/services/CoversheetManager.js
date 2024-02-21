@@ -10,6 +10,7 @@ import { roleNames } from "./PermissionManager.js";
 import { People } from "../entities/People.js";
 import { AuditCoversheet } from "../entities/AuditCoversheet.js";
 import { getRequestCoversheets } from "./AuditRequestService.js";
+import { addTask, finishTask, taskDefs } from "./Tasks.js";
 
 export async function uploadRequestCoversheetFile(
   file,
@@ -26,6 +27,7 @@ export async function uploadRequestCoversheetFile(
     request.Sensitivity.Value()
   );
 
+  const uploadCoversheetTask = addTask(taskDefs.uploadCoversheet(newFileName));
   const title = newFileName.substring(0, newFileName.lastIndexOf("."));
 
   const fileMetadata = {
@@ -43,7 +45,7 @@ export async function uploadRequestCoversheetFile(
     );
 
   await breakCoversheetPermissions(newCoversheet);
-
+  finishTask(uploadCoversheetTask);
   return newCoversheet;
 }
 
@@ -51,7 +53,9 @@ export async function updateRequestCoverSheet(coverSheet) {
   const request = coverSheet.ReqNum.Value();
 
   if (!request) throw new Error("ReqNum not set!");
-
+  const updateCoversheetTask = addTask(
+    taskDefs.updateCoversheet(coverSheet.FileName.Value())
+  );
   let fileName = coverSheet.FileName.Value();
 
   if (!fileName.includes(request.ReqNum.Value())) {
@@ -63,6 +67,8 @@ export async function updateRequestCoverSheet(coverSheet) {
     coverSheet,
     AuditCoversheet.Views.AOCanUpdate
   );
+
+  finishTask(updateCoversheetTask);
 }
 
 export async function breakRequestCoversheetPerms(request, grantQARead) {
@@ -107,6 +113,9 @@ function getNewFileNameForSensitivity(
 }
 
 async function breakCoversheetPermissions(coversheet, grantQARead) {
+  const breakCoversheetPermsTask = addTask(
+    taskDefs.permissionsCoversheet(coversheet.FileName.Value())
+  );
   const curPerms = await appContext.AuditCoversheets.GetItemPermissions(
     coversheet
   );
@@ -172,4 +181,5 @@ async function breakCoversheetPermissions(coversheet, grantQARead) {
     newPerms,
     true
   );
+  finishTask(breakCoversheetPermsTask);
 }
