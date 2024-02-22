@@ -171,7 +171,7 @@ export default class LookupField extends BaseField {
       );
     }
 
-    const optionEntity = this.Options().find((entity) => entity.ID == val.ID);
+    const optionEntity = this.allOpts().find((entity) => entity.ID == val.ID);
     if (optionEntity) return optionEntity;
 
     // const cachedEntity = this.entitySet.FindInStore(val.ID);

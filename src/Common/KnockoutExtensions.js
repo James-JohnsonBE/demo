@@ -44,7 +44,11 @@ ko.bindingHandlers.searchSelect = {
         // optionElement.value = option;
         optionElement.innerText = optionsText(option);
 
-        if (selectedOptions().includes(option)) {
+        if (
+          selectedOptions().find(
+            (selectedOption) => selectedOption.ID == option.ID
+          )
+        ) {
           optionElement.setAttribute("selected", "");
         }
         return optionElement;
