@@ -621,7 +621,7 @@
         </tr>
       </thead>
       <tbody data-bind="foreach: currentRequestResponseItems">
-        <tr class="response-item">
+        <tr class="response-item" >
           <td class="response-sample">
             <span data-bind="text: sample"></span>
           </td>
@@ -629,7 +629,7 @@
             class="response-title"
             data-bind="attr: {'id': 'response-item-title-' + title}"
           >
-            <span data-bind="text: title"></span>
+            <span title="View Response Docs" class="btn btn-link" data-bind="text: title, click: $parent.viewResponseDocs"></span>
           </td>
           <td
             class="response-actionOffice"

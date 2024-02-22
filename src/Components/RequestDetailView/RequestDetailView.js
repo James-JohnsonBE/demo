@@ -39,6 +39,7 @@ export class RequestDetailView {
     this.editCoversheet = ClickEditCoversheet;
 
     this.ModalDialog = ModalDialog;
+
     /*
     ROOT FUNCTIONS 
     ClickViewCoversheet
@@ -140,6 +141,12 @@ export class RequestDetailView {
     const coversheet = await uploadRequestCoversheetFile(file, request);
     this.coverSheetFiles([]);
     this.editCoversheet({ ID: coversheet.ID });
+  };
+
+  // Responses
+  viewResponseDocs = (response) => {
+    this.tabs.selectTab(this.tabOpts.ResponseDocs);
+    this.showCollapsed(true);
   };
 
   // ResponseDocs
