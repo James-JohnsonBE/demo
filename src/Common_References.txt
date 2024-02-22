@@ -192,12 +192,13 @@
       rel="stylesheet"
       href="/sites/CGFS/Style Library/apps/audit/lib/webcomponents/SearchSelect/styles.css"
     />
-    <div
-      id="search-group"
-      style="display: none"
-      class="search-group"
-      tabindex="-1"
-    >
+    <!-- Hide the element, stylesheet overrides on load -->
+    <style>
+      .search-group {
+        display: none;
+      }
+    </style>
+    <div id="search-group" class="search-group" tabindex="-1">
       <div id="selected-items-text"></div>
       <div class="search-input-group" tabindex="-1">
         <input
@@ -210,7 +211,7 @@
       </div>
       <ul id="filtered-items-text" class="filtered-items"></ul>
     </div>
-    <div id="icons" class="hidden">
+    <div id="icons" class="hidden" style="display: none">
       <div id="icon-close" style="display: none; width: 0px; height: 0px">
         <svg
           style="display: none; max-width: 2rem; max-height: 2rem"

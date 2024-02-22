@@ -9,7 +9,8 @@
 
 /* Actual Elements */
 
-.search-group {
+div.search-group {
+  display: revert;
   position: relative;
   min-height: 1rem;
 }
