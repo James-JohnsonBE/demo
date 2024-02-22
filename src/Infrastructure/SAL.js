@@ -22,7 +22,8 @@
 
 window.console = window.console || { log: function () {} };
 
-var sal = window.sal || {};
+window.sal = window.sal ?? {};
+var sal = window.sal;
 
 const serverRelativeUrl =
   _spPageContextInfo.webServerRelativeUrl == "/"
@@ -78,6 +79,7 @@ export const webRoot =
     : _spPageContextInfo.webAbsoluteUrl;
 
 export async function InitSal() {
+  if (sal.utilities) return;
   console.log("Init Sal");
   var currCtx = SP.ClientContext.get_current();
   var web = currCtx.get_web();
