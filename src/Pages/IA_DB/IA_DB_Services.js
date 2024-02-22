@@ -1950,12 +1950,11 @@ function LoadResponses(responseItemsColl) {
 
         responseObject["poc"] = oListItem.get_item("POC");
         if (responseObject["poc"] == null) responseObject["poc"] = "";
-        else responseObject["poc"] = responseObject["poc"].get_lookupValue();
+        else responseObject["poc"] = responseObject["poc"].get_email();
 
         responseObject["pocCC"] = oListItem.get_item("POCCC");
         if (responseObject["pocCC"] == null) responseObject["pocCC"] = "";
-        else
-          responseObject["pocCC"] = responseObject["pocCC"].get_lookupValue();
+        else responseObject["pocCC"] = responseObject["pocCC"].get_email();
 
         responseObject["returnReason"] = returnReason;
         responseObject["resStatus"] = oListItem.get_item("ResStatus");
@@ -4280,7 +4279,7 @@ function m_fnSendEmail(requestID) {
     //   }
     // }
 
-    if (!arrEmailActionOffice.includes(oResponse.actionOffice)) return;
+    if (!arrEmailActionOffice.includes(oResponse.actionOffice)) continue;
 
     // if (bAddThisAO) {
     //this means that this response's ao is in the email action offices field for this request and this ao should get a unique email with all the open responses
@@ -4288,6 +4287,10 @@ function m_fnSendEmail(requestID) {
     if (oResponse.poc != null && oResponse.poc != "")
       //if poc field is provided, email the poc and poccc, not the Action office group
       ao = oResponse.poc + ";" + oResponse.pocCC;
+
+    var emailTo = oResponse.poc
+      ? oResponse.poc + ";" + oResponse.pocCC
+      : oResponse.actionOffice;
 
     var bFound = false;
     for (var x = 0; x < arrEmails.length; x++) {
@@ -4303,6 +4306,7 @@ function m_fnSendEmail(requestID) {
     if (!bFound) {
       var emailObject = new Object();
       emailObject.actionOffice = ao;
+      emailObject.emailTo = emailTo;
       emailObject.poc = oResponse.poc;
       emailObject.responseTitles = new Array();
 
@@ -4371,7 +4375,7 @@ function m_fnSendEmail(requestID) {
       const oListItem = emailList.addItem(itemCreateInfo);
       oListItem.set_item("Title", emailSubject);
       oListItem.set_item("Body", emailText);
-      oListItem.set_item("To", arrEmails[y].actionOffice);
+      oListItem.set_item("To", arrEmails[y].emailTo);
       oListItem.set_item("ReqNum", oRequest.number);
       oListItem.set_item("NotificationType", "AO Notification");
       oListItem.update();

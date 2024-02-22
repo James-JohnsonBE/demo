@@ -76,6 +76,8 @@ Audit.QAReport.NewReportPage = function () {
   var m_bigMap = new Object();
 
   var m_IA_SPGroupName = null;
+  var m_IA_ActionOffice = null;
+
   var m_itemID = null;
   var m_RejectReason = "";
 
@@ -96,6 +98,7 @@ Audit.QAReport.NewReportPage = function () {
   var m_responseItems = null;
 
   var m_ResponseDocsItems = null;
+  var m_aoItems = null;
 
   let eaReponseDocsFolderItems = null;
   let eaEmailLogListItems = null;
@@ -688,6 +691,16 @@ Audit.QAReport.NewReportPage = function () {
       "Include(ID, Title, ReqNum, ResID, DocumentStatus, RejectReason, ReceiptDate, FileLeafRef, FileDirRef, File_x0020_Size, Modified, Editor)"
     );
 
+    var aoList = web
+      .get_lists()
+      .getByTitle(Audit.Common.Utilities.GetListTitleActionOffices());
+    var aoQuery = new SP.CamlQuery();
+    aoQuery.set_viewXml(
+      '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
+    );
+    m_aoItems = aoList.getItems(aoQuery);
+    currCtx.load(m_aoItems, "Include(ID, Title, UserGroup)");
+
     memberGroup = web.get_associatedMemberGroup();
     currCtx.load(memberGroup);
 
@@ -708,6 +721,8 @@ Audit.QAReport.NewReportPage = function () {
   }
 
   function m_fnLoadData() {
+    Audit.Common.Utilities.LoadActionOffices(m_aoItems);
+
     if (memberGroup != null) m_IA_SPGroupName = memberGroup.get_title();
     if (m_IA_SPGroupName == null || m_IA_SPGroupName == "") {
       const statusId = SP.UI.Status.addStatus(
@@ -716,6 +731,10 @@ Audit.QAReport.NewReportPage = function () {
       SP.UI.Status.setStatusPriColor(statusId, "red");
       return;
     }
+
+    m_IA_ActionOffice = Audit.Common.Utilities.GetActionOffices()?.find(
+      (ao) => ao.userGroup == m_IA_SPGroupName
+    );
 
     LoadRequests();
     LoadResponses();
@@ -1575,7 +1594,7 @@ Audit.QAReport.NewReportPage = function () {
     const oListItem = emailList.addItem(itemCreateInfo);
     oListItem.set_item("Title", emailSubject);
     oListItem.set_item("Body", emailText);
-    oListItem.set_item("To", m_IA_SPGroupName);
+    oListItem.set_item("To", m_IA_ActionOffice.title);
     oListItem.set_item("ReqNum", oRequest.number);
     oListItem.set_item("ResID", responseTitle);
     oListItem.set_item("NotificationType", "IA Notification");

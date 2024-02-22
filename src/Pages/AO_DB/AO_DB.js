@@ -69,6 +69,7 @@ Audit.AOReport.NewReportPage = function () {
   var m_arrResponses = new Array();
   var m_arrPermissions = new Array();
   var m_IA_SPGroupName = null;
+  var m_IA_ActionOffice = null;
 
   var ownerGroup,
     memberGroup,
@@ -535,6 +536,10 @@ Audit.AOReport.NewReportPage = function () {
       SP.UI.Status.setStatusPriColor(statusId, "red");
       return;
     }
+
+    m_IA_ActionOffice = Audit.Common.Utilities.GetActionOffices()?.find(
+      (ao) => ao.userGroup == m_IA_SPGroupName
+    );
 
     LoadRequests();
     LoadResponses();
@@ -1230,7 +1235,7 @@ Audit.AOReport.NewReportPage = function () {
         oListItem = emailList.addItem(itemCreateInfo);
         oListItem.set_item("Title", emailSubject);
         oListItem.set_item("Body", emailText);
-        oListItem.set_item("To", m_IA_SPGroupName);
+        oListItem.set_item("To", m_IA_ActionOffice.title);
         oListItem.set_item("ReqNum", oRequest.number);
         oListItem.set_item("ResID", responseToSubmit);
         oListItem.set_item("NotificationType", "IA Notification");
