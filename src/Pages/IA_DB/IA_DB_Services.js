@@ -3516,6 +3516,10 @@ async function m_fnEditResponseDoc(id, requestID, responseID) {
  * @param {Array<oResponseDoc>} oResponseDocs the response docs to be approved
  */
 export async function m_fnApproveResponseDocsForQA(oRequest, oResponseDocs) {
+  if (!oRequest.sensitivity || oRequest.sensitivity == "None") {
+    alert("Request Sensitivity has not been set!");
+    return false;
+  }
   await Promise.all(
     oRequest.responses.map(async (oResponse) => {
       const responseApprovedResponseDocs = oResponse.responseDocs.filter(
@@ -3542,6 +3546,10 @@ export async function m_fnApproveResponseDocsForQA(oRequest, oResponseDocs) {
             oRequest.sensitivity
           );
 
+          const approveResponseDocTask = addTask(
+            taskDefs.approveResponseDoc(newResponseDocFileName)
+          );
+
           const oListItem = oList.getItemById(oResponseDoc.item.get_item("ID"));
           ctx2.load(oListItem);
           await new Promise((resolve, reject) => {
@@ -3552,9 +3560,10 @@ export async function m_fnApproveResponseDocsForQA(oRequest, oResponseDocs) {
           oListItem.set_item("RejectReason", "");
           oListItem.set_item("FileLeafRef", newResponseDocFileName);
           oListItem.update();
-          return new Promise((resolve, reject) => {
+          await new Promise((resolve, reject) => {
             ctx2.executeQueryAsync(resolve, reject);
           });
+          finishTask(approveResponseDocTask);
         })
       );
 
@@ -3596,6 +3605,8 @@ export async function m_fnApproveResponseDocsForQA(oRequest, oResponseDocs) {
 
   // Finally, notify QA
   await m_fnNotifyQAApprovalPending(oRequest, oResponseDocs);
+
+  return true;
 }
 export async function m_fnRejectResponseDoc(
   oRequest,

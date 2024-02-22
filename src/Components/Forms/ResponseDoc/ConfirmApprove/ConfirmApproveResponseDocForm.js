@@ -18,8 +18,13 @@ export class ConfirmApproveResponseDocForm {
   }
 
   async submit() {
-    await m_fnApproveResponseDocsForQA(this.request, this.responseDocs());
-    this.onComplete(true);
+    const result = await m_fnApproveResponseDocsForQA(
+      this.request,
+      this.responseDocs()
+    );
+    if (result) {
+      this.onComplete(true);
+    }
   }
 
   componentName = componentName;

@@ -62,6 +62,12 @@ export const taskDefs = {
       blocking: true,
     };
   },
+  approveResponseDoc: (responseDocTitle) => {
+    return {
+      msg: "Approving Response Document: " + responseDocTitle,
+      blocking: true,
+    };
+  },
   uploadCoversheet: (coversheetName) => {
     return {
       msg: "Uploading Coversheet: " + coversheetName,
