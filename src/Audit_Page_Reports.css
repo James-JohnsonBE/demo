@@ -277,18 +277,9 @@ div.cell-margin {
 }
 
 .tasks.blocking {
-  display: none;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
   position: fixed;
   top: 85px;
-  width: 100%;
   height: 100vh;
-}
-
-.tasks.blocking.active {
-  display: flex;
 }
 
 .tasks.running {
@@ -304,13 +295,19 @@ div.cell-margin {
 
 .dimmer {
   display: none;
-  color: var(--primary-muted-color);
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
   z-index: 10;
+  width: 100%;
+  height: 100%;
+  color: var(--primary-muted-color);
+  background-color: #1d2b36e3;
 }
 
 .dimmer.active {
-  display: revert;
-  background-color: #1d2b36e3;
+  display: flex;
 }
 
 .loader {
@@ -387,6 +384,7 @@ div.cell-margin {
 
 #dlgModalDialog {
   display: none;
+  z-index: 5;
   width: 615px;
   min-width: 400px;
   max-height: 85vh;

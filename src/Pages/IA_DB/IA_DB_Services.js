@@ -1,4 +1,4 @@
-﻿import { InitSal } from "../../infrastructure/SAL.js";
+﻿import { InitSal, executeQuery } from "../../infrastructure/SAL.js";
 import { appContext } from "../../infrastructure/ApplicationDbContext.js";
 import { TabsModule, Tab } from "../../components/Tabs/TabsModule.js";
 import { setUrlParam } from "../../common/Router.js";
@@ -4189,250 +4189,251 @@ function m_fnSendEmail(requestID) {
   }
 
   if (
-    confirm(
+    !confirm(
       "Are you sure you would like to notify all Action Offices listed in the Email Action Offices field?"
     )
-  ) {
-    m_bIsTransactionExecuting = true;
+  )
+    return;
 
-    var currCtx = new SP.ClientContext.get_current();
-    var web = currCtx.get_web();
+  m_bIsTransactionExecuting = true;
 
-    const oRequest = m_fnGetRequestByID(requestID);
+  var currCtx = new SP.ClientContext.get_current();
+  var web = currCtx.get_web();
 
-    if (oRequest == null) {
-      alert("Error occurred");
-      return;
-    }
+  const oRequest = m_fnGetRequestByID(requestID);
 
-    if (oRequest.status != "Open" && oRequest.status != "ReOpened") {
-      SP.UI.Notify.addNotification("This request is not Open.", false);
-      return;
-    }
+  if (oRequest == null) {
+    alert("Error occurred");
+    return;
+  }
 
-    var responseCount = oRequest.responses.length;
-    if (responseCount == 0) {
+  if (oRequest.status != "Open" && oRequest.status != "ReOpened") {
+    SP.UI.Notify.addNotification("This request is not Open.", false);
+    return;
+  }
+
+  var responseCount = oRequest.responses.length;
+  if (responseCount == 0) {
+    SP.UI.Notify.addNotification(
+      "There are no responses associated with this request.",
+      false
+    );
+    return;
+  }
+
+  var arrEmailActionOffice = oRequest.item
+    .get_item("EmailActionOffice")
+    ?.map((actionOffice) => actionOffice.get_lookupValue());
+
+  if (arrEmailActionOffice.length == 0) {
+    SP.UI.Notify.addNotification(
+      "Unable to send an email. 0 Action Offices listed in the Email Action Office field",
+      false
+    );
+    return;
+  }
+
+  var arrEmails = new Array();
+
+  for (var y = 0; y < responseCount; y++) {
+    var oResponse = oRequest.responses[y];
+    if (
+      oResponse.resStatus != "1-Open" &&
+      oResponse.resStatus != "3-Returned to Action Office"
+    ) {
       SP.UI.Notify.addNotification(
-        "There are no responses associated with this request.",
+        "Skipping Response (" +
+          oResponse.title +
+          "). It's not Open or Returned to Action Office",
         false
       );
-      return;
+      continue;
     }
 
-    var arrEmailActionOffice = new Array();
-    var emailActionOffices = oRequest.item.get_item("EmailActionOffice");
-    for (var x = 0; x < emailActionOffices.length; x++) {
-      arrEmailActionOffice.push(emailActionOffices[x].get_lookupValue());
-    }
-
-    if (arrEmailActionOffice.length == 0) {
-      SP.UI.Notify.addNotification(
-        "Unable to send an email. 0 Action Offices listed in the Email Action Office field",
-        false
-      );
-      return;
-    }
-
-    var arrEmails = new Array();
-
-    for (var y = 0; y < responseCount; y++) {
-      var oResponse = oRequest.responses[y];
-      if (
-        oResponse.resStatus != "1-Open" &&
-        oResponse.resStatus != "3-Returned to Action Office"
-      ) {
-        SP.UI.Notify.addNotification(
-          "Skipping Response (" +
-            oResponse.title +
-            "). It's not Open or Returned to Action Office",
-          false
-        );
-        continue;
-      }
-
-      var actionOfficeGroupName = Audit.Common.Utilities.GetAOSPGroupName(
-        oResponse.actionOffice
-      );
-      var actionOfficeGroup = Audit.Common.Utilities.GetSPSiteGroup(
-        actionOfficeGroupName
-      );
-
-      if (
-        actionOfficeGroupName == "" ||
-        actionOfficeGroupName == null ||
-        actionOfficeGroup == null
-      ) {
-        SP.UI.Notify.addNotification(
-          "Unable to send an email. Action Office (" +
-            oResponse.actionOffice +
-            ") does not have a group associated with it",
-          false
-        );
-        return;
-      }
-
-      //Iterate through the aos listed in the email action office field and if it matches this AO, then continue to create email for this AO
-      var bAddThisAO = false;
-      for (var x = 0; x < arrEmailActionOffice.length; x++) {
-        if (arrEmailActionOffice[x] == oResponse.actionOffice) {
-          bAddThisAO = true;
-          break;
-        }
-      }
-
-      if (bAddThisAO) {
-        //this means that this response's ao is in the email action offices field for this request and this ao should get a unique email with all the open responses
-        var ao = actionOfficeGroupName;
-        if (oResponse.poc != null && oResponse.poc != "")
-          //if poc field is provided, email the poc and poccc, not the Action office group
-          ao = oResponse.poc + ";" + oResponse.pocCC;
-
-        var bFound = false;
-        for (var x = 0; x < arrEmails.length; x++) {
-          if (arrEmails[x].actionOffice == ao) {
-            var oResSample = new Object();
-            oResSample["sample"] = oResponse.sample;
-            oResSample["title"] = oResponse.title;
-            arrEmails[x].responseTitles.push(oResSample);
-            bFound = true;
-          }
-        }
-
-        if (!bFound) {
-          var emailObject = new Object();
-          emailObject.actionOffice = ao;
-          emailObject.poc = oResponse.poc;
-          emailObject.responseTitles = new Array();
-
-          var oResSample = new Object();
-          oResSample["sample"] = oResponse.sample;
-          oResSample["title"] = oResponse.title;
-
-          emailObject.responseTitles.push(oResSample);
-          arrEmails.push(emailObject);
-        }
-      }
-    }
-
-    if (arrEmails.length == 0) {
-      SP.UI.Notify.addNotification(
-        "Unable to send an email. 0 Action Offices in the Email Action Office field match the Responses",
-        false
-      );
-      return;
-    }
-
-    const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
-      "Sending Emails",
-      "Please wait... sending email notifications to Action Offices",
-      100,
-      400
+    var actionOfficeGroupName = Audit.Common.Utilities.GetAOSPGroupName(
+      oResponse.actionOffice
+    );
+    var actionOfficeGroup = Audit.Common.Utilities.GetSPSiteGroup(
+      actionOfficeGroupName
     );
 
-    document.body.style.cursor = "wait";
+    if (
+      actionOfficeGroupName == "" ||
+      actionOfficeGroupName == null ||
+      actionOfficeGroup == null
+    ) {
+      SP.UI.Notify.addNotification(
+        "Unable to send an email. Action Office (" +
+          oResponse.actionOffice +
+          ") does not have a group associated with it",
+        false
+      );
+      return;
+    }
 
-    var emailList = web
-      .get_lists()
-      .getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory());
+    //Iterate through the aos listed in the email action office field and if it matches this AO, then continue to create email for this AO
+    // var bAddThisAO = false;
+    // for (var x = 0; x < arrEmailActionOffice.length; x++) {
+    //   if (arrEmailActionOffice[x] == oResponse.actionOffice) {
+    //     bAddThisAO = true;
+    //     break;
+    //   }
+    // }
 
-    var emailListQuery = new SP.CamlQuery();
-    emailListQuery.set_viewXml(
-      '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
+    if (!arrEmailActionOffice.includes(oResponse.actionOffice)) return;
+
+    // if (bAddThisAO) {
+    //this means that this response's ao is in the email action offices field for this request and this ao should get a unique email with all the open responses
+    var ao = actionOfficeGroupName;
+    if (oResponse.poc != null && oResponse.poc != "")
+      //if poc field is provided, email the poc and poccc, not the Action office group
+      ao = oResponse.poc + ";" + oResponse.pocCC;
+
+    var bFound = false;
+    for (var x = 0; x < arrEmails.length; x++) {
+      if (arrEmails[x].actionOffice == ao) {
+        var oResSample = new Object();
+        oResSample["sample"] = oResponse.sample;
+        oResSample["title"] = oResponse.title;
+        arrEmails[x].responseTitles.push(oResSample);
+        bFound = true;
+      }
+    }
+
+    if (!bFound) {
+      var emailObject = new Object();
+      emailObject.actionOffice = ao;
+      emailObject.poc = oResponse.poc;
+      emailObject.responseTitles = new Array();
+
+      var oResSample = new Object();
+      oResSample["sample"] = oResponse.sample;
+      oResSample["title"] = oResponse.title;
+
+      emailObject.responseTitles.push(oResSample);
+      arrEmails.push(emailObject);
+    }
+    // }
+  }
+
+  if (arrEmails.length == 0) {
+    SP.UI.Notify.addNotification(
+      "Unable to send an email. 0 Action Offices in the Email Action Office field match the Responses",
+      false
     );
-    const emailListFolderItems = emailList.getItems(emailListQuery);
-    currCtx.load(emailListFolderItems, "Include(ID, Title, DisplayName)");
+    return;
+  }
 
-    function OnSuccess(sender, args) {
-      const m_emailCount = arrEmails.length;
-      var cnt = 0;
-      for (var y = 0; y < m_emailCount; y++) {
-        var emailSubject =
-          "Your Response Has Been Requested for Request Number: " +
-          oRequest.number;
-        var emailText = m_fnFormatEmailBodyToAO(
-          oRequest,
-          arrEmails[y].responseTitles,
-          arrEmails[y].poc
-        );
+  const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+    "Sending Emails",
+    "Please wait... sending email notifications to Action Offices",
+    100,
+    400
+  );
 
-        var itemCreateInfo = new SP.ListItemCreationInformation();
-        itemCreateInfo.set_folderUrl(
-          location.protocol +
-            "//" +
-            location.host +
-            Audit.Common.Utilities.GetSiteUrl() +
-            "/Lists/" +
-            Audit.Common.Utilities.GetListNameEmailHistory() +
-            "/" +
-            oRequest.number
-        );
-        const oListItem = emailList.addItem(itemCreateInfo);
-        oListItem.set_item("Title", emailSubject);
-        oListItem.set_item("Body", emailText);
-        oListItem.set_item("To", arrEmails[y].actionOffice);
-        oListItem.set_item("ReqNum", oRequest.number);
-        oListItem.set_item("NotificationType", "AO Notification");
-        oListItem.update();
+  document.body.style.cursor = "wait";
 
-        currCtx.executeQueryAsync(
-          function () {
-            cnt++;
-            if (cnt == m_emailCount) {
-              document.body.style.cursor = "default";
+  var emailList = web
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory());
 
-              var requestList = web
-                .get_lists()
-                .getByTitle(Audit.Common.Utilities.GetListTitleRequests());
-              const oListItem = requestList.getItemById(requestID);
-              oListItem.set_item("EmailSent", 1);
-              oListItem.update();
+  var emailListQuery = new SP.CamlQuery();
+  emailListQuery.set_viewXml(
+    '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
+  );
+  const emailListFolderItems = emailList.getItems(emailListQuery);
+  currCtx.load(emailListFolderItems, "Include(ID, Title, DisplayName)");
 
-              currCtx.executeQueryAsync(
-                function () {
-                  SP.UI.Notify.addNotification(
-                    "Email Sent to Action Offices. ",
-                    false
-                  );
-                  setTimeout(function () {
-                    m_waitDialog.close();
-                    m_fnRefreshData();
-                  }, 1000);
-                },
-                function (sender, args) {
-                  alert(
-                    "Request failed: " +
-                      args.get_message() +
-                      "\n" +
-                      args.get_stackTrace()
-                  );
-                  m_fnRefresh();
-                }
-              );
-            }
-          },
-          function (sender, args) {
+  function OnSuccess(sender, args) {
+    const m_emailCount = arrEmails.length;
+    var cnt = 0;
+    for (var y = 0; y < m_emailCount; y++) {
+      var emailSubject =
+        "Your Response Has Been Requested for Request Number: " +
+        oRequest.number;
+      var emailText = m_fnFormatEmailBodyToAO(
+        oRequest,
+        arrEmails[y].responseTitles,
+        arrEmails[y].poc
+      );
+
+      var itemCreateInfo = new SP.ListItemCreationInformation();
+      itemCreateInfo.set_folderUrl(
+        location.protocol +
+          "//" +
+          location.host +
+          Audit.Common.Utilities.GetSiteUrl() +
+          "/Lists/" +
+          Audit.Common.Utilities.GetListNameEmailHistory() +
+          "/" +
+          oRequest.number
+      );
+      const oListItem = emailList.addItem(itemCreateInfo);
+      oListItem.set_item("Title", emailSubject);
+      oListItem.set_item("Body", emailText);
+      oListItem.set_item("To", arrEmails[y].actionOffice);
+      oListItem.set_item("ReqNum", oRequest.number);
+      oListItem.set_item("NotificationType", "AO Notification");
+      oListItem.update();
+
+      currCtx.executeQueryAsync(
+        function () {
+          cnt++;
+          if (cnt == m_emailCount) {
             document.body.style.cursor = "default";
 
-            alert(
-              "Request failed: " +
-                args.get_message() +
-                "\n" +
-                args.get_stackTrace()
+            var requestList = web
+              .get_lists()
+              .getByTitle(Audit.Common.Utilities.GetListTitleRequests());
+            const oListItem = requestList.getItemById(requestID);
+            oListItem.set_item("EmailSent", 1);
+            oListItem.update();
+
+            currCtx.executeQueryAsync(
+              function () {
+                SP.UI.Notify.addNotification(
+                  "Email Sent to Action Offices. ",
+                  false
+                );
+                setTimeout(function () {
+                  m_waitDialog.close();
+                  m_fnRefreshData();
+                }, 1000);
+              },
+              function (sender, args) {
+                alert(
+                  "Request failed: " +
+                    args.get_message() +
+                    "\n" +
+                    args.get_stackTrace()
+                );
+                m_fnRefresh();
+              }
             );
-            m_fnRefresh();
           }
-        );
-      }
-    }
-    function OnFailure(sender, args) {
-      document.body.style.cursor = "default";
-      alert(
-        "Request failed. " + args.get_message() + "\n" + args.get_stackTrace()
+        },
+        function (sender, args) {
+          document.body.style.cursor = "default";
+
+          alert(
+            "Request failed: " +
+              args.get_message() +
+              "\n" +
+              args.get_stackTrace()
+          );
+          m_fnRefresh();
+        }
       );
     }
-
-    currCtx.executeQueryAsync(OnSuccess, OnFailure);
   }
+  function OnFailure(sender, args) {
+    document.body.style.cursor = "default";
+    alert(
+      "Request failed. " + args.get_message() + "\n" + args.get_stackTrace()
+    );
+  }
+
+  currCtx.executeQueryAsync(OnSuccess, OnFailure);
 }
 
 export async function m_fnNotifyQAApprovalPending(oRequest, oResponseDocs) {
@@ -6104,7 +6105,7 @@ async function m_fnBreakResponseFolderPermissions(
     .getByPrincipal(currentUser)
     .deleteObject();
 
-  await new Promise(currCtx.executeQueryAsync).catch((e) =>
+  await executeQuery(currCtx).catch((e) =>
     console.error(
       "Failed to update permissions on Response Folder: ",
       oListItemResponse.get_item("Title")
@@ -7693,17 +7694,17 @@ function OnCallbackFormEditResponse(result, value) {
             var ao = this.oListItem.get_item("ActionOffice");
             if (ao != null) ao = ao.get_lookupValue();
             else ao = "";
-            var actionOfficeGroupName =
-              Audit.Common.Utilities.GetAOSPGroupName(ao);
+            var emailTo = ao;
+            // Audit.Common.Utilities.GetAOSPGroupName(ao);
 
             //if it has a poc, update the TO field and the poc in the email text
             var poc = this.oListItem.get_item("POC");
             if (poc != null) {
-              poc = poc.get_lookupValue();
-              actionOfficeGroupName = poc;
+              poc = poc.get_email();
+              emailTo = poc;
               var pocCC = this.oListItem.get_item("POCCC");
               if (pocCC != null) {
-                actionOfficeGroupName += ";" + pocCC.get_lookupValue();
+                emailTo += ";" + pocCC.get_email();
               }
 
               emailText = emailText.replace(
@@ -7728,7 +7729,7 @@ function OnCallbackFormEditResponse(result, value) {
             const oListItemEmail = emailList.addItem(itemCreateInfo);
             oListItemEmail.set_item("Title", emailSubject);
             oListItemEmail.set_item("Body", emailText);
-            oListItemEmail.set_item("To", actionOfficeGroupName);
+            oListItemEmail.set_item("To", emailTo);
             oListItemEmail.set_item(
               "NotificationType",
               "AO Returned Notification"

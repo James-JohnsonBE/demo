@@ -39,24 +39,30 @@ export async function addResponse(request, response) {
 
   response.ResStatus.Value(AuditResponseStates.Open);
 
-  // Validate title is unique
-  const responseResult = await appContext.AuditResponses.FindByColumnValue(
-    [
-      {
-        column: "Title",
-        value: responseTitle,
-      },
-    ],
-    {},
-    { count: 1 }
-  );
+  try {
+    // Validate title is unique
+    const responseResult = await appContext.AuditResponses.FindByColumnValue(
+      [
+        {
+          column: "Title",
+          value: responseTitle,
+        },
+      ],
+      {},
+      { count: 1 }
+    );
 
-  if (responseResult.results.length) {
-    throw new Error(`Response with title ${responseTitle} already exists!`);
+    if (responseResult.results.length) {
+      throw new Error(`Response with title ${responseTitle} already exists!`);
+    }
+
+    await appContext.AuditResponses.AddEntity(response);
+  } catch (e) {
+    console.error("Error adding Response: ", e);
+    alert(e.message);
+  } finally {
+    finishTask(newResponseTask);
   }
-
-  await appContext.AuditResponses.AddEntity(response);
-  finishTask(newResponseTask);
 }
 
 export async function updateResponse(request, response) {
@@ -64,35 +70,44 @@ export async function updateResponse(request, response) {
     taskDefs.updateResponse(response.Title.Value())
   );
 
-  // FPRA Check
-  const actionOfficeTitle = response.ActionOffice.Value()?.Title?.toLowerCase();
-  if (!actionOfficeTitle.includes("fpra")) {
-    if (response.POC.toString() || response.POCCC.toString()) {
-      throw new Error("Please clear the POC and CC fields.");
+  try {
+    // FPRA Check
+    const actionOfficeTitle =
+      response.ActionOffice.Value()?.Title?.toLowerCase();
+    if (!actionOfficeTitle.includes("fpra")) {
+      if (response.POC.toString() || response.POCCC.toString()) {
+        throw new Error(
+          "Only FPRA Responses can have designated POC and POC CC fields."
+        );
+      }
     }
+
+    // Sensitivity Check
+    const currentResponseSensitivity = request.Sensitivity.Value();
+    const selectedResponseStatus = response.ResStatus.Value();
+
+    if (
+      selectedResponseStatus == AuditResponseStates.ApprovedForQA &&
+      currentResponseSensitivity == "None"
+    ) {
+      throw new Error("Request Sensitivity not set; cannot submit to QA.");
+    }
+
+    const responseTitle = getResponseTitle(request, response);
+
+    if (response.Title.Value() != responseTitle)
+      response.Title.Value(responseTitle);
+
+    await appContext.AuditResponses.UpdateEntity(
+      response,
+      AuditResponse.Views.AOCanUpdate
+    );
+  } catch (e) {
+    console.error("Error Updating Response: ", e);
+    alert(e.message);
+  } finally {
+    finishTask(updateResponseTask);
   }
-
-  // Sensitivity Check
-  const currentResponseSensitivity = request.Sensitivity.Value();
-  const selectedResponseStatus = response.ResStatus.Value();
-
-  if (
-    selectedResponseStatus == AuditResponseStates.ApprovedForQA &&
-    currentResponseSensitivity == "None"
-  )
-    throw new Error("Request Sensitivity not set; cannot submit to QA.");
-
-  const responseTitle = getResponseTitle(request, response);
-
-  if (response.Title.Value() != responseTitle)
-    response.Title.Value(responseTitle);
-
-  await appContext.AuditResponses.UpdateEntity(
-    response,
-    AuditResponse.Views.AOCanUpdate
-  );
-
-  finishTask(updateResponseTask);
 }
 
 export async function updateResponseDoc(request, response, responseDoc) {

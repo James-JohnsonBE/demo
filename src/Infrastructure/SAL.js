@@ -39,6 +39,14 @@ sal.site = sal.site || {};
 
 window.DEBUG = true;
 
+export function executeQuery(currCtx) {
+  return new Promise((resolve, reject) =>
+    currCtx.executeQueryAsync(resolve, (sender, args) => {
+      reject({ sender, args });
+    })
+  );
+}
+
 function principalToPeople(oPrincipal, isGroup = null) {
   return {
     ID: oPrincipal.get_id(),

@@ -12,34 +12,6 @@
     1200
   </div>
 
-  <dialog id="dlgModalDialog" class="card bg-dark draggable">
-    <div class="card-header bg-dark grabber">
-      <h2 class="card-title" data-bind="text: currentDialog()?.title"></h2>
-      <h2 class="card-title">
-        <i
-          class="fa-solid fa-xmark pointer"
-          data-bind="click: currentDialog()?.close"
-        ></i>
-      </h2>
-    </div>
-    <!-- ko with: currentDialog -->
-    <div
-      class="card-body"
-      data-bind="component: { name: form.componentName, params: form.params }"
-    ></div>
-    <div class="card-actions">
-      <button
-        style
-        type="button"
-        class="btn btn-danger"
-        data-bind="click: clickClose"
-      >
-        Cancel
-      </button>
-    </div>
-    <!-- /ko -->
-  </dialog>
-
   <div id="divIA" class="audit-body" style="display: none">
     <div class="quick-info">
       <div id="divLoading">Please Wait... Loading</div>
