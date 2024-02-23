@@ -1,5 +1,5 @@
 import { registerComponent } from "../../../../infrastructure/RegisterComponents.js";
-import { m_fnApproveResponseDocsForQA } from "../../../../pages/IA_DB/IA_DB_Services.js";
+import { m_fnApproveResponseDocsForQA } from "../../../../Pages/IA_DB/IA_DB_Services.js";
 const componentName = "confirm-approve-response-doc";
 export class ConfirmApproveResponseDocForm {
   constructor(request, response, responseDocs) {

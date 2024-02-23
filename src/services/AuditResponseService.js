@@ -123,6 +123,23 @@ export async function updateResponseDoc(request, response, responseDoc) {
   finishTask(updateResponseDocTask);
 }
 
+export async function uploadResponseDocFile(response, file) {
+  const uploadResponseDocTask = addTask(taskDefs.uploadResponseDoc(file.name));
+  const fileMetadata = {
+    Title: file.name,
+    ReqNumId: response.ReqNum.Value().ID,
+    ResIDId: response.ID,
+  };
+
+  await appContext.AuditResponseDocs.UploadFileToFolderAndUpdateMetadata(
+    file,
+    file.name,
+    response.Title.Value(),
+    fileMetadata
+  );
+  finishTask(uploadResponseDocTask);
+}
+
 function getResponseTitle(request, response) {
   return `${request.ReqNum.Value()}-${
     response.ActionOffice.Value()?.Title

@@ -56,6 +56,12 @@ export const taskDefs = {
       blocking: true,
     };
   },
+  uploadResponseDoc: (responseDocTitle) => {
+    return {
+      msg: "Uploading Response Document: " + responseDocTitle,
+      blocking: true,
+    };
+  },
   updateResponseDoc: (responseDocTitle) => {
     return {
       msg: "Updating Response Document: " + responseDocTitle,

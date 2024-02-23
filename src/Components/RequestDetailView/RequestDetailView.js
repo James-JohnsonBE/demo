@@ -1,16 +1,16 @@
 import { appContext } from "../../infrastructure/ApplicationDbContext.js";
 import { registerComponent } from "../../infrastructure/RegisterComponents.js";
-import { uploadRequestCoversheetFile } from "../../services/CoversheetManager.js";
-import { EditCoverSheetForm } from "../Forms/CoverSheet/EditForm/EditCoversheetForm.js";
 import * as ModalDialog from "../../infrastructure/ModalDialog.js";
+import { uploadRequestCoversheetFile } from "../../services/CoversheetManager.js";
 import { getRequestByTitle } from "../../services/AuditRequestService.js";
+import { uploadResponseDocFile } from "../../services/AuditResponseService.js";
 import { Tab, TabsModule } from "../Tabs/TabsModule.js";
 import { getUrlParam } from "../../common/Router.js";
-import { ConfirmApproveResponseDocForm } from "../Forms/ResponseDoc/ConfirmApprove/ConfirmApproveResponseDocForm.js";
 import { AuditResponseStates } from "../../entities/AuditResponse.js";
 import { AuditResponseDocStates } from "../../entities/AuditResponseDocs.js";
 import { AUDITREQUESTSTATES } from "../../entities/AuditRequest.js";
-import { m_fnRefreshData } from "../../pages/IA_DB/IA_DB_Services.js";
+import { m_fnRefreshData } from "../../Pages/IA_DB/IA_DB_Services.js";
+import { ConfirmApproveResponseDocForm } from "../Forms/ResponseDoc/ConfirmApprove/ConfirmApproveResponseDocForm.js";
 import { ConfirmRejectResponseDocForm } from "../Forms/ResponseDoc/ConfirmReject/ConfirmRejectResponseDocForm.js";
 
 const componentName = "component-request-detail-view";
@@ -334,7 +334,7 @@ class ResponseItem {
     for (let file of files) {
       promises.push(
         new Promise(async (resolve) => {
-          const newSheet = await response.uploadResponseDocFile(file);
+          const newSheet = await uploadResponseDocFile(response, file);
           resolve();
         })
       );
