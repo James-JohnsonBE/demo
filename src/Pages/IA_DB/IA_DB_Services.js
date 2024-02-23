@@ -991,17 +991,16 @@ function ViewModel() {
     self.arrCurrentRequestRequestDocs([]);
     self.arrCurrentRequestCoverSheets([]);
     self.arrCurrentRequestResponses([]);
-    self.arrCurrentRequestResponseDocs([]);
+    self.arrCurrentRequestResponseDocs.removeAll();
     self.cntResponseDocs(0);
     self.bDisplayClose(false);
 
-    self.currentRequest.valueHasMutated();
-    self.arrCurrentRequestRequestDocs.valueHasMutated();
-    self.arrCurrentRequestCoverSheets.valueHasMutated();
-    self.arrCurrentRequestResponses.valueHasMutated();
-    self.arrCurrentRequestResponseDocs.valueHasMutated();
-    self.cntResponseDocs.valueHasMutated();
-    self.bDisplayClose.valueHasMutated();
+    // self.currentRequest.valueHasMutated();
+    // self.arrCurrentRequestRequestDocs.valueHasMutated();
+    // self.arrCurrentRequestCoverSheets.valueHasMutated();
+    // self.arrCurrentRequestResponses.valueHasMutated();
+    // self.cntResponseDocs.valueHasMutated();
+    // self.bDisplayClose.valueHasMutated();
 
     var oRequest = m_bigMap["request-" + newValue];
     if (oRequest) {
@@ -2612,11 +2611,7 @@ async function LoadTabRequestInfoResponses(oRequest) {
   SP.UI.Notify.removeNotification(m_notifyIDLoadingResponses);
   m_notifyIDLoadingResponses = null;
 
-  ko.utils.arrayPushAll(
-    _myViewModel.arrCurrentRequestResponses(),
-    arrResponses
-  );
-  _myViewModel.arrCurrentRequestResponses.valueHasMutated();
+  ko.utils.arrayPushAll(_myViewModel.arrCurrentRequestResponses, arrResponses);
 
   document.body.style.cursor = "default";
 
@@ -2646,8 +2641,7 @@ function m_fnHighlightResponse() {
 }
 
 async function LoadTabRequestInfoResponseDocs(oRequest) {
-  _myViewModel.arrCurrentRequestResponseDocs([]);
-  _myViewModel.arrCurrentRequestResponseDocs.valueHasMutated();
+  _myViewModel.arrCurrentRequestResponseDocs.removeAll();
 
   _myViewModel.cntResponseDocs(0);
   _myViewModel.cntResponseDocs.valueHasMutated();
@@ -2711,9 +2705,7 @@ async function LoadTabRequestInfoResponseDocs(oRequest) {
     return;
   }
 
-  await new Promise((resolve, reject) =>
-    currCtx.executeQueryAsync(resolve, reject)
-  ).catch((sender, args) => {
+  await executeQuery(currCtx).catch(({ sender, args }) => {
     const statusId = SP.UI.Status.addStatus(
       "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
     );
@@ -2775,15 +2767,15 @@ async function LoadTabRequestInfoResponseDocs(oRequest) {
       responseDocs: arrResponseDocs,
       responseStatus: oResponse.resStatus,
       requestStatus: oRequest.status,
+      collapsed: ko.observable(false),
       showBulkApprove,
     });
   }
 
   ko.utils.arrayPushAll(
-    _myViewModel.arrCurrentRequestResponseDocs(),
+    _myViewModel.arrCurrentRequestResponseDocs,
     arrResponseSummaries
   );
-  _myViewModel.arrCurrentRequestResponseDocs.valueHasMutated();
   _myViewModel.cntResponseDocs(cnt);
   RequestFinishedLoading();
 }
@@ -3459,15 +3451,8 @@ async function m_fnEditResponse(
 }
 
 function m_fnReviewingResponse(activeViewers) {
-  if (!m_bIsSiteOwner) {
-    SP.UI.Notify.addNotification(
-      "You do not have access to perform this action...",
-      false
-    );
-    return;
-  }
+  SP.UI.Notify.addNotification("Reviewing Response...", false);
 
-  alert("Reviewing!");
   activeViewers.pushCurrentUser();
 }
 

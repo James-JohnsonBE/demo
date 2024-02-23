@@ -896,8 +896,8 @@
               style="background-color: transparent"
               title="Expand/Collapse"
               data-bind="
-              attr: { src: ($parent.showCollapsed() ? '/_layouts/images/plus.gif' : '/_layouts/images/minus.gif') },
-              toggleClick: $data, toggleClass: 'collapsed', containerType: 'doc', classContainer: '.requestInfo-response-doc'"
+              attr: { src: (responseDocSummary.collapsed() ? '/_layouts/images/plus.gif' : '/_layouts/images/minus.gif') },
+              toggles: responseDocSummary.collapsed"
             /><span data-bind="text: responseDocSummary.responseTitle"></span>
           </td>
         </tr>
@@ -905,7 +905,7 @@
         <tr
           class="requestInfo-response-doc-item"
           data-bind="visible: responseDocSummary.showBulkApprove,
-            css: ($parent.showCollapsed() ? 'collapsed' : '')"
+            css: (responseDocSummary.collapsed() ? 'collapsed' : '')"
         >
           <td colspan="11">
             <span class="divBulkApprove">
@@ -928,7 +928,7 @@
 
         <tr
           class="requestInfo-response-doc-item"
-          data-bind="style: styleTag, css: ($parents[1].showCollapsed() ? 'collapsed' : '')"
+          data-bind="style: styleTag, css: (responseDocSummary.collapsed() ? 'collapsed' : '')"
         >
           <td>
             <img

@@ -65,6 +65,7 @@ export class RequestDetailView {
     ClickEditResponseDoc
     ApproveCheckedResponseDocs
     */
+    this.showCollapsed.subscribe(this.showCollapseToggledHandler);
     this.coverSheetFiles.subscribeAdded(this.onCoverSheetFileAttachedHandler);
 
     this.tabs = new TabsModule(
@@ -111,6 +112,13 @@ export class RequestDetailView {
     );
   });
 
+  // Subscriptions
+  showCollapseToggledHandler = (collapse) => {
+    this.arrCurrentRequestResponseDocs().map((responseDocSummary) =>
+      responseDocSummary.collapsed(collapse)
+    );
+  };
+
   // Behaviors
   setInitialTab() {
     if (getUrlParam(requestDetailUrlParamKey)) {
@@ -124,6 +132,8 @@ export class RequestDetailView {
 
     this.tabs.selectTab(defaultTab);
   }
+
+  // collapseResponseDocs = (collapse) =>
 
   refreshRequest() {
     m_fnRefreshData();
@@ -146,7 +156,13 @@ export class RequestDetailView {
   // Responses
   viewResponseDocs = (response) => {
     this.tabs.selectTab(this.tabOpts.ResponseDocs);
-    this.showCollapsed(true);
+    this.showCollapseToggledHandler(true);
+    this.arrCurrentRequestResponseDocs()
+      .find(
+        (responseDocSummary) =>
+          responseDocSummary.responseTitle == response.title
+      )
+      ?.collapsed(false);
   };
 
   // ResponseDocs
