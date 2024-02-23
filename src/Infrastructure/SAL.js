@@ -1275,8 +1275,6 @@ export function SPList(listDef) {
     //   );
     // });
 
-    const itemTitle = oListItem.get_lookupValue();
-
     for (const role of itemPermissions.roles) {
       const ensuredPrincipalResult = await ensureUserByKeyAsync(
         role.principal.Title
@@ -1302,7 +1300,7 @@ export function SPList(listDef) {
       const data = {};
       await executeQuery(currCtx2).catch(({ sender, args }) => {
         console.error(
-          `Failed to set role permissions on item ${itemTitle} for principal ${role.principal.Title} ` +
+          `Failed to set role permissions on item id ${id} for principal ${role.principal.Title} ` +
             args.get_message(),
           args
         );
@@ -1317,7 +1315,7 @@ export function SPList(listDef) {
 
       await executeQuery(currCtx).catch(({ sender, args }) => {
         console.error(
-          `Failed to remove role permissions on item ${itemTitle} for Current User ` +
+          `Failed to remove role permissions on item id ${id} for Current User ` +
             args.get_message(),
           args
         );
