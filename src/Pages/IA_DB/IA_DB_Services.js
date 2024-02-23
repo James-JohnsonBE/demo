@@ -3522,72 +3522,72 @@ export async function m_fnApproveResponseDocsForQA(oRequest, oResponseDocs) {
     alert("Request Sensitivity has not been set!");
     return false;
   }
-  await Promise.all(
-    oRequest.responses.map(async (oResponse) => {
-      const responseApprovedResponseDocs = oResponse.responseDocs.filter(
-        (responseDoc) => oResponseDocs.includes(responseDoc)
+
+  for (const oResponse of oRequest.responses) {
+    const responseApprovedResponseDocs = oResponse.responseDocs.filter(
+      (responseDoc) => oResponseDocs.includes(responseDoc)
+    );
+
+    // Only proceed if this response has approved response docs
+    if (!responseApprovedResponseDocs.length) {
+      continue;
+    }
+
+    // Update Response Doc Status
+    for (const oResponseDoc of responseApprovedResponseDocs) {
+      var ctx2 = new SP.ClientContext.get_current();
+      var oList = ctx2
+        .get_web()
+        .get_lists()
+        .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
+
+      const newResponseDocFileName = m_fnGetNewResponseDocTitle(
+        oResponseDoc.item,
+        oResponseDoc.responseTitle,
+        oRequest.sensitivity
       );
 
-      // Only proceed if this response has approved response docs
-      if (!responseApprovedResponseDocs.length) {
-        return;
-      }
-
-      // Update Response Doc Status
-      await Promise.all(
-        responseApprovedResponseDocs.map(async (oResponseDoc) => {
-          var ctx2 = new SP.ClientContext.get_current();
-          var oList = ctx2
-            .get_web()
-            .get_lists()
-            .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
-
-          const newResponseDocFileName = m_fnGetNewResponseDocTitle(
-            oResponseDoc.item,
-            oResponseDoc.responseTitle,
-            oRequest.sensitivity
-          );
-
-          const approveResponseDocTask = addTask(
-            taskDefs.approveResponseDoc(newResponseDocFileName)
-          );
-
-          const oListItem = oList.getItemById(oResponseDoc.item.get_item("ID"));
-          ctx2.load(oListItem);
-          await new Promise((resolve, reject) => {
-            ctx2.executeQueryAsync(resolve, reject);
-          });
-
-          oListItem.set_item("DocumentStatus", AuditResponseDocStates.SentToQA);
-          oListItem.set_item("RejectReason", "");
-          oListItem.set_item("FileLeafRef", newResponseDocFileName);
-          oListItem.update();
-          await new Promise((resolve, reject) => {
-            ctx2.executeQueryAsync(resolve, reject);
-          });
-          finishTask(approveResponseDocTask);
-        })
+      const approveResponseDocTask = addTask(
+        taskDefs.approveResponseDoc(newResponseDocFileName)
       );
 
-      // Update Response Status
-      if (oResponse.resStatus != AuditResponseStates.Submitted) return;
-
-      const ctx = new SP.ClientContext.get_current();
-
-      ctx.load(oResponse.item);
-      oResponse.item.set_item("ResStatus", AuditResponseStates.ApprovedForQA);
-      oResponse.item.update();
-
+      const oListItem = oList.getItemById(oResponseDoc.item.get_item("ID"));
+      ctx2.load(oListItem);
       await new Promise((resolve, reject) => {
-        ctx.executeQueryAsync(resolve, reject);
-      }).catch((e) => {
-        return;
+        ctx2.executeQueryAsync(resolve, reject);
       });
 
-      // Break Response Permissions
-      await m_fnBreakResponseAndFolderPermissions(oRequest.status, oResponse);
-    })
-  );
+      oListItem.set_item("DocumentStatus", AuditResponseDocStates.SentToQA);
+      oListItem.set_item("RejectReason", "");
+      oListItem.set_item("FileLeafRef", newResponseDocFileName);
+      oListItem.update();
+      await new Promise((resolve, reject) => {
+        ctx2.executeQueryAsync(resolve, reject);
+      });
+      finishTask(approveResponseDocTask);
+    }
+
+    // Update Response Status
+    if (oResponse.resStatus != AuditResponseStates.Submitted) continue;
+
+    const ctx = new SP.ClientContext.get_current();
+
+    ctx.load(oResponse.item);
+    oResponse.item.set_item("ResStatus", AuditResponseStates.ApprovedForQA);
+    oResponse.item.update();
+
+    await executeQuery(ctx).catch(({ sender, args }) => {
+      console.error("Unable to set response status approved for QA", oResponse);
+    });
+
+    // Break Response Permissions
+    await m_fnBreakResponseAndFolderPermissions(
+      oRequest.status,
+      oResponse,
+      false,
+      true
+    );
+  }
 
   // Break Request Permissions
   await m_fnBreakRequestPermissions(
