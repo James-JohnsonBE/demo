@@ -1294,7 +1294,9 @@ export async function m_fnRequeryRequest(requestId = null) {
     .getByTitle(Audit.Common.Utilities.GetListTitleRequestsInternal());
   var requestInternalQuery = new SP.CamlQuery();
   requestInternalQuery.set_viewXml(
-    '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
+    "<View><Query><Where>" +
+      `<Eq><FieldRef Name="ReqNum" LookupId='TRUE'/><Value Type="Lookup">${requestId}</Value></Eq>` +
+      '</Where><OrderBy><FieldRef Name="Title"/></OrderBy></Query><RowLimit>1</RowLimit></View>'
   );
   const m_requestInternalItems =
     requestInternalList.getItems(requestInternalQuery);
