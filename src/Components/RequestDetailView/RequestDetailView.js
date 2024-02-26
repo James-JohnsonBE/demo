@@ -22,9 +22,9 @@ export class RequestDetailView {
     bDisplayClose,
     currentRequest,
     arrCurrentRequestCoverSheets,
-    arrCurrentRequestResponses,
-    cntResponseDocs,
-    arrCurrentRequestResponseDocs,
+    // arrCurrentRequestResponses,
+    // cntResponseDocs,
+    // arrCurrentRequestResponseDocs,
     ModalDialog,
     ClickEditCoversheet,
   }) {
@@ -32,9 +32,9 @@ export class RequestDetailView {
     this.bDisplayClose = bDisplayClose; // This can be converted to an observable
     this.currentRequest = currentRequest;
     this.arrCurrentRequestCoverSheets = arrCurrentRequestCoverSheets;
-    this.arrCurrentRequestResponses = arrCurrentRequestResponses;
-    this.cntResponseDocs = cntResponseDocs;
-    this.arrCurrentRequestResponseDocs = arrCurrentRequestResponseDocs;
+    // this.arrCurrentRequestResponses = arrCurrentRequestResponses;
+    // this.cntResponseDocs = cntResponseDocs;
+    // this.arrCurrentRequestResponseDocs = arrCurrentRequestResponseDocs;
 
     this.editCoversheet = ClickEditCoversheet;
 
@@ -101,9 +101,28 @@ export class RequestDetailView {
 
   // Computed Observables
   currentRequestResponseItems = ko.pureComputed(() => {
-    return this.arrCurrentRequestResponses().map(
-      (response) => new ResponseItem(response, this)
+    const request = ko.unwrap(this.currentRequest);
+    return (
+      request?.responses.map((response) => new ResponseItem(response, this)) ??
+      []
     );
+  });
+
+  currentRequestResponseDocs = ko.pureComputed(() => {
+    const request = ko.unwrap(this.currentRequest);
+    const responseSummaries =
+      request?.responses.map(
+        (response) => new ResponseDocSummary(request, response)
+      ) ?? [];
+    return responseSummaries;
+  });
+
+  cntResponseDocs = ko.pureComputed(() => {
+    const cnt = this.currentRequestResponseDocs().reduce(
+      (cnt, responseSummary) => cnt + responseSummary.responseDocs.length,
+      0
+    );
+    return cnt;
   });
 
   showResponseActions = ko.pureComputed(() => {
@@ -114,7 +133,7 @@ export class RequestDetailView {
 
   // Subscriptions
   showCollapseToggledHandler = (collapse) => {
-    this.arrCurrentRequestResponseDocs().map((responseDocSummary) =>
+    this.currentRequestResponseDocs().map((responseDocSummary) =>
       responseDocSummary.collapsed(collapse)
     );
   };
@@ -157,7 +176,7 @@ export class RequestDetailView {
   viewResponseDocs = (response) => {
     this.tabs.selectTab(this.tabOpts.ResponseDocs);
     this.showCollapseToggledHandler(true);
-    this.arrCurrentRequestResponseDocs()
+    this.currentRequestResponseDocs()
       .find(
         (responseDocSummary) =>
           responseDocSummary.responseTitle == response.title
@@ -207,7 +226,7 @@ export class RequestDetailView {
   };
 
   CheckResponseDocs = () => {
-    const allDocs = this.arrCurrentRequestResponseDocs()
+    const allDocs = this.currentRequestResponseDocs()
       .filter(
         (responseDocSummary) =>
           responseDocSummary.responseStatus == "2-Submitted"
@@ -224,7 +243,7 @@ export class RequestDetailView {
   };
 
   ApproveCheckedResponseDocs = () => {
-    const allDocs = this.arrCurrentRequestResponseDocs()
+    const allDocs = this.currentRequestResponseDocs()
       .flatMap((responseDocSummary) => {
         return responseDocSummary.responseDocs;
       })
@@ -361,4 +380,59 @@ class ResponseItem {
     this.responseDocFiles.removeAll();
     m_fnRefreshData();
   };
+}
+
+const onc =
+  "onclick=\"return DispEx(this,event,'TRUE','FALSE','FALSE','SharePoint.OpenDocuments.3','1','SharePoint.OpenDocuments','','','','2','0','0','0x7fffffffffffffff','','')\"";
+
+class ResponseDocSummary {
+  constructor(oRequest, oResponse) {
+    var showBulkApprove = false;
+
+    var arrResponseDocs = new Array();
+    for (var z = 0; z < oResponse.responseDocs.length; z++) {
+      var oResponseDoc = oResponse.responseDocs[z];
+
+      oResponseDoc.chkApproveResDoc = ko.observable(false);
+
+      if (oResponseDoc.documentStatus == "Marked for Deletion") continue;
+
+      oResponseDoc.docIcon = oResponseDoc.docIcon.get_value();
+      oResponseDoc.styleTag = Audit.Common.Utilities.GetResponseDocStyleTag2(
+        oResponseDoc.documentStatus
+      );
+      oResponseDoc.requestID = oRequest.ID; //needed for view document
+      oResponseDoc.responseID = oResponse.ID;
+      oResponseDoc.responseTitle = oResponse.title; //needed for view document
+
+      oResponseDoc.responseDocOpenInIELink =
+        "<a class='btn btn-link' target='_blank' title='Click to Open the document' onmousedown=\"return VerifyHref(this,event,'1','SharePoint.OpenDocuments','')\" " +
+        onc +
+        ' href="' +
+        oResponseDoc.folder +
+        "/" +
+        oResponseDoc.fileName +
+        '">' +
+        oResponseDoc.fileName +
+        "</a>";
+
+      arrResponseDocs.push(oResponseDoc);
+      // cnt++;
+
+      if (
+        oResponse.resStatus == "2-Submitted" &&
+        oResponseDoc.documentStatus == "Submitted"
+      ) {
+        showBulkApprove = true;
+      }
+    }
+    this.responseId = oResponse.ID;
+    this.responseTitle = oResponse.title;
+    this.responseDocs = arrResponseDocs;
+    this.responseStatus = oResponse.resStatus;
+    this.requestStatus = oRequest.status;
+    this.showBulkApprove = showBulkApprove;
+  }
+
+  collapsed = ko.observable(false);
 }

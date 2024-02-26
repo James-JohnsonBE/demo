@@ -232,8 +232,8 @@ function ViewModel() {
   self.currentRequest = ko.observable();
   self.arrCurrentRequestRequestDocs = ko.observableArray(null);
   self.arrCurrentRequestCoverSheets = ko.observableArray(null);
-  self.arrCurrentRequestResponses = ko.observableArray(null);
-  self.arrCurrentRequestResponseDocs = ko.observableArray(null);
+  // self.arrCurrentRequestResponses = ko.observableArray(null);
+  // self.arrCurrentRequestResponseDocs = ko.observableArray(null);
   self.cntResponseDocs = ko.observable(0);
   self.bDisplayClose = ko.observable(false);
 
@@ -990,8 +990,8 @@ function ViewModel() {
     self.currentRequest(null);
     self.arrCurrentRequestRequestDocs([]);
     self.arrCurrentRequestCoverSheets([]);
-    self.arrCurrentRequestResponses([]);
-    self.arrCurrentRequestResponseDocs.removeAll();
+    // self.arrCurrentRequestResponses([]);
+    // self.arrCurrentRequestResponseDocs.removeAll();
     self.cntResponseDocs(0);
     self.bDisplayClose(false);
 
@@ -1425,6 +1425,7 @@ export async function m_fnRequeryRequest(requestId = null) {
   // This needs to run after the responses have been loaded
   await LoadTabRequestInfoResponseDocs(oRequest);
 
+  _myViewModel.currentRequest.valueHasMutated();
   finishTask(refreshTask);
 }
 
@@ -2433,8 +2434,8 @@ async function LoadTabRequestInfoResponses(oRequest) {
     }
   }
 
-  _myViewModel.arrCurrentRequestResponses([]);
-  _myViewModel.arrCurrentRequestResponses.valueHasMutated();
+  // _myViewModel.arrCurrentRequestResponses([]);
+  // _myViewModel.arrCurrentRequestResponses.valueHasMutated();
 
   document.body.style.cursor = "wait";
   var m_notifyIDLoadingResponses = SP.UI.Notify.addNotification(
@@ -2611,7 +2612,7 @@ async function LoadTabRequestInfoResponses(oRequest) {
   SP.UI.Notify.removeNotification(m_notifyIDLoadingResponses);
   m_notifyIDLoadingResponses = null;
 
-  ko.utils.arrayPushAll(_myViewModel.arrCurrentRequestResponses, arrResponses);
+  // ko.utils.arrayPushAll(_myViewModel.arrCurrentRequestResponses, arrResponses);
 
   document.body.style.cursor = "default";
 
@@ -2641,7 +2642,7 @@ function m_fnHighlightResponse() {
 }
 
 async function LoadTabRequestInfoResponseDocs(oRequest) {
-  _myViewModel.arrCurrentRequestResponseDocs.removeAll();
+  // _myViewModel.arrCurrentRequestResponseDocs.removeAll();
 
   _myViewModel.cntResponseDocs(0);
   _myViewModel.cntResponseDocs.valueHasMutated();
@@ -2722,6 +2723,7 @@ async function LoadTabRequestInfoResponseDocs(oRequest) {
 
   var arrResponseSummaries = new Array();
   for (var y = 0; y < oRequest.responses.length; y++) {
+    continue;
     var oResponse = oRequest.responses[y];
 
     var showBulkApprove = false;
@@ -2761,7 +2763,7 @@ async function LoadTabRequestInfoResponseDocs(oRequest) {
         showBulkApprove = true;
       }
     }
-    arrResponseSummaries.push({
+    const responseSummary = {
       responseId: oResponse.ID,
       responseTitle: oResponse.title,
       responseDocs: arrResponseDocs,
@@ -2769,13 +2771,14 @@ async function LoadTabRequestInfoResponseDocs(oRequest) {
       requestStatus: oRequest.status,
       collapsed: ko.observable(false),
       showBulkApprove,
-    });
+    };
+    arrResponseSummaries.push(responseSummary);
   }
 
-  ko.utils.arrayPushAll(
-    _myViewModel.arrCurrentRequestResponseDocs,
-    arrResponseSummaries
-  );
+  // ko.utils.arrayPushAll(
+  //   _myViewModel.arrCurrentRequestResponseDocs,
+  //   arrResponseSummaries
+  // );
   _myViewModel.cntResponseDocs(cnt);
   RequestFinishedLoading();
 }

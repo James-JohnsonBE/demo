@@ -571,7 +571,7 @@
             ><span class="fa-solid fa-circle-plus"></span>Bulk Add Responses</a
           >
         </div>
-        <div data-bind="visible: $root.arrCurrentRequestResponses().length > 0">
+        <div data-bind="visible: currentRequestResponseItems().length > 0">
           <button
             type="button"
             class="btn btn-link"
@@ -584,7 +584,7 @@
         <!-- /ko -->
         <div
           id="divResponsesShowHideFolderPerms"
-          data-bind="visible: arrCurrentRequestResponses().length > 0"
+          data-bind="visible: currentRequestResponseItems().length > 0"
         >
           <button
             type="button"
@@ -601,7 +601,7 @@
     <table
       id="tblResponses"
       class="tablesorter report"
-      data-bind="visible: arrCurrentRequestResponses().length > 0 "
+      data-bind="visible: currentRequestResponseItems().length > 0 "
     >
       <thead>
         <tr valign="top">
@@ -610,6 +610,7 @@
             Name
           </th>
           <th class="sorter-true" nowrap="nowrap">Action Office</th>
+          <th class="sorter-true" nowrap="nowrap"># Docs</th>
           <th class="sorter-true" nowrap="nowrap">Status</th>
           <th class="sorter-true" nowrap="nowrap">Return Reason</th>
           <th class="sorter-false" nowrap="nowrap">Special Permission?</th>
@@ -640,6 +641,11 @@
             ><span data-bind="visible: poc" style="color: green"
               >&nbsp;POC: </span
             ><span data-bind="text: poc" style="color: green"></span>
+          </td>
+          <td class="response-document-cnt" >
+            <span title="View Response Docs"
+              class="btn btn-link"
+              data-bind="text: responseDocs.length, click: $parent.viewResponseDocs"></span>
           </td>
           <td class="response-resStatus">
             <span
@@ -728,6 +734,22 @@
             >
               <i class="fa-solid fa-pen"></i>
             </button>
+            <label
+              title="Upload Coversheets for Action Office"
+              class="btn btn-link"
+              data-bind="visible: $parent.status != 'Closed' && $parent.status != 'Canceled' && ( resStatus == '1-Open' || resStatus == '2-Submitted' || resStatus == '3-Returned to Action Office' ||resStatus == '5-Returned to GFS' )"
+            >
+              <i
+                title="Upload Coversheets"
+                class="fa-solid fa-upload"
+              ></i>
+              <input
+                type="file"
+                multiple
+                style="display: none"
+                data-bind="files: responseCoversheetFiles"
+              />
+            </label>
             <button
               type="button"
               class="btn btn-link"
@@ -758,32 +780,16 @@
                 data-bind="files: responseDocFiles"
               />
             </label>
-            <label
-              title="Upload Coversheets for Action Office"
-              class="btn btn-link"
-              data-bind="visible: $parent.status != 'Closed' && $parent.status != 'Canceled' && ( resStatus == '1-Open' || resStatus == '2-Submitted' || resStatus == '3-Returned to Action Office' ||resStatus == '5-Returned to GFS' )"
-            >
-              <i
-                title="Upload Coversheets"
-                class="fa-solid fa-file-invoice"
-              ></i>
-              <input
-                type="file"
-                multiple
-                style="display: none"
-                data-bind="files: responseCoversheetFiles"
-              />
-            </label>
           </td>
         </tr>
       </tbody>
       <tfoot>
         <tr valign="top">
-          <th colspan="9" nowrap="nowrap">
+          <th colspan="10" nowrap="nowrap">
             Total:
             <span
               id="tblResponsesTotal"
-              data-bind="text: arrCurrentRequestResponses().length"
+              data-bind="text: currentRequestResponseItems().length"
               >0</span
             >
           </th>
@@ -885,7 +891,7 @@
         </tr>
       </thead>
       <tbody
-        data-bind="foreach: { data: arrCurrentRequestResponseDocs, as: 'responseDocSummary'} "
+        data-bind="foreach: { data: currentRequestResponseDocs, as: 'responseDocSummary'} "
       >
         <tr
           class="requestInfo-response-doc"
