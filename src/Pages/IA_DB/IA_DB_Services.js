@@ -234,7 +234,7 @@ function ViewModel() {
   self.arrCurrentRequestCoverSheets = ko.observableArray(null);
   // self.arrCurrentRequestResponses = ko.observableArray(null);
   // self.arrCurrentRequestResponseDocs = ko.observableArray(null);
-  self.cntResponseDocs = ko.observable(0);
+  // self.cntResponseDocs = ko.observable(0);
   self.bDisplayClose = ko.observable(false);
 
   self.showUpload = ko.observable(false);
@@ -992,7 +992,7 @@ function ViewModel() {
     self.arrCurrentRequestCoverSheets([]);
     // self.arrCurrentRequestResponses([]);
     // self.arrCurrentRequestResponseDocs.removeAll();
-    self.cntResponseDocs(0);
+    // self.cntResponseDocs(0);
     self.bDisplayClose(false);
 
     // self.currentRequest.valueHasMutated();
@@ -2644,8 +2644,8 @@ function m_fnHighlightResponse() {
 async function LoadTabRequestInfoResponseDocs(oRequest) {
   // _myViewModel.arrCurrentRequestResponseDocs.removeAll();
 
-  _myViewModel.cntResponseDocs(0);
-  _myViewModel.cntResponseDocs.valueHasMutated();
+  // _myViewModel.cntResponseDocs(0);
+  // _myViewModel.cntResponseDocs.valueHasMutated();
 
   let currCtx = new SP.ClientContext.get_current();
   let web = currCtx.get_web();
@@ -2779,7 +2779,7 @@ async function LoadTabRequestInfoResponseDocs(oRequest) {
   //   _myViewModel.arrCurrentRequestResponseDocs,
   //   arrResponseSummaries
   // );
-  _myViewModel.cntResponseDocs(cnt);
+  // _myViewModel.cntResponseDocs(cnt);
   RequestFinishedLoading();
 }
 
