@@ -310,7 +310,7 @@ function ViewModel() {
     //   id: "requestDetailTemplateDeprecated",
     //   data: self,
     // }),
-    RequestDetail: new Tab("request-detail", "Request Information (V2)", {
+    RequestDetail: new Tab("request-detail", "Request Information", {
       id: "requestDetailTemplate",
       data: self,
     }),
