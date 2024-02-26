@@ -184,6 +184,13 @@ export class RequestDetailView {
       ?.collapsed(false);
   };
 
+  highlightResponse = (responseTitle) => {
+    this.tabs.selectTab(this.tabOpts.Responses);
+    this.currentRequestResponseItems()
+      .find((response) => response.title == responseTitle)
+      ?.highlightResponse();
+  };
+
   // ResponseDocs
   ClickBulkApprove = (responseDocSummary) => {
     const oResponseDocsForApproval = responseDocSummary.responseDocs.filter(
@@ -325,6 +332,8 @@ class ResponseItem {
     );
   }
 
+  highlight = ko.observable(false);
+
   responseCoversheetFiles = ko.observableArray();
   responseDocFiles = ko.observableArray();
 
@@ -379,6 +388,11 @@ class ResponseItem {
     // TODO: need to requery responsedocs
     this.responseDocFiles.removeAll();
     m_fnRefreshData();
+  };
+
+  highlightResponse = () => {
+    this.highlight(true);
+    setTimeout(() => this.highlight(false), 2000);
   };
 }
 

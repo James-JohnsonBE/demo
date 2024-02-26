@@ -2621,6 +2621,10 @@ async function LoadTabRequestInfoResponses(oRequest) {
 
 function m_fnHighlightResponse() {
   if (m_sGoToResponseTitle != null && m_sGoToResponseTitle != "") {
+    // TODO: this is happening synchronously, but the request detail view may not be fully loaded
+    const requestDetailView = _myViewModel.requestDetailViewComponent;
+    requestDetailView.highlightResponse(m_sGoToResponseTitle);
+    return;
     $("[id='response-item-title-" + m_sGoToResponseTitle + "']")
       .parent()
       .css({ "background-color": "palegreen", "font-weight": "inherit" });

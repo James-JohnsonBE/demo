@@ -623,13 +623,13 @@
         </tr>
       </thead>
       <tbody data-bind="foreach: currentRequestResponseItems">
-        <tr class="response-item" >
+        <tr class="response-item" data-bind="css: {'highlighted': highlight}">
           <td class="response-sample">
             <span data-bind="text: sample"></span>
           </td>
           <td
             class="response-title"
-            data-bind="attr: {'id': 'response-item-title-' + title}"
+            data-bind="attr: {'id': 'response-item-title-' + title}, click: highlightResponse"
           >
             <span title="View Response Docs" class="btn btn-link" data-bind="text: title, click: $parent.viewResponseDocs"></span>
           </td>
