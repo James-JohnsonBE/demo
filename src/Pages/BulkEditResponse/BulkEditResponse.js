@@ -1,13 +1,17 @@
 var Audit = window.Audit || {};
 Audit.BulkEditResponse = Audit.BulkEditResponse || {};
 
-$(document).ready(function () {
-  SP.SOD.executeFunc(
-    "sp.js",
-    "SP.ClientContext",
-    ExecuteOrDelayUntilScriptLoaded(InitBulk, "sp.js")
-  );
-});
+if (document.readyState === "ready" || document.readyState === "complete") {
+  InitBulk();
+} else {
+  document.onreadystatechange = () => {
+    if (document.readyState === "complete" || document.readyState === "ready") {
+      ExecuteOrDelayUntilScriptLoaded(function () {
+        SP.SOD.executeFunc("sp.js", "SP.ClientContext", InitBulk);
+      }, "sp.js");
+    }
+  };
+}
 
 function InitBulk() {
   Audit.Common.Utilities = new Audit.Common.NewUtilities();
