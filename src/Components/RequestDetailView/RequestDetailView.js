@@ -189,6 +189,10 @@ export class RequestDetailView {
     this.currentRequestResponseItems()
       .find((response) => response.title == responseTitle)
       ?.highlightResponse();
+
+    document
+      .getElementById(`response-item-title-${responseTitle}`)
+      ?.scrollIntoView({ block: "center", behavior: "smooth" });
   };
 
   // ResponseDocs
@@ -311,6 +315,10 @@ export class RequestDetailView {
     if (!result) return;
     this.refreshRequest();
   }
+
+  ClickViewResponse = (responseDocSummary) => {
+    this.highlightResponse(responseDocSummary.responseTitle);
+  };
 }
 
 registerComponent({

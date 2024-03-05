@@ -904,7 +904,15 @@
               data-bind="
               attr: { src: (responseDocSummary.collapsed() ? '/_layouts/images/plus.gif' : '/_layouts/images/minus.gif') },
               toggles: responseDocSummary.collapsed"
-            /><span data-bind="text: responseDocSummary.responseTitle"></span>
+            /><span>
+              <button type="button"
+                class="btn btn-link"
+                title="View Response"
+                data-bind="text: responseDocSummary.responseTitle,
+                  click: $parent.ClickViewResponse">
+              </button>
+              </span>
+              (<span data-bind="text: responseStatus"></span>)
           </td>
         </tr>
 
@@ -916,8 +924,8 @@
           <td colspan="11">
             <span class="divBulkApprove">
               <button
-            type="button"
-            class="btn btn-link"
+                type="button"
+                class="btn btn-link"
                 class="btnApproveAll"
 
                 title="Click to Approve Remaining Documents"
