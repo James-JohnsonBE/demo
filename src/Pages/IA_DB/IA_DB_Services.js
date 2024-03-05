@@ -3503,14 +3503,14 @@ async function m_fnEditResponseDoc(id, requestID, responseID) {
 }
 
 /**
- * Approves all response docs for a given request, updates permissions for
+ * Approves subset of response docs for a given request, updates permissions for
  * response, request, response doc folder, and coversheets.
  * Notifies QA of approved response docs.
  * @param {oRequest} oRequest The request item from big map
  * @param {Array<oResponseDoc>} oResponseDocs the response docs to be approved
  */
 export async function m_fnApproveResponseDocsForQA(oRequest, oResponseDocs) {
-  if (!oRequest.sensitivity || oRequest.sensitivity == "None") {
+  if (!oRequest.sensitivity) {
     alert("Request Sensitivity has not been set!");
     return false;
   }
@@ -3602,6 +3602,7 @@ export async function m_fnApproveResponseDocsForQA(oRequest, oResponseDocs) {
 
   return true;
 }
+
 export async function m_fnRejectResponseDoc(
   oRequest,
   oResponseDoc,
