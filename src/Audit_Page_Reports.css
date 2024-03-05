@@ -33,8 +33,41 @@ div.cell-margin {
   margin: 0px;
 }
 
+/* Audit Styles applying to SharePoint Areas */
+#s4-titlerow {
+  color: white;
+  background: linear-gradient(45deg, #3bbfc3, #3bbfc3 75%, #1d2b36 75%);
+  background-color: #3bbfc3;
+  padding-bottom: 1rem;
+}
+
+#s4-titlerow #DeltaPlaceHolderPageTitleInTitleArea {
+  color: white;
+}
+
+#s4-titlerow .menu-item-text {
+  /* color: white; */
+}
+
+#zz11_RootAspMenu .static.menu-item {
+  color: white;
+}
+#zz11_RootAspMenu .static.menu-item.selected {
+  font-weight: bold;
+}
+
+#zz11_RootAspMenu .static.menu-item:hover {
+  color: #1e2a36;
+}
+
+#contentRow {
+  background-color: #edf1f2;
+  padding-top: 0;
+}
+
 /* Properties */
 .audit {
+  --bg-light-color: #edf1f2;
   --bg-dark-color: #1d2b36;
   --bg-dark-secondary-color: #2a3c48;
 
@@ -57,6 +90,9 @@ div.cell-margin {
 }
 
 /* Main Layout */
+.audit {
+  background-color: var(--bg-light-color);
+}
 
 .audit-body {
   display: flex;
@@ -100,6 +136,7 @@ div.cell-margin {
 
 .audit-body .reports-container {
   min-width: 1200px;
+  padding: 1rem 0;
 }
 
 .audit-body .quick-links {
@@ -473,6 +510,7 @@ table.tablesorter tbody td:hover {
 
 .request-detail-view .request-detail-documents {
   min-width: 860px;
+  background-color: white;
 }
 
 #tblCoverSheets tbody td {
