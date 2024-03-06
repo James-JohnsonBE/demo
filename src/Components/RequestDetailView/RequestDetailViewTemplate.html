@@ -211,7 +211,13 @@
         <dl>
           <dt>Action Office(s)</dt>
           <dd>
-            <span id="requestInfoActionOffice">
+            <!-- ko ifnot: actionOffices.length -->
+            0 Action Offices
+            <!-- /ko -->
+            <span
+              id="requestInfoActionOffice"
+              data-bind="if: actionOffices.length"
+            >
               <div
                 style="cursor: pointer; white-space: nowrap"
                 title="Click to view"
@@ -222,7 +228,9 @@
                 >
                   <span class="fa-solid fa-magnifying-glass"></span
                   ><button type="button" class="btn btn-link">
-                    View Action Offices
+                    View
+                    <span data-bind="text: actionOffices.length"></span> Action
+                    Offices
                   </button>
                   <!-- ko foreach: actionOffices -->
                   <div
@@ -238,7 +246,13 @@
         <dl>
           <dt>Email Action Office(s)</dt>
           <dd>
-            <span id="requestInfoActionOffice">
+            <!-- ko ifnot: emailActionOffices.length -->
+            0 Email Action Offices
+            <!-- /ko -->
+            <span
+              id="requestInfoActionOffice"
+              data-bind="if: emailActionOffices.length"
+            >
               <div
                 style="cursor: pointer; white-space: nowrap"
                 title="Click to view"
@@ -249,7 +263,9 @@
                 >
                   <span class="fa-solid fa-magnifying-glass"></span
                   ><button type="button" class="btn btn-link">
-                    View Email Action Offices
+                    View
+                    <span data-bind="text: emailActionOffices.length"></span>
+                    Email Action Offices
                   </button>
                   <!-- ko foreach: emailActionOffices -->
                   <div
