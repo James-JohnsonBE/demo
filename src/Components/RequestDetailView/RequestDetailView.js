@@ -175,13 +175,19 @@ export class RequestDetailView {
   // Responses
   viewResponseDocs = (response) => {
     this.tabs.selectTab(this.tabOpts.ResponseDocs);
-    this.showCollapseToggledHandler(true);
-    this.currentRequestResponseDocs()
-      .find(
-        (responseDocSummary) =>
-          responseDocSummary.responseTitle == response.title
-      )
-      ?.collapsed(false);
+    // Manually invoke the handler so we don't have to wait for the sub
+    this.showCollapsed(true);
+    this.showCollapsed.valueHasMutated();
+
+    // this.showCollapseToggledHandler(true);
+    const responseDocsSummary = this.currentRequestResponseDocs().find(
+      (responseDocsSummary) =>
+        responseDocsSummary.responseTitle == response.title
+    );
+
+    if (!responseDocsSummary) return;
+    responseDocsSummary.collapsed(false);
+    responseDocsSummary.highlightResponse();
   };
 
   highlightResponse = (responseTitle) => {
@@ -189,10 +195,6 @@ export class RequestDetailView {
     this.currentRequestResponseItems()
       .find((response) => response.title == responseTitle)
       ?.highlightResponse();
-
-    document
-      .getElementById(`response-item-title-${responseTitle}`)
-      ?.scrollIntoView({ block: "center", behavior: "smooth" });
   };
 
   // ResponseDocs
@@ -399,6 +401,10 @@ class ResponseItem {
   };
 
   highlightResponse = () => {
+    document
+      .getElementById(`response-item-title-${this.title}`)
+      ?.scrollIntoView({ block: "center", behavior: "smooth" });
+
     this.highlight(true);
     setTimeout(() => this.highlight(false), 2000);
   };
@@ -455,6 +461,18 @@ class ResponseDocSummary {
     this.requestStatus = oRequest.status;
     this.showBulkApprove = showBulkApprove;
   }
+  responseTitle;
 
   collapsed = ko.observable(false);
+  highlight = ko.observable(false);
+
+  titleRowElementId = () => "response-doc-summary-" + this.responseTitle;
+
+  highlightResponse = () => {
+    document
+      .getElementById(this.titleRowElementId())
+      .scrollIntoView({ behavior: "smooth", block: "center" });
+    this.highlight(true);
+    setTimeout(() => this.highlight(false), 2000);
+  };
 }

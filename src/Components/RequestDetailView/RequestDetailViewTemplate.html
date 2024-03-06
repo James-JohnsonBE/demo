@@ -895,7 +895,8 @@
       >
         <tr
           class="requestInfo-response-doc"
-          data-bind="visible: responseDocSummary.responseDocs.length > 0"
+          data-bind="visible: responseDocSummary.responseDocs.length > 0,
+            attr: {id: responseDocSummary.titleRowElementId() }"
         >
           <td colspan="11">
             <img
@@ -942,7 +943,8 @@
 
         <tr
           class="requestInfo-response-doc-item"
-          data-bind="style: styleTag, css: (responseDocSummary.collapsed() ? 'collapsed' : '')"
+          data-bind="style: styleTag,
+          css: {'collapsed': responseDocSummary.collapsed(), 'highlighted': responseDocSummary.highlight}"
         >
           <td>
             <img
