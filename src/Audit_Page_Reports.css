@@ -67,7 +67,7 @@ div.cell-margin {
 
 /* Properties */
 .audit {
-  --bg-light-color: #edf1f2;
+  --bg-light-color: #b9dfe2;
   --bg-dark-color: #1d2b36;
   --bg-dark-secondary-color: #2a3c48;
 
@@ -91,7 +91,6 @@ div.cell-margin {
 
 /* Main Layout */
 .audit {
-  background-color: var(--bg-light-color);
 }
 
 .audit-body {
@@ -216,7 +215,12 @@ div.cell-margin {
 
 .audit-form {
   padding: 1.5rem;
+  background-color: var(--bg-light-color);
   /* max-width: 830px; */
+}
+.audit-form.bg-dark {
+  color: white;
+  background-color: var(--bg-dark-color);
 }
 
 .audit-form .form-header {
@@ -229,6 +233,7 @@ div.cell-margin {
 .audit-form .form-title {
   font-size: 1.1rem;
   margin: 0;
+  color: inherit;
 }
 
 .audit-form .form-row {
@@ -289,9 +294,15 @@ div.cell-margin {
 
 .audit-form .emphasized-section {
   background-color: var(--bg-dark-secondary-color);
+  color: white;
   width: 100%;
   border-radius: 6px;
+  border-color: var(--primary-color);
   padding: 0.5rem;
+}
+
+.audit-form .emphasized-section .btn-link {
+  color: var(--primary-muted-color);
 }
 
 .form-field-component .form-control {
@@ -446,6 +457,9 @@ fieldset {
 legend {
   color: var(--primary-color);
   padding-bottom: 5px;
+  background-color: inherit;
+  border-radius: 0.5rem;
+  padding: 0 4px;
 }
 
 .colorRedLegend {
@@ -506,6 +520,8 @@ table.tablesorter tbody td:hover {
 
 #divRequestInfo {
   max-width: 600px;
+  border: 2px solid var(--primary-color);
+  border-radius: 6px;
 }
 
 .request-detail-view .request-detail-documents {
