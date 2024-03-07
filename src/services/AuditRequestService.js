@@ -6,6 +6,7 @@ import { AuditResponseStates } from "../entities/AuditResponse.js";
 import { People } from "../entities/People.js";
 import { AuditRequestsInternal } from "../entities/AuditRequestsInternal.js";
 import { AuditRequest } from "../entities/AuditRequest.js";
+import { addTask, finishTask, taskDefs } from "./Tasks.js";
 
 export async function getRequestById(id) {
   return await appContext.AuditRequests.FindById(id);
@@ -51,6 +52,93 @@ export async function updateRequest(request) {
     request,
     AuditRequest.Views.AOCanUpdate
   );
+}
+
+export async function deleteRequest(requestId) {
+  // Todo: Also delete related items:
+  // xCoversheets, Emails (Folder), xRequestInternal, xResponseDocs (Folder), xResponses
+  const request = await appContext.AuditRequests.FindById(requestId);
+  if (!request) {
+    alert("Could not find request: ", requestId);
+  }
+  const requestTitle = request.ReqNum.Value();
+  const promises = [];
+  // Delete Coversheets
+  const coversheets = await getRequestCoversheets(request);
+
+  coversheets.map((coversheet) => {
+    promises.push(
+      new Promise(async (resolve) => {
+        const deleteItemTask = addTask(
+          taskDefs.deleteCoversheet(coversheet.FileName.toString())
+        );
+        await appContext.AuditCoversheets.RemoveEntityById(coversheet.ID);
+        finishTask(deleteItemTask);
+        resolve();
+      })
+    );
+  });
+
+  // Delete email folder
+  promises.push(
+    new Promise(async (resolve) => {
+      const deleteItemTask = addTask(taskDefs.deleteEmailFolder);
+      await appContext.AuditEmails.RemoveFolderByPath(requestTitle);
+      finishTask(deleteItemTask);
+      resolve();
+    })
+  );
+
+  // Delete responses and responsedocs
+  const responses = await getRequestResponses(request);
+  responses.map((response) => {
+    promises.push(
+      new Promise(async (resolve) => {
+        // Find the Response Folder
+        const responseTitle = response.Title.Value();
+        const responseDocFolders = await getRequestResponseDocsFolders(
+          responseTitle
+        );
+
+        if (responseDocFolders.length) {
+          for (const responseDocFolder of responseDocFolders) {
+            const deleteFolderTask = addTask(
+              taskDefs.deleteResponseDocFolder(responseTitle)
+            );
+            await appContext.AuditResponseDocs.RemoveEntityById(
+              responseDocFolder.ID
+            );
+            finishTask(deleteFolderTask);
+          }
+        }
+
+        const deleteItemTask = addTask(taskDefs.deleteResponse);
+        await appContext.AuditResponses.RemoveEntityById(response.ID);
+        finishTask(deleteItemTask);
+        resolve();
+      })
+    );
+  });
+
+  // Delete the internal item
+  const requestInternalItem = await getRequestInternalItem(requestId);
+  if (requestInternalItem) {
+    promises.push(
+      new Promise(async (resolve) => {
+        const deleteItemTask = addTask(taskDefs.deleteRequestInternalItem);
+        await appContext.AuditRequestsInternals.RemoveEntityById(
+          requestInternalItem.ID
+        );
+        finishTask(deleteItemTask);
+        resolve();
+      })
+    );
+  }
+
+  await Promise.all(promises);
+  // Finally, delete the request
+  await appContext.AuditRequests.RemoveEntityById(requestId);
+  return true;
 }
 
 /* Begin Unreferenced Service Rewrites */
@@ -108,23 +196,8 @@ async function ensureRequestPermissions(request) {
 }
 
 async function ensureRequestInternalItem(request) {
-  const requestInternalResult =
-    await appContext.AuditRequestsInternals.FindByColumnValue(
-      [{ column: "ReqNum", op: "eq", value: request.ID }],
-      {},
-      {}
-    );
-
-  if (requestInternalResult.results.length) {
-    if (requestInternalResult.results.length > 1) {
-      //TODO: attempt to purge extra items
-      console.error(
-        requestInternalResult.results.length + " internal items!",
-        request
-      );
-    }
-    return requestInternalResult.results[0];
-  }
+  const requestInternalResult = getRequestInternalItem(request);
+  if (requestInternalResult) return requestInternalResult;
 
   const requestInternal = new AuditRequestsInternal();
   requestInternal.ReqNum.Value(request);
@@ -214,6 +287,27 @@ export async function breakRequestPermissions(request, responseStatus) {
   );
 }
 
+export async function getRequestInternalItem(request) {
+  const requestInternalResult =
+    await appContext.AuditRequestsInternals.FindByColumnValue(
+      [{ column: "ReqNum", op: "eq", value: request.ID }],
+      {},
+      {}
+    );
+
+  if (requestInternalResult.results.length) {
+    if (requestInternalResult.results.length > 1) {
+      //TODO: attempt to purge extra items
+      console.error(
+        requestInternalResult.results.length + " internal items!",
+        request
+      );
+    }
+    return requestInternalResult.results[0];
+  }
+  return;
+}
+
 export async function getRequestCoversheets(request) {
   const coversheetsResult = await appContext.AuditCoversheets.FindByColumnValue(
     [{ column: "ReqNum", value: request.ID }],
@@ -239,6 +333,18 @@ export async function getRequestResponseDocs(request) {
     [{ column: "ReqNum", value: request.ID }],
     {},
     { includePermissions: true }
+  );
+
+  return responsesResult.results;
+}
+
+export async function getRequestResponseDocsFolders(responseTitle) {
+  const responsesResult = await appContext.AuditResponseDocs.FindByColumnValue(
+    [{ column: "Title", value: responseTitle }],
+    {},
+    {},
+    ["ID", "Title"],
+    true
   );
 
   return responsesResult.results;

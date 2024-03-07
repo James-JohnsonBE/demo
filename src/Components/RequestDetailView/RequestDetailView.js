@@ -12,6 +12,7 @@ import { AUDITREQUESTSTATES } from "../../entities/AuditRequest.js";
 import { m_fnRefreshData } from "../../Pages/IA_DB/IA_DB_Services.js";
 import { ConfirmApproveResponseDocForm } from "../Forms/ResponseDoc/ConfirmApprove/ConfirmApproveResponseDocForm.js";
 import { ConfirmRejectResponseDocForm } from "../Forms/ResponseDoc/ConfirmReject/ConfirmRejectResponseDocForm.js";
+import { ConfirmDeleteRequestForm } from "../Forms/Request/ConfirmDelete/ConfirmDeleteRequestForm.js";
 
 const componentName = "component-request-detail-view";
 
@@ -152,22 +153,25 @@ export class RequestDetailView {
     this.tabs.selectTab(defaultTab);
   }
 
-  ClickViewRequestHistory = async () => {
-    // https://SiteURL/_layouts/15/Versions.aspx?list=GUID&ID=ID
-    const result =
-      await appContext.AuditRequests.ListRef.showVersionHistoryModal(
-        this.currentRequest()?.ID
-      );
-    // const versionHistoryUrl =
-    //   location.protocol +
-    //   "//" +
-    //   location.host +
-    //   Audit.Common.Utilities.GetSiteUrl() +
-    //   "/_layouts/15/Versions.aspx?list=" +
-    //   "&ID=";
+  ClickViewRequestHistory = () => {
+    appContext.AuditRequests.ListRef.showVersionHistoryModal(
+      this.currentRequest()?.ID
+    );
   };
 
-  ClickDeleteRequest = async () => {};
+  ClickDeleteRequest = async () => {
+    const request = this.currentRequest();
+
+    const newConfirmDeleteForm = new ConfirmDeleteRequestForm(request);
+
+    const options = {
+      form: newConfirmDeleteForm,
+      dialogReturnValueCallback: this.OnCallBackDeleteRequest.bind(this),
+      title: "Delete Request?",
+    };
+
+    ModalDialog.showModalDialog(options);
+  };
 
   // collapseResponseDocs = (collapse) =>
 
@@ -311,6 +315,13 @@ export class RequestDetailView {
     if (result) {
       // Update is handled in the form, just need to refresh page/data
       this.refreshRequest();
+    }
+  }
+
+  async OnCallBackDeleteRequest(result) {
+    if (result) {
+      alert("request deleted!");
+      // Todo: Hard reload, clear window params
     }
   }
 

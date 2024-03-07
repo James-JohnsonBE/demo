@@ -188,6 +188,10 @@ export class EntitySet {
     return true;
   };
 
+  RemoveEntityById = function (entityId) {
+    return this.ListRef.deleteListItemAsync(entityId);
+  };
+
   // Permissions
 
   SetItemPermissions = async function (entity, valuePairs, reset = false) {
@@ -224,6 +228,20 @@ export class EntitySet {
 
   UpsertFolderPath = async function (folderPath) {
     return this.ListRef.upsertFolderPathAsync(folderPath);
+  };
+
+  RemoveFolderByPath = async function (folderPath) {
+    const itemResults = await this.FindByColumnValue(
+      [{ column: "FileLeafRef", value: folderPath }],
+      {},
+      {},
+      ["ID", "Title", "FileLeafRef"],
+      true
+    );
+    const entities = itemResults.results ?? [];
+    for (const entity of entities) {
+      await this.RemoveEntityById(entity.ID);
+    }
   };
 
   // Permissions

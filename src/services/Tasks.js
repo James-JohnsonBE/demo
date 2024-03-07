@@ -44,6 +44,7 @@ export const taskDefs = {
       blocking: true,
     };
   },
+  deleteEmailFolder: { msg: "Deleting Email Folder", blocking: true },
   newResponse: (responseTitle) => {
     return {
       msg: "Submitting new Response: " + responseTitle,
@@ -53,6 +54,12 @@ export const taskDefs = {
   updateResponse: (responseTitle) => {
     return {
       msg: "Updating Response: " + responseTitle,
+      blocking: true,
+    };
+  },
+  deleteResponse: (responseTitle) => {
+    return {
+      msg: "Deleting Response: " + responseTitle,
       blocking: true,
     };
   },
@@ -74,6 +81,12 @@ export const taskDefs = {
       blocking: true,
     };
   },
+  deleteResponseDocFolder: (responseTitle) => {
+    return {
+      msg: "Deleting Response Document Folder: " + responseTitle,
+      blocking: true,
+    };
+  },
   uploadCoversheet: (coversheetName) => {
     return {
       msg: "Uploading Coversheet: " + coversheetName,
@@ -85,6 +98,16 @@ export const taskDefs = {
       msg: "Updating Coversheet: " + coversheetName,
       blocking: true,
     };
+  },
+  deleteCoversheet: (coversheetName) => {
+    return {
+      msg: "Deleting Coversheet: " + coversheetName,
+      blocking: true,
+    };
+  },
+  deleteRequestInternalItem: {
+    msg: "Deleting Request Internal Item",
+    blocking: true,
   },
   newComment: { msg: "Submitting Comment", blocking: false },
   refreshComments: { msg: "Refreshing Comments", blocking: false },
