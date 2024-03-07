@@ -2097,6 +2097,29 @@ export function SPList(listDef) {
     SP.UI.ModalDialog.showModalDialog(options);
   }
 
+  function showVersionHistoryModal(itemId) {
+    return new Promise((resolve) => {
+      var options = SP.UI.$create_DialogOptions();
+      options.title = "Version History";
+      options.height = "600";
+      options.dialogReturnValueCallback = resolve;
+
+      options.url = getVersionHistoryUrl(itemId);
+
+      SP.UI.ModalDialog.showModalDialog(options);
+    });
+  }
+
+  function getVersionHistoryUrl(itemId) {
+    return (
+      sal.globalConfig.siteUrl +
+      "/_layouts/15/versions.aspx?List={" +
+      self.config.guid +
+      "}&ID=" +
+      itemId
+    );
+  }
+
   function uploadNewDocumentAsync(folderPath, title, args) {
     return new Promise((resolve, reject) => {
       const currCtx = new SP.ClientContext.get_current();
@@ -2287,6 +2310,8 @@ export function SPList(listDef) {
     copyFilesAsync,
     showModal,
     showCheckinModal,
+    showVersionHistoryModal,
+    getVersionHistoryUrl,
   };
 
   return publicMembers;

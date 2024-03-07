@@ -152,6 +152,23 @@ export class RequestDetailView {
     this.tabs.selectTab(defaultTab);
   }
 
+  ClickViewRequestHistory = async () => {
+    // https://SiteURL/_layouts/15/Versions.aspx?list=GUID&ID=ID
+    const result =
+      await appContext.AuditRequests.ListRef.showVersionHistoryModal(
+        this.currentRequest()?.ID
+      );
+    // const versionHistoryUrl =
+    //   location.protocol +
+    //   "//" +
+    //   location.host +
+    //   Audit.Common.Utilities.GetSiteUrl() +
+    //   "/_layouts/15/Versions.aspx?list=" +
+    //   "&ID=";
+  };
+
+  ClickDeleteRequest = async () => {};
+
   // collapseResponseDocs = (collapse) =>
 
   refreshRequest() {
