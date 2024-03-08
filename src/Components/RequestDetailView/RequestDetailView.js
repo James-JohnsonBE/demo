@@ -381,6 +381,10 @@ class ResponseItem {
   responseCoversheetFiles = ko.observableArray();
   responseDocFiles = ko.observableArray();
 
+  ClickViewResponseHistory = () => {
+    appContext.AuditResponses.ListRef.showVersionHistoryModal(this.ID);
+  };
+
   onCoversheetFilesAttachedHandler = async (files) => {
     if (!files.length) return;
     const request = await getRequestByTitle(this.number);
@@ -508,5 +512,11 @@ class ResponseDocSummary {
       .scrollIntoView({ behavior: "smooth", block: "center" });
     this.highlight(true);
     setTimeout(() => this.highlight(false), 2000);
+  };
+
+  ClickViewResponseDocHistory = (responseDoc) => {
+    appContext.AuditResponseDocs.ListRef.showVersionHistoryModal(
+      responseDoc.ID
+    );
   };
 }

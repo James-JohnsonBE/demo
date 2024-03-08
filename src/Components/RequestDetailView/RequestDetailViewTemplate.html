@@ -760,7 +760,6 @@
               type="button"
               class="btn btn-link"
               title="View Response"
-
               data-bind="click: $root.ClickViewResponse"
             >
               <i class="fa-solid fa-magnifying-glass"></i>
@@ -772,6 +771,14 @@
               data-bind="visible: resStatus != '7-Closed' && $parent.status != 'Closed' && $parent.status != 'Canceled', click: $root.ClickEditResponse"
             >
               <i class="fa-solid fa-pen"></i>
+            </button>
+            <button
+              type="button"
+              class="btn btn-link"
+              title="View Version History"
+              data-bind="click: ClickViewResponseHistory"
+            >
+              <span class="fa-solid fa-clock-rotate-left"></span>
             </button>
             <label
               title="Upload Coversheets for Action Office"
@@ -1109,6 +1116,14 @@
               data-bind="visible: $parent.responseStatus != '7-Closed' && $parent.requestStatus != 'Closed' && $parent.requestStatus != 'Canceled' && ( documentStatus == 'Sent to QA' || documentStatus == 'Open' || documentStatus == 'Submitted' ), click: $root.ClickEditResponseDoc"
               ><span class="fa-solid fa-pencil"></span></a
             >
+            <button
+              type="button"
+              class="btn btn-link"
+              title="View Version History"
+              data-bind="click: $parent.ClickViewResponseDocHistory"
+            >
+              <span class="fa-solid fa-clock-rotate-left"></span>
+            </button>
           </td>
         </tr>
 
