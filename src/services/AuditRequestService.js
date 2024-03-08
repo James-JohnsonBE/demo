@@ -22,7 +22,7 @@ export async function getRequestByTitle(title) {
   return requestResults.results[0] ?? null;
 }
 
-export async function AddNewRequest(request) {
+export async function addNewRequest(request) {
   const fields = request.FieldMap;
 
   // See if we have a request with this title already
@@ -55,7 +55,7 @@ export async function updateRequest(request) {
 }
 
 export async function deleteRequest(requestId) {
-  // Todo: Also delete related items:
+  // Also delete related items:
   // xCoversheets, Emails (Folder), xRequestInternal, xResponseDocs (Folder), xResponses
   const request = await appContext.AuditRequests.FindById(requestId);
   if (!request) {
@@ -96,21 +96,12 @@ export async function deleteRequest(requestId) {
       new Promise(async (resolve) => {
         // Find the Response Folder
         const responseTitle = response.Title.Value();
-        const responseDocFolders = await getRequestResponseDocsFolders(
-          responseTitle
-        );
 
-        if (responseDocFolders.length) {
-          for (const responseDocFolder of responseDocFolders) {
-            const deleteFolderTask = addTask(
-              taskDefs.deleteResponseDocFolder(responseTitle)
-            );
-            await appContext.AuditResponseDocs.RemoveEntityById(
-              responseDocFolder.ID
-            );
-            finishTask(deleteFolderTask);
-          }
-        }
+        const deleteFolderTask = addTask(
+          taskDefs.deleteResponseDocFolder(responseTitle)
+        );
+        await appContext.AuditResponseDocs.RemoveFolderByPath(responseTitle);
+        finishTask(deleteFolderTask);
 
         const deleteItemTask = addTask(taskDefs.deleteResponse);
         await appContext.AuditResponses.RemoveEntityById(response.ID);

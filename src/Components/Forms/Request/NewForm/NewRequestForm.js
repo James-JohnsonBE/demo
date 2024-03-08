@@ -5,7 +5,7 @@ import {
 import { appContext } from "../../../../infrastructure/ApplicationDbContext.js";
 import { registerComponent } from "../../../../infrastructure/RegisterComponents.js";
 import { ValidationError } from "../../../../primitives/ValidationError.js";
-import { AddNewRequest } from "../../../../services/AuditRequestService.js";
+import { addNewRequest } from "../../../../services/AuditRequestService.js";
 import { BaseForm } from "../../BaseForm.js";
 import { configurationsStore } from "../../../../infrastructure/Store.js";
 
@@ -66,7 +66,7 @@ export default class NewRequestFormModule extends BaseForm {
     const request = this.entity();
 
     try {
-      await AddNewRequest(request);
+      await addNewRequest(request);
       this.onComplete(SP.UI.DialogResult.OK);
     } catch (e) {
       alert(e);

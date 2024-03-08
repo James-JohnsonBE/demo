@@ -162,6 +162,11 @@ export class RequestDetailView {
   ClickDeleteRequest = async () => {
     const request = this.currentRequest();
 
+    if (request.emailSent) {
+      alert("Email has been sent, cannot delete request.");
+      return;
+    }
+
     const newConfirmDeleteForm = new ConfirmDeleteRequestForm(request);
 
     const options = {
@@ -322,6 +327,7 @@ export class RequestDetailView {
     if (result) {
       alert("request deleted!");
       // Todo: Hard reload, clear window params
+      Audit.Common.Utilities.Refresh(true);
     }
   }
 

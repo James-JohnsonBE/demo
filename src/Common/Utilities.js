@@ -53,8 +53,16 @@ Audit.Common.NewUtilities = function () {
 
   var m_arrSiteGroups = null;
   var m_arrAOs = null;
-
-  function m_fnRefresh() {
+  /**
+   * Reloads the page, trys to preserve current path
+   * @param {bool} hard flag to remove all url params
+   * @returns
+   */
+  function m_fnRefresh(hard = false) {
+    if (hard) {
+      location.href = location.pathname;
+      return;
+    }
     var curPath = location.pathname;
 
     if ($("#tabs").html() != null && $("#tabs").html() != "") {
