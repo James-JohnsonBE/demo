@@ -153,7 +153,8 @@ export default class LookupField extends BaseField {
       this.Value(values);
       // this.ensure();
     } else {
-      this.Value(this.findOrCreateNewEntity(val));
+      const resolvedEntity = this.findOrCreateNewEntity(val);
+      this.Value(resolvedEntity);
     }
 
     if (val && !this.toString()) {

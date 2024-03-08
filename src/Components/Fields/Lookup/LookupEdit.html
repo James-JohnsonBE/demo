@@ -6,6 +6,7 @@
   <input class="form-control" data-bind="" />
   <!-- /ko -->
   <!-- ko ifnot: isSearch -->
+  <!-- ko if: Options().length -->
   <!-- ko if: multiple -->
   <select
     class="form-select"
@@ -35,6 +36,7 @@
       optionsText: optionsText,
       class: ValidationClass"
   ></select>
+  <!-- /ko -->
   <!-- /ko -->
   <!-- /ko -->
   <!-- ko if: instructions -->

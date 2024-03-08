@@ -89,6 +89,7 @@ export class AuditResponse extends ConstrainedEntity {
 
       return (opt) => requestActionOffices.includes(opt);
     }),
+    lookupCol: "Title",
     isRequired: true,
   });
 
@@ -143,6 +144,7 @@ export class AuditResponse extends ConstrainedEntity {
       "ReqNum",
       "SampleNumber",
       "Title",
+      "ActionOffice",
       "ResStatus",
       "ReturnReason",
       "Comments",
