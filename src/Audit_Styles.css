@@ -349,9 +349,7 @@ TABLE.tablesorter THEAD TR .header {
   text-transform: uppercase;
 }
 
-.h-1 {
-  height: 1rem;
-}
+/* Width */
 
 .w-fit {
   width: fit-content;
@@ -365,6 +363,13 @@ TABLE.tablesorter THEAD TR .header {
 .min-w-full {
   min-width: 100% !important;
 }
+
+/* Height */
+
+.h-1 {
+  height: 1rem;
+}
+
 .vh-100 {
   height: 100vh;
 }
