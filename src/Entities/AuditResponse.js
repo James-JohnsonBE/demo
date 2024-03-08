@@ -153,8 +153,9 @@ export class AuditResponse extends ConstrainedEntity {
       "POC",
       "POCCC",
     ],
-    AOCanUpdate: [
+    IACanUpdate: [
       "Title",
+      "ActionOffice",
       "ResStatus",
       "ReturnReason",
       "Comments",

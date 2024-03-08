@@ -100,7 +100,7 @@ export async function updateResponse(request, response) {
 
     await appContext.AuditResponses.UpdateEntity(
       response,
-      AuditResponse.Views.AOCanUpdate
+      AuditResponse.Views.IACanUpdate
     );
   } catch (e) {
     console.error("Error Updating Response: ", e);
