@@ -57,6 +57,9 @@ export class AuditResponse extends ConstrainedEntity {
 
   Comments = new TextAreaField({
     displayName: "Comments",
+    isRichText: true,
+    isMinimalEditor: true,
+    classList: ["min-w-full"],
   });
 
   ClosedDate = new DateField({

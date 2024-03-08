@@ -7,6 +7,7 @@ export default class BaseField {
     instructions = null,
     isRequired = false,
     width,
+    classList = [],
     Visible = ko.pureComputed(() => true),
   }) {
     // The name that will be displayed on components etc.
@@ -16,7 +17,8 @@ export default class BaseField {
     this.instructions = instructions;
     this.isRequired = isRequired;
     this.Visible = Visible;
-    this.width = width ? "col-md-" + width : "col-md-6";
+    this.width = width ? width : "col-md-6";
+    this.classList = classList;
 
     this.addFieldRequirement(isRequiredValidationRequirement(this));
   }

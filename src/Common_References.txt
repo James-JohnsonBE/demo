@@ -34,6 +34,12 @@
   src="/sites/CGFS/Style Library/apps/audit/lib/jquery-3.7.1.min.js"
 ></script>
 
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.2/dist/quill.js"></script>
+<link
+  href="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.2/dist/quill.snow.css"
+  rel="stylesheet"
+/>
+
 <!-- to remove -->
 <!-- Still referenced in pages: 
   Permissions 

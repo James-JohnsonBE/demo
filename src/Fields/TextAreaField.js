@@ -13,6 +13,7 @@ export default class TextAreaField extends BaseField {
   constructor(params) {
     super(params);
     this.isRichText = params.isRichText;
+    this.isMinimalEditor = params.isMinimalEditor;
     this.attr = params.attr ?? {};
   }
 

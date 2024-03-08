@@ -67,6 +67,7 @@ div.cell-margin {
 
 /* Properties */
 .audit {
+  --bg-very-light-color: #edf1f2;
   --bg-light-color: #b9dfe2;
   --bg-dark-color: #1d2b36;
   --bg-dark-secondary-color: #2a3c48;
@@ -322,6 +323,13 @@ div.cell-margin {
   border-radius: 4px;
   padding: 4px;
   font-size: 1rem;
+}
+
+.richtext-field .ql-toolbar {
+  background-color: var(--bg-very-light-color);
+}
+.richtext-field .ql-toolbar button {
+  min-width: 0;
 }
 
 .tasks.blocking {

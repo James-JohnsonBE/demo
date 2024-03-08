@@ -6,7 +6,7 @@ export default class TextAreaModule extends BaseFieldModule {
   }
 
   childrenHaveLoaded = (nodes) => {
-    this.initializeEditor();
+    if (this.isRichText) this.initializeEditor();
   };
 
   getToolbarId = () => "toolbar-" + this.getUniqueId();
@@ -34,7 +34,7 @@ export default class TextAreaModule extends BaseFieldModule {
 
     // debugger;
     var editor = new Quill("#" + this.getUniqueId(), {
-      modules: { toolbar: toolbarOptions },
+      modules: { toolbar: this.isMinimalEditor ? true : toolbarOptions },
       theme: "snow",
     });
 
