@@ -2097,6 +2097,11 @@ export function SPList(listDef) {
     SP.UI.ModalDialog.showModalDialog(options);
   }
 
+  function checkinWithComment(fileRef, comment) {
+    const url = `/web/GetFileByServerRelativeUrl('${fileRef}')/CheckIn(comment='${comment}',checkintype=0)`;
+    return fetchSharePointData(url, "POST");
+  }
+
   function showVersionHistoryModal(itemId) {
     return new Promise((resolve) => {
       var options = SP.UI.$create_DialogOptions();
@@ -2187,6 +2192,8 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
     const chunkSize = UPLOADCHUNKSIZE;
     const fileSize = file.size;
 
+    const fileRef = relFolderPath + "/" + fileName;
+
     const jobGuid = crypto.randomUUID
       ? crypto.randomUUID()
       : "74493426-fb10-4e47-bc82-120954b81a60";
@@ -2218,7 +2225,7 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
     }
 
     // Finish up
-    return await uploadChunk(
+    const uploadResult = await uploadChunk(
       jobGuid,
       file.slice(windowStart, windowStart + chunkSize),
       relFolderPath,
@@ -2226,6 +2233,9 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
       windowStart,
       uploadchunkActionTypes.finish
     );
+
+    //return
+    return uploadResult;
   }
 
   async function uploadChunk(
@@ -2316,6 +2326,9 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
     }
 
     await updateUploadedFileMetadata(result.d, payload);
+
+    // check in
+    await checkinWithComment(serverRelFolderPath + "/" + fileName, "");
 
     let itemUri = result.d.ListItemAllFields.__deferred.uri + "?$select=ID";
 
