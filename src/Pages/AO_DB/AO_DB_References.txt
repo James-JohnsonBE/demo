@@ -468,13 +468,16 @@
           </tfoot>
         </table>
         <div class="divUpload" data-bind="visible: showUpload()">
-          <div
-            data-bind="component: {name: 'upload-doc-component', 
-              params: {
-                label: 'Upload Response Documents',
-                response: currentResponse, 
-                newUploadCallback: onNewResponseDocCallback}}"
-          ></div>
+          <label class="file-upload-field">
+            Upload Response Documents:
+            <div class="dropzone" data-bind="">Drop Files Here</div>
+            <input
+              class="file-upload"
+              type="file"
+              multiple
+              data-bind="files: responseDocFiles"
+            />
+          </label>
         </div>
       </fieldset>
     </div>
@@ -484,6 +487,7 @@
 <div id="divTest"></div>
 
 <script
+  defer
   type="module"
   src="/sites/CGFS/Style Library/apps/audit/src/Pages/AO_DB/AO_DB.js"
 ></script>

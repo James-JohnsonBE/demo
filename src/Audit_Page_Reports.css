@@ -664,3 +664,16 @@ table.tablesorter thead tr .header {
   gap: 1rem;
   flex-wrap: wrap-reverse;
 }
+
+label.file-upload-field .dropzone {
+  color: gray;
+  font-size: 1.25rem;
+  font-weight: bold;
+  text-align: center;
+  padding: 1.5rem;
+  border: 2px dashed lightgray;
+}
+
+label.file-upload-field.dragging .dropzone {
+  border: 2px dashed gray;
+}

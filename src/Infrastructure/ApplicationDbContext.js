@@ -1,7 +1,6 @@
 import { AuditOrganization } from "../entities/AuditOrganization.js";
 import { AuditRequest } from "../entities/AuditRequest.js";
 import { AuditBulkRequest } from "../entities/AuditBulkRequest.js";
-import { SPList } from "../infrastructure/SAL.js";
 import { AuditEmail } from "../entities/AuditEmail.js";
 import { AuditRequestsInternal } from "../entities/AuditRequestsInternal.js";
 import { AuditResponse } from "../entities/AuditResponse.js";
@@ -17,6 +16,8 @@ export class ApplicationDbContext {
 
   AuditBulkRequests = new EntitySet(AuditBulkRequest);
 
+  AuditConfigurations = new EntitySet(AuditConfiguration);
+
   AuditCoversheets = new EntitySet(AuditCoversheet);
 
   AuditEmails = new EntitySet(AuditEmail);
@@ -30,8 +31,6 @@ export class ApplicationDbContext {
   AuditRequests = new EntitySet(AuditRequest);
 
   AuditRequestsInternals = new EntitySet(AuditRequestsInternal);
-
-  AuditConfigurations = new EntitySet(AuditConfiguration);
 
   virtualSets = new Map();
 

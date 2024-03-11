@@ -1,28 +1,20 @@
-﻿import { UploadResponseDocModule } from "../../components/UploadDoc/UploadDocModule.js";
-import { TabsModule, Tab } from "../../components/Tabs/TabsModule.js";
+﻿import { TabsModule, Tab } from "../../components/Tabs/TabsModule.js";
 import { setUrlParam } from "../../common/Router.js";
+import { appContext } from "../../infrastructure/ApplicationDbContext.js";
+import { uploadResponseDocFile } from "../../services/AuditResponseService.js";
+
+import {
+  addTask,
+  blockingTasks,
+  finishTask,
+  runningTasks,
+  taskDefs,
+} from "../../services/Tasks.js";
 
 var Audit = window.Audit || {};
 Audit.AOReport = Audit.AOReport || {};
 
 const responseParam = "ResNum";
-
-if (document.readyState === "ready" || document.readyState === "complete") {
-  InitReport();
-} else {
-  document.onreadystatechange = () => {
-    if (document.readyState === "complete" || document.readyState === "ready") {
-      ExecuteOrDelayUntilScriptLoaded(function () {
-        SP.SOD.executeFunc("sp.js", "SP.ClientContext", InitReport);
-      }, "sp.js");
-    }
-  };
-}
-
-function InitReport() {
-  Audit.AOReport.Report = new Audit.AOReport.NewReportPage();
-  Audit.AOReport.Init();
-}
 
 Audit.AOReport.Init = function () {
   var paramShowSiteActionsToAnyone = GetUrlKeyValue("ShowSiteActions");
@@ -108,6 +100,10 @@ Audit.AOReport.NewReportPage = function () {
       }),
     };
     self.tabs = new TabsModule(Object.values(self.tabOpts));
+
+    self.runningTasks = runningTasks;
+    self.blockingTasks = blockingTasks;
+
     //cant add rate limit because it'll affect the refresh
     //self.arrResponses = ko.observableArray( null ).extend({ rateLimit: 500 });
     self.arrResponses = ko.observableArray(null);
@@ -134,6 +130,9 @@ Audit.AOReport.NewReportPage = function () {
     self.arrCoverSheets = ko.observableArray(null);
     self.arrResponseDocs = ko.observable(null);
     self.cntResponseDocs = ko.observable(0);
+
+    // File Input Control
+    self.responseDocFiles = ko.observableArray();
 
     self.showUpload = ko.observable(false);
     self.showSubmit = ko.observable(false);
@@ -378,6 +377,30 @@ Audit.AOReport.NewReportPage = function () {
         if (bOpenResponses) m_curResponseSelectedIsEditableByAO = true;
       }
     };
+
+    self.responseDocFiles.subscribe(async function (files) {
+      if (!files.length) return;
+      const resId = self.currentResponse()?.ID;
+      if (!resId) return;
+      // const request = await getRequestByTitle(this.number);
+      const response = await appContext.AuditResponses.FindById(resId);
+
+      const promises = [];
+
+      for (let file of files) {
+        promises.push(
+          new Promise(async (resolve) => {
+            const newSheet = await uploadResponseDocFile(response, file);
+            resolve();
+          })
+        );
+      }
+
+      await Promise.all(promises);
+      // TODO: need to requery responsedocs
+      self.responseDocFiles.removeAll();
+      self.onNewResponseDocCallback();
+    });
 
     /**Other**/
     self.GetDDVals = function (fieldName, sortAsResponse) {
@@ -1363,3 +1386,20 @@ Audit.AOReport.NewReportPage = function () {
 
   return publicMembers;
 };
+
+if (document.readyState === "ready" || document.readyState === "complete") {
+  InitReport();
+} else {
+  document.onreadystatechange = () => {
+    if (document.readyState === "complete" || document.readyState === "ready") {
+      ExecuteOrDelayUntilScriptLoaded(function () {
+        SP.SOD.executeFunc("sp.js", "SP.ClientContext", InitReport);
+      }, "sp.js");
+    }
+  };
+}
+
+function InitReport() {
+  Audit.AOReport.Report = new Audit.AOReport.NewReportPage();
+  Audit.AOReport.Init();
+}

@@ -173,26 +173,6 @@
   <!-- /ko -->
   <!-- /ko -->
 
-  <template id="componentUploadDoc">
-    <!-- ko if: isUploading -->
-    <progress></progress>
-    <!-- /ko -->
-    <!-- ko ifnot: isUploading -->
-    <label class="file-upload-field">
-      <span data-bind="text: label"></span>
-      <div class="dropzone" data-bind="">Drop Files Here</div>
-      <input
-        class="file-upload"
-        type="file"
-        multiple
-        data-bind="files: files"
-      />
-    </label>
-    <!-- <button type="button" data-bind="click: submit">Submit</button> -->
-    <!-- /ko -->
-    <div data-bind="text: message"></div>
-  </template>
-
   <template id="search-select-template">
     <link
       rel="stylesheet"
@@ -254,19 +234,6 @@
   </template>
 </div>
 
-<style>
-  .dropzone {
-    color: gray;
-    font-size: 1.25rem;
-    font-weight: bold;
-    text-align: center;
-    padding: 1.5rem;
-    border: 2px dashed lightgray;
-  }
-
-  label.file-upload-field.dragging .dropzone {
-    border: 2px dashed gray;
-  }
-</style>
+<style></style>
 
 <script defer></script>
