@@ -2171,18 +2171,111 @@ export function SPList(listDef) {
     });
   }
 
-  async function uploadFileToFolderAndUpdateMetadata(
-    file,
-    fileName,
-    relFolderPath,
-    payload
-  ) {
-    // convert list relative folder path to web relative
-    const serverRelFolderPath = getServerRelativeFolderPath(relFolderPath);
+  const UPLOADCHUNKSIZE = 8388608;
 
-    const result = await fetch(
+  const uploadchunkActionTypes = {
+    start: "startupload",
+    continue: "continueupload",
+    finish: "finishupload",
+  };
+
+  async function uploadFileRestChunking(file, relFolderPath, fileName) {
+    /* https://sharepoint.stackexchange.com/questions/287334/upload-files-250mb-via-sharepoint-rest-api
+https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-rest-reference/dn450841(v=office.15)
+    */
+    const blob = file;
+    const chunkSize = UPLOADCHUNKSIZE;
+    const fileSize = file.size;
+
+    const jobGuid = crypto.randomUUID
+      ? crypto.randomUUID()
+      : "74493426-fb10-4e47-bc82-120954b81a60";
+
+    // Get the first chunk
+    const firstChunk = file.slice(0, chunkSize);
+    // await uploadChunk(
+    //   jobGuid,
+    //   firstChunk,
+    //   filePath,
+    //   0,
+    //   uploadchunkActionTypes.start
+    // );
+    let windowStart = 0;
+
+    while (windowStart < fileSize) {
+      const actionType = windowStart
+        ? uploadchunkActionTypes.continue
+        : uploadchunkActionTypes.start;
+      await uploadChunk(
+        jobGuid,
+        file.slice(windowStart, windowStart + chunkSize),
+        relFolderPath,
+        fileName,
+        windowStart,
+        actionType
+      );
+      windowStart += chunkSize;
+    }
+
+    // Finish up
+    return await uploadChunk(
+      jobGuid,
+      file.slice(windowStart, windowStart + chunkSize),
+      relFolderPath,
+      fileName,
+      windowStart,
+      uploadchunkActionTypes.finish
+    );
+  }
+
+  async function uploadChunk(
+    guid,
+    chunk,
+    relFolderPath,
+    fileName,
+    offset,
+    action
+  ) {
+    const offsetText = offset ? `, fileOffset=${offset}` : "";
+    const fileRef = relFolderPath + "/" + fileName;
+
+    let url = _spPageContextInfo.webServerRelativeUrl + "/_api/web";
+
+    switch (action) {
+      case uploadchunkActionTypes.start:
+        url +=
+          `/getFolderByServerRelativeUrl(@folder)/files/getByUrlOrAddStub(@file)/StartUpload(guid'${guid}')?` +
+          `&@folder='${relFolderPath}'`;
+        break;
+      case uploadchunkActionTypes.continue:
+      case uploadchunkActionTypes.finish:
+        url += `/getFileByServerRelativeUrl(@file)/${action}(uploadId=guid'${guid}',fileOffset=${offset})?`;
+        break;
+    }
+    url += `&@file='${fileRef}'`;
+
+    return await fetch(url, {
+      method: "POST",
+      credentials: "same-origin",
+      body: chunk,
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "Content-Type": "application/json;odata=nometadata",
+        "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value,
+      },
+    }).then((response) => {
+      if (!response.ok) {
+        console.error("Error Uploading Chunk", response);
+        return;
+      }
+      return response.json();
+    });
+  }
+
+  async function uploadFileRest(file, relFolderPath, fileName) {
+    return await fetch(
       _spPageContextInfo.webServerRelativeUrl +
-        `/_api/web/GetFolderByServerRelativeUrl('${serverRelFolderPath}')/Files/add(url='${fileName}',overwrite=true)`,
+        `/_api/web/GetFolderByServerRelativeUrl('${relFolderPath}')/Files/add(url='${fileName}',overwrite=true)`,
       {
         method: "POST",
         credentials: "same-origin",
@@ -2201,6 +2294,26 @@ export function SPList(listDef) {
 
       return response.json();
     });
+  }
+
+  async function uploadFileToFolderAndUpdateMetadata(
+    file,
+    fileName,
+    relFolderPath,
+    payload
+  ) {
+    // convert list relative folder path to web relative
+    const serverRelFolderPath = getServerRelativeFolderPath(relFolderPath);
+    let result = null;
+    if (file.size > UPLOADCHUNKSIZE) {
+      result = await uploadFileRestChunking(
+        file,
+        serverRelFolderPath,
+        fileName
+      );
+    } else {
+      result = await uploadFileRest(file, serverRelFolderPath, fileName);
+    }
 
     await updateUploadedFileMetadata(result.d, payload);
 

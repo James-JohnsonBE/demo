@@ -23,3 +23,11 @@ m_fnBreakResponseFolderPermissions OnCallbackFormEditResponse
 /sites/CGFS/Style Library/apps/audit/src/pages/ 
 
 -->
+
+http://cgfs16index1dev:31000/sites/audit/_api/web/getFolderByServerRelativeUrl(@folder)/files/getByUrlOrAddStub(@file)/StartUpload(guid'fc2d8de6-9d0e-4041-b005-dd3b236c316f')?
+&@folder=%27%2Fsites%2Faudit%2FAuditResponseDocs%2FTEST-006-CAPPS-0%27
+&@file=%27%2Fsites%2Faudit%2FAuditResponseDocs%2FTEST-006-CAPPS-0%2FPowerToysSetup-0.62.0-x64.exe%27
+http://cgfs16index1dev:31000/sites/audit/_api/web/getFileByServerRelativeUrl(@file)/ContinueUpload(uploadId=guid'fc2d8de6-9d0e-4041-b005-dd3b236c316f',fileOffset=8388608)?
+&@file=%27%2Fsites%2Faudit%2FAuditResponseDocs%2FTEST-006-CAPPS-0%2FPowerToysSetup-0.62.0-x64.exe%27
+http://cgfs16index1dev:31000/sites/audit/_api/web/getFileByServerRelativeUrl(@file)/FinishUpload(uploadId=guid'fc2d8de6-9d0e-4041-b005-dd3b236c316f',fileOffset=125829120)?
+&@file=%27%2Fsites%2Faudit%2FAuditResponseDocs%2FTEST-006-CAPPS-0%2FPowerToysSetup-0.62.0-x64.exe%2
