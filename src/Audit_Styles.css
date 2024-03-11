@@ -376,6 +376,7 @@ TABLE.tablesorter THEAD TR .header {
 
 .commentChain {
   margin-top: 0.5rem;
+  color: var(--primary-color);
 }
 
 .commentChain .comment {
@@ -384,7 +385,7 @@ TABLE.tablesorter THEAD TR .header {
 
 .commentChain .comment .text {
   font-size: 1rem;
-  color: var(--primary-muted-color);
+  color: var(--secondary-color);
   padding-bottom: 0.4em;
 }
 

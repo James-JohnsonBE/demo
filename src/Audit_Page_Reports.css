@@ -68,7 +68,7 @@ div.cell-margin {
 /* Properties */
 .audit {
   --bg-very-light-color: #edf1f2;
-  --bg-light-color: #b9dfe2;
+  --bg-light-color: #eefbfb;
   --bg-dark-color: #1d2b36;
   --bg-dark-secondary-color: #2a3c48;
 
@@ -294,8 +294,9 @@ div.cell-margin {
 }
 
 .audit-form .emphasized-section {
-  background-color: var(--bg-dark-secondary-color);
-  color: white;
+  /* background-color: var(--bg-dark-secondary-color); */
+  background-color: #d7f0f0;
+  color: var(--primary-color);
   width: 100%;
   border-radius: 6px;
   border-color: var(--primary-color);
@@ -303,7 +304,7 @@ div.cell-margin {
 }
 
 .audit-form .emphasized-section .btn-link {
-  color: var(--primary-muted-color);
+  color: var(--secondary-color);
 }
 
 .form-field-component .form-control {
@@ -464,6 +465,7 @@ fieldset {
 }
 legend {
   color: var(--primary-color);
+  font-weight: 700;
   padding-bottom: 5px;
   background-color: inherit;
   border-radius: 0.5rem;
