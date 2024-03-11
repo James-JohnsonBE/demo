@@ -804,6 +804,15 @@
             >
               <i class="fa-solid fa-flag"></i>
             </button>
+            <button
+              type="button"
+              class="btn btn-link"
+              title="Delete Response"
+              data-bind="visible: $parent.status != 'Closed' && $parent.status != 'Canceled' && ( resStatus == '1-Open' || resStatus == '2-Submitted' || resStatus == '3-Returned to Action Office' || resStatus == '5-Returned to GFS' ),
+                click: ClickDeleteResponse"
+            >
+              <i class="fa-solid fa-trash"></i>
+            </button>
           </td>
           <td class="response-responseDocs">
             <button

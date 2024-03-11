@@ -3,7 +3,10 @@ import { registerComponent } from "../../infrastructure/RegisterComponents.js";
 import * as ModalDialog from "../../infrastructure/ModalDialog.js";
 import { uploadRequestCoversheetFile } from "../../services/CoversheetManager.js";
 import { getRequestByTitle } from "../../services/AuditRequestService.js";
-import { uploadResponseDocFile } from "../../services/AuditResponseService.js";
+import {
+  deleteResponseAndFolder,
+  uploadResponseDocFile,
+} from "../../services/AuditResponseService.js";
 import { Tab, TabsModule } from "../Tabs/TabsModule.js";
 import { getUrlParam } from "../../common/Router.js";
 import { AuditResponseStates } from "../../entities/AuditResponse.js";
@@ -383,6 +386,14 @@ class ResponseItem {
 
   ClickViewResponseHistory = () => {
     appContext.AuditResponses.ListRef.showVersionHistoryModal(this.ID);
+  };
+
+  ClickDeleteResponse = async () => {
+    if (confirm("Delete Response: " + this.title)) {
+      const response = await appContext.AuditResponses.FindById(this.ID);
+      await deleteResponseAndFolder(response);
+      m_fnRefreshData();
+    }
   };
 
   onCoversheetFilesAttachedHandler = async (files) => {

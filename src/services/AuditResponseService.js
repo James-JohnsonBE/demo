@@ -110,6 +110,22 @@ export async function updateResponse(request, response) {
   }
 }
 
+export async function deleteResponseAndFolder(response) {
+  // Find the Response Folder
+  const responseTitle = response.Title.Value();
+
+  const deleteFolderTask = addTask(
+    taskDefs.deleteResponseDocFolder(responseTitle)
+  );
+  await appContext.AuditResponseDocs.RemoveFolderByPath(responseTitle);
+  finishTask(deleteFolderTask);
+
+  const deleteItemTask = addTask(taskDefs.deleteResponse(responseTitle));
+  await appContext.AuditResponses.RemoveEntityById(response.ID);
+  finishTask(deleteItemTask);
+  return;
+}
+
 export async function updateResponseDoc(request, response, responseDoc) {
   const updateResponseDocTask = addTask(
     taskDefs.updateResponseDoc(responseDoc.Title.Value())

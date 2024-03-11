@@ -92,23 +92,7 @@ export async function deleteRequest(requestId) {
   // Delete responses and responsedocs
   const responses = await getRequestResponses(request);
   responses.map((response) => {
-    promises.push(
-      new Promise(async (resolve) => {
-        // Find the Response Folder
-        const responseTitle = response.Title.Value();
-
-        const deleteFolderTask = addTask(
-          taskDefs.deleteResponseDocFolder(responseTitle)
-        );
-        await appContext.AuditResponseDocs.RemoveFolderByPath(responseTitle);
-        finishTask(deleteFolderTask);
-
-        const deleteItemTask = addTask(taskDefs.deleteResponse);
-        await appContext.AuditResponses.RemoveEntityById(response.ID);
-        finishTask(deleteItemTask);
-        resolve();
-      })
-    );
+    promises.push(deleteResponseAndFolder(response));
   });
 
   // Delete the internal item
