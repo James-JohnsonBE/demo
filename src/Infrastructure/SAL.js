@@ -2176,7 +2176,8 @@ export function SPList(listDef) {
     });
   }
 
-  const UPLOADCHUNKSIZE = 8388608;
+  const UPLOADCHUNKSIZE = 10485760;
+  // const UPLOADCHUNKSIZE = 262144000; // SPO
 
   const uploadchunkActionTypes = {
     start: "startupload",
@@ -2184,7 +2185,12 @@ export function SPList(listDef) {
     finish: "finishupload",
   };
 
-  async function uploadFileRestChunking(file, relFolderPath, fileName) {
+  async function uploadFileRestChunking(
+    file,
+    relFolderPath,
+    fileName,
+    progress
+  ) {
     /* https://sharepoint.stackexchange.com/questions/287334/upload-files-250mb-via-sharepoint-rest-api
 https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-rest-reference/dn450841(v=office.15)
     */
@@ -2192,12 +2198,44 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
     const chunkSize = UPLOADCHUNKSIZE;
     const fileSize = file.size;
 
+    const totalBlocks =
+      parseInt((fileSize / chunkSize).toString(), 10) +
+      (fileSize % chunkSize === 0 ? 1 : 0);
+
     const fileRef = relFolderPath + "/" + fileName;
 
     const jobGuid = crypto.randomUUID
       ? crypto.randomUUID()
       : "74493426-fb10-4e47-bc82-120954b81a60";
 
+    let currentPointer;
+    progress({ currentBlock: 0, totalBlocks });
+    currentPointer = await startUpload(
+      jobGuid,
+      file.slice(0, chunkSize),
+      fileRef,
+      relFolderPath
+    );
+
+    for (i = 2; i < totalBlocks; i++) {
+      progress({ currentBlock: i, totalBlocks });
+      currentPointer = await continueUpload(
+        jobGuid,
+        file.slice(currentPointer, currentPointer + chunkSize),
+        currentPointer,
+        fileRef
+      );
+    }
+
+    progress({ currentBlock: totalBlocks - 1, totalBlocks });
+    return finishUpload(
+      jobGuid,
+      file.slice(currentPointer),
+      currentPointer,
+      fileRef
+    );
+
+    return;
     // Get the first chunk
     const firstChunk = file.slice(0, chunkSize);
     // await uploadChunk(
@@ -2213,7 +2251,8 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
       const actionType = windowStart
         ? uploadchunkActionTypes.continue
         : uploadchunkActionTypes.start;
-      await uploadChunk(
+
+      currentPointer = await uploadChunk(
         jobGuid,
         file.slice(windowStart, windowStart + chunkSize),
         relFolderPath,
@@ -2238,8 +2277,73 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
     return uploadResult;
   }
 
+  async function startUpload(uploadId, chunk, fileRef, relFolderPath) {
+    const url =
+      `/web/getFolderByServerRelativeUrl(@folder)/files/getByUrlOrAddStub(@file)/StartUpload(guid'${uploadId}')?` +
+      `&@folder='${relFolderPath}'&@file='${fileRef}'`;
+
+    const headers = {
+      "Content-Type": "application/octet-stream",
+    };
+    const opts = {
+      body: chunk,
+    };
+
+    const result = await fetchSharePointData(url, "POST", headers, opts);
+    if (!result) {
+      console.error("Error starting upload!");
+      return;
+    }
+
+    return parseFloat(result.d.StartUpload);
+  }
+
+  async function continueUpload(uploadId, chunk, fileOffset, fileRef) {
+    const url =
+      `/web/getFileByServerRelativeUrl(@file)/ContinueUpload(uploadId=guid'${uploadId}',fileOffset=${fileOffset})?` +
+      `&@file='${fileRef}'`;
+
+    const headers = {
+      "Content-Type": "application/octet-stream",
+    };
+    const opts = {
+      body: chunk,
+    };
+
+    const result = await fetchSharePointData(url, "POST", headers, opts);
+
+    if (!result) {
+      console.error("Error starting upload!");
+      return;
+    }
+
+    return parseFloat(result.d.ContinueUpload);
+  }
+
+  async function finishUpload(uploadId, chunk, fileOffset, fileRef) {
+    const url =
+      `/web/getFileByServerRelativeUrl(@file)/FinishUpload(uploadId=guid'${uploadId}',fileOffset=${fileOffset})?` +
+      `&@file='${fileRef}'`;
+
+    const headers = {
+      "Content-Type": "application/octet-stream",
+    };
+    const opts = {
+      body: chunk,
+    };
+
+    const result = await fetchSharePointData(url, "POST", headers, opts);
+
+    if (!result) {
+      console.error("Error starting upload!");
+      return;
+    }
+
+    return result;
+  }
+
   async function uploadChunk(
-    guid,
+    uploadId,
     chunk,
     relFolderPath,
     fileName,
@@ -2254,12 +2358,12 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
     switch (action) {
       case uploadchunkActionTypes.start:
         url +=
-          `/getFolderByServerRelativeUrl(@folder)/files/getByUrlOrAddStub(@file)/StartUpload(guid'${guid}')?` +
+          `/getFolderByServerRelativeUrl(@folder)/files/getByUrlOrAddStub(@file)/StartUpload(guid'${uploadId}')?` +
           `&@folder='${relFolderPath}'`;
         break;
       case uploadchunkActionTypes.continue:
       case uploadchunkActionTypes.finish:
-        url += `/getFileByServerRelativeUrl(@file)/${action}(uploadId=guid'${guid}',fileOffset=${offset})?`;
+        url += `/getFileByServerRelativeUrl(@file)/${action}(uploadId=guid'${uploadId}',fileOffset=${offset})?`;
         break;
     }
     url += `&@file='${fileRef}'`;
@@ -2310,8 +2414,12 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
     file,
     fileName,
     relFolderPath,
-    payload
+    payload,
+    progress = null
   ) {
+    if (!progress) {
+      progress = () => {};
+    }
     // convert list relative folder path to web relative
     const serverRelFolderPath = getServerRelativeFolderPath(relFolderPath);
     let result = null;
@@ -2319,7 +2427,8 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
       result = await uploadFileRestChunking(
         file,
         serverRelFolderPath,
-        fileName
+        fileName,
+        progress
       );
     } else {
       result = await uploadFileRest(file, serverRelFolderPath, fileName);
@@ -2443,7 +2552,12 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
   return publicMembers;
 }
 
-async function fetchSharePointData(uri, method = "GET", headers = {}) {
+async function fetchSharePointData(
+  uri,
+  method = "GET",
+  headers = {},
+  opts = {}
+) {
   const siteEndpoint = uri.startsWith("http")
     ? uri
     : sal.globalConfig.siteUrl + "/_api" + uri;
@@ -2454,6 +2568,7 @@ async function fetchSharePointData(uri, method = "GET", headers = {}) {
       "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value,
       ...headers,
     },
+    ...opts,
   });
 
   if (!response.ok) {
