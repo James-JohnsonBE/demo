@@ -1429,11 +1429,17 @@ export function SPList(listDef) {
     ******************************************************************/
 
   function getServerRelativeFolderPath(relFolderPath) {
-    const listPath = self.config.def.isLib
-      ? "/" + self.config.def.name + "/"
-      : "/Lists/" + self.config.def.name + "/";
+    let builtPath = sal.globalConfig.siteUrl;
 
-    return sal.globalConfig.siteUrl + listPath + relFolderPath;
+    builtPath += self.config.def.isLib
+      ? "/" + self.config.def.name
+      : "/Lists/" + self.config.def.name;
+
+    if (relFolderPath) {
+      builtPath += "/" + relFolderPath;
+    }
+
+    return builtPath;
   }
 
   function upsertFolderPathAsync(folderPath) {
@@ -2204,9 +2210,10 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
 
     const fileRef = relFolderPath + "/" + fileName;
 
-    const jobGuid = crypto.randomUUID
-      ? crypto.randomUUID()
-      : "74493426-fb10-4e47-bc82-120954b81a60";
+    const jobGuid = getGUID();
+    // const jobGuid = crypto.randomUUID
+    //   ? crypto.randomUUID()
+    //   : "74493426-fb10-4e47-bc82-120954b81a60";
 
     let currentPointer;
     progress({ currentBlock: 0, totalBlocks });
@@ -2228,12 +2235,16 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
     }
 
     progress({ currentBlock: totalBlocks - 1, totalBlocks });
-    return finishUpload(
+    const result = await finishUpload(
       jobGuid,
       file.slice(currentPointer),
       currentPointer,
       fileRef
     );
+
+    progress({ currentBlock: totalBlocks, totalBlocks });
+
+    return result;
 
     return;
     // Get the first chunk
@@ -2420,6 +2431,8 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
     if (!progress) {
       progress = () => {};
     }
+    // file = new File([file], fileName);
+    // file.name = fileName;
     // convert list relative folder path to web relative
     const serverRelFolderPath = getServerRelativeFolderPath(relFolderPath);
     let result = null;
@@ -2431,7 +2444,9 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
         progress
       );
     } else {
+      progress({ currentBlock: 0, totalBlocks: 1 });
       result = await uploadFileRest(file, serverRelFolderPath, fileName);
+      progress({ currentBlock: 1, totalBlocks: 1 });
     }
 
     await updateUploadedFileMetadata(result.d, payload);
@@ -2586,3 +2601,20 @@ async function fetchSharePointData(
 }
 
 window.fetchSharePointData = fetchSharePointData;
+
+/**
+ * Gets a random GUID value
+ *
+ * http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+ */
+/* eslint-disable no-bitwise */
+function getGUID() {
+  if (crypto.randomUUID) return crypto.randomUUID();
+
+  let d = Date.now();
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (d + Math.random() * 16) % 16 | 0;
+    d = Math.floor(d / 16);
+    return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
+  });
+}

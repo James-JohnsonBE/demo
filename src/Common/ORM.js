@@ -279,13 +279,15 @@ export class EntitySet {
     file,
     filename,
     folderPath,
-    updates
+    updates,
+    progress
   ) {
     const itemId = await this.ListRef.uploadFileToFolderAndUpdateMetadata(
       file,
       filename,
       folderPath,
-      updates
+      updates,
+      progress
     );
     const item = await this.ListRef.getById(itemId, this.AllDeclaredFields);
     const newEntity = new this.entityConstructor(item);

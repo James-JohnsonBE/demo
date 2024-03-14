@@ -151,7 +151,11 @@ export async function uploadResponseDocFile(response, file) {
     file,
     file.name,
     response.Title.Value(),
-    fileMetadata
+    fileMetadata,
+    ({ currentBlock, totalBlocks }) =>
+      uploadResponseDocTask.updateProgress({
+        percentDone: currentBlock / totalBlocks,
+      })
   );
   finishTask(uploadResponseDocTask);
 }

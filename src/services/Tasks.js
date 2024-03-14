@@ -1,4 +1,4 @@
-import { Task } from "../valueObjects/Task.js";
+import { ProgressTask, Task } from "../valueObjects/Task.js";
 export const runningTasks = ko.observableArray();
 
 export const blockingTasks = ko.pureComputed(() => {
@@ -67,6 +67,7 @@ export const taskDefs = {
     return {
       msg: "Uploading Response Document: " + responseDocTitle,
       blocking: true,
+      type: ProgressTask,
     };
   },
   updateResponseDoc: (responseDocTitle) => {
@@ -91,6 +92,7 @@ export const taskDefs = {
     return {
       msg: "Uploading Coversheet: " + coversheetName,
       blocking: true,
+      type: ProgressTask,
     };
   },
   updateCoversheet: (coversheetName) => {
@@ -123,7 +125,13 @@ export const taskDefs = {
 };
 
 export const addTask = (taskDef) => {
-  const newTask = new Task(taskDef);
+  let newTask;
+
+  if (taskDef.type) {
+    newTask = taskDef.type.Create(taskDef);
+  } else {
+    newTask = new Task(taskDef);
+  }
 
   runningTasks.push(newTask);
   return newTask;

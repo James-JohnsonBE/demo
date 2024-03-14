@@ -41,7 +41,11 @@ export async function uploadRequestCoversheetFile(
       file,
       newFileName,
       "",
-      fileMetadata
+      fileMetadata,
+      ({ currentBlock, totalBlocks }) =>
+        uploadCoversheetTask.updateProgress({
+          percentDone: currentBlock / totalBlocks,
+        })
     );
 
   await breakCoversheetPermissions(newCoversheet);

@@ -159,7 +159,7 @@
   <div class="tasks blocking dimmer" data-bind="css: {'active': $data.length}">
     <span class="loader"></span>
     <ul class="" data-bind="foreach: $data">
-      <li data-bind="text: msg + '...'"></li>
+      <li data-bind="text: msg + '... ' + Status()"></li>
     </ul>
   </div>
   <!-- /ko -->
