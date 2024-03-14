@@ -2245,47 +2245,6 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
     progress({ currentBlock: totalBlocks, totalBlocks });
 
     return result;
-
-    return;
-    // Get the first chunk
-    const firstChunk = file.slice(0, chunkSize);
-    // await uploadChunk(
-    //   jobGuid,
-    //   firstChunk,
-    //   filePath,
-    //   0,
-    //   uploadchunkActionTypes.start
-    // );
-    let windowStart = 0;
-
-    while (windowStart < fileSize) {
-      const actionType = windowStart
-        ? uploadchunkActionTypes.continue
-        : uploadchunkActionTypes.start;
-
-      currentPointer = await uploadChunk(
-        jobGuid,
-        file.slice(windowStart, windowStart + chunkSize),
-        relFolderPath,
-        fileName,
-        windowStart,
-        actionType
-      );
-      windowStart += chunkSize;
-    }
-
-    // Finish up
-    const uploadResult = await uploadChunk(
-      jobGuid,
-      file.slice(windowStart, windowStart + chunkSize),
-      relFolderPath,
-      fileName,
-      windowStart,
-      uploadchunkActionTypes.finish
-    );
-
-    //return
-    return uploadResult;
   }
 
   async function startUpload(uploadId, chunk, fileRef, relFolderPath) {
@@ -2353,50 +2312,6 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
     return result;
   }
 
-  async function uploadChunk(
-    uploadId,
-    chunk,
-    relFolderPath,
-    fileName,
-    offset,
-    action
-  ) {
-    const offsetText = offset ? `, fileOffset=${offset}` : "";
-    const fileRef = relFolderPath + "/" + fileName;
-
-    let url = _spPageContextInfo.webServerRelativeUrl + "/_api/web";
-
-    switch (action) {
-      case uploadchunkActionTypes.start:
-        url +=
-          `/getFolderByServerRelativeUrl(@folder)/files/getByUrlOrAddStub(@file)/StartUpload(guid'${uploadId}')?` +
-          `&@folder='${relFolderPath}'`;
-        break;
-      case uploadchunkActionTypes.continue:
-      case uploadchunkActionTypes.finish:
-        url += `/getFileByServerRelativeUrl(@file)/${action}(uploadId=guid'${uploadId}',fileOffset=${offset})?`;
-        break;
-    }
-    url += `&@file='${fileRef}'`;
-
-    return await fetch(url, {
-      method: "POST",
-      credentials: "same-origin",
-      body: chunk,
-      headers: {
-        Accept: "application/json; odata=verbose",
-        "Content-Type": "application/json;odata=nometadata",
-        "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value,
-      },
-    }).then((response) => {
-      if (!response.ok) {
-        console.error("Error Uploading Chunk", response);
-        return;
-      }
-      return response.json();
-    });
-  }
-
   async function uploadFileRest(file, relFolderPath, fileName) {
     return await fetch(
       _spPageContextInfo.webServerRelativeUrl +
@@ -2431,9 +2346,7 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
     if (!progress) {
       progress = () => {};
     }
-    // file = new File([file], fileName);
-    // file.name = fileName;
-    // convert list relative folder path to web relative
+
     const serverRelFolderPath = getServerRelativeFolderPath(relFolderPath);
     let result = null;
     if (file.size > UPLOADCHUNKSIZE) {
