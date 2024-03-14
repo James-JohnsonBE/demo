@@ -52,6 +52,18 @@ export async function uploadRequestCoversheetFile(
   finishTask(uploadCoversheetTask);
   return newCoversheet;
 }
+export async function deleteRequestCoversheetById(coversheetId) {
+  const coversheet = await appContext.AuditCoversheets.FindById(coversheetId);
+
+  return deleteRequestCoversheet(coversheet);
+}
+export async function deleteRequestCoversheet(coversheet) {
+  const deleteItemTask = addTask(
+    taskDefs.deleteCoversheet(coversheet.FileName.toString())
+  );
+  await appContext.AuditCoversheets.RemoveEntityById(coversheet.ID);
+  finishTask(deleteItemTask);
+}
 
 export async function updateRequestCoverSheet(coverSheet) {
   const request = coverSheet.ReqNum.Value();

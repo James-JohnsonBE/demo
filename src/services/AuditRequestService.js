@@ -7,6 +7,7 @@ import { People } from "../entities/People.js";
 import { AuditRequestsInternal } from "../entities/AuditRequestsInternal.js";
 import { AuditRequest } from "../entities/AuditRequest.js";
 import { addTask, finishTask, taskDefs } from "./Tasks.js";
+import { deleteRequestCoversheet } from "./CoversheetManager.js";
 
 export async function getRequestById(id) {
   return await appContext.AuditRequests.FindById(id);
@@ -67,16 +68,7 @@ export async function deleteRequest(requestId) {
   const coversheets = await getRequestCoversheets(request);
 
   coversheets.map((coversheet) => {
-    promises.push(
-      new Promise(async (resolve) => {
-        const deleteItemTask = addTask(
-          taskDefs.deleteCoversheet(coversheet.FileName.toString())
-        );
-        await appContext.AuditCoversheets.RemoveEntityById(coversheet.ID);
-        finishTask(deleteItemTask);
-        resolve();
-      })
-    );
+    promises.push(deleteRequestCoversheet(coversheet));
   });
 
   // Delete email folder

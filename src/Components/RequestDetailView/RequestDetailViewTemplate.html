@@ -567,6 +567,15 @@
             >
               <span title="Edit Coversheet" class="fa-solid fa-pencil"></span>
             </button>
+            <button
+              type="button"
+              class="btn btn-link"
+              title="Delete Coversheet"
+              data-bind="visible: requestStatus != 'Closed' && requestStatus != 'Canceled',
+                click: $parent.ClickDeleteCoversheet"
+            >
+              <i class="fa-solid fa-trash"></i>
+            </button>
           </td>
         </tr>
       </tbody>

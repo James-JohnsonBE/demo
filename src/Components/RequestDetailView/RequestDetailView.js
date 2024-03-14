@@ -1,7 +1,10 @@
 import { appContext } from "../../infrastructure/ApplicationDbContext.js";
 import { registerComponent } from "../../infrastructure/RegisterComponents.js";
 import * as ModalDialog from "../../infrastructure/ModalDialog.js";
-import { uploadRequestCoversheetFile } from "../../services/CoversheetManager.js";
+import {
+  deleteRequestCoversheetById,
+  uploadRequestCoversheetFile,
+} from "../../services/CoversheetManager.js";
 import { getRequestByTitle } from "../../services/AuditRequestService.js";
 import {
   deleteResponseAndFolder,
@@ -201,6 +204,12 @@ export class RequestDetailView {
     this.editCoversheet({ ID: coversheet.ID });
   };
 
+  ClickDeleteCoversheet = async (coversheet) => {
+    if (confirm("Delete coversheet: " + coversheet.title)) {
+      await deleteRequestCoversheetById(coversheet.ID);
+      this.refreshRequest();
+    }
+  };
   // Responses
   viewResponseDocs = (response) => {
     this.tabs.selectTab(this.tabOpts.ResponseDocs);
