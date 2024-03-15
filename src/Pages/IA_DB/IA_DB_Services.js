@@ -1082,10 +1082,10 @@ function LoadInfo() {
   );
   const m_requestItems = requestList.getItems(requestQuery);
   //need to check permissions because of displaying special perms and granting special perms
-  //currCtx.load( m_requestItems, 'Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))');
+  //currCtx.load( m_requestItems, 'Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))');
   currCtx.load(
     m_requestItems,
-    "Include(ID, Title, ReqSubject, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
+    "Include(ID, Title, ReqSubject, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
   );
 
   var requestInternalList = web
@@ -1279,12 +1279,12 @@ export async function m_fnRequeryRequest(requestId = null) {
     $(".response-permissions").hide(); //resets this in case it was toggled to show
     currCtx.load(
       m_aRequestItem,
-      "Include(ID, Title, ReqSubject, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+      "Include(ID, Title, ReqSubject, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
     );
   } else {
     currCtx.load(
       m_aRequestItem,
-      "Include(ID, Title, ReqSubject, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, MemoDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
+      "Include(ID, Title, ReqSubject, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
     );
   }
 
@@ -1749,7 +1749,6 @@ function LoadRequests(m_requestItems) {
       var dueDate = oListItem.get_item("ReqDueDate");
       var internalDueDate = oListItem.get_item("InternalDueDate");
       var receiptDate = oListItem.get_item("ReceiptDate");
-      var memoDate = oListItem.get_item("MemoDate");
       var closedDate = oListItem.get_item("ClosedDate");
 
       dueDate != null
@@ -1761,9 +1760,6 @@ function LoadRequests(m_requestItems) {
       receiptDate != null
         ? (receiptDate = receiptDate.format("MM/dd/yyyy"))
         : (receiptDate = "");
-      memoDate != null
-        ? (memoDate = memoDate.format("MM/dd/yyyy"))
-        : (memoDate = "");
       closedDate != null
         ? (closedDate = closedDate.format("MM/dd/yyyy"))
         : (closedDate = "");
@@ -1834,7 +1830,6 @@ function LoadRequests(m_requestItems) {
       requestObject["reviewer"] = reviewer;
       requestObject["owner"] = owner;
       requestObject["receiptDate"] = receiptDate;
-      requestObject["memoDate"] = memoDate;
       requestObject["relatedAudit"] = relatedAudit;
       requestObject["actionItems"] = actionItems;
       requestObject["specialPerms"] = null;

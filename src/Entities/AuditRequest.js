@@ -80,12 +80,6 @@ export class AuditRequest extends ConstrainedEntity {
     isRequired: false,
   });
 
-  MemoDate = new DateField({
-    displayName: "Memo Date",
-    type: dateFieldTypes.date,
-    isRequired: false,
-  });
-
   RelatedAudit = new TextField({
     displayName: "Related Audit",
     isRequired: false,
@@ -160,7 +154,6 @@ export class AuditRequest extends ConstrainedEntity {
       "ReqStatus",
       "IsSample",
       "ReceiptDate",
-      "MemoDate",
       "RelatedAudit",
       "ActionItems",
       "Comments",
@@ -182,7 +175,6 @@ export class AuditRequest extends ConstrainedEntity {
       "ReqStatus",
       "IsSample",
       "ReceiptDate",
-      "MemoDate",
       "RelatedAudit",
       "ActionItems",
       "Comments",
@@ -190,7 +182,7 @@ export class AuditRequest extends ConstrainedEntity {
       "Sensitivity",
       "ActionOffice",
     ],
-    AOCanUpdate: [
+    IACanUpdate: [
       "ReqSubject",
       "FiscalYear",
       "InternalDueDate",
@@ -198,7 +190,6 @@ export class AuditRequest extends ConstrainedEntity {
       "ReqStatus",
       "IsSample",
       "ReceiptDate",
-      "MemoDate",
       "RelatedAudit",
       "ActionItems",
       "Comments",

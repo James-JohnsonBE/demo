@@ -51,7 +51,7 @@ export async function addNewRequest(request) {
 export async function updateRequest(request) {
   await appContext.AuditRequests.UpdateEntity(
     request,
-    AuditRequest.Views.AOCanUpdate
+    AuditRequest.Views.IACanUpdate
   );
 }
 
