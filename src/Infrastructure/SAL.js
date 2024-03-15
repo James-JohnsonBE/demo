@@ -2182,7 +2182,7 @@ export function SPList(listDef) {
     });
   }
 
-  const UPLOADCHUNKSIZE = 10485760;
+  const UPLOADCHUNKSIZE = 10485760; // PnPJs
   // const UPLOADCHUNKSIZE = 262144000; // SPO
 
   const uploadchunkActionTypes = {
@@ -2350,12 +2350,9 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
     const serverRelFolderPath = getServerRelativeFolderPath(relFolderPath);
     let result = null;
     if (file.size > UPLOADCHUNKSIZE) {
-      result = await uploadFileRestChunking(
-        file,
-        serverRelFolderPath,
-        fileName,
-        progress
-      );
+      const job = () =>
+        uploadFileRestChunking(file, serverRelFolderPath, fileName, progress);
+      result = await uploadQueue.addJob(job);
     } else {
       progress({ currentBlock: 0, totalBlocks: 1 });
       result = await uploadFileRest(file, serverRelFolderPath, fileName);
@@ -2531,3 +2528,65 @@ function getGUID() {
     return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
   });
 }
+
+class UploadQueue {
+  constructor() {}
+
+  jobs = [];
+  _queue = [];
+
+  enqueue(job) {
+    this._queue.push(job);
+  }
+
+  async dequeue() {
+    this._queue.shift();
+  }
+
+  async doWork() {
+    const job = await this.dequeue();
+  }
+
+  addJob(job) {
+    return new Promise((resolve) => {
+      this.enqueue(job);
+    });
+  }
+}
+
+class JobProcessor {
+  constructor(maxConcurrency) {
+    this.maxConcurrency = maxConcurrency;
+    this.runningJobs = 0;
+    this.queue = [];
+  }
+
+  addJob(asyncFunction) {
+    return new Promise((resolve, reject) => {
+      const job = async () => {
+        try {
+          const result = await asyncFunction();
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        } finally {
+          this.runningJobs--;
+          this.processQueue();
+        }
+      };
+
+      this.queue.push(job);
+      this.processQueue();
+    });
+  }
+
+  processQueue() {
+    while (this.runningJobs < this.maxConcurrency && this.queue.length > 0) {
+      const job = this.queue.shift();
+      this.runningJobs++;
+      job();
+    }
+  }
+}
+
+const uploadQueue = new JobProcessor(5);
