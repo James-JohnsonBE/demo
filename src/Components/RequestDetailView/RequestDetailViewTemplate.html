@@ -310,7 +310,7 @@
             <button
               type="button"
               class="btn btn-link"
-              data-bind="visible: !emailSent, click: $root.ClickSendEmail"
+              data-bind="visible: !emailSent, click: $root.ClickSendEmail, enable: emailActionOffices.length"
               title="Send Email to Action Offices"
             >
               Send Email to Action Offices
@@ -318,7 +318,7 @@
             <button
               type="button"
               class="btn btn-link"
-              data-bind="visible: emailSent, click: $root.ClickSendEmail"
+              data-bind="visible: emailSent, click: $root.ClickSendEmail, enable: emailActionOffices.length"
               title="ReSend Email to Action Offices"
             >
               Re-Send Email to Action Offices
