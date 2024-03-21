@@ -1,4 +1,6 @@
-﻿var Audit = window.Audit || {};
+﻿import "../../Common/KnockoutExtensions.js";
+
+var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
 
 //Hide Site Actions (fail safe even though master page does it)

@@ -1,3 +1,5 @@
+import "../../Common/KnockoutExtensions.js";
+
 var Audit = window.Audit || {};
 Audit.BulkEditResponse = Audit.BulkEditResponse || {};
 

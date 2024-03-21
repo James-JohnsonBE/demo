@@ -33,6 +33,8 @@ import {
   taskDefs,
 } from "../../services/Tasks.js";
 
+import "../../Common/KnockoutExtensions.js";
+
 var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
 

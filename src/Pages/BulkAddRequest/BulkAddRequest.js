@@ -5,6 +5,8 @@ import {
   addNewRequest,
 } from "../../services/AuditRequestService.js";
 
+import "../../Common/KnockoutExtensions.js";
+
 $(document).ready(function () {
   SP.SOD.executeFunc(
     "sp.js",

@@ -100,10 +100,10 @@
   src="/sites/CGFS/Style Library/apps/audit/lib/knockout-3.5.1.js"
 ></script>
 
-<script
+<!-- <script
   type="module"
   src="/sites/CGFS/Style Library/apps/audit/src/common/KnockoutExtensions.js"
-></script>
+></script> -->
 <script
   type="text/javascript"
   src="/sites/CGFS/Style Library/apps/audit/src/common/Utilities.js"
