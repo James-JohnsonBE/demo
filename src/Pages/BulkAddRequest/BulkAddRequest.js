@@ -2,7 +2,7 @@ import { appContext } from "../../infrastructure/ApplicationDbContext.js";
 import { InitSal } from "../../infrastructure/SAL.js";
 import {
   onAddNewRequest,
-  AddNewRequest,
+  addNewRequest,
 } from "../../services/AuditRequestService.js";
 
 $(document).ready(function () {
@@ -78,7 +78,7 @@ class BulkAddRequestPage {
 
       // a. Insert new Request
       try {
-        await AddNewRequest(newRequest);
+        await addNewRequest(newRequest);
         await onAddNewRequest(newRequest);
       } catch (e) {
         failedInserts.push([e, bulkRequest]);
@@ -97,55 +97,4 @@ class BulkAddRequestPage {
     // If any failed, need to alert user!
     this.working(false);
   }
-}
-
-function LoadInfo() {
-  return new Promise((resolve, reject) => {
-    var currCtx = new SP.ClientContext.get_current();
-    var web = currCtx.get_web();
-
-    var aoList = web
-      .get_lists()
-      .getByTitle(Audit.Common.Utilities.GetListTitleActionOffices());
-    var aoQuery = new SP.CamlQuery();
-    aoQuery.set_viewXml(
-      '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
-    );
-    var m_aoItems = aoList.getItems(aoQuery);
-    currCtx.load(m_aoItems, "Include(ID, Title, UserGroup)");
-
-    var m_groupColl = web.get_siteGroups();
-    currCtx.load(m_groupColl);
-
-    var ownerGroup = web.get_associatedOwnerGroup();
-    var memberGroup = web.get_associatedMemberGroup();
-    var visitorGroup = web.get_associatedVisitorGroup();
-    currCtx.load(ownerGroup);
-    currCtx.load(memberGroup);
-    currCtx.load(visitorGroup);
-
-    var data = {
-      resolve,
-      reject,
-    };
-
-    currCtx.executeQueryAsync(
-      Function.createDelegate(data, OnSuccess),
-      Function.createDelegate(data, OnFailure)
-    );
-    function OnSuccess(sender, args) {
-      Audit.Common.Utilities.LoadSiteGroups(m_groupColl);
-      Audit.Common.Utilities.LoadActionOffices(m_aoItems);
-      resolve();
-    }
-    function OnFailure(sender, args) {
-      // $("#divLoading").hide();
-
-      const statusId = SP.UI.Status.addStatus(
-        "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
-      );
-      SP.UI.Status.setStatusPriColor(statusId, "red");
-      reject(args);
-    }
-  });
 }

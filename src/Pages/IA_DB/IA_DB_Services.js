@@ -7865,7 +7865,7 @@ function OnCallbackFormEditResponse(result, value) {
               }
             );
 
-            await notifyQAApprovalPending(oRequest, oResponseDocsForQA);
+            await m_fnNotifyQAApprovalPending(oRequest, oResponseDocsForQA);
             currCtx2.executeQueryAsync(
               async function () {
                 // Break Coversheet permissions
