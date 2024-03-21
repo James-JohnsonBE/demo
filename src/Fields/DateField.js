@@ -84,7 +84,17 @@ export default class DateField extends BaseField {
     write: (val) => {
       if (!val) return;
       //writes in format
-      this.Value(new Date(val));
+      const d = new Date(val);
+      if (this.type == dateFieldTypes.datetime) {
+        this.Value(d);
+        return;
+      }
+      d.setHours(0);
+
+      if (d.getTimezoneOffset() > 0) {
+        d.setDate(d.getDate() + 1);
+      }
+      this.Value(d);
     },
   });
 
