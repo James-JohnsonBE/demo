@@ -2,7 +2,6 @@ import { BaseForm } from "../../BaseForm.js";
 import { updateResponseDoc } from "../../../../services/AuditResponseService.js";
 
 import { registerComponent } from "../../../../infrastructure/RegisterComponents.js";
-import { currentUser } from "../../../../services/PeopleManager.js";
 import {
   AuditResponseDoc,
   AuditResponseDocStates,

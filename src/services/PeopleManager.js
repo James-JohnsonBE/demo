@@ -121,12 +121,15 @@ class User extends People {
     }
   };
 
+  static _user = null;
   static Create = async function () {
+    if (User._user) return User._user;
     // TODO: Major - Switch to getUserPropertiesAsync since that includes phone # etc
     const userProps = await getUserPropsAsync();
     // const userProps2 = await UserManager.getUserPropertiesAsync();
-    return new User(userProps);
+    User._user = new User(userProps);
+    return User._user;
   };
 }
 
-export const currentUser = await User.Create();
+export const currentUser = User.Create;

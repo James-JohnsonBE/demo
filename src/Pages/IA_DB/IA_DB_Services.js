@@ -11,7 +11,7 @@ import * as FormManager from "../../services/FormManager.js";
 import { NewRequestFormComponent } from "../../components/Forms/Request/NewForm/NewRequestForm.js";
 import { RequestDetailView } from "../../components/RequestDetailView/RequestDetailView.js";
 import { EditRequestForm } from "../../components/Forms/Request/EditForm/EditRequestForm.js";
-import { EditCoverSheetForm } from "../../components/Forms/CoverSheet/EditForm/EditCoversheetForm.js";
+import { EditCoverSheetForm } from "../../components/Forms/CoverSheet/EditForm/EditCoverSheetForm.js";
 import {
   AuditResponse,
   AuditResponseStates,

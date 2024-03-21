@@ -16,14 +16,14 @@ export class EditResponseForm extends BaseForm {
     entity.ResStatus.Value.subscribe(this.onStatusChangedHandler, this);
   }
 
-  onStatusChangedHandler = (newValue) => {
+  onStatusChangedHandler = async (newValue) => {
     if (
       newValue != this.currentResponseStatus &&
       newValue == AuditResponseStates.Closed
     ) {
       const response = ko.unwrap(this.entity);
-
-      response.ClosedBy.Value(currentUser);
+      const curUser = await currentUser();
+      response.ClosedBy.Value(curUser);
       response.ClosedDate.Value(new Date());
     }
   };
