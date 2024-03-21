@@ -26,7 +26,7 @@ export function registerComponent({
   }
 }
 
-export function registerFieldComponent(name, components) {
+export function registerFieldComponent(name, components, viewModel = null) {
   // register both our view and edit components
 
   Object.keys(components).map((view) => {
@@ -34,11 +34,20 @@ export function registerFieldComponent(name, components) {
     if (ko.components.isRegistered(componentName)) {
       return;
     }
+
+    // See if we already have this element in the dom
+    const elementName = `field-` + componentName;
+    const fieldViewElement = document.getElementById(elementName);
+
     ko.components.register(componentName, {
-      template: {
-        fromPath: `/components/Fields/${name}/${name}${view}.html`,
-      },
-      viewModel: {
+      template: fieldViewElement
+        ? {
+            element: fieldViewElement,
+          }
+        : {
+            fromPath: `/components/Fields/${name}/${name}${view}.html`,
+          },
+      viewModel: viewModel ?? {
         viaLoader: `/components/Fields/${name}/${name}Module.js`,
       },
     });

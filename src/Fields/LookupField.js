@@ -1,6 +1,7 @@
 import { appContext } from "../infrastructure/ApplicationDbContext.js";
 import { registerFieldComponent } from "../infrastructure/RegisterComponents.js";
 import BaseField from "./BaseField.js";
+import BaseFieldModule from "../components/Fields/BaseFieldModule.js";
 
 const components = {
   view: "lookup-view",
@@ -8,7 +9,7 @@ const components = {
   new: "lookup-edit",
 };
 
-registerFieldComponent("lookup", components);
+registerFieldComponent("lookup", components, BaseFieldModule);
 
 const searchSelectComponents = {
   view: "search-select-view",

@@ -1,5 +1,6 @@
 import { registerFieldComponent } from "../infrastructure/RegisterComponents.js";
 import BaseField from "./BaseField.js";
+import BaseFieldModule from "../components/Fields/BaseFieldModule.js";
 // import ValidationError from "../primitives/ValidationError.js";
 
 const components = {
@@ -8,7 +9,7 @@ const components = {
   new: "text-edit",
 };
 
-registerFieldComponent("text", components);
+registerFieldComponent("text", components, BaseFieldModule);
 
 export default class TextField extends BaseField {
   constructor(params) {

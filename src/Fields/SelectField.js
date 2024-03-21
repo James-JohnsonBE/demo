@@ -1,5 +1,7 @@
 import { registerFieldComponent } from "../infrastructure/RegisterComponents.js";
 import BaseField from "./BaseField.js";
+import SearchSelectModule from "../components/Fields/SearchSelect/SearchSelectModule.js";
+import BaseFieldModule from "../components/Fields/BaseFieldModule.js";
 
 const components = {
   view: "select-view",
@@ -13,8 +15,12 @@ const searchSelectComponents = {
   new: "search-select-edit",
 };
 
-registerFieldComponent("select", components);
-registerFieldComponent("searchselect", searchSelectComponents);
+registerFieldComponent("select", components, BaseFieldModule);
+registerFieldComponent(
+  "searchselect",
+  searchSelectComponents,
+  SearchSelectModule
+);
 
 export default class SelectField extends BaseField {
   constructor({

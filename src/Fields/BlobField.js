@@ -1,5 +1,6 @@
 import { registerFieldComponent } from "../infrastructure/RegisterComponents.js";
 import BaseField from "./BaseField.js";
+import BaseFieldModule from "../components/Fields/BaseFieldModule.js";
 
 const components = {
   view: "blob-view",
@@ -7,7 +8,7 @@ const components = {
   new: "blob-edit",
 };
 
-registerFieldComponent("blob", components);
+registerFieldComponent("blob", components, BaseFieldModule);
 
 export default class BlobField extends BaseField {
   constructor(params) {

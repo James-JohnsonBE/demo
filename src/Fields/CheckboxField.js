@@ -1,5 +1,6 @@
 import { registerFieldComponent } from "../infrastructure/RegisterComponents.js";
 import BaseField from "./BaseField.js";
+import BaseFieldModule from "../components/Fields/BaseFieldModule.js";
 
 const components = {
   view: "checkbox-view",
@@ -7,7 +8,7 @@ const components = {
   new: "checkbox-edit",
 };
 
-registerFieldComponent("checkbox", components);
+registerFieldComponent("checkbox", components, BaseFieldModule);
 
 export default class CheckboxField extends BaseField {
   constructor(params) {

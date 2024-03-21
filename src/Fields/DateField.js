@@ -1,5 +1,6 @@
 import { registerFieldComponent } from "../infrastructure/RegisterComponents.js";
 import BaseField from "./BaseField.js";
+import BaseFieldModule from "../components/Fields/BaseFieldModule.js";
 
 export const dateFieldTypes = {
   date: "date",
@@ -12,7 +13,7 @@ const components = {
   new: "date-edit",
 };
 
-registerFieldComponent("date", components);
+registerFieldComponent("date", components, BaseFieldModule);
 
 /**
  * This field needs to convert between locale and UTC Dates stored on the server;
