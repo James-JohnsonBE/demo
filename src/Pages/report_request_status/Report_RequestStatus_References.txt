@@ -141,6 +141,6 @@
 ></script>
 
 <script
-  type="text/javascript"
+  type="module"
   src="/sites/CGFS/Style Library/apps/audit/src/pages/report_request_status/report_request_status.js"
 ></script>

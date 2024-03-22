@@ -460,6 +460,6 @@
 />
 
 <script
-  type="text/javascript"
+  type=""
   src="/sites/CGFS/Style Library/apps/audit/src/pages/sp_db/sp_db.js"
 ></script>

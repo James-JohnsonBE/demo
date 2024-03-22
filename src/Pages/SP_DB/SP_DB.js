@@ -1,6 +1,4 @@
-﻿import "../../common/knockout_extensions.js";
-
-var Audit = window.Audit || {};
+﻿var Audit = window.Audit || {};
 Audit.SPReport = Audit.SPReport || {};
 
 var paramShowSiteActionsToAnyone = GetUrlKeyValue("ShowSiteActions");

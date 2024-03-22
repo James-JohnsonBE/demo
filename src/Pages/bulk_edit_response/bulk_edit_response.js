@@ -1,4 +1,4 @@
-import "../../common/knockout_extensions.js";
+// import "../../common/knockout_extensions.js";
 
 var Audit = window.Audit || {};
 Audit.BulkEditResponse = Audit.BulkEditResponse || {};
@@ -744,10 +744,7 @@ Audit.BulkEditResponse.Load = function () {
     self.responseStatusOptKeys = responseStatusOptKeys;
 
     self.responseStatusOpts = ko.pureComputed(function () {
-      keys = Object.keys(responseStatusOptKeys);
-      return keys.map(function (key) {
-        return responseStatusOptKeys[key];
-      });
+      return Object.values(responseStatusOptKeys);
     });
 
     self.returnReasonOpts = ko.observableArray([
@@ -782,10 +779,14 @@ Audit.BulkEditResponse.Load = function () {
   $("#divRequestNumber").text(m_reqNum);
 
   var m_oRequest = null;
+  let m_requestItems = null;
+  let m_responseItems = null;
   var m_arrResponses = new Array();
   var m_arrResponseFolders = new Array();
   var m_arrBulkResponses = new Array();
   var m_listViewId = null;
+
+  let m_ResponseDocsFoldersItems = null;
 
   var m_ownerGroupName = null;
   var m_memberGroupName = null;
@@ -869,23 +870,23 @@ Audit.BulkEditResponse.Load = function () {
     aoQuery.set_viewXml(
       '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
     );
-    m_aoItems = aoList.getItems(aoQuery);
+    const m_aoItems = aoList.getItems(aoQuery);
     currCtx.load(m_aoItems, "Include(ID, Title, UserGroup)");
 
-    m_bulkResponsesList = currCtx
+    const m_bulkResponsesList = currCtx
       .get_web()
       .get_lists()
       .getByTitle(Audit.Common.Utilities.GetListNameBulkResponses());
-    m_view = m_bulkResponsesList.get_views().getByTitle("All Items");
+    const m_view = m_bulkResponsesList.get_views().getByTitle("All Items");
     currCtx.load(m_view);
     //currCtx.load(m_bulkResponsesList , 'Title', 'Id', 'Views');
 
-    m_groupColl = web.get_siteGroups();
+    const m_groupColl = web.get_siteGroups();
     currCtx.load(m_groupColl);
 
-    this.ownerGroup = web.get_associatedOwnerGroup();
-    this.memberGroup = web.get_associatedMemberGroup();
-    this.visitorGroup = web.get_associatedVisitorGroup();
+    const ownerGroup = web.get_associatedOwnerGroup();
+    const memberGroup = web.get_associatedMemberGroup();
+    const visitorGroup = web.get_associatedVisitorGroup();
     currCtx.load(ownerGroup);
     currCtx.load(memberGroup);
     currCtx.load(visitorGroup);
@@ -1456,7 +1457,7 @@ Audit.BulkEditResponse.Load = function () {
                 "/" +
                 m_requestNum
             );
-            oListItemEmail = emailList.addItem(itemCreateInfo);
+            const oListItemEmail = emailList.addItem(itemCreateInfo);
             oListItemEmail.set_item("Title", emailSubject);
             oListItemEmail.set_item("Body", emailText);
             oListItemEmail.set_item("To", actionOfficeGroupName);
@@ -1610,7 +1611,7 @@ Audit.BulkEditResponse.Load = function () {
                   "/" +
                   m_requestNum
               );
-              oListItemEmail = emailList.addItem(itemCreateInfo);
+              const oListItemEmail = emailList.addItem(itemCreateInfo);
               oListItemEmail.set_item("Title", emailSubject);
               oListItemEmail.set_item("Body", emailText);
               oListItemEmail.set_item(
@@ -1939,10 +1940,10 @@ Audit.BulkEditResponse.Load = function () {
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
 
-    this.currentUser = currCtx.get_web().get_currentUser();
-    this.ownerGroup = web.get_associatedOwnerGroup();
-    this.memberGroup = web.get_associatedMemberGroup();
-    this.visitorGroup = web.get_associatedVisitorGroup();
+    const currentUser = currCtx.get_web().get_currentUser();
+    const ownerGroup = web.get_associatedOwnerGroup();
+    const memberGroup = web.get_associatedMemberGroup();
+    const visitorGroup = web.get_associatedVisitorGroup();
 
     var qaHasRead = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
       oListItemFolder,
@@ -2229,8 +2230,8 @@ Audit.BulkEditResponse.Load = function () {
     oListItem.get_roleAssignments().getByPrincipal(currentUser).deleteObject();
 
     function onUpdateReqPermsSucceeed() {
-      m_CntRequestAOsToAdd = 0;
-      m_CntRequestAOsAdded = 0;
+      let m_CntRequestAOsToAdd = 0;
+      let m_CntRequestAOsAdded = 0;
 
       //add action offices
       var arrActionOffice = oListItem.get_item("ActionOffice");

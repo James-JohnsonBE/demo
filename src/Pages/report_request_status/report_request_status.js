@@ -35,6 +35,7 @@ Audit.IAReport.NewReportPage = function () {
 
   var m_arrRequests = new Array();
   var m_requestsStatus = new Object();
+  let m_requestItems = null;
 
   function ViewModel() {
     var self = this;
@@ -392,8 +393,8 @@ Audit.IAReport.NewReportPage = function () {
   function GetDateDiff(date1, date2) {
     if (!date1 || !date2) return 0;
 
-    start = Math.floor(date1.getTime() / (3600 * 24 * 1000)); //days as integer from..
-    end = Math.floor(date2.getTime() / (3600 * 24 * 1000)); //days as integer from..
+    const start = Math.floor(date1.getTime() / (3600 * 24 * 1000)); //days as integer from..
+    const end = Math.floor(date2.getTime() / (3600 * 24 * 1000)); //days as integer from..
     var daysDiff = end - start; // exact dates
 
     return Math.abs(daysDiff);
