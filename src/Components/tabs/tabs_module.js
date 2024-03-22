@@ -24,8 +24,13 @@ export class TabsModule {
 
   selectTab = (tab) => this.selectById(tab.id);
 
-  selectById = (tabId) =>
-    this.selectedTab(this.tabOpts().find((tab) => tab.id == tabId));
+  selectById = (tabId) => {
+    const tabById =
+      this.tabOpts().find((tab) => tab.id == tabId) ?? this.getDefaultTab();
+    this.selectedTab(tabById);
+  };
+
+  getDefaultTab = () => this.tabOpts()[0];
 
   tabChangeHandler = (newTab) => {
     if (newTab) setUrlParam(this.urlParam, newTab.id);
