@@ -1,7 +1,7 @@
-﻿import { TabsModule, Tab } from "../../components/Tabs/TabsModule.js";
-import { setUrlParam } from "../../common/Router.js";
-import { appContext } from "../../infrastructure/ApplicationDbContext.js";
-import { uploadResponseDocFile } from "../../services/AuditResponseService.js";
+﻿import { TabsModule, Tab } from "../../components/tabs/tabs_module.js";
+import { setUrlParam } from "../../common/router.js";
+import { appContext } from "../../infrastructure/application_db_context.js";
+import { uploadResponseDocFile } from "../../services/audit_response_service.js";
 
 import {
   addTask,
@@ -9,9 +9,9 @@ import {
   finishTask,
   runningTasks,
   taskDefs,
-} from "../../services/Tasks.js";
+} from "../../services/tasks.js";
 
-import "../../Common/KnockoutExtensions.js";
+import "../../common/knockout_extensions.js";
 
 var Audit = window.Audit || {};
 Audit.AOReport = Audit.AOReport || {};

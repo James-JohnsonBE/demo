@@ -21,12 +21,12 @@
 <link
   rel="stylesheet"
   type="text/css"
-  href="/sites/CGFS/Style Library/apps/audit/src/Audit_Styles.css"
+  href="/sites/CGFS/Style Library/apps/audit/src/audit_styles.css"
 />
 <link
   rel="stylesheet"
   type="text/css"
-  href="/sites/CGFS/Style Library/apps/audit/src/Audit_Page_Reports.css"
+  href="/sites/CGFS/Style Library/apps/audit/src/audit_page_reports.css"
 />
 
 <script
@@ -102,11 +102,11 @@
 
 <!-- <script
   type="module"
-  src="/sites/CGFS/Style Library/apps/audit/src/common/KnockoutExtensions.js"
+  src="/sites/CGFS/Style Library/apps/audit/src/common/knockout_extensions.js"
 ></script> -->
 <script
   type="text/javascript"
-  src="/sites/CGFS/Style Library/apps/audit/src/common/Utilities.js"
+  src="/sites/CGFS/Style Library/apps/audit/src/common/utilities.js"
 ></script>
 
 <script
@@ -114,7 +114,6 @@
   src="/sites/CGFS/Style Library/apps/audit/lib/webcomponents/searchselect/searchselect.js"
 ></script>
 
-<!-- TODO: Break these out into their individual files! -->
 <div class="audit">
   <!-- ko if: 'currentDialog' in $root -->
   <dialog id="dlgModalDialog" class="card bg-dark draggable" data-bind="">
@@ -176,7 +175,7 @@
   <template id="search-select-template">
     <link
       rel="stylesheet"
-      href="/sites/CGFS/Style Library/apps/audit/lib/webcomponents/SearchSelect/styles.css"
+      href="/sites/CGFS/Style Library/apps/audit/lib/webcomponents/searchselect/styles.css"
     />
     <!-- Hide the element, stylesheet overrides on load -->
     <style>

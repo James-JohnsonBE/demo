@@ -1,4 +1,4 @@
-﻿import { InitReport } from "./IA_DB_Services.js";
+﻿import { InitReport } from "./ia_db_services.js";
 
 const Audit = window.Audit || {};
 

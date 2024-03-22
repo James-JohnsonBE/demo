@@ -1,4 +1,4 @@
-﻿import "../../Common/KnockoutExtensions.js";
+﻿import "../../common/knockout_extensions.js";
 
 var Audit = window.Audit || {};
 Audit.SPReport = Audit.SPReport || {};

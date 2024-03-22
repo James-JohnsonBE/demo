@@ -1,39 +1,39 @@
-﻿import { InitSal, executeQuery } from "../../infrastructure/SAL.js";
-import { appContext } from "../../infrastructure/ApplicationDbContext.js";
-import { TabsModule, Tab } from "../../components/Tabs/TabsModule.js";
-import { setUrlParam } from "../../common/Router.js";
-import { CommentChainModuleLegacy } from "../../components/CommentChain/CommentChainModule.js";
-import { ActiveViewersModuleLegacy } from "../../components/ActiveViewers/ActiveViewersModule.js";
+﻿import { InitSal, executeQuery } from "../../infrastructure/sal.js";
+import { appContext } from "../../infrastructure/application_db_context.js";
+import { TabsModule, Tab } from "../../components/tabs/tabs_module.js";
+import { setUrlParam } from "../../common/router.js";
+import { CommentChainModuleLegacy } from "../../components/comment_chain/comment_chain_module.js";
+import { ActiveViewersModuleLegacy } from "../../components/active_viewers/active_viewers_module.js";
 
-import * as ModalDialog from "../../infrastructure/ModalDialog.js";
-import * as FormManager from "../../services/FormManager.js";
+import * as ModalDialog from "../../infrastructure/modal_dialog.js";
+import * as FormManager from "../../services/form_manager.js";
 
-import { NewRequestFormComponent } from "../../components/Forms/Request/NewForm/NewRequestForm.js";
-import { RequestDetailView } from "../../components/RequestDetailView/RequestDetailView.js";
-import { EditRequestForm } from "../../components/Forms/Request/EditForm/EditRequestForm.js";
-import { EditCoverSheetForm } from "../../components/Forms/CoverSheet/EditForm/EditCoverSheetForm.js";
+import { NewRequestFormComponent } from "../../components/forms/request/new_form/new_request_form.js";
+import { RequestDetailView } from "../../components/request_detail_view/request_detail_view.js";
+import { EditRequestForm } from "../../components/forms/request/edit_form/edit_request_form.js";
+import { EditCoverSheetForm } from "../../components/forms/cover_sheet/edit_form/edit_cover_sheet_form.js";
 import {
   AuditResponse,
   AuditResponseStates,
-} from "../../entities/AuditResponse.js";
-import { NewResponseForm } from "../../components/Forms/Response/NewForm/NewResponseForm.js";
-import { EditResponseForm } from "../../components/Forms/Response/EditForm/EditResponseForm.js";
-import { EditResponseDocForm } from "../../components/Forms/ResponseDoc/EditForm/EditResponseDocForm.js";
+} from "../../entities/audit_response.js";
+import { NewResponseForm } from "../../components/forms/response/new_form/new_response_form.js";
+import { EditResponseForm } from "../../components/forms/response/edit_form/edit_response_form.js";
+import { EditResponseDocForm } from "../../components/forms/response_doc/edit_form/edit_response_doc_form.js";
 
 import {
   auditOrganizationStore,
   configurationsStore,
-} from "../../infrastructure/Store.js";
-import { AuditResponseDocStates } from "../../entities/AuditResponseDocs.js";
+} from "../../infrastructure/store.js";
+import { AuditResponseDocStates } from "../../entities/audit_response_doc.js";
 import {
   addTask,
   blockingTasks,
   finishTask,
   runningTasks,
   taskDefs,
-} from "../../services/Tasks.js";
+} from "../../services/tasks.js";
 
-import "../../Common/KnockoutExtensions.js";
+import "../../common/knockout_extensions.js";
 
 var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
@@ -3130,7 +3130,7 @@ function m_fnViewResponseDocsToday() {
 
 function m_fnViewReturnedDocs() {
   window.open(
-    Audit.Common.Utilities.GetSiteUrl() + "/Pages/AuditReturnedResponses.aspx",
+    Audit.Common.Utilities.GetSiteUrl() + "/pages/AuditReturnedResponses.aspx",
     "_blank"
   );
 }
@@ -8027,7 +8027,7 @@ function PrintPage(pageTitle, divTbl) {
     curDate.format("MM_dd_yyyy");
   var cssLink2 =
     siteUrl +
-    "/siteAssets/css/Audit_Styles.css?v=" +
+    "/siteAssets/css/audit_styles.css?v=" +
     curDate.format("MM_dd_yyyy");
 
   var divOutput = $(divTbl).html();

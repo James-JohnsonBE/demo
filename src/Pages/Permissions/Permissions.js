@@ -1705,11 +1705,11 @@ Audit.Permissions.Load = function () {
       curDate.format("MM_dd_yyyy");
     var cssLink2 =
       Audit.Common.Utilities.GetSiteUrl() +
-      "/siteassets/css/Audit_Styles.css?v=" +
+      "/siteassets/css/audit_styles.css?v=" +
       curDate.format("MM_dd_yyyy");
     var cssLink3 =
       Audit.Common.Utilities.GetSiteUrl() +
-      "/siteassets/css/Audit_Page_Reports.css?v=" +
+      "/siteassets/css/audit_page_reports.css?v=" +
       curDate.format("MM_dd_yyyy");
 
     var divOutput = $(container).html();

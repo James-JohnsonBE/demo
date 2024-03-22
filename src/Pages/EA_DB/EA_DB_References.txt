@@ -14,10 +14,10 @@
 <link
   rel="stylesheet"
   type="text/css"
-  href="/sites/CGFS/Style Library/apps/audit/src/Audit_Styles_Hide_Ribbon.css"
+  href="/sites/CGFS/Style Library/apps/audit/src/audit_styles_hide_ribbon.css"
 />
 
 <script
   type="text/javascript"
-  src="/sites/CGFS/Style Library/apps/audit/src/pages/EA_DB/EA_DB.js"
+  src="/sites/CGFS/Style Library/apps/audit/src/pages/ea_db/ea_db.js"
 ></script>

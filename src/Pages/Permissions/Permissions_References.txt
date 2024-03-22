@@ -271,5 +271,5 @@
 
 <script
   type="text/javascript"
-  src="/sites/CGFS/Style Library/apps/audit/src/pages/Permissions/Permissions.js"
+  src="/sites/CGFS/Style Library/apps/audit/src/pages/permissions/permissions.js"
 ></script>

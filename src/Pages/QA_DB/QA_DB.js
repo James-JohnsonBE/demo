@@ -1,7 +1,7 @@
-﻿import { setUrlParam } from "../../common/Router.js";
-import { TabsModule, Tab } from "../../components/Tabs/TabsModule.js";
+﻿import { setUrlParam } from "../../common/router.js";
+import { TabsModule, Tab } from "../../components/tabs/tabs_module.js";
 
-import "../../Common/KnockoutExtensions.js";
+import "../../common/knockout_extensions.js";
 
 // var SP = window.SP;
 // var ko = window.ko;

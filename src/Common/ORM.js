@@ -1,4 +1,4 @@
-import { SPList } from "../infrastructure/SAL.js";
+import { SPList } from "../infrastructure/sal.js";
 
 const DEBUG = false;
 

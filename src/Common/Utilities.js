@@ -849,7 +849,7 @@ Audit.Common.NewUtilities = function () {
       curDate.format("MM_dd_yyyy");
     var cssLink2 =
       siteUrl +
-      "/siteAssets/css/Audit_Styles.css?v=" +
+      "/siteAssets/css/audit_styles.css?v=" +
       curDate.format("MM_dd_yyyy");
 
     var divOutput = $(divTbl).html();

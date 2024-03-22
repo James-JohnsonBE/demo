@@ -489,5 +489,5 @@
 <script
   defer
   type="module"
-  src="/sites/CGFS/Style Library/apps/audit/src/Pages/AO_DB/AO_DB.js"
+  src="/sites/CGFS/Style Library/apps/audit/src/pages/ao_db/ao_db.js"
 ></script>

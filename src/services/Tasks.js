@@ -1,4 +1,4 @@
-import { ProgressTask, Task } from "../valueObjects/Task.js";
+import { ProgressTask, Task } from "../value_objects/task.js";
 export const runningTasks = ko.observableArray();
 
 export const blockingTasks = ko.pureComputed(() => {

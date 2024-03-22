@@ -810,5 +810,5 @@
 
 <script
   type="module"
-  src="/sites/CGFS/Style Library/apps/audit/src/Pages/IA_DB/IA_DB.js"
+  src="/sites/CGFS/Style Library/apps/audit/src/pages/ia_db/ia_db.js"
 ></script>

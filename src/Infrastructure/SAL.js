@@ -1,5 +1,5 @@
 /*
-    SharePoint Acces Layer - SAL.js
+    SharePoint Acces Layer - sal.js
 
     Abstract any functions that rely on reading or setting SP items to here.
 
@@ -2059,7 +2059,7 @@ export function SPList(listDef) {
 
     // WARNING: this looks similar to listPath but is different
     var formsPath = self.config.def.isLib
-      ? "/" + self.config.def.name + "/Forms/"
+      ? "/" + self.config.def.name + "/forms/"
       : "/Lists/" + self.config.def.name + "/";
 
     Object.assign(options, {
