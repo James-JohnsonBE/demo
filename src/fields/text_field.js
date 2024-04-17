@@ -20,7 +20,10 @@ export default class TextField extends BaseField {
   constructor(params) {
     super(params);
     this.attr = params.attr ?? {};
+    this.options = params.options ?? null;
   }
+
+  options;
 
   components = components;
 }

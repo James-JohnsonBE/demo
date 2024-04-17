@@ -50,7 +50,7 @@ export class AuditResponse extends ConstrainedEntity {
     options: Object.values(AuditResponseStates),
   });
 
-  ReturnReason = new SelectField({
+  ReturnReason = new TextField({
     displayName: "Return Reason",
     options: ["Incomplete Document", "Incorrect POC"],
   });
