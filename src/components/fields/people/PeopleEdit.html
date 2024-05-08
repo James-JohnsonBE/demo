@@ -1,0 +1,19 @@
+<label class="fw-semibold w-100"
+  ><span data-bind="text: displayName"></span
+  ><span data-bind="if: isRequired" class="fw-bold text-danger">*</span>:
+  <div
+    data-bind="attr: {id: getUniqueId()}, people: Value,
+      class: ValidationClass"
+  ></div>
+  <!-- ko if: instructions -->
+  <div
+    class="fw-lighter fst-italic text-secondary"
+    data-bind="html: instructions"
+  ></div>
+  <!-- /ko -->
+</label>
+<!-- ko if: ShowErrors -->
+<!-- ko foreach: Errors -->
+<div class="fw-semibold text-danger" data-bind="text: description"></div>
+<!-- /ko -->
+<!-- /ko -->

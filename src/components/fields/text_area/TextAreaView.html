@@ -1,0 +1,12 @@
+<div class="fw-semibold" data-bind="text: displayName"></div>
+<!-- ko if: Value -->
+<!-- ko if: isRichText -->
+<div data-bind="html: Value"></div>
+<!-- /ko -->
+<!-- ko ifnot: isRichText -->
+<div data-bind="text: Value"></div>
+<!-- /ko -->
+<!-- /ko -->
+<!-- ko ifnot: Value -->
+<div class="fst-italic">Not provided.</div>
+<!-- /ko -->
