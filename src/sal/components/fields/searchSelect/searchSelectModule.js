@@ -1,6 +1,6 @@
-import BaseFieldModule from "../index.js";
+import { BaseFieldModule } from "../index.js";
 
-export default class SearchSelectModule extends BaseFieldModule {
+export class SearchSelectModule extends BaseFieldModule {
   constructor(field) {
     super(field);
     this.Options = field.Options;

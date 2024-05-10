@@ -1,1 +1,1 @@
-export { EntitySet, CachedEntitySet } from "./orm";
+export { EntitySet, CachedEntitySet } from "./orm.js";

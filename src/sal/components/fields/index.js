@@ -1,7 +1,3 @@
-import { SearchSelectModule } from "./searchSelect/searchSelectModule.js";
-
-import { BaseFieldModule } from "./baseFieldModule.js";
-
-export { BaseFieldModule, SearchSelectModule };
-
+export * from "./baseFieldModule.js";
+export * from "./searchSelect/searchSelectModule.js";
 export * from "./textArea/textAreaModule.js";

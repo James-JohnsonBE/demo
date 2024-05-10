@@ -1,4 +1,4 @@
-import { DefaultForm } from "../components/forms/default/default_form.js";
+import { DefaultForm } from "../components/forms/index.js";
 import { FieldDisplayModes } from "../enums/display_modes.js";
 
 export function NewForm(entity, view = null) {

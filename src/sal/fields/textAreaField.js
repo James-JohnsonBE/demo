@@ -12,7 +12,7 @@ registerFieldComponent({
   name: "textarea",
   components,
   viewModel: TextAreaModule,
-  folder: "text_area",
+  folder: "textarea",
 });
 
 export class TextAreaField extends BaseField {

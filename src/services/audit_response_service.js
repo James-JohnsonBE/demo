@@ -1,13 +1,13 @@
 import {
   AuditResponse,
   AuditResponseStates,
-} from "../entities/audit_response.js";
-import {
   AuditResponseDoc,
   AuditResponseDocStates,
-} from "../entities/audit_response_doc.js";
+} from "../entities/index.js";
+
 import { appContext } from "../infrastructure/application_db_context.js";
-import { showModal } from "../infrastructure/sp_modal_service.js";
+import { showModal } from "../sal/components/modal/index.js";
+
 import {
   breakRequestPermissions,
   getRequestById,

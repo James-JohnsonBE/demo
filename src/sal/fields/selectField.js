@@ -1,7 +1,9 @@
-import { SearchSelectModule } from "../components/fields/search_select/index.js";
 import { registerFieldComponent } from "../infrastructure/index.js";
 import { BaseField } from "./index.js";
-import { BaseFieldModule } from "../components/fields/index.js";
+import {
+  BaseFieldModule,
+  SearchSelectModule,
+} from "../components/fields/index.js";
 
 const components = {
   view: "select-view",
@@ -26,7 +28,7 @@ registerFieldComponent({
   name: "searchselect",
   components: searchSelectComponents,
   viewModel: SearchSelectModule,
-  folder: "search_select",
+  folder: "searchselect",
 });
 
 export class SelectField extends BaseField {

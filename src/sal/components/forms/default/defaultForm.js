@@ -1,4 +1,4 @@
-import { BaseForm } from "../base_form.js";
+import { BaseForm } from "../index.js";
 import { registerComponent } from "../../../infrastructure/register_components.js";
 
 const componentName = "default-constrained-entity-form";
@@ -25,9 +25,15 @@ export class DefaultForm extends BaseForm {
   componentName = componentName;
 }
 
-registerComponent({
-  name: componentName,
-  folder: "forms/default",
-  // module: ConstrainedEntityModule,
-  template: "DefaultFormTemplate",
+// registerComponent({
+//   name: componentName,
+//   folder: "forms/default",
+//   // module: ConstrainedEntityModule,
+//   template: "DefaultFormTemplate",
+// });
+
+ko.components.register(componentName, {
+  template: {
+    fromPath: `/sal/components/forms/default/DefaultFormTemplate.html`,
+  },
 });

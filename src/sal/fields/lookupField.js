@@ -1,4 +1,4 @@
-import { appContext } from "../infrastructure/application_db_context.js";
+//import { appContext } from "../infrastructure/application_db_context.js";
 import { registerFieldComponent } from "../infrastructure/index.js";
 import { BaseField } from "./index.js";
 import { BaseFieldModule } from "../components/fields/index.js";
@@ -26,7 +26,7 @@ registerFieldComponent({
   name: "searchselect",
   components: searchSelectComponents,
   viewModel: SearchSelectModule,
-  folder: "search_select",
+  folder: "searchselect",
 });
 
 export class LookupField extends BaseField {
@@ -43,7 +43,7 @@ export class LookupField extends BaseField {
     lookupCol = "Title",
   }) {
     super({ Visible, displayName, isRequired });
-    this.entitySet = entitySet ?? appContext.Set(entityType);
+    this.entitySet = entitySet; // ?? appContext.Set(entityType);
     // Support passing in options
     // if options are not passed, assume this is a search input
     if (!options) {

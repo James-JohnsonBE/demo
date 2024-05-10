@@ -1,17 +1,19 @@
 import { AuditOrganization } from "./audit_organization.js";
-import LookupField from "../fields/lookup_field.js";
-import PeopleField from "../fields/people_field.js";
-import TextField from "../fields/text_field.js";
-import DateField, { dateFieldTypes } from "../fields/date_field.js";
-import SelectField from "../fields/select_field.js";
-import CheckboxField from "../fields/checkbox_field.js";
-import TextAreaField from "../fields/text_area_field.js";
-import ConstrainedEntity from "../primitives/constrained_entity.js";
-import BaseField from "../fields/base_field.js";
+import {
+  LookupField,
+  PeopleField,
+  TextField,
+  TextAreaField,
+  DateField,
+  dateFieldTypes,
+  SelectField,
+  CheckboxField,
+} from "../sal/fields/index.js";
+import { ConstrainedEntity } from "../sal/primitives/index.js";
 
-import { ValidationError } from "../primitives/validation_error.js";
+import { ValidationError } from "../sal/primitives/validation_error.js";
 import { auditOrganizationStore } from "../infrastructure/store.js";
-// import { appContext } from "../infrastructure/application_db_context.js";
+import { appContext } from "../infrastructure/application_db_context.js";
 
 export const AUDITREQUESTSTATES = {
   OPEN: "Open",
@@ -123,6 +125,7 @@ export class AuditRequest extends ConstrainedEntity {
     options: auditOrganizationStore,
     lookupCol: "Title",
     multiple: true,
+    entitySet: appContext.AuditOrganizations,
   });
 
   EmailActionOffice = new LookupField({
@@ -131,6 +134,7 @@ export class AuditRequest extends ConstrainedEntity {
     options: auditOrganizationStore,
     lookupCol: "Title",
     multiple: true,
+    entitySet: appContext.AuditOrganizations,
   });
 
   ClosedDate = new DateField({

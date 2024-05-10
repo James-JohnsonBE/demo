@@ -1,13 +1,18 @@
-import TextField from "../fields/text_field.js";
-import TextAreaField from "../fields/text_area_field.js";
-import SelectField from "../fields/select_field.js";
-import ConstrainedEntity from "../primitives/constrained_entity.js";
-import DateField, { dateFieldTypes } from "../fields/date_field.js";
-import PeopleField from "../fields/people_field.js";
-import LookupField from "../fields/lookup_field.js";
-import BlobField from "../fields/blob_field.js";
-import { AuditRequest } from "./audit_request.js";
-import { AuditOrganization } from "./audit_organization.js";
+import { ConstrainedEntity } from "../sal/primitives/index.js";
+import {
+  LookupField,
+  BlobField,
+  TextField,
+  TextAreaField,
+  DateField,
+  dateFieldTypes,
+  SelectField,
+  PeopleField,
+} from "../sal/fields/index.js";
+
+import { AuditRequest, AuditOrganization } from "./index.js";
+
+import { appContext } from "../infrastructure/application_db_context.js";
 
 import { ActiveViewer } from "../value_objects/active_viewer.js";
 import { ActiveViewersComponent } from "../components/active_viewers/active_viewers_module.js";
@@ -38,6 +43,7 @@ export class AuditResponse extends ConstrainedEntity {
   ReqNum = new LookupField({
     displayName: "Request Number",
     type: AuditRequest,
+    entitySet: appContext.AuditRequests,
   });
 
   SampleNumber = new TextField({
@@ -92,6 +98,7 @@ export class AuditResponse extends ConstrainedEntity {
 
       return (opt) => requestActionOffices.includes(opt);
     }),
+    entitySet: appContext.AuditOrganizations,
     lookupCol: "Title",
     isRequired: true,
   });

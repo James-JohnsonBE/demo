@@ -1,6 +1,6 @@
-import BaseFieldModule from "../base_field_module.js";
+import { BaseFieldModule } from "../index.js";
 
-export default class TextAreaModule extends BaseFieldModule {
+export class TextAreaModule extends BaseFieldModule {
   constructor(params) {
     super(params);
   }

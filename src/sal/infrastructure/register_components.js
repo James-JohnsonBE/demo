@@ -54,10 +54,10 @@ export function registerFieldComponent({
             element: fieldViewElement,
           }
         : {
-            fromPath: `/components/fields/${folder}/${name}${view}.html`,
+            fromPath: `/sal/components/fields/${folder}/${name}${view}.html`,
           },
       viewModel: viewModel ?? {
-        viaLoader: `/components/fields/${folder}/${name}Module.js`,
+        viaLoader: `/sal/components/fields/${folder}/${name}Module.js`,
       },
     });
   });

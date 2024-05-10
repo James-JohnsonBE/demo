@@ -8,7 +8,7 @@ import {
   AuditResponseDoc,
   AuditCoversheet,
   AuditConfiguration,
-} from "../entities/config.js";
+} from "../entities/index.js";
 import { EntitySet } from "../sal/index.js";
 
 const DEBUG = false;

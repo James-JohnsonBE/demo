@@ -1,12 +1,17 @@
-import ConstrainedEntity from "../primitives/constrained_entity.js";
-import LookupField from "../fields/lookup_field.js";
-import TextField from "../fields/text_field.js";
-import DateField, { dateFieldTypes } from "../fields/date_field.js";
-import SelectField from "../fields/select_field.js";
-import TextAreaField from "../fields/text_area_field.js";
+import { ConstrainedEntity } from "../sal/primitives/index.js";
+import {
+  LookupField,
+  TextField,
+  TextAreaField,
+  DateField,
+  dateFieldTypes,
+  SelectField,
+  PeopleField,
+} from "../sal/fields/index.js";
+
 import { AuditResponse } from "./audit_response.js";
 import { AuditRequest } from "./audit_request.js";
-import PeopleField from "../fields/people_field.js";
+import { appContext } from "../infrastructure/application_db_context.js";
 
 export const AuditResponseDocStates = {
   Open: "Open",
@@ -44,11 +49,13 @@ export class AuditResponseDoc extends ConstrainedEntity {
   ReqNum = new LookupField({
     displayName: "Request Number",
     type: AuditRequest,
+    entitySet: appContext.AuditRequests,
   });
 
   ResID = new LookupField({
     displayName: "Response ID",
     type: AuditResponse,
+    entitySet: appContext.AuditResponses,
   });
 
   FileName = new TextField({

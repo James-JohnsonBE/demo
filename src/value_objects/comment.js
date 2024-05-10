@@ -1,5 +1,5 @@
-import ConstrainedEntity from "../primitives/constrained_entity.js";
-import TextField from "../fields/text_field.js";
+import { ConstrainedEntity } from "../sal/primitives/index.js";
+import { TextField, DateField, dateFieldTypes } from "../sal/fields/index.js";
 
 export class Comment extends ConstrainedEntity {
   constructor(params) {

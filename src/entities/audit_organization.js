@@ -1,4 +1,4 @@
-import ConstrainedEntity from "../primitives/constrained_entity.js";
+import { ConstrainedEntity } from "../sal/primitives/constrained_entity.js";
 
 export class AuditOrganization extends ConstrainedEntity {
   constructor(params) {

@@ -1,5 +1,5 @@
 import { appContext } from "../../infrastructure/application_db_context.js";
-import { registerComponent } from "../../infrastructure/register_components.js";
+import { registerComponent } from "../../sal/infrastructure/index.js";
 import { Comment } from "../../value_objects/comment.js";
 
 const commentChainComponentName = "commentChain";

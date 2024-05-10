@@ -552,7 +552,7 @@
           <th class="sorter-true" nowrap="nowrap"># of Documents</th>
         </tr>
       </thead>
-      <tbody id="fbody1" style="">
+      <tbody id="fbody1">
         <!-- ko foreach: arrRequests -->
         <tr
           class="sr1-request-item"
@@ -810,5 +810,6 @@
 
 <script
   type="module"
+  defer
   src="/sites/CGFS/Style Library/apps/audit/src/pages/ia_db/ia_db.js"
 ></script>
