@@ -1,13 +1,15 @@
-import { AuditOrganization } from "../entities/audit_organization.js";
-import { AuditRequest } from "../entities/audit_request.js";
-import { AuditBulkRequest } from "../entities/audit_bulk_request.js";
-import { AuditEmail } from "../entities/audit_email.js";
-import { AuditRequestsInternal } from "../entities/audit_request_internal.js";
-import { AuditResponse } from "../entities/audit_response.js";
-import { AuditResponseDoc } from "../entities/audit_response_doc.js";
-import { AuditCoversheet } from "../entities/audit_coversheet.js";
-import { AuditConfiguration } from "../entities/config.js";
-import { EntitySet } from "../common/orm.js";
+import {
+  AuditOrganization,
+  AuditRequest,
+  AuditBulkRequest,
+  AuditEmail,
+  AuditRequestsInternal,
+  AuditResponse,
+  AuditResponseDoc,
+  AuditCoversheet,
+  AuditConfiguration,
+} from "../entities/index.js";
+import { EntitySet } from "../sal/index.js";
 
 const DEBUG = false;
 

@@ -1,10 +1,10 @@
-import LookupField from "../fields/lookup_field.js";
-import ConstrainedEntity from "../primitives/constrained_entity.js";
-import { AuditRequest } from "./audit_request.js";
-import { AuditOrganization } from "./audit_organization.js";
-import TextField from "../fields/text_field.js";
-
+import { AuditRequest, AuditOrganization } from "./index.js";
 import { auditOrganizationStore } from "../infrastructure/store.js";
+
+import { ConstrainedEntity } from "../sal/primitives/constrained_entity.js";
+import { LookupField, TextField } from "../sal/fields/index.js";
+
+import { appContext } from "../infrastructure/application_db_context.js";
 
 export class AuditCoversheet extends ConstrainedEntity {
   constructor(params) {
@@ -32,6 +32,7 @@ export class AuditCoversheet extends ConstrainedEntity {
     type: AuditRequest,
     lookupCol: "Title",
     required: true,
+    entitySet: appContext.AuditRequests,
   });
 
   ActionOffice = new LookupField({
@@ -49,6 +50,7 @@ export class AuditCoversheet extends ConstrainedEntity {
     }),
     lookupCol: "Title",
     multiple: true,
+    entitySet: appContext.AuditOrganizations,
   });
 
   static Views = {

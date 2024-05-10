@@ -1,11 +1,13 @@
 import { appContext } from "../infrastructure/application_db_context.js";
 import { getPeopleByUsername, getSiteGroups } from "./people_manager.js";
 import { roleNames } from "./permission_manager.js";
-import { ItemPermissions } from "../infrastructure/sal.js";
-import { AuditResponseStates } from "../entities/audit_response.js";
-import { People } from "../entities/people.js";
-import { AuditRequestsInternal } from "../entities/audit_request_internal.js";
-import { AuditRequest } from "../entities/audit_request.js";
+import { ItemPermissions } from "../sal/infrastructure/index.js";
+import {
+  AuditResponseStates,
+  AuditRequest,
+  AuditRequestsInternal,
+} from "../entities/index.js";
+import { People } from "../sal/entities/index.js";
 import { addTask, finishTask, taskDefs } from "./tasks.js";
 import { deleteRequestCoversheet } from "./coversheet_manager.js";
 

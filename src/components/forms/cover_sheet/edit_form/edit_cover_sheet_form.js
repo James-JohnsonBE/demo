@@ -1,5 +1,5 @@
-import { BaseForm } from "../../base_form.js";
-import { registerComponent } from "../../../../infrastructure/register_components.js";
+import { BaseForm } from "../../../../sal/components/forms/index.js";
+import { registerComponent } from "../../../../sal/infrastructure/index.js";
 import { updateRequestCoverSheet } from "../../../../services/coversheet_manager.js";
 
 const componentName = "custom-edit-coversheet-form";

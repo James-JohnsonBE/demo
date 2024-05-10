@@ -1,8 +1,8 @@
-import { BaseForm } from "../../base_form.js";
 import { addResponse } from "../../../../services/audit_response_service.js";
 import { AuditResponse } from "../../../../entities/audit_response.js";
-import { registerComponent } from "../../../../infrastructure/register_components.js";
 
+import { BaseForm } from "../../../../sal/components/forms/index.js";
+import { registerComponent } from "../../../../sal/infrastructure/index.js";
 const componentName = "custome-new-response-form";
 
 export class NewResponseForm extends BaseForm {

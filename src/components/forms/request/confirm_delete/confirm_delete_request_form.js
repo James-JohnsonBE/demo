@@ -1,4 +1,4 @@
-import { registerComponent } from "../../../../infrastructure/register_components.js";
+import { registerComponent } from "../../../../sal/infrastructure/index.js";
 import { deleteRequest } from "../../../../services/audit_request_service.js";
 
 const componentName = "confirm-delete-request";

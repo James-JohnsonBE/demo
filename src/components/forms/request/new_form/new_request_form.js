@@ -1,11 +1,13 @@
 import {
   AUDITREQUESTSTATES,
   AuditRequest,
-} from "../../../../entities/audit_request.js";
-import { registerComponent } from "../../../../infrastructure/register_components.js";
+} from "../../../../entities/index.js";
+
 import { addNewRequest } from "../../../../services/audit_request_service.js";
-import { BaseForm } from "../../base_form.js";
+
 import { configurationsStore } from "../../../../infrastructure/store.js";
+import { BaseForm } from "../../../../sal/components/forms/index.js";
+import { registerComponent } from "../../../../sal/infrastructure/index.js";
 
 export const newRequestFormComponentName = "newRequestForm";
 

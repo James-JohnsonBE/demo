@@ -1,9 +1,9 @@
-import { People } from "../entities/people.js";
+import { People } from "../sal/entities/index.js";
 import {
   ensureUserByKeyAsync,
   getDefaultGroups,
   getUserPropsAsync,
-} from "../infrastructure/sal.js";
+} from "../sal/infrastructure/index.js";
 
 const groupNameSpecialPermName1 = "CGFS Special Access1";
 const groupNameSpecialPermName2 = "CGFS Special Access2";

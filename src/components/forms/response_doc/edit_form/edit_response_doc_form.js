@@ -1,13 +1,13 @@
-import { BaseForm } from "../../base_form.js";
+import { BaseForm } from "../../../../sal/components/forms/index.js";
+import { registerComponent } from "../../../../sal/infrastructure/index.js";
 import { updateResponseDoc } from "../../../../services/audit_response_service.js";
 
-import { registerComponent } from "../../../../infrastructure/register_components.js";
 import {
+  AUDITREQUESTSTATES,
+  AuditResponseStates,
   AuditResponseDoc,
   AuditResponseDocStates,
-} from "../../../../entities/audit_response_doc.js";
-import { AUDITREQUESTSTATES } from "../../../../entities/audit_request.js";
-import { AuditResponseStates } from "../../../../entities/audit_response.js";
+} from "../../../../entities/index.js";
 
 const componentName = "custome-edit-responsedoc-form";
 

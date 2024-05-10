@@ -5,10 +5,10 @@ import {
   getQAGroup,
   getPeopleByUsername,
 } from "./people_manager.js";
-import { ItemPermissions } from "../infrastructure/sal.js";
+import { ItemPermissions } from "../sal/infrastructure/index.js";
 import { roleNames } from "./permission_manager.js";
-import { People } from "../entities/people.js";
-import { AuditCoversheet } from "../entities/audit_coversheet.js";
+import { People } from "../sal/entities/index.js";
+import { AuditCoversheet } from "../entities/index.js";
 import { getRequestCoversheets } from "./audit_request_service.js";
 import { addTask, finishTask, taskDefs } from "./tasks.js";
 

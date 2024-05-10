@@ -1,6 +1,6 @@
-import { registerComponent } from "../../../../infrastructure/register_components.js";
 import { updateRequest } from "../../../../services/audit_request_service.js";
-import { BaseForm } from "../../base_form.js";
+import { BaseForm } from "../../../../sal/components/forms/index.js";
+import { registerComponent } from "../../../../sal/infrastructure/index.js";
 
 const componentName = "custom-edit-request-form";
 export class EditRequestForm extends BaseForm {

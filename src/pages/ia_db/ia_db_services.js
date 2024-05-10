@@ -1,12 +1,12 @@
-﻿import { InitSal, executeQuery } from "../../infrastructure/sal.js";
+﻿import { InitSal, executeQuery } from "../../sal/infrastructure/index.js";
 import { appContext } from "../../infrastructure/application_db_context.js";
 import { TabsModule, Tab } from "../../components/tabs/tabs_module.js";
 import { setUrlParam } from "../../common/router.js";
 import { CommentChainModuleLegacy } from "../../components/comment_chain/comment_chain_module.js";
 import { ActiveViewersModuleLegacy } from "../../components/active_viewers/active_viewers_module.js";
 
-import * as ModalDialog from "../../infrastructure/modal_dialog.js";
-import * as FormManager from "../../services/form_manager.js";
+import * as ModalDialog from "../../sal/components/modal/index.js";
+import * as FormManager from "../../sal/infrastructure/form_manager.js";
 
 import { NewRequestFormComponent } from "../../components/forms/request/new_form/new_request_form.js";
 import { RequestDetailView } from "../../components/request_detail_view/request_detail_view.js";
@@ -24,7 +24,7 @@ import {
   auditOrganizationStore,
   configurationsStore,
 } from "../../infrastructure/store.js";
-import { AuditResponseDocStates } from "../../entities/audit_response_doc.js";
+import { AuditResponseDocStates } from "../../entities/index.js";
 import {
   addTask,
   blockingTasks,
@@ -32,8 +32,6 @@ import {
   runningTasks,
   taskDefs,
 } from "../../services/tasks.js";
-
-import "../../common/knockout_extensions.js";
 
 var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};

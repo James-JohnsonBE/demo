@@ -1,12 +1,15 @@
-import LookupField from "../fields/lookup_field.js";
-import BlobField from "../fields/blob_field.js";
-import ConstrainedEntity from "../primitives/constrained_entity.js";
+import { LookupField, BlobField } from "../sal/fields/index.js";
+
+import { ConstrainedEntity } from "../sal/primitives/constrained_entity.js";
+
 import { AuditRequest } from "./audit_request.js";
 import { Comment } from "../value_objects/comment.js";
 import { ActiveViewer } from "../value_objects/active_viewer.js";
 
 import { ActiveViewersComponent } from "../components/active_viewers/active_viewers_module.js";
 import { CommentChainComponent } from "../components/comment_chain/comment_chain_module.js";
+
+import { appContext } from "../infrastructure/application_db_context.js";
 
 export class AuditRequestsInternal extends ConstrainedEntity {
   constructor(params) {
@@ -29,6 +32,7 @@ export class AuditRequestsInternal extends ConstrainedEntity {
     displayName: "Request",
     type: AuditRequest,
     lookupCol: "Title",
+    entitySet: appContext.AuditRequests,
   });
 
   commentChainComponent = new CommentChainComponent({

@@ -1,6 +1,8 @@
 import { appContext } from "../../infrastructure/application_db_context.js";
-import { registerComponent } from "../../infrastructure/register_components.js";
-import * as ModalDialog from "../../infrastructure/modal_dialog.js";
+import { registerComponent } from "../../sal/infrastructure/index.js";
+
+import * as ModalDialog from "../../sal/components/modal/index.js";
+
 import {
   deleteRequestCoversheetById,
   uploadRequestCoversheetFile,
@@ -12,9 +14,13 @@ import {
 } from "../../services/audit_response_service.js";
 import { Tab, TabsModule } from "../tabs/tabs_module.js";
 import { getUrlParam } from "../../common/router.js";
-import { AuditResponseStates } from "../../entities/audit_response.js";
-import { AuditResponseDocStates } from "../../entities/audit_response_doc.js";
-import { AUDITREQUESTSTATES } from "../../entities/audit_request.js";
+
+import {
+  AUDITREQUESTSTATES,
+  AuditResponseStates,
+  AuditResponseDocStates,
+} from "../../entities/index.js";
+
 import { m_fnRefreshData } from "../../pages/ia_db/ia_db_services.js";
 import { ConfirmApproveResponseDocForm } from "../forms/response_doc/confirm_approve/confirm_approve_response_doc_form.js";
 import { ConfirmRejectResponseDocForm } from "../forms/response_doc/confirm_reject/confirm_reject_response_doc_form.js";
