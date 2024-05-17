@@ -1,0 +1,239 @@
+<!-- All Common Resources Reference on all Pages. Include as Separate CEWP. -->
+
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="/sites/CGFS/Style Library/apps/audit/lib/jquery-ui-1.13.2/jquery-ui.theme.min.css"
+/>
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="/sites/CGFS/Style Library/apps/audit/lib/tablesorter-2.31.3/css/theme.default.min.css"
+/>
+<link
+  rel="stylesheet"
+  href="/sites/CGFS/Style Library/apps/audit/lib/fontawesome-6.5.1/css/fontawesome.min.css"
+/>
+<link
+  rel="stylesheet"
+  href="/sites/CGFS/Style Library/apps/audit/lib/fontawesome-6.5.1/css/solid.min.css"
+/>
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="/sites/CGFS/Style Library/apps/audit/src/Audit_Styles.css"
+/>
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="/sites/CGFS/Style Library/apps/audit/src/Audit_Page_Reports.css"
+/>
+
+<script
+  type="text/javascript"
+  src="/sites/CGFS/Style Library/apps/audit/lib/jquery-3.7.1.min.js"
+></script>
+
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.2/dist/quill.js"></script>
+<link
+  href="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.2/dist/quill.snow.css"
+  rel="stylesheet"
+/>
+
+<!-- to remove -->
+<!-- Still referenced in pages: 
+  Permissions 
+  Report_RequestStatus 
+  SP_DB
+-->
+
+<script
+  type="text/javascript"
+  src="/sites/CGFS/Style Library/apps/audit/lib/jquery-ui-1.13.2/jquery-ui.min.js"
+></script>
+
+<!-- <script type="text/javascript" src="../SiteAssets/js/jsrender.min.js"></script> -->
+
+<!-- /to remove -->
+
+<!-- SharePoint Cruft -->
+<script type="text/javascript" src="../Apps/_layouts/15/sp.runtime.js"></script>
+<script
+  type="text/javascript"
+  src="/_layouts/15/ScriptResx.ashx?name=sp.res&culture=en-us"
+></script>
+<script type="text/javascript" src="../Apps/_layouts/15/sp.js"></script>
+<script type="text/javascript" src="../Apps/_layouts/15/sp.init.js"></script>
+<script
+  type="text/javascript"
+  src="../Apps/_layouts/15/sp.ui.dialog.js"
+></script>
+<script
+  type="text/javascript"
+  src="../Apps/_layouts/15/clienttemplates.js"
+></script>
+<script
+  type="text/javascript"
+  src="../Apps/_layouts/15/clientforms.js"
+></script>
+<script
+  type="text/javascript"
+  src="../Apps/_layouts/15/clientpeoplepicker.js"
+></script>
+<script type="text/javascript" src="../Apps/_layouts/15/autofill.js"></script>
+<!-- /SharePoint Cruft -->
+
+<!-- <script
+  defer
+  src="/sites/CGFS/Style Library/apps/audit/lib/fontawesome-6.5.1/js/fontawesome.min.js"
+></script>
+<script
+  defer
+  src="/sites/CGFS/Style Library/apps/audit/lib/fontawesome-6.5.1/js/solid.min.js"
+></script> -->
+<script
+  type="text/javascript"
+  src="/sites/CGFS/Style Library/apps/audit/lib/tablesorter-2.31.3/js/jquery.tablesorter.min.js"
+></script>
+<script
+  type="text/javascript"
+  src="/sites/CGFS/Style Library/apps/audit/lib/knockout-3.5.1.js"
+></script>
+
+<script
+  type="module"
+  src="/sites/CGFS/Style Library/apps/audit/src/common/KnockoutExtensions.js"
+></script>
+<script
+  type="text/javascript"
+  src="/sites/CGFS/Style Library/apps/audit/src/common/Utilities.js"
+></script>
+
+<script
+  defer
+  src="/sites/CGFS/Style Library/apps/audit/lib/webcomponents/searchselect/searchselect.js"
+></script>
+
+<!-- TODO: Break these out into their individual files! -->
+<div class="audit">
+  <!-- ko if: 'currentDialog' in $root -->
+  <dialog id="dlgModalDialog" class="card bg-dark draggable" data-bind="">
+    <!-- Can't use 'with: currentDialog' since we need to register our 
+      javascript event listeners for grabbing and resizing -->
+    <div class="card-header bg-dark grabber">
+      <h2 class="card-title" data-bind="text: currentDialog()?.title"></h2>
+      <h2 class="card-title">
+        <i
+          class="fa-solid fa-xmark pointer"
+          data-bind="click: currentDialog()?.close"
+        ></i>
+      </h2>
+    </div>
+    <!-- ko with: currentDialog -->
+    <div class="dimmer" data-bind="css: {'active': form.saving }">
+      <span class="loader"></span>
+      <ul class="" data-bind="foreach: $root.blockingTasks">
+        <li data-bind="text: msg + '...'"></li>
+      </ul>
+    </div>
+    <div
+      class="card-body"
+      data-bind="component: { name: form.componentName, params: form.params }"
+    ></div>
+    <div class="card-actions">
+      <button
+        style
+        type="button"
+        class="btn btn-danger"
+        data-bind="click: clickClose"
+      >
+        Cancel
+      </button>
+    </div>
+    <!-- /ko -->
+  </dialog>
+  <!-- /ko -->
+
+  <!-- ko if: 'blockingTasks' in $root -->
+  <!-- ko with: blockingTasks -->
+  <div class="tasks blocking dimmer" data-bind="css: {'active': $data.length}">
+    <span class="loader"></span>
+    <ul class="" data-bind="foreach: $data">
+      <li data-bind="text: msg + '... ' + Status()"></li>
+    </ul>
+  </div>
+  <!-- /ko -->
+
+  <!-- ko with: runningTasks -->
+  <div class="tasks running">
+    <ul class="" data-bind="foreach: $data">
+      <li data-bind="text: msg + '... ' + Status()"></li>
+    </ul>
+  </div>
+  <!-- /ko -->
+  <!-- /ko -->
+
+  <template id="search-select-template">
+    <link
+      rel="stylesheet"
+      href="/sites/CGFS/Style Library/apps/audit/lib/webcomponents/SearchSelect/styles.css"
+    />
+    <!-- Hide the element, stylesheet overrides on load -->
+    <style>
+      .search-group {
+        display: none;
+      }
+    </style>
+    <div id="search-group" class="search-group" tabindex="-1">
+      <div id="selected-items-text"></div>
+      <div class="search-input-group" tabindex="-1">
+        <input
+          id="search-input"
+          class="search-input"
+          type="text"
+          autocomplete="off"
+        />
+        <div class="vertical-spacer"></div>
+      </div>
+      <ul id="filtered-items-text" class="filtered-items"></ul>
+    </div>
+    <div id="icons" class="hidden" style="display: none">
+      <div id="icon-close" style="display: none; width: 0px; height: 0px">
+        <svg
+          style="display: none; max-width: 2rem; max-height: 2rem"
+          class="position-absolute top-50 start-50 translate-middle"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          ></path>
+        </svg>
+      </div>
+      <div id="icon-caret-down">
+        <svg
+          id="svg-caret-down"
+          width="24px"
+          height="24px"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M6.1018 8C5.02785 8 4.45387 9.2649 5.16108 10.0731L10.6829 16.3838C11.3801 17.1806 12.6197 17.1806 13.3169 16.3838L18.8388 10.0731C19.5459 9.2649 18.972 8 17.898 8H6.1018Z"
+            fill="#212121"
+          />
+        </svg>
+      </div>
+    </div>
+  </template>
+</div>
+
+<style></style>
+
+<script defer></script>

@@ -1,0 +1,23 @@
+﻿<div class="audit">
+  <div style="padding-bottom: 10px">
+    <a
+      title="Refresh this page"
+      href="javascript:void(0)"
+      onclick="Audit.Common.Utilities.Refresh()"
+      ><span class="ui-icon ui-icon-refresh"></span>Refresh</a
+    >
+    <span id="lblFilteredOn" style="padding-left: 10px"></span>
+  </div>
+
+  <div id="divExplorerView"></div>
+</div>
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="/sites/CGFS/Style Library/apps/audit/src/Audit_Styles_Hide_Ribbon.css"
+/>
+
+<script
+  type="text/javascript"
+  src="/sites/CGFS/Style Library/apps/audit/src/pages/EA_DB/EA_DB.js"
+></script>

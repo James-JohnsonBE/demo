@@ -1,0 +1,73 @@
+<label class="fw-semibold"
+  ><span data-bind="text: displayName"></span
+  ><span data-bind="if: isRequired" class="fw-bold text-danger">*</span>:
+</label>
+<div class="row row-cols-auto" data-bind="foreach: GetSelectedOptions">
+  <div class="col pb-1">
+    <div class="input-group input-group-sm">
+      <div
+        class="input-group-text"
+        data-bind="text: $parent.optionsText($data)"
+      ></div>
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary"
+        style="min-width: 1.5rem"
+        data-bind="click: $parent.removeSelection"
+      >
+        <svg
+          class="position-absolute top-50 start-50 translate-middle"
+          style="width: 1rem; height: 1rem"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          ></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+<div
+  tabindex="-1"
+  data-bind="event: {
+    focusin: setInputGroupFocus,
+    focusout: removeInputGroupFocus,
+    }"
+  class="position-relative"
+>
+  <input
+    placeholder="Search to select..."
+    class="form-control form-control-sm"
+    data-bind="textInput: FilterText"
+  />
+  <div
+    data-bind="foreach: FilteredOptions, visible: InputGroupFocused"
+    class="list-group overflow-y-scroll position-absolute w-100"
+    style="max-height: 200px"
+  >
+    <button
+      type="button"
+      class="list-group-item list-group-item-action z-3"
+      data-bind="click: $parent.addSelection, 
+        text: $parent.optionsText($data)"
+    ></button>
+  </div>
+</div>
+<!-- ko if: instructions -->
+<div
+  class="fw-lighter fst-italic text-secondary"
+  data-bind="html: instructions"
+></div>
+<!-- /ko -->
+<!-- ko if: ShowErrors -->
+<!-- ko foreach: Errors -->
+<div class="fw-semibold text-danger" data-bind="text: description"></div>
+<!-- /ko -->
+<!-- /ko -->
