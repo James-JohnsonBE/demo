@@ -34,3 +34,8 @@ http://cgfs16index1dev:31000/sites/audit/_api/web/getFileByServerRelativeUrl(@fi
 https://usdos.sharepoint.com/sites/CGFS/EX/IT/TESTS/AUDIT/_api/web/GetFolderByServerRelativePath(DecodedUrl=@a1)/Files/AddStubUsingPath(DecodedUrl=@a2)/StartUploadFile(uploadId=@a3)?@a1=%27%2Fsites%2FCGFS%2FEX%2FIT%2FTESTS%2FAUDIT%2FAuditResponseDocs%2FTest%2DLC223%2DAUDIT%5FTESTING%5FBE%2D1%27&@a2=%27MediumUpload%2Epng%27&@a3=guid%27803efaf6-c2de-474a-9662-8a98d1604675%27
 https://usdos.sharepoint.com/sites/CGFS/EX/IT/TESTS/AUDIT/_api/web/GetFileByServerRelativePath(DecodedUrl=@a1)/ContinueUpload(uploadId=@a2,fileOffset=@a3)?@a1=%27%2Fsites%2FCGFS%2FEX%2FIT%2FTESTS%2FAUDIT%2FAuditResponseDocs%2FTest%2DLC223%2DAUDIT%5FTESTING%5FBE%2D1%2FMediumUpload%2Epng%27&@a2=guid%27803efaf6-c2de-474a-9662-8a98d1604675%27&@a3=0
 https://usdos.sharepoint.com/sites/CGFS/EX/IT/TESTS/AUDIT/_api/web/GetFileByServerRelativePath(DecodedUrl=@a1)/FinishUploadWithChecksum(uploadId=@a2,fileOffset=@a3,checksum=@a4)?@a1=%27%2Fsites%2FCGFS%2FEX%2FIT%2FTESTS%2FAUDIT%2FAuditResponseDocs%2FTest%2DLC223%2DAUDIT%5FTESTING%5FBE%2D1%2FMediumUpload%2Epng%27&@a2=guid%27803efaf6-c2de-474a-9662-8a98d1604675%27&@a3=262144000&@a4=%27AAAAAAAAAAAAAAAAAADgEAAAAAA%3D%27&$Select=ServerRelativeUrl,UniqueId,Name,VroomItemID,VroomDriveID,ServerRedirectedUrl&$Expand=ListItemAllFields
+
+<p>
+  building using ESBuild: .\node_modules\.bin\esbuild src/Pages/IA_DB/IA_DB.js
+  --bundle --outfile=dist/IA_DB.js
+</p>

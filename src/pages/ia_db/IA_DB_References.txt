@@ -1,0 +1,815 @@
+﻿<iframe id="CsvExpFrame" style="display: none"></iframe>
+
+<div id="divRequestID" style="display: none">
+  not in use anymore. do not delete, this is used by the request edit list form
+</div>
+<div class="audit">
+  <div
+    id="divCounter"
+    style="display: none"
+    title="used to auto refresh the page"
+  >
+    1200
+  </div>
+
+  <div id="divIA" class="audit-body" style="display: none">
+    <div class="quick-info">
+      <div id="divLoading">Please Wait... Loading</div>
+      <div
+        id="divRequestsThatNeedToClose"
+        class="status-set-container"
+        data-bind="visible: arrRequestsThatNeedClosing().length > 0"
+      >
+        <fieldset>
+          <legend>
+            <span class="ui-icon ui-icon-alert"></span
+            ><span data-bind="text: arrRequestsThatNeedClosing().length"></span>
+            Requests Need Closing
+          </legend>
+          <table id="tblRequestsThatNeedToClose" class="tablesorter report">
+            <thead>
+              <tr valign="top">
+                <th class="sorter-false" nowrap="nowrap">Request ID</th>
+                <th class="sorter-false" nowrap="nowrap">
+                  Last Response Closed
+                </th>
+              </tr>
+            </thead>
+            <tbody data-bind="foreach: arrRequestsThatNeedClosing">
+              <tr>
+                <td>
+                  <button
+                    type="button"
+                    class="btn btn-link primary fw-bold"
+                    title="Click here to Go to this Request"
+                    data-bind="click: $root.ClickGoToRequest, text: number"
+                  ></button>
+                </td>
+                <td>
+                  <b><span data-bind="text: lastResponseId"></span></b
+                  >&nbsp;on&nbsp;<b
+                    ><span data-bind="text: sLastClosedDate"></span></b
+                  >&nbsp;by&nbsp;<b
+                    ><span data-bind="text: lastClosedBy"></span
+                  ></b>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </fieldset>
+      </div>
+      <div
+        id="divRequestsWithNoEmailSent"
+        class="status-set-container"
+        title="Click here to View"
+        data-bind="visible: arrRequestsWithNoEmailSent().length > 0"
+      >
+        <fieldset style="border: 0px solid white">
+          <legend class="warning" style="color: red">
+            <span class="ui-icon ui-icon-alert"></span
+            ><a href="javascript:void(0)"
+              ><span
+                data-bind="text: arrRequestsWithNoEmailSent().length"
+              ></span>
+              Requests need Emails sent out</a
+            >
+          </legend>
+          <div id="divRequestsWithNoEmailSentItems" class="collapsed">
+            <ul data-bind="foreach: arrRequestsWithNoEmailSent">
+              <li>
+                <a
+                  href="javascript:void(0);"
+                  title="Go to Request Details"
+                  data-bind="click: $root.ClickGoToRequest"
+                  ><span data-bind="text: title"></span
+                ></a>
+              </li>
+            </ul>
+          </div>
+        </fieldset>
+      </div>
+      <div
+        id="divResponsesSubmitted"
+        class="status-set-container"
+        title="Click here to View"
+        data-bind="visible: arrResponsesSubmittedByAO().length > 0"
+      >
+        <fieldset style="border: 0px solid white">
+          <legend class="warning" style="color: red">
+            <span class="ui-icon ui-icon-alert"></span
+            ><a href="javascript:void(0)"
+              ><span
+                data-bind="text: arrResponsesSubmittedByAO().length"
+              ></span>
+              Responses have been Submitted by the Action Offices</a
+            >
+          </legend>
+          <div id="divResponsesSubmittedItems" class="collapsed">
+            <ul data-bind="foreach: arrResponsesSubmittedByAO">
+              <li>
+                <a
+                  href="javascript:void(0);"
+                  title="Go to Request Details"
+                  data-bind="click: $root.ClickGoToRequest"
+                  ><span data-bind="text: title"></span
+                ></a>
+              </li>
+            </ul>
+          </div>
+        </fieldset>
+      </div>
+      <div
+        id="divRequestsAlmostInternalDue"
+        class="status-set-container"
+        title="Click here to View"
+        data-bind="visible: arrRequestsInternalAlmostDue().length > 0"
+      >
+        <fieldset style="border: 0px solid white">
+          <legend class="warning" style="color: red">
+            <span class="ui-icon ui-icon-alert"></span
+            ><a href="javascript:void(0)"
+              ><span
+                data-bind="text: arrRequestsInternalAlmostDue().length"
+              ></span>
+              Requests are reaching their Internal Due Date</a
+            >
+          </legend>
+          <div id="divRequestsAlmostInternalDueItems" class="collapsed">
+            <ul data-bind="foreach: arrRequestsInternalAlmostDue">
+              <li>
+                <a
+                  href="javascript:void(0);"
+                  title="Go to Request Details"
+                  data-bind="click: $root.ClickGoToRequest"
+                  ><span
+                    data-bind="text: title + ' (' + internalDueDate + ')'"
+                  ></span
+                ></a>
+              </li>
+            </ul>
+          </div>
+        </fieldset>
+      </div>
+      <div
+        id="divRequestsPastInternalDue"
+        class="status-set-container"
+        title="Click here to View"
+        data-bind="visible: arrRequestsInternalPastDue().length > 0"
+      >
+        <fieldset style="border: 0px solid white">
+          <legend class="warning" style="color: red">
+            <span class="ui-icon ui-icon-alert"></span
+            ><a href="javascript:void(0)"
+              ><span
+                data-bind="text: arrRequestsInternalPastDue().length"
+              ></span>
+              Requests have PASSED their Internal Due Date</a
+            >
+          </legend>
+          <div id="divRequestsPastInternalDueItems" class="collapsed">
+            <ul data-bind="foreach: arrRequestsInternalPastDue">
+              <li>
+                <a
+                  href="javascript:void(0);"
+                  title="Go to Request Details"
+                  data-bind="click: $root.ClickGoToRequest"
+                  ><span
+                    data-bind="text: title + ' (' + internalDueDate + ')'"
+                  ></span
+                ></a>
+              </li>
+            </ul>
+          </div>
+        </fieldset>
+      </div>
+      <div
+        id="divRequestsAlmostDue"
+        class="status-set-container"
+        title="Click here to View"
+        data-bind="visible: arrRequestsAlmostDue().length > 0"
+      >
+        <fieldset style="border: 0px solid white">
+          <legend class="warning" style="color: red">
+            <span class="ui-icon ui-icon-alert"></span
+            ><a href="javascript:void(0)"
+              ><span data-bind="text: arrRequestsAlmostDue().length"></span>
+              Requests are reaching their Due Date</a
+            >
+          </legend>
+          <div id="divRequestsAlmostDueItems" class="collapsed">
+            <ul data-bind="foreach: arrRequestsAlmostDue">
+              <li>
+                <a
+                  href="javascript:void(0);"
+                  title="Go to Request Details"
+                  data-bind="click: $root.ClickGoToRequest"
+                  ><span data-bind="text: title + ' (' + dueDate + ')'"></span
+                ></a>
+              </li>
+            </ul>
+          </div>
+        </fieldset>
+      </div>
+      <div
+        id="divRequestsPastDue"
+        class="status-set-container"
+        title="Click here to View"
+        data-bind="visible: arrRequestsPastDue().length > 0"
+      >
+        <fieldset style="border: 0px solid white">
+          <legend class="warning" style="color: red">
+            <span class="ui-icon ui-icon-alert"></span
+            ><a href="javascript:void(0)"
+              ><span data-bind="text: arrRequestsPastDue().length"></span>
+              Requests have PASSED their Due Date</a
+            >
+          </legend>
+          <div id="divRequestsPastDueItems" class="collapsed">
+            <ul data-bind="foreach: arrRequestsPastDue">
+              <li>
+                <a
+                  href="javascript:void(0);"
+                  title="Go to Request Details"
+                  data-bind="click: $root.ClickGoToRequest"
+                  ><span data-bind="text: title + ' (' + dueDate + ')'"></span
+                ></a>
+              </li>
+            </ul>
+          </div>
+        </fieldset>
+      </div>
+      <div
+        id="divCheckedOutResponseDocs"
+        class="status-set-container"
+        title="Click here to View"
+        data-bind="visible: arrResponseDocsCheckedOut().length > 0"
+      >
+        <fieldset style="border: 0px solid white">
+          <legend class="warning" style="color: red">
+            <span class="ui-icon ui-icon-alert"></span
+            ><a href="javascript:void(0)"
+              ><span
+                data-bind="text: arrResponseDocsCheckedOut().length"
+              ></span>
+              Response Documents are Checked Out</a
+            >
+          </legend>
+          <div id="divCheckedOutResponseDocsItems" class="collapsed">
+            <ul data-bind="foreach: arrResponseDocsCheckedOut">
+              <li>
+                <a
+                  href="javascript:void(0);"
+                  title="Go to Request Details"
+                  data-bind="click: $root.ClickGoToRequest"
+                  ><span data-bind="text: title"></span
+                ></a>
+              </li>
+            </ul>
+          </div>
+        </fieldset>
+      </div>
+      <div
+        id="divResponsesWithUnsubmittedResponsDocs"
+        class="status-set-container"
+        data-bind="visible: arrResponsesWithUnsubmittedResponseDocs().length > 0"
+      >
+        <fieldset style="border: 0px solid white">
+          <legend class="warning" style="color: red">
+            <span class="ui-icon ui-icon-alert"></span
+            ><a href="javascript:void(0)" title="Click here to View"
+              ><span
+                data-bind="text: arrResponsesWithUnsubmittedResponseDocs().length"
+              ></span>
+              Responses have Unsubmitted Response Documents</a
+            >
+          </legend>
+          <div
+            id="divResponsesWithUnsubmittedResponseDocsItems"
+            class="collapsed"
+          >
+            <table class="tablesorter">
+              <thead>
+                <tr>
+                  <!-- <th>Response ID</th> -->
+                  <th>Title</th>
+                  <th>Modified</th>
+                </tr>
+              </thead>
+              <tbody
+                data-bind="foreach: arrResponsesWithUnsubmittedResponseDocs"
+              >
+                <tr>
+                  <td colspan="2">
+                    <span
+                      title="Go to Response Details"
+                      class="btn btn-link fw-semibold primary"
+                      data-bind="text: title + ' (' + unsubmittedDocs.length + ' documents)', 
+                        click: $root.ClickGoToRequest"
+                    ></span>
+                  </td>
+                </tr>
+                <!-- ko foreach: unsubmittedDocs -->
+                <tr>
+                  <td>
+                    <a
+                      title="Click to Download"
+                      data-bind="text: fileName, downloadLink: '../_layouts/download.aspx?SourceUrl=:folder/:fileName'"
+                    ></a>
+                  </td>
+                  <td data-bind="text: modifiedDate"></td>
+                </tr>
+                <!-- /ko -->
+              </tbody>
+            </table>
+          </div>
+        </fieldset>
+      </div>
+      <div
+        id="divRequestsWithNoResponse"
+        class="status-set-container"
+        title="Click here to View"
+        data-bind="visible: arrRequestsWithNoResponses().length > 0"
+      >
+        <fieldset style="border: 0px solid white">
+          <legend class="warning" style="color: red">
+            <span class="ui-icon ui-icon-alert"></span
+            ><a href="javascript:void(0)"
+              ><span
+                data-bind="text: arrRequestsWithNoResponses().length"
+              ></span>
+              Requests have 0 Responses</a
+            >
+          </legend>
+          <div id="divRequestsWithNoResponseItems" class="collapsed">
+            <ul data-bind="foreach: arrRequestsWithNoResponses">
+              <li>
+                <a
+                  href="javascript:void(0);"
+                  title="Go to Request Details"
+                  data-bind="click: $root.ClickGoToRequest"
+                  ><span data-bind="text: title"></span
+                ></a>
+              </li>
+            </ul>
+          </div>
+        </fieldset>
+      </div>
+    </div>
+    <div class="reports-container">
+      <div class="quick-links">
+        <div>
+          <a
+            title="Refresh this page"
+            href="javascript:void(0)"
+            data-bind="click: refresh"
+            ><span class="ui-icon ui-icon-refresh"></span>Refresh</a
+          >
+        </div>
+        <div>
+          <a
+            title="View User Manuals"
+            href="javascript:void(0)"
+            onclick="Audit.Common.Utilities.ViewUserManuals()"
+            ><span class="ui-icon ui-icon-help"></span>User Manuals</a
+          >
+        </div>
+        <div>
+          <a
+            title="View Response Documents Uploaded by Action Offices Today but not yet Submitted"
+            href="javascript:void(0)"
+            onclick="Audit.IAReport.Report.ViewResponseDocsToday()"
+            ><span class="ui-icon ui-icon-search"></span>View Today's
+            Un-submitted Response Documents</a
+          >
+        </div>
+        <div>
+          <a
+            title="View Response Documents Returned to GFS"
+            href="javascript:void(0)"
+            onclick="Audit.IAReport.Report.ViewReturnedDocs()"
+            ><span class="ui-icon ui-icon-search"></span>View Response Documents
+            Returned to GFS</a
+          >
+        </div>
+        <div>
+          <a
+            title="View Request, Response and Site Permissions"
+            href="javascript:void(0)"
+            onclick="Audit.IAReport.Report.ViewPermissions()"
+            ><span class="ui-icon ui-icon-locked"></span>View Permissions</a
+          >
+        </div>
+        <div>
+          <a
+            title="View Late Requests"
+            href="javascript:void(0)"
+            onclick="Audit.IAReport.Report.ViewLateRequests()"
+            ><span class="ui-icon ui-icon-clock"></span>View Late Requests</a
+          >
+        </div>
+        <div>
+          <a
+            id="linkSubmitBulkReq"
+            href="javascript:void(0)"
+            data-bind="click: ClickBulkAddRequest"
+            ><span class="ui-icon ui-icon-plus"></span>Bulk Add Request</a
+          >
+        </div>
+        <div>
+          <a
+            id="linkSubmitNewReq"
+            href="javascript:void(0)"
+            data-bind="click: ClickNewRequest"
+            ><span class="ui-icon ui-icon-plus"></span>Create a New Request</a
+          >
+        </div>
+      </div>
+      <div id="tabs" style="margin-top: 20px">
+        <!-- ko using: tabs -->
+        <ul class="ui-tabs-nav" data-bind="foreach: tabOpts">
+          <li
+            data-bind="text: linkText, 
+            click: $parent.clickTabLink, 
+            css: {active: $parent.isSelected($data)}"
+          ></li>
+        </ul>
+        <!-- ko foreach: tabOpts -->
+        <div
+          data-bind="template: {
+              name: template.id,
+              data: template.data
+            },
+            visible: $parent.isSelected($data)"
+        ></div>
+        <!-- /ko -->
+        <!-- /ko -->
+      </div>
+    </div>
+  </div>
+  <div
+    id="divRanBulkUpdate"
+    title="Do not delete Used for checking if bulk update ran"
+    style="display: none"
+  ></div>
+</div>
+
+<script id="requestStatusReportTemplate" type="text/html">
+  <div
+    class="quick-links secondary"
+    data-bind="visible: arrRequests().length > 0"
+  >
+    <a
+      id="btnPrint1"
+      title="Click here to Print"
+      href="javascript:void(0)"
+      class="hideOnPrint"
+      ><span class="ui-icon ui-icon-print">Print</span></a
+    >
+    <a class="export1 hideOnPrint" title="Export to CSV" href="#"
+      ><span class="ui-icon ui-icon-disk">Export to CSV</span></a
+    >
+    <a
+      id="btnViewAllRequests"
+      title="Clear All Filters and View All Requests"
+      href="javascript:void(0)"
+      data-bind="visible: arrFilteredRequestsCount() < arrRequests().length, click: ClearFiltersRequestTab"
+      ><span class="ui-icon ui-icon-circle-zoomout"></span>View All Requests</a
+    >
+  </div>
+  <div id="divStatusReportRequests">
+    <table id="tblStatusReportRequests" class="tablesorter report">
+      <thead>
+        <tr
+          valign="top"
+          class="rowFilters"
+          data-bind="visible: arrRequests().length > 0"
+        >
+          <th class="sorter-false filter" nowrap="nowrap">
+            <select
+              id="ddlRequestRequestID"
+              data-bind="options: $root.ddOptionsRequestTabRequestID, value: filterRequestTabRequestID, optionsCaption: '-Select-'"
+            ></select>
+          </th>
+          <th class="sorter-false" nowrap="nowrap"></th>
+          <th class="sorter-false filter" nowrap="nowrap">
+            <select
+              id="ddlRequestSensitivity"
+              data-bind="options: $root.ddOptionsRequestTabRequestSensitivity, value: filterRequestTabRequestSensitivity, optionsCaption: '-Select-'"
+            ></select>
+          </th>
+          <th class="sorter-false filter" nowrap="nowrap">
+            <select
+              id="ddlRequestStatus"
+              data-bind="options: $root.ddOptionsRequestTabRequestStatus, value: filterRequestTabRequestStatus, optionsCaption: '-Select-'"
+            ></select>
+          </th>
+          <th class="sorter-false filter" nowrap="nowrap">
+            <select
+              id="ddlRequestInternalDueDate"
+              data-bind="options: $root.ddOptionsRequestTabRequestInternalDueDate, value: filterRequestTabRequestInternalDueDate, optionsCaption: '-Select-'"
+            ></select>
+          </th>
+          <th class="sorter-false filter" nowrap="nowrap">
+            <select
+              id="ddlRequestDueDate"
+              data-bind="options: $root.ddOptionsRequestTabRequestDueDate, value: filterRequestTabRequestDueDate, optionsCaption: '-Select-'"
+            ></select>
+          </th>
+          <th class="sorter-false filter" nowrap="nowrap">
+            <select
+              id="ddlRequestSample"
+              data-bind="options: $root.ddOptionsRequestTabRequestSample, value: filterRequestTabRequestSample, optionsCaption: '-Select-'"
+            ></select>
+          </th>
+          <th class="sorter-false filter" nowrap="nowrap">
+            <select
+              id="ddlRequestSentEmail"
+              data-bind="options: $root.ddOptionsRequestTabRequestSentEmail, value: filterRequestTabRequestSentEmail, optionsCaption: '-Select-'"
+            ></select>
+          </th>
+          <th class="sorter-false filter" nowrap="nowrap">
+            <select
+              id="ddlRequestAO"
+              data-bind="options: $root.ddOptionsRequestTabRequestAO, value: filterRequestTabRequestAO, optionsCaption: '-Select-'"
+            ></select>
+          </th>
+          <th class="sorter-false" nowrap="nowrap"></th>
+          <th class="sorter-false" nowrap="nowrap"></th>
+          <th class="sorter-false" nowrap="nowrap"></th>
+        </tr>
+        <tr valign="top">
+          <th class="sorter-true" nowrap="nowrap">Request #</th>
+          <th class="sorter-true" nowrap="nowrap">Subject</th>
+          <th class="sorter-true" nowrap="nowrap">Sensitivity</th>
+          <th class="sorter-true" nowrap="nowrap">Status</th>
+          <th class="sorter-true" nowrap="nowrap">Internal Due Date</th>
+          <th class="sorter-true" nowrap="nowrap">Due Date</th>
+          <th class="sorter-true" nowrap="nowrap">Sample?</th>
+          <th class="sorter-true" nowrap="nowrap">Sent Email?</th>
+          <th class="sorter-false" nowrap="nowrap">Action Office(s)</th>
+          <th class="sorter-true" nowrap="nowrap"># of Responses</th>
+          <th class="sorter-true" nowrap="nowrap"># of Open Responses</th>
+          <th class="sorter-true" nowrap="nowrap"># of Documents</th>
+        </tr>
+      </thead>
+      <tbody id="fbody1">
+        <!-- ko foreach: arrRequests -->
+        <tr
+          class="sr1-request-item"
+          data-bind="template: {name: 'requestTemplate', data: $data}"
+        ></tr>
+        <!-- /ko -->
+      </tbody>
+      <tfoot class="footer">
+        <tr>
+          <th colspan="12">
+            Displaying
+            <span
+              id="spanRequestsDisplayedTotal"
+              style="color: green"
+              data-bind="text: arrFilteredRequestsCount()"
+              >0</span
+            >
+            out of
+            <span
+              id="spanRequestsTotal"
+              style="color: green"
+              data-bind="text: arrRequests().length"
+              >0</span
+            >
+            Requests
+          </th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</script>
+
+<script id="responseStatusReportTemplate" type="text/html">
+  <div
+    id="divButtons"
+    class="quick-links secondary"
+    style="padding-top: 3px"
+    data-bind="visible: arrResponses().length > 0"
+  >
+    <a
+      id="btnPrint2"
+      title="Click here to Print"
+      href="javascript:void(0)"
+      class="hideOnPrint"
+      ><span class="ui-icon ui-icon-print">Print</span></a
+    >
+    <a class="export2 hideOnPrint" title="Export to CSV" href="#"
+      ><span class="ui-icon ui-icon-disk">Export to CSV</span></a
+    >
+    <a
+      id="btnViewAllResponses"
+      title="Clear All Filters and View All Responses"
+      href="javascript:void(0)"
+      data-bind="visible: arrFilteredResponsesCount() < arrResponses().length, click: ClearFiltersResponseTab"
+      ><span class="ui-icon ui-icon-circle-zoomout"></span>View All Responses</a
+    >
+  </div>
+  <div id="divStatusReportRespones">
+    <table
+      id="tblStatusReportResponses"
+      class="tablesorter report"
+      data-bind="visible: arrResponses().length > 0"
+    >
+      <thead>
+        <tr
+          valign="top"
+          class="rowFilters"
+          data-bind="visible: arrResponses().length > 0"
+        >
+          <th class="sorter-false" nowrap="nowrap">
+            <select
+              id="ddlResponseRequestID"
+              data-bind="options: $root.ddOptionsResponseTabRequestID, value: filterResponseTabRequestID, optionsCaption: '-Select-'"
+            ></select>
+          </th>
+          <th class="sorter-false" nowrap="nowrap">
+            <select
+              id="ddlResponseSampleNum"
+              data-bind="options: $root.ddOptionsResponseTabRequestSample, value: filterResponseTabSampleNum, optionsCaption: '-Select-'"
+            ></select>
+          </th>
+          <th class="sorter-false" nowrap="nowrap">
+            <select
+              id="ddlResponseName"
+              data-bind="options: $root.ddOptionsResponseTabResponseTitle, value: filterResponseTabResponseName, optionsCaption: '-Select-'"
+            ></select>
+          </th>
+          <th class="sorter-false" nowrap="nowrap">
+            <select
+              id="ddlResponseRequestInternalDueDate"
+              data-bind="options: $root.ddOptionsResponseTabRequestInternalDueDate, value: filterResponseTabRequestIntDueDate, optionsCaption: '-Select-'"
+            ></select>
+          </th>
+          <th class="sorter-false" nowrap="nowrap">
+            <select
+              id="ddlResponseStatus"
+              data-bind="options: $root.ddOptionsResponseTabResponseStatus, value: filterResponseTabResponseStatus, optionsCaption: '-Select-'"
+            ></select>
+          </th>
+          <th class="sorter-false" nowrap="nowrap">
+            <select
+              id="ddlResponseAO"
+              data-bind="options: $root.ddOptionsResponseTabResponseAO, value: filterResponseTabResponseAO, optionsCaption: '-Select-'"
+            ></select>
+          </th>
+          <th class="sorter-false" nowrap="nowrap">
+            <select></select>
+          </th>
+          <th class="sorter-false" nowrap="nowrap">
+            <select
+              id="ddlResponseModified"
+              data-bind="options: $root.ddOptionsResponseTabResponseModified, value: filterResponseTabResponseModified, optionsCaption: '-Select-'"
+            ></select>
+          </th>
+        </tr>
+        <tr valign="top">
+          <th class="sorter-true" nowrap="nowrap">Request #</th>
+          <th class="sorter-true" nowrap="nowrap">Sample #</th>
+          <th class="sorter-true" nowrap="nowrap">Response Name</th>
+          <th class="sorter-true" nowrap="nowrap">Internal Due Date</th>
+          <th class="sorter-true" nowrap="nowrap">Status</th>
+          <th class="sorter-true" nowrap="nowrap">Action Office</th>
+          <th class="sorter-true" nowrap="nowrap"># of Documents</th>
+          <th class="sorter-true" nowrap="nowrap">Modified</th>
+        </tr>
+      </thead>
+      <tbody id="fbody2">
+        <!-- ko foreach: arrResponses -->
+        <tr class="sr2-response-item">
+          <td class="sr2-response-requestNum">
+            <a
+              href="javascript:void(0);"
+              title="Go to Request Details"
+              data-bind="click: () => Audit.IAReport.Report.GoToRequest(reqNumber, title),
+          text: reqNumber"
+            ></a>
+          </td>
+          <td class="sr2-response-sample" data-bind="text: sample"></td>
+          <td class="sr2-response-title" data-bind="text: title"></td>
+          <td
+            class="sr2-response-internalDueDate"
+            data-bind="text: internalDueDate"
+          ></td>
+          <td class="sr2-response-status" data-bind="text: status"></td>
+          <td class="sr2-response-ao" data-bind="text: ao"></td>
+          <td class="sr2-response-docCount" data-bind="text: docCount"></td>
+          <td class="sr2-response-modified" data-bind="text: modified"></td>
+        </tr>
+        <!-- /ko -->
+      </tbody>
+      <tfoot class="footer">
+        <tr>
+          <th colspan="8">
+            Displaying
+            <span
+              id="spanResponsesDisplayedTotal"
+              style="color: green"
+              data-bind="text: arrFilteredResponsesCount()"
+              >0</span
+            >
+            out of
+            <span
+              id="spanResponsesTotal"
+              style="color: green"
+              data-bind="text: arrResponses().length"
+              >0</span
+            >
+            Responses
+          </th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</script>
+
+<script id="requestDetailTemplate" type="text/html">
+  <div class="quick-links secondary">
+    <span>Request: </span
+    ><select
+      id="ddlReqNum"
+      title="Select a Request Number"
+      data-bind="options: $root.ddOptionsRequestInfoTabRequestName, value: filterRequestInfoTabRequestName, optionsCaption: '-Select-'"
+    ></select>
+  </div>
+  <div
+    data-bind="component: {name: requestDetailViewComponent.componentName, params: requestDetailViewComponent}"
+  ></div>
+</script>
+
+<script id="requestTemplate" type="text/html">
+  <td class="sr1-request-requestNum">
+    <a
+      href="javascript:void(0);"
+      title="Go to Request Details"
+      data-bind="text: reqNumber,
+          click: () => Audit.IAReport.Report.GoToRequest(reqNumber, null)"
+    ></a>
+  </td>
+  <td class="sr1-request-subject" data-bind="text: subject"></td>
+  <td class="sr1-request-sensitivity" data-bind="text: sensitivity"></td>
+  <td class="sr1-request-status" data-bind="text: status"></td>
+  <td
+    class="sr1-request-internalDueDate"
+    data-bind="text: internalDueDate,
+        class: internalDueDateStyle"
+  ></td>
+  <td
+    class="sr1-request-dueDate"
+    data-bind="text: dueDate,
+        class: dueDateStyle"
+  ></td>
+  <td class="sr1-request-sample">
+    <span
+      class="ui-icon"
+      data-bind="class: sample ? 'ui-icon-check' : 'ui-icon-close'"
+    ></span>
+  </td>
+  <td class="sr1-request-sentEmail">
+    <span
+      class="ui-icon"
+      data-bind="class: sentEmail ? 'ui-icon-check' : 'ui-icon-close'"
+    ></span>
+  </td>
+  <td class="sr1-request-actionOffice">
+    <div style="cursor:pointer; white-space:nowrap" title="Click to view">
+      <span class="actionOfficeContainer">
+        <span class="ui-icon ui-icon-search"></span
+        ><a href="javascript:void(0)">View Action Offices</a>
+        <!-- ko foreach: actionOffices -->
+        <div
+          class="sr1-request-actionOffice-item collapsed"
+          data-bind="text: ao"
+        ></div>
+        <!-- /ko -->
+      </span>
+    </div>
+  </td>
+  <td class="sr1-request-responseCount" data-bind="text: responseCount"></td>
+  <td
+    class="sr1-request-responsesOpenCount"
+    data-bind="text: responsesOpenCount"
+  ></td>
+  <td
+    class="sr1-request-responseDocCount"
+    data-bind="text: responseDocCount"
+  ></td>
+</script>
+
+<!-- New Request Detail tab, uses the  -->
+<script id="newRequestTemplate" type="text/html">
+  <div data-bind="component: {name: componentName, params: params}"></div>
+</script>
+
+<div id="divTest"></div>
+
+<script
+  type="module"
+  defer
+  src="/sites/CGFS/Style Library/apps/audit/src/pages/ia_db/ia_db.js"
+></script>
