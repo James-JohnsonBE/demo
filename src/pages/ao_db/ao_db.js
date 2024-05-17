@@ -11,7 +11,7 @@ import {
   taskDefs,
 } from "../../services/tasks.js";
 
-import "../../common/knockout_extensions.js";
+import "../../sal/infrastructure/knockout_extensions.js";
 
 var Audit = window.Audit || {};
 Audit.AOReport = Audit.AOReport || {};
