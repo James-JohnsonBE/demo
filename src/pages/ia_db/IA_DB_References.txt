@@ -477,111 +477,113 @@
     >
   </div>
   <div id="divStatusReportRequests">
-    <table id="tblStatusReportRequests" class="tablesorter report">
-      <thead>
-        <tr
-          valign="top"
-          class="rowFilters"
-          data-bind="visible: arrRequests().length > 0"
-        >
-          <th class="sorter-false filter" nowrap="nowrap">
-            <select
-              id="ddlRequestRequestID"
-              data-bind="options: $root.ddOptionsRequestTabRequestID, value: filterRequestTabRequestID, optionsCaption: '-Select-'"
-            ></select>
-          </th>
-          <th class="sorter-false" nowrap="nowrap"></th>
-          <th class="sorter-false filter" nowrap="nowrap">
-            <select
-              id="ddlRequestSensitivity"
-              data-bind="options: $root.ddOptionsRequestTabRequestSensitivity, value: filterRequestTabRequestSensitivity, optionsCaption: '-Select-'"
-            ></select>
-          </th>
-          <th class="sorter-false filter" nowrap="nowrap">
-            <select
-              id="ddlRequestStatus"
-              data-bind="options: $root.ddOptionsRequestTabRequestStatus, value: filterRequestTabRequestStatus, optionsCaption: '-Select-'"
-            ></select>
-          </th>
-          <th class="sorter-false filter" nowrap="nowrap">
-            <select
-              id="ddlRequestInternalDueDate"
-              data-bind="options: $root.ddOptionsRequestTabRequestInternalDueDate, value: filterRequestTabRequestInternalDueDate, optionsCaption: '-Select-'"
-            ></select>
-          </th>
-          <th class="sorter-false filter" nowrap="nowrap">
-            <select
-              id="ddlRequestDueDate"
-              data-bind="options: $root.ddOptionsRequestTabRequestDueDate, value: filterRequestTabRequestDueDate, optionsCaption: '-Select-'"
-            ></select>
-          </th>
-          <th class="sorter-false filter" nowrap="nowrap">
-            <select
-              id="ddlRequestSample"
-              data-bind="options: $root.ddOptionsRequestTabRequestSample, value: filterRequestTabRequestSample, optionsCaption: '-Select-'"
-            ></select>
-          </th>
-          <th class="sorter-false filter" nowrap="nowrap">
-            <select
-              id="ddlRequestSentEmail"
-              data-bind="options: $root.ddOptionsRequestTabRequestSentEmail, value: filterRequestTabRequestSentEmail, optionsCaption: '-Select-'"
-            ></select>
-          </th>
-          <th class="sorter-false filter" nowrap="nowrap">
-            <select
-              id="ddlRequestAO"
-              data-bind="options: $root.ddOptionsRequestTabRequestAO, value: filterRequestTabRequestAO, optionsCaption: '-Select-'"
-            ></select>
-          </th>
-          <th class="sorter-false" nowrap="nowrap"></th>
-          <th class="sorter-false" nowrap="nowrap"></th>
-          <th class="sorter-false" nowrap="nowrap"></th>
-        </tr>
-        <tr valign="top">
-          <th class="sorter-true" nowrap="nowrap">Request #</th>
-          <th class="sorter-true" nowrap="nowrap">Subject</th>
-          <th class="sorter-true" nowrap="nowrap">Sensitivity</th>
-          <th class="sorter-true" nowrap="nowrap">Status</th>
-          <th class="sorter-true" nowrap="nowrap">Internal Due Date</th>
-          <th class="sorter-true" nowrap="nowrap">Due Date</th>
-          <th class="sorter-true" nowrap="nowrap">Sample?</th>
-          <th class="sorter-true" nowrap="nowrap">Sent Email?</th>
-          <th class="sorter-false" nowrap="nowrap">Action Office(s)</th>
-          <th class="sorter-true" nowrap="nowrap"># of Responses</th>
-          <th class="sorter-true" nowrap="nowrap"># of Open Responses</th>
-          <th class="sorter-true" nowrap="nowrap"># of Documents</th>
-        </tr>
-      </thead>
-      <tbody id="fbody1">
-        <!-- ko foreach: arrRequests -->
-        <tr
-          class="sr1-request-item"
-          data-bind="template: {name: 'requestTemplate', data: $data}"
-        ></tr>
-        <!-- /ko -->
-      </tbody>
-      <tfoot class="footer">
-        <tr>
-          <th colspan="12">
-            Displaying
-            <span
-              id="spanRequestsDisplayedTotal"
-              style="color: green"
-              data-bind="text: arrFilteredRequestsCount()"
-              >0</span
-            >
-            out of
-            <span
-              id="spanRequestsTotal"
-              style="color: green"
-              data-bind="text: arrRequests().length"
-              >0</span
-            >
-            Requests
-          </th>
-        </tr>
-      </tfoot>
-    </table>
+    <data-table>
+      <table id="tblStatusReportRequests" class="tablesorter report">
+        <thead>
+          <tr
+            valign="top"
+            class="rowFilters"
+            data-bind="visible: arrRequests().length > 0"
+          >
+            <th
+              class="sorter-false filter"
+              data-filter="search"
+              nowrap="nowrap"
+            ></th>
+            <th class="sorter-false" data-filter="search" nowrap="nowrap"></th>
+            <th
+              class="sorter-false filter"
+              data-filter="multiselect"
+              nowrap="nowrap"
+            ></th>
+            <th
+              class="sorter-false filter"
+              data-filter="multiselect"
+              nowrap="nowrap"
+            ></th>
+            <th
+              class="sorter-false filter"
+              data-filter="multiselect"
+              nowrap="nowrap"
+            ></th>
+            <th
+              class="sorter-false filter"
+              data-filter="multiselect"
+              nowrap="nowrap"
+            ></th>
+            <th
+              class="sorter-false filter"
+              data-filter="search"
+              nowrap="nowrap"
+            ></th>
+            <th class="sorter-false filter" nowrap="nowrap"></th>
+            <th
+              class="sorter-false filter"
+              data-filter="search"
+              nowrap="nowrap"
+            ></th>
+            <th
+              class="sorter-false"
+              data-filter="multiselect"
+              nowrap="nowrap"
+            ></th>
+            <th
+              class="sorter-false"
+              data-filter="multiselect"
+              nowrap="nowrap"
+            ></th>
+            <th
+              class="sorter-false"
+              data-filter="multiselect"
+              nowrap="nowrap"
+            ></th>
+          </tr>
+          <tr valign="top">
+            <th class="sorter-true" nowrap="nowrap">Request #</th>
+            <th class="sorter-true" nowrap="nowrap">Subject</th>
+            <th class="sorter-true" nowrap="nowrap">Sensitivity</th>
+            <th class="sorter-true" nowrap="nowrap">Status</th>
+            <th class="sorter-true" nowrap="nowrap">Internal Due Date</th>
+            <th class="sorter-true" nowrap="nowrap">Due Date</th>
+            <th class="sorter-true" nowrap="nowrap">Sample?</th>
+            <th class="sorter-true" nowrap="nowrap">Sent Email?</th>
+            <th class="sorter-false" nowrap="nowrap">Action Office(s)</th>
+            <th class="sorter-true" nowrap="nowrap"># of Responses</th>
+            <th class="sorter-true" nowrap="nowrap"># of Open Responses</th>
+            <th class="sorter-true" nowrap="nowrap"># of Documents</th>
+          </tr>
+        </thead>
+        <tbody id="fbody1">
+          <!-- ko foreach: arrRequests -->
+          <tr
+            class="sr1-request-item"
+            data-bind="template: {name: 'requestTemplate', data: $data}"
+          ></tr>
+          <!-- /ko -->
+        </tbody>
+        <tfoot class="footer">
+          <tr>
+            <th colspan="12">
+              Displaying
+              <span
+                id="spanRequestsDisplayedTotal"
+                style="color: green"
+                data-bind="text: arrFilteredRequestsCount()"
+                >0</span
+              >
+              out of
+              <span
+                id="spanRequestsTotal"
+                style="color: green"
+                data-bind="text: arrRequests().length"
+                >0</span
+              >
+              Requests
+            </th>
+          </tr>
+        </tfoot>
+      </table>
+    </data-table>
   </div>
 </script>
 

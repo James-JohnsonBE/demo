@@ -124,6 +124,10 @@
   defer
   src="/sites/CGFS/Style Library/apps/audit/lib/webcomponents/searchselect/searchselect.js"
 ></script>
+<script
+  defer
+  src="/sites/CGFS/Style Library/apps/audit/lib/webcomponents/data-table/data-table.js"
+></script>
 
 <div class="audit">
   <!-- ko if: 'currentDialog' in $root -->
@@ -241,6 +245,15 @@
         </svg>
       </div>
     </div>
+  </template>
+
+  <template id="data-table-template">
+    <!-- <link rel="stylesheet" href="styles.css" /> -->
+    <style>
+      .hidden {
+        display: none;
+      }
+    </style>
   </template>
 </div>
 
