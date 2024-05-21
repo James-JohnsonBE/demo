@@ -36,7 +36,6 @@ Requests Report
 
 Need to add RequestingOffice when querying Request list
 
-- m_fnCreateROEmailLogItem
 - m_fnResetAllDBPerms
 - m_fnResetPageDBPerms
 
@@ -45,3 +44,10 @@ RequestingOffice
 - m_fnCreateROEmailLogItem
 - m_fnCreateROFolder
 - m_fnCheckResponseDocsRoPerms
+
+## Updates
+
+1. Replace Status Tables with components
+2. Add RequestingOffice to list, update queries
+3. Update Page Permissions function
+4.
