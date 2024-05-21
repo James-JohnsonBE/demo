@@ -49,5 +49,6 @@ RequestingOffice
 
 1. Replace Status Tables with components
 2. Add RequestingOffice to list, update queries
-3. Update Page Permissions function
-4.
+3. Add RequestingOffice to RO list, update updates
+4. Update Page Permissions function
+5. Implement RO Permissions Functions
