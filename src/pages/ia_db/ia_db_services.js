@@ -947,11 +947,11 @@ function ViewModel() {
           self.filterResponseTabResponseStatus(m_sResponseStatusToFilterOn);
 
         //$( "#tblStatusReportResponses" ).trigger("update");
-        $("#tblStatusReportRequests").tablesorter({
-          sortList: [[4, 0]],
-          //showProcessing: true,
-          selectorHeaders: ".sorter-true",
-        });
+        // $("#tblStatusReportRequests").tablesorter({
+        //   sortList: [[4, 0]],
+        //   //showProcessing: true,
+        //   selectorHeaders: ".sorter-true",
+        // });
 
         if (self.arrResponses().length > 0) {
           $("#tblStatusReportResponses").tablesorter({

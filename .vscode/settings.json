@@ -7,6 +7,7 @@
         "description": "Application Source Files",
         "files": ["lib/**", "src/**"],
         "exclude": ["**.md", "**.json"],
+        "deployOnSave": ["Audits Style Library"],
         "removeOnChange": ["Audits Style Library"],
         "syncWhenOpen": true
       },
