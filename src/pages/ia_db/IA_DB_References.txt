@@ -454,7 +454,7 @@
 </div>
 
 <script id="requestStatusReportTemplate" type="text/html">
-  <div
+  <!-- <div
     class="quick-links secondary"
     data-bind="visible: arrRequests().length > 0"
   >
@@ -475,10 +475,15 @@
       data-bind="visible: arrFilteredRequestsCount() < arrRequests().length, click: ClearFiltersRequestTab"
       ><span class="ui-icon ui-icon-circle-zoomout"></span>View All Requests</a
     >
-  </div>
+  </div> -->
   <div id="divStatusReportRequests">
     <data-table>
-      <table id="tblStatusReportRequests" class="tablesorter report">
+      <table
+        id="tblStatusReportRequests"
+        data-title="Request Status Report"
+        data-file-prefix="RequestStatusReport_"
+        class="tablesorter report"
+      >
         <thead>
           <tr
             valign="top"
@@ -506,6 +511,7 @@
             <th
               class="sorter-false filter"
               data-filter="multiselect"
+              data-filter-default="Open"
               data-filter-prop="status"
               nowrap="nowrap"
             ></th>
@@ -643,27 +649,6 @@
           </tr>
           <!-- /ko -->
         </tbody>
-        <tfoot class="footer">
-          <tr>
-            <th colspan="12">
-              Displaying
-              <span
-                id="spanRequestsDisplayedTotal"
-                style="color: green"
-                data-bind="text: arrFilteredRequestsCount()"
-                >0</span
-              >
-              out of
-              <span
-                id="spanRequestsTotal"
-                style="color: green"
-                data-bind="text: arrRequests().length"
-                >0</span
-              >
-              Requests
-            </th>
-          </tr>
-        </tfoot>
       </table>
     </data-table>
   </div>
