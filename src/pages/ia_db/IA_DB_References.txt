@@ -566,7 +566,7 @@
             <th class="sorter-true" nowrap="nowrap">Subject</th>
             <th class="sorter-true" nowrap="nowrap">Sensitivity</th>
             <th class="sorter-true" nowrap="nowrap">Status</th>
-            <th class="sorter-true" nowrap="nowrap">Internal Due Date</th>
+            <th class="sorter-true desc" nowrap="nowrap">Internal Due Date</th>
             <th class="sorter-true" nowrap="nowrap">Due Date</th>
             <th class="sorter-true" nowrap="nowrap">Sample?</th>
             <th class="sorter-true" nowrap="nowrap">Sent Email?</th>

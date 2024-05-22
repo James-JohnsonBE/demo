@@ -32,6 +32,46 @@ export class DataTable {
     //updateFilters()
   };
 
+  onSortEventHandler = (e) => {
+    const headerCells = this.table.querySelectorAll("thead th.sorter-true");
+
+    let sortOrder = 0;
+    let sortIndex = 0;
+    for (const th of headerCells) {
+      const cellIndex = th.cellIndex;
+      const classList = th.classList;
+      const i = th.querySelector("i");
+      i.classList.remove("fa-sort-down", "fa-sort-up", "fa-sort");
+
+      if (classList.contains("desc")) {
+        i.classList.add("fa-sort-down");
+        sortOrder = 1;
+        sortIndex = cellIndex;
+      } else if (classList.contains("asc")) {
+        i.classList.add("fa-sort-up");
+        sortOrder = -1;
+        sortIndex = cellIndex;
+      } else {
+        i.classList.add("fa-sort");
+      }
+    }
+
+    if (!sortOrder) return;
+
+    var collator = new Intl.Collator([], { numeric: true });
+    const rowsArr = [...this.table.querySelectorAll("tbody tr")];
+
+    rowsArr.sort((tr1, tr2) => {
+      const tr1Text = tr1.cells[sortIndex].textContent;
+      const tr2Text = tr2.cells[sortIndex].textContent;
+      //const comp = tr1Text.localeCompare(tr2Text)
+      const comp = collator.compare(tr1Text, tr2Text);
+      return comp * sortOrder;
+    });
+
+    this.table.querySelector("tbody").append(...rowsArr);
+  };
+
   createSortListeners = () => {
     const headerCells = this.table.querySelectorAll("thead th.sorter-true");
 
@@ -64,19 +104,23 @@ export class DataTable {
         let sortOrder = 0;
         const classList = th.classList;
         if (classList.contains("desc")) {
-          th.querySelector("i").classList.replace("fa-sort-down", "fa-sort-up");
+          //   th.querySelector("i").classList.replace("fa-sort-down", "fa-sort-up");
           classList.replace("desc", "asc");
-          sortOrder = -1;
+          //   sortOrder = -1;
         } else if (classList.contains("asc")) {
-          th.querySelector("i").classList.replace("fa-sort-up", "fa-sort-down");
+          //   th.querySelector("i").classList.replace("fa-sort-up", "fa-sort-down");
           classList.replace("asc", "desc");
-          sortOrder = 1;
+          //   sortOrder = 1;
         } else {
-          th.querySelector("i").classList.add("fa-sort-down");
+          //   th.querySelector("i").classList.add("fa-sort-down");
           classList.add("desc");
-          sortOrder = 1;
+          //   sortOrder = 1;
         }
 
+        const event = new Event("sort");
+        this.table.dispatchEvent(event);
+
+        return;
         var collator = new Intl.Collator([], { numeric: true });
         const rowsArr = [...this.rows];
         rowsArr.sort((tr1, tr2) => {
@@ -102,7 +146,8 @@ export class DataTable {
     let filters = [];
 
     this.table.querySelectorAll("[data-filter]").forEach((filterCell) => {
-      const index = [...filterCell.parentElement.children].indexOf(filterCell);
+      //   const index = [...filterCell.parentElement.children].indexOf(filterCell);
+      const index = filterCell.cellIndex;
 
       const filterType = filterTypes[filterCell.dataset.filter];
 
@@ -193,7 +238,7 @@ export class DataTable {
 
     this.filteredCntElement.innerText = itemCount;
     this.totalCntElement.innerText = itemCount;
-    // this.rowCount = itemCount;
+    this.rowCount = itemCount;
 
     cell.append(
       "Displaying ",
@@ -239,6 +284,9 @@ export class DataTable {
 
     this.createExportOptions();
     this.createRowCount();
+
+    // run our sort for pre-sorted fields
+    this.onSortEventHandler();
   };
 
   connectedCallback() {
@@ -261,6 +309,11 @@ export class DataTable {
       this.onFilterEventHandler
     );
 
+    let sortEventListener = this.table.addEventListener(
+      "sort",
+      this.onSortEventHandler
+    );
+
     const mutationCallback = (mutationList, observer) => {
       if (!mutationList.find((mutation) => mutation.type == "childList"))
         return;
@@ -275,9 +328,9 @@ export class DataTable {
     };
 
     this.mutationObserver = new MutationObserver(mutationCallback);
-    // this.mutationObserver.observe(this.table.querySelector("tbody"), {
-    //   childList: true,
-    // });
+    this.mutationObserver.observe(this.table.querySelector("tbody"), {
+      childList: true,
+    });
 
     this.init();
   }
