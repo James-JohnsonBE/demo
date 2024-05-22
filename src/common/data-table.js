@@ -155,6 +155,9 @@ export class DataTable {
         const filter = new filterType(this.table, index);
         filterCell.replaceChildren(filter.element);
         filters.push(filter);
+        if (filterCell.dataset.filterDefault) {
+          filter.setFilter(filterCell.dataset.filterDefault);
+        }
       }
     });
 
@@ -473,6 +476,11 @@ function multiselectElement(tbl, col) {
   }
 
   // tbl.addEventListener('filter', update)
+  function setFilter(value) {
+    [...selectElem.options]
+      .find((opt) => opt.value == value)
+      ?.setAttribute("selected", "");
+  }
 
   selectElem.addEventListener("change", (e) => {
     const selectedVals = [...selectElem.selectedOptions].map(
@@ -492,6 +500,7 @@ function multiselectElement(tbl, col) {
   populateOptions();
 
   return {
+    setFilter,
     element: selectElem,
     search,
     filter,
