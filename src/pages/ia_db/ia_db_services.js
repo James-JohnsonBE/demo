@@ -33,6 +33,8 @@ import {
   taskDefs,
 } from "../../services/tasks.js";
 
+import { DataTable } from "../../common/index.js";
+
 var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
 
@@ -351,6 +353,7 @@ function ViewModel() {
   };
 
   self.FilterChangedRequestTab = function () {
+    return;
     //	console.log("filter changed");
     setTimeout(function () {
       const timerStart = new Date();
@@ -952,6 +955,8 @@ function ViewModel() {
         //   //showProcessing: true,
         //   selectorHeaders: ".sorter-true",
         // });
+
+        new DataTable(document.getElementById("tblStatusReportRequests"));
 
         if (self.arrResponses().length > 0) {
           $("#tblStatusReportResponses").tablesorter({

@@ -37,6 +37,10 @@ table.tablesorter tr {
   border: 1px DarkGray solid;
 }
 
+table.tablesorter input {
+  color: black;
+}
+
 #tblCommitStatus td span {
   display: flex;
 }
@@ -118,7 +122,7 @@ TABLE.tablesorter THEAD TR .header {
   background-color: Gainsboro;
 }
 
-.Hidden {
+.hidden {
   display: none;
 }
 

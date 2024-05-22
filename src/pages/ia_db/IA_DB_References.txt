@@ -488,38 +488,55 @@
             <th
               class="sorter-false filter"
               data-filter="search"
-              nowrap="nowrap"
-            ></th>
-            <th class="sorter-false" data-filter="search" nowrap="nowrap"></th>
-            <th
-              class="sorter-false filter"
-              data-filter="multiselect"
+              data-filter-prop="ID"
               nowrap="nowrap"
             ></th>
             <th
-              class="sorter-false filter"
-              data-filter="multiselect"
+              class="sorter-false"
+              data-filter="search"
+              data-filter-prop="subject"
               nowrap="nowrap"
             ></th>
             <th
               class="sorter-false filter"
               data-filter="multiselect"
+              data-filter-prop="sensitivity"
               nowrap="nowrap"
             ></th>
             <th
               class="sorter-false filter"
               data-filter="multiselect"
+              data-filter-prop="status"
+              nowrap="nowrap"
+            ></th>
+            <th
+              class="sorter-false filter"
+              data-filter="multiselect"
+              data-filter-prop="internalDueDate"
+              nowrap="nowrap"
+            ></th>
+            <th
+              class="sorter-false filter"
+              data-filter="multiselect"
+              data-filter-prop="dueDate"
+              nowrap="nowrap"
+            ></th>
+            <th
+              class="sorter-false filter"
+              data-filter="multiselect"
+              data-filter-prop="sample"
+              nowrap="nowrap"
+            ></th>
+            <th
+              class="sorter-false filter"
+              data-filter="multiselect"
+              data-filter-prop="sentEmail"
               nowrap="nowrap"
             ></th>
             <th
               class="sorter-false filter"
               data-filter="search"
-              nowrap="nowrap"
-            ></th>
-            <th class="sorter-false filter" nowrap="nowrap"></th>
-            <th
-              class="sorter-false filter"
-              data-filter="search"
+              data-filter-prop="(r) => r.actionOffices.map(ao => ao.ao)"
               nowrap="nowrap"
             ></th>
             <th
@@ -554,11 +571,76 @@
           </tr>
         </thead>
         <tbody id="fbody1">
-          <!-- ko foreach: arrRequests -->
-          <tr
-            class="sr1-request-item"
-            data-bind="template: {name: 'requestTemplate', data: $data}"
-          ></tr>
+          <!-- ko foreach: arrRequests-->
+          <tr class="sr1-request-item">
+            <td class="sr1-request-requestNum">
+              <a
+                href="javascript:void(0);"
+                title="Go to Request Details"
+                data-bind="text: reqNumber,
+                  click: () => Audit.IAReport.Report.GoToRequest(reqNumber, null)"
+              ></a>
+            </td>
+            <td class="sr1-request-subject" data-bind="text: subject"></td>
+            <td
+              class="sr1-request-sensitivity"
+              data-bind="text: sensitivity"
+            ></td>
+            <td class="sr1-request-status" data-bind="text: status"></td>
+            <td
+              class="sr1-request-internalDueDate"
+              data-bind="text: internalDueDate,
+                class: internalDueDateStyle"
+            ></td>
+            <td
+              class="sr1-request-dueDate"
+              data-bind="text: dueDate,
+                class: dueDateStyle"
+            ></td>
+            <td class="sr1-request-sample">
+              <span
+                class="ui-icon"
+                data-bind="class: sample ? 'ui-icon-check' : 'ui-icon-close',
+                text: sample ?? 'false'"
+              ></span>
+            </td>
+            <td class="sr1-request-sentEmail">
+              <span
+                class="ui-icon"
+                data-bind="class: sentEmail ? 'ui-icon-check' : 'ui-icon-close',
+                text: sentEmail ?? 'false'"
+              ></span>
+            </td>
+            <td class="sr1-request-actionOffice">
+              <div
+                style="cursor:pointer; white-space:nowrap"
+                title="Click to view"
+              >
+                <span class="actionOfficeContainer">
+                  <span class="ui-icon ui-icon-search"></span
+                  ><a href="javascript:void(0)">View Action Offices</a>
+                  <!-- ko foreach: actionOffices -->
+                  <div
+                    class="sr1-request-actionOffice-item collapsed"
+                    data-bind="text: ao"
+                  ></div>
+                  <!-- /ko -->
+                </span>
+              </div>
+            </td>
+            <td
+              class="sr1-request-responseCount"
+              data-bind="text: responseCount"
+            ></td>
+            <td
+              class="sr1-request-responsesOpenCount"
+              data-bind="text: responsesOpenCount"
+            ></td>
+            <td
+              class="sr1-request-responseDocCount"
+              data-bind="text: responseDocCount"
+            ></td>
+          </tr>
           <!-- /ko -->
         </tbody>
         <tfoot class="footer">
@@ -744,64 +826,7 @@
   ></div>
 </script>
 
-<script id="requestTemplate" type="text/html">
-  <td class="sr1-request-requestNum">
-    <a
-      href="javascript:void(0);"
-      title="Go to Request Details"
-      data-bind="text: reqNumber,
-          click: () => Audit.IAReport.Report.GoToRequest(reqNumber, null)"
-    ></a>
-  </td>
-  <td class="sr1-request-subject" data-bind="text: subject"></td>
-  <td class="sr1-request-sensitivity" data-bind="text: sensitivity"></td>
-  <td class="sr1-request-status" data-bind="text: status"></td>
-  <td
-    class="sr1-request-internalDueDate"
-    data-bind="text: internalDueDate,
-        class: internalDueDateStyle"
-  ></td>
-  <td
-    class="sr1-request-dueDate"
-    data-bind="text: dueDate,
-        class: dueDateStyle"
-  ></td>
-  <td class="sr1-request-sample">
-    <span
-      class="ui-icon"
-      data-bind="class: sample ? 'ui-icon-check' : 'ui-icon-close'"
-    ></span>
-  </td>
-  <td class="sr1-request-sentEmail">
-    <span
-      class="ui-icon"
-      data-bind="class: sentEmail ? 'ui-icon-check' : 'ui-icon-close'"
-    ></span>
-  </td>
-  <td class="sr1-request-actionOffice">
-    <div style="cursor:pointer; white-space:nowrap" title="Click to view">
-      <span class="actionOfficeContainer">
-        <span class="ui-icon ui-icon-search"></span
-        ><a href="javascript:void(0)">View Action Offices</a>
-        <!-- ko foreach: actionOffices -->
-        <div
-          class="sr1-request-actionOffice-item collapsed"
-          data-bind="text: ao"
-        ></div>
-        <!-- /ko -->
-      </span>
-    </div>
-  </td>
-  <td class="sr1-request-responseCount" data-bind="text: responseCount"></td>
-  <td
-    class="sr1-request-responsesOpenCount"
-    data-bind="text: responsesOpenCount"
-  ></td>
-  <td
-    class="sr1-request-responseDocCount"
-    data-bind="text: responseDocCount"
-  ></td>
-</script>
+<script id="requestTemplate" type="text/html"></script>
 
 <!-- New Request Detail tab, uses the  -->
 <script id="newRequestTemplate" type="text/html">
