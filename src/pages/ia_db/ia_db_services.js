@@ -33,8 +33,6 @@ import {
   taskDefs,
 } from "../../services/tasks.js";
 
-import { DataTable } from "../../common/index.js";
-
 var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
 
@@ -956,7 +954,7 @@ function ViewModel() {
         //   selectorHeaders: ".sorter-true",
         // });
 
-        new DataTable(document.getElementById("tblStatusReportRequests"));
+        // new DataTable(document.getElementById("tblStatusReportRequests"));
 
         if (self.arrResponses().length > 0) {
           $("#tblStatusReportResponses").tablesorter({

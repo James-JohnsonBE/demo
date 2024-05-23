@@ -124,10 +124,10 @@
   defer
   src="/sites/CGFS/Style Library/apps/audit/lib/webcomponents/searchselect/searchselect.js"
 ></script>
-<!-- <script
+<script
   defer
   src="/sites/CGFS/Style Library/apps/audit/lib/webcomponents/data-table/data-table.js"
-></script> -->
+></script>
 
 <div class="audit">
   <!-- ko if: 'currentDialog' in $root -->
