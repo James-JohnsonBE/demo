@@ -529,6 +529,25 @@ table.tablesorter tbody td:hover {
   /* works background-color: blue !important; */
 }
 
+table .rowFilters .filter-date-range {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.25rem;
+  font-weight: normal;
+  color: var(--text-primary);
+}
+
+table .rowFilters .filter-date-range label {
+  display: flex;
+  justify-content: end;
+  gap: 0.25rem;
+}
+
+table .rowFilters .filter-date-range button {
+  align-self: end;
+}
+
 #tblRequests tbody tr:hover {
   background-color: lemonchiffon !important;
 }

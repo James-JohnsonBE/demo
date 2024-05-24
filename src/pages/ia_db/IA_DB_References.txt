@@ -494,7 +494,7 @@
             nowrap="nowrap"
           ></th>
           <th
-            class="sorter-false filter"
+            class="sorter-false"
             data-filter="daterange"
             data-filter-prop="internalDueDate"
             nowrap="nowrap"

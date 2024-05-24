@@ -1760,16 +1760,16 @@ function LoadRequests(m_requestItems) {
       var closedDate = oListItem.get_item("ClosedDate");
 
       dueDate != null
-        ? (dueDate = dueDate.format("MM/dd/yyyy"))
+        ? (dueDate = dueDate.format("yyyy-MM-dd"))
         : (dueDate = "");
       internalDueDate != null
-        ? (internalDueDate = internalDueDate.format("MM/dd/yyyy"))
+        ? (internalDueDate = internalDueDate.format("yyyy-MM-dd"))
         : (internalDueDate = "");
       receiptDate != null
-        ? (receiptDate = receiptDate.format("MM/dd/yyyy"))
+        ? (receiptDate = receiptDate.format("yyyy-MM-dd"))
         : (receiptDate = "");
       closedDate != null
-        ? (closedDate = closedDate.format("MM/dd/yyyy"))
+        ? (closedDate = closedDate.format("yyyy-MM-dd"))
         : (closedDate = "");
 
       var arrAOs = new Array();
@@ -1931,12 +1931,12 @@ function LoadResponses(responseItemsColl) {
 
         var modified = oListItem
           .get_item("Modified")
-          .format("MM/dd/yyyy hh:mm tt");
+          .format("yyyy-MM-dd hh:mm tt");
         responseObject["modified"] = modified;
 
         var closedDate = oListItem.get_item("ClosedDate");
         closedDate != null
-          ? (closedDate = closedDate.format("MM/dd/yyyy"))
+          ? (closedDate = closedDate.format("yyyy-MM-dd"))
           : (closedDate = "");
         responseObject["closedDate"] = closedDate;
 
@@ -2069,7 +2069,7 @@ function m_fnMapResponseDocs(responseDocItemsColl, m_bigMap) {
         oListItem.get_item("ReceiptDate") != null &&
         oListItem.get_item("ReceiptDate") != ""
       )
-        receiptDate = oListItem.get_item("ReceiptDate").format("MM/dd/yyyy");
+        receiptDate = oListItem.get_item("ReceiptDate").format("yyyy-MM-dd");
       responseDocObject["receiptDate"] = receiptDate;
 
       var modifiedDate = "";
@@ -2079,7 +2079,7 @@ function m_fnMapResponseDocs(responseDocItemsColl, m_bigMap) {
       )
         modifiedDate = oListItem
           .get_item("Modified")
-          .format("MM/dd/yyyy hh:mm tt");
+          .format("yyyy-MM-dd hh:mm tt");
       responseDocObject["modifiedDate"] = modifiedDate;
 
       responseDocObject["modifiedBy"] =
@@ -2828,7 +2828,7 @@ function DisplayRequestsThatShouldClose() {
 
             //used in ko databinding
             if (lastClosedDate != null && lastClosedDate != "")
-              sLastClosedDate = lastClosedDate.format("MM/dd/yyyy hh:mm tt");
+              sLastClosedDate = lastClosedDate.format("yyyy-MM-dd hh:mm tt");
           }
         }
 
