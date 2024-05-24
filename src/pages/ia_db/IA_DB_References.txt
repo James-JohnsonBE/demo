@@ -64,17 +64,13 @@
         title="Click here to View"
         data-bind="visible: arrRequestsWithNoEmailSent().length > 0"
       >
-        <fieldset style="border: 0px solid white">
-          <legend class="warning" style="color: red">
+        <details style="border: 0px solid white">
+          <summary class="warning" style="color: red">
             <span class="ui-icon ui-icon-alert"></span
-            ><a href="javascript:void(0)"
-              ><span
-                data-bind="text: arrRequestsWithNoEmailSent().length"
-              ></span>
-              Requests need Emails sent out</a
-            >
-          </legend>
-          <div id="divRequestsWithNoEmailSentItems" class="collapsed">
+            ><span data-bind="text: arrRequestsWithNoEmailSent().length"></span>
+            Requests need Emails sent out
+          </summary>
+          <div id="divRequestsWithNoEmailSentItems" class="">
             <ul data-bind="foreach: arrRequestsWithNoEmailSent">
               <li>
                 <a
@@ -86,7 +82,7 @@
               </li>
             </ul>
           </div>
-        </fieldset>
+        </details>
       </div>
       <div
         id="divResponsesSubmitted"
@@ -94,16 +90,12 @@
         title="Click here to View"
         data-bind="visible: arrResponsesSubmittedByAO().length > 0"
       >
-        <fieldset style="border: 0px solid white">
-          <legend class="warning" style="color: red">
+        <details style="border: 0px solid white">
+          <summary class="warning" style="color: red">
             <span class="ui-icon ui-icon-alert"></span
-            ><a href="javascript:void(0)"
-              ><span
-                data-bind="text: arrResponsesSubmittedByAO().length"
-              ></span>
-              Responses have been Submitted by the Action Offices</a
-            >
-          </legend>
+            ><span data-bind="text: arrResponsesSubmittedByAO().length"></span>
+            Responses have been Submitted by the Action Offices
+          </summary>
           <div id="divResponsesSubmittedItems" class="collapsed">
             <ul data-bind="foreach: arrResponsesSubmittedByAO">
               <li>
@@ -116,7 +108,7 @@
               </li>
             </ul>
           </div>
-        </fieldset>
+        </details>
       </div>
       <div
         id="divRequestsAlmostInternalDue"
@@ -124,16 +116,14 @@
         title="Click here to View"
         data-bind="visible: arrRequestsInternalAlmostDue().length > 0"
       >
-        <fieldset style="border: 0px solid white">
-          <legend class="warning" style="color: red">
+        <details style="border: 0px solid white">
+          <summary class="warning" style="color: red">
             <span class="ui-icon ui-icon-alert"></span
-            ><a href="javascript:void(0)"
-              ><span
-                data-bind="text: arrRequestsInternalAlmostDue().length"
-              ></span>
-              Requests are reaching their Internal Due Date</a
-            >
-          </legend>
+            ><span
+              data-bind="text: arrRequestsInternalAlmostDue().length"
+            ></span>
+            Requests are reaching their Internal Due Date
+          </summary>
           <div id="divRequestsAlmostInternalDueItems" class="collapsed">
             <ul data-bind="foreach: arrRequestsInternalAlmostDue">
               <li>
@@ -148,7 +138,7 @@
               </li>
             </ul>
           </div>
-        </fieldset>
+        </details>
       </div>
       <div
         id="divRequestsPastInternalDue"
@@ -156,16 +146,12 @@
         title="Click here to View"
         data-bind="visible: arrRequestsInternalPastDue().length > 0"
       >
-        <fieldset style="border: 0px solid white">
-          <legend class="warning" style="color: red">
+        <details style="border: 0px solid white">
+          <summary class="warning" style="color: red">
             <span class="ui-icon ui-icon-alert"></span
-            ><a href="javascript:void(0)"
-              ><span
-                data-bind="text: arrRequestsInternalPastDue().length"
-              ></span>
-              Requests have PASSED their Internal Due Date</a
-            >
-          </legend>
+            ><span data-bind="text: arrRequestsInternalPastDue().length"></span>
+            Requests have PASSED their Internal Due Date
+          </summary>
           <div id="divRequestsPastInternalDueItems" class="collapsed">
             <ul data-bind="foreach: arrRequestsInternalPastDue">
               <li>
@@ -180,7 +166,7 @@
               </li>
             </ul>
           </div>
-        </fieldset>
+        </details>
       </div>
       <div
         id="divRequestsAlmostDue"
@@ -188,14 +174,12 @@
         title="Click here to View"
         data-bind="visible: arrRequestsAlmostDue().length > 0"
       >
-        <fieldset style="border: 0px solid white">
-          <legend class="warning" style="color: red">
+        <details style="border: 0px solid white">
+          <summary class="warning" style="color: red">
             <span class="ui-icon ui-icon-alert"></span
-            ><a href="javascript:void(0)"
-              ><span data-bind="text: arrRequestsAlmostDue().length"></span>
-              Requests are reaching their Due Date</a
-            >
-          </legend>
+            ><span data-bind="text: arrRequestsAlmostDue().length"></span>
+            Requests are reaching their Due Date
+          </summary>
           <div id="divRequestsAlmostDueItems" class="collapsed">
             <ul data-bind="foreach: arrRequestsAlmostDue">
               <li>
@@ -208,7 +192,7 @@
               </li>
             </ul>
           </div>
-        </fieldset>
+        </details>
       </div>
       <div
         id="divRequestsPastDue"
@@ -216,14 +200,12 @@
         title="Click here to View"
         data-bind="visible: arrRequestsPastDue().length > 0"
       >
-        <fieldset style="border: 0px solid white">
-          <legend class="warning" style="color: red">
+        <details style="border: 0px solid white">
+          <summary class="warning" style="color: red">
             <span class="ui-icon ui-icon-alert"></span
-            ><a href="javascript:void(0)"
-              ><span data-bind="text: arrRequestsPastDue().length"></span>
-              Requests have PASSED their Due Date</a
-            >
-          </legend>
+            ><span data-bind="text: arrRequestsPastDue().length"></span>
+            Requests have PASSED their Due Date
+          </summary>
           <div id="divRequestsPastDueItems" class="collapsed">
             <ul data-bind="foreach: arrRequestsPastDue">
               <li>
@@ -236,7 +218,7 @@
               </li>
             </ul>
           </div>
-        </fieldset>
+        </details>
       </div>
       <div
         id="divCheckedOutResponseDocs"
@@ -244,16 +226,12 @@
         title="Click here to View"
         data-bind="visible: arrResponseDocsCheckedOut().length > 0"
       >
-        <fieldset style="border: 0px solid white">
-          <legend class="warning" style="color: red">
+        <details style="border: 0px solid white">
+          <summary class="warning" style="color: red">
             <span class="ui-icon ui-icon-alert"></span
-            ><a href="javascript:void(0)"
-              ><span
-                data-bind="text: arrResponseDocsCheckedOut().length"
-              ></span>
-              Response Documents are Checked Out</a
-            >
-          </legend>
+            ><span data-bind="text: arrResponseDocsCheckedOut().length"></span>
+            Response Documents are Checked Out
+          </summary>
           <div id="divCheckedOutResponseDocsItems" class="collapsed">
             <ul data-bind="foreach: arrResponseDocsCheckedOut">
               <li>
@@ -266,27 +244,22 @@
               </li>
             </ul>
           </div>
-        </fieldset>
+        </details>
       </div>
       <div
         id="divResponsesWithUnsubmittedResponsDocs"
         class="status-set-container"
         data-bind="visible: arrResponsesWithUnsubmittedResponseDocs().length > 0"
       >
-        <fieldset style="border: 0px solid white">
-          <legend class="warning" style="color: red">
+        <details style="border: 0px solid white">
+          <summary class="warning" style="color: red">
             <span class="ui-icon ui-icon-alert"></span
-            ><a href="javascript:void(0)" title="Click here to View"
-              ><span
-                data-bind="text: arrResponsesWithUnsubmittedResponseDocs().length"
-              ></span>
-              Responses have Unsubmitted Response Documents</a
-            >
-          </legend>
-          <div
-            id="divResponsesWithUnsubmittedResponseDocsItems"
-            class="collapsed"
-          >
+            ><span
+              data-bind="text: arrResponsesWithUnsubmittedResponseDocs().length"
+            ></span>
+            Responses have Unsubmitted Response Documents
+          </summary>
+          <div id="divResponsesWithUnsubmittedResponseDocsItems" class="">
             <table class="tablesorter">
               <thead>
                 <tr>
@@ -322,7 +295,7 @@
               </tbody>
             </table>
           </div>
-        </fieldset>
+        </details>
       </div>
       <div
         id="divRequestsWithNoResponse"
@@ -330,17 +303,17 @@
         title="Click here to View"
         data-bind="visible: arrRequestsWithNoResponses().length > 0"
       >
-        <fieldset style="border: 0px solid white">
-          <legend class="warning" style="color: red">
-            <span class="ui-icon ui-icon-alert"></span
-            ><a href="javascript:void(0)"
-              ><span
+        <details style="border: 0px solid white">
+          <summary class="warning" style="color: red">
+            <span class="ui-icon ui-icon-alert"></span>
+            <h4 class="btn btn-link">
+              <span
                 data-bind="text: arrRequestsWithNoResponses().length"
               ></span>
-              Requests have 0 Responses</a
-            >
-          </legend>
-          <div id="divRequestsWithNoResponseItems" class="collapsed">
+              Requests have 0 Responses
+            </h4>
+          </summary>
+          <div id="divRequestsWithNoResponseItems" class="">
             <ul data-bind="foreach: arrRequestsWithNoResponses">
               <li>
                 <a
@@ -352,7 +325,7 @@
               </li>
             </ul>
           </div>
-        </fieldset>
+        </details>
       </div>
     </div>
     <div class="reports-container">
