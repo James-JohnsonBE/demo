@@ -501,7 +501,7 @@
           ></th>
           <th
             class="sorter-false filter"
-            data-filter="multiselect"
+            data-filter="daterange"
             data-filter-prop="dueDate"
             nowrap="nowrap"
           ></th>
@@ -638,6 +638,7 @@
   <div id="divStatusReportRespones">
     <table
       id="tblStatusReportResponses"
+      is="data-table"
       data-title="Response Status Report"
       data-file-prefix="ResponseStatusReport_"
       class="tablesorter report"
@@ -649,46 +650,51 @@
           class="rowFilters"
           data-bind="visible: arrResponses().length > 0"
         >
-          <th class="sorter-false" nowrap="nowrap">
+          <th class="sorter-false" data-filter="multiselect" nowrap="nowrap">
             <select
               id="ddlResponseRequestID"
               data-bind="options: $root.ddOptionsResponseTabRequestID, value: filterResponseTabRequestID, optionsCaption: '-Select-'"
             ></select>
           </th>
-          <th class="sorter-false" nowrap="nowrap">
+          <th class="sorter-false" data-filter="multiselect" nowrap="nowrap">
             <select
               id="ddlResponseSampleNum"
               data-bind="options: $root.ddOptionsResponseTabRequestSample, value: filterResponseTabSampleNum, optionsCaption: '-Select-'"
             ></select>
           </th>
-          <th class="sorter-false" nowrap="nowrap">
+          <th class="sorter-false" data-filter="multiselect" nowrap="nowrap">
             <select
               id="ddlResponseName"
               data-bind="options: $root.ddOptionsResponseTabResponseTitle, value: filterResponseTabResponseName, optionsCaption: '-Select-'"
             ></select>
           </th>
-          <th class="sorter-false" nowrap="nowrap">
+          <th class="sorter-false" data-filter="daterange" nowrap="nowrap">
             <select
               id="ddlResponseRequestInternalDueDate"
               data-bind="options: $root.ddOptionsResponseTabRequestInternalDueDate, value: filterResponseTabRequestIntDueDate, optionsCaption: '-Select-'"
             ></select>
           </th>
-          <th class="sorter-false" nowrap="nowrap">
+          <th
+            class="sorter-false"
+            data-filter="multiselect"
+            data-filter-default="1-Open"
+            nowrap="nowrap"
+          >
             <select
               id="ddlResponseStatus"
               data-bind="options: $root.ddOptionsResponseTabResponseStatus, value: filterResponseTabResponseStatus, optionsCaption: '-Select-'"
             ></select>
           </th>
-          <th class="sorter-false" nowrap="nowrap">
+          <th class="sorter-false" data-filter="multiselect" nowrap="nowrap">
             <select
               id="ddlResponseAO"
               data-bind="options: $root.ddOptionsResponseTabResponseAO, value: filterResponseTabResponseAO, optionsCaption: '-Select-'"
             ></select>
           </th>
-          <th class="sorter-false" nowrap="nowrap">
+          <th class="sorter-false" data-filter="multiselect" nowrap="nowrap">
             <select></select>
           </th>
-          <th class="sorter-false" nowrap="nowrap">
+          <th class="sorter-false" data-filter="daterange" nowrap="nowrap">
             <select
               id="ddlResponseModified"
               data-bind="options: $root.ddOptionsResponseTabResponseModified, value: filterResponseTabResponseModified, optionsCaption: '-Select-'"
@@ -696,7 +702,7 @@
           </th>
         </tr>
         <tr valign="top">
-          <th class="sorter-true" nowrap="nowrap">Request #</th>
+          <th class="sorter-true asc" nowrap="nowrap">Request #</th>
           <th class="sorter-true" nowrap="nowrap">Sample #</th>
           <th class="sorter-true" nowrap="nowrap">Response Name</th>
           <th class="sorter-true" nowrap="nowrap">Internal Due Date</th>
@@ -706,8 +712,7 @@
           <th class="sorter-true" nowrap="nowrap">Modified</th>
         </tr>
       </thead>
-      <tbody id="fbody2">
-        <!-- ko foreach: arrResponses -->
+      <tbody id="fbody2" data-bind="foreach: arrResponses">
         <tr class="sr2-response-item">
           <td class="sr2-response-requestNum">
             <a
@@ -728,29 +733,8 @@
           <td class="sr2-response-docCount" data-bind="text: docCount"></td>
           <td class="sr2-response-modified" data-bind="text: modified"></td>
         </tr>
-        <!-- /ko -->
       </tbody>
-      <tfoot class="footer">
-        <tr>
-          <th colspan="8">
-            Displaying
-            <span
-              id="spanResponsesDisplayedTotal"
-              style="color: green"
-              data-bind="text: arrFilteredResponsesCount()"
-              >0</span
-            >
-            out of
-            <span
-              id="spanResponsesTotal"
-              style="color: green"
-              data-bind="text: arrResponses().length"
-              >0</span
-            >
-            Responses
-          </th>
-        </tr>
-      </tfoot>
+      <tfoot class="footer"></tfoot>
     </table>
   </div>
 </script>
