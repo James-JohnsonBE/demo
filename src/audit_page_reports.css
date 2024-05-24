@@ -527,9 +527,10 @@ legend {
   background-color: var(--primary-color);
 }
 
-.tablesorter th.sorter-true {
+table.tablesorter thead th.sorter-true {
   position: relative;
   cursor: pointer;
+  padding-right: 1.5rem;
 }
 
 .tablesorter th.sorter-true i[class*="fa-sort"] {
