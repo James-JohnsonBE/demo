@@ -454,28 +454,6 @@
 </div>
 
 <script id="requestStatusReportTemplate" type="text/html">
-  <!-- <div
-    class="quick-links secondary"
-    data-bind="visible: arrRequests().length > 0"
-  >
-    <a
-      id="btnPrint1"
-      title="Click here to Print"
-      href="javascript:void(0)"
-      class="hideOnPrint"
-      ><span class="ui-icon ui-icon-print">Print</span></a
-    >
-    <a class="export1 hideOnPrint" title="Export to CSV" href="#"
-      ><span class="ui-icon ui-icon-disk">Export to CSV</span></a
-    >
-    <a
-      id="btnViewAllRequests"
-      title="Clear All Filters and View All Requests"
-      href="javascript:void(0)"
-      data-bind="visible: arrFilteredRequestsCount() < arrRequests().length, click: ClearFiltersRequestTab"
-      ><span class="ui-icon ui-icon-circle-zoomout"></span>View All Requests</a
-    >
-  </div> -->
   <div id="divStatusReportRequests">
     <table
       is="data-table"
@@ -517,7 +495,7 @@
           ></th>
           <th
             class="sorter-false filter"
-            data-filter="multiselect"
+            data-filter="daterange"
             data-filter-prop="internalDueDate"
             nowrap="nowrap"
           ></th>
@@ -623,13 +601,18 @@
             >
               <span class="actionOfficeContainer">
                 <span class="ui-icon ui-icon-search"></span
-                ><a href="javascript:void(0)">View Action Offices</a>
-                <!-- ko foreach: actionOffices -->
-                <div
-                  class="sr1-request-actionOffice-item collapsed"
-                  data-bind="text: ao"
-                ></div>
-                <!-- /ko -->
+                ><a
+                  href="javascript:void(0)"
+                  data-bind="click: $parent.clickExpandActionOffices"
+                  >View Action Offices</a
+                >
+                <ul class="sr1-request-actionOffice-items collapsed">
+                  <!-- ko foreach: actionOffices -->
+                  <li class="sr1-request-actionOffice-item">
+                    <span data-bind="text: ao"></span>;
+                  </li>
+                  <!-- /ko -->
+                </ul>
               </span>
             </div>
           </td>
@@ -652,33 +635,11 @@
 </script>
 
 <script id="responseStatusReportTemplate" type="text/html">
-  <div
-    id="divButtons"
-    class="quick-links secondary"
-    style="padding-top: 3px"
-    data-bind="visible: arrResponses().length > 0"
-  >
-    <a
-      id="btnPrint2"
-      title="Click here to Print"
-      href="javascript:void(0)"
-      class="hideOnPrint"
-      ><span class="ui-icon ui-icon-print">Print</span></a
-    >
-    <a class="export2 hideOnPrint" title="Export to CSV" href="#"
-      ><span class="ui-icon ui-icon-disk">Export to CSV</span></a
-    >
-    <a
-      id="btnViewAllResponses"
-      title="Clear All Filters and View All Responses"
-      href="javascript:void(0)"
-      data-bind="visible: arrFilteredResponsesCount() < arrResponses().length, click: ClearFiltersResponseTab"
-      ><span class="ui-icon ui-icon-circle-zoomout"></span>View All Responses</a
-    >
-  </div>
   <div id="divStatusReportRespones">
     <table
       id="tblStatusReportResponses"
+      data-title="Response Status Report"
+      data-file-prefix="ResponseStatusReport_"
       class="tablesorter report"
       data-bind="visible: arrResponses().length > 0"
     >

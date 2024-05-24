@@ -191,6 +191,12 @@ function ViewModel() {
   self.arrResponsesSubmittedByAO = ko.observableArray(null);
 
   /* request tab */
+  self.clickExpandActionOffices = (item, e) => {
+    e.target.parentElement
+      .querySelector(".sr1-request-actionOffice-items")
+      .classList.toggle("collapsed");
+  };
+
   self.ddOptionsRequestTabRequestID = ko.observableArray();
   self.ddOptionsRequestTabRequestStatus = ko.observableArray();
   self.ddOptionsRequestTabRequestSensitivity = ko.observableArray();
@@ -799,7 +805,6 @@ function ViewModel() {
   self.doSort.subscribe(function (newValue) {
     Audit.Common.Utilities.OnLoadDisplayTimeStamp();
 
-    BindHandlersOnLoad();
     //alert("in dosort: " + self.arrResponses().length );
     if (self.arrRequests().length > 0 && newValue) {
       //should trigger only once
@@ -4023,31 +4028,6 @@ async function m_fnCloseRequest() {
       break;
     }
   }
-}
-
-function m_fnDisplayHelpResponseDocs() {
-  var helpDlg =
-    "<div id='helpDlg' style='padding:20px; height:100px; width:700px'>" +
-    "<div style='padding:20px;'><fieldset><legend>Response Document Status</legend> <ul style='padding-top:10px;'>" +
-    "<li style='padding-top:5px;'><b>Open</b> - Uploaded by the Action Office but not yet submitted to the Internal Auditor</li>" +
-    "<li style='padding-top:5px;'><b>Submitted</b> - Submitted to the Internal Auditor by the Action Office</li>" +
-    "<li style='padding-top:5px;'><b>Sent to QA</b> - Submitted to the Quality Assurance team by the Internal Auditor</li>" +
-    "<li style='padding-top:5px;'><b>Approved</b> - Approved by the Quality Assurance team and submitted to the External Auditor</li>" +
-    "<li style='padding-top:5px;'><b>Rejected</b> - Rejected by the Quality Assurance team and returned to the Internal Auditor</li>" +
-    "<li style='padding-top:5px;'><b>Archived</b> - Previously Rejected by the Quality Assurance team and is now read-only for record keeping</li>" +
-    "</ul></fieldset></div>" +
-    "<table style='padding-top:10px; width:200px; float:right;'>" +
-    "<tr><td class='ms-separator'>&#160;</td><td><input id='btnCancel' type='button' class='ms-ButtonHeightWidth' value='Close' title='Close Help' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)'/></td></tr>" +
-    "</table></div>";
-
-  $("body").append(helpDlg);
-
-  var options = SP.UI.$create_DialogOptions();
-  options.title = "Response Documents Help";
-  options.height = 300;
-  options.dialogReturnValueCallback = OnCallbackForm;
-  options.html = document.getElementById("helpDlg");
-  SP.UI.ModalDialog.showModalDialog(options);
 }
 
 function m_fnGetRequestByNumber(requestNumber) {
@@ -7955,256 +7935,4 @@ function m_fnGoToRequest(requestNumber, responseTitle) {
     //need to navigate to tab 2 for this to work
     m_fnHighlightResponse();
   }
-}
-
-function BindActionOfficeHandler() {
-  // Toggle 'View Action Offices' on requests table
-  $(".actionOfficeContainer").click(function () {
-    $(this)
-      .parent()
-      .find(".sr1-request-actionOffice-item")
-      .toggleClass("collapsed");
-  });
-}
-
-function BindHandlersOnLoad() {
-  $(".warning").click(function () {
-    $(this).parent().find("div").toggleClass("collapsed");
-    $(this).parent().toggleClass("colorRedLegend");
-  });
-  BindActionOfficeHandler();
-
-  // $("#linkSubmitNewReq").click(function () {
-  //   m_fnCreateRequest();
-  // });
-
-  $(".linkHelpResponseDocs").click(function () {
-    m_fnDisplayHelpResponseDocs();
-  });
-
-  BindPrintButton(
-    "#btnPrint1",
-    "#divStatusReportRequests",
-    "Request Status Report"
-  );
-  BindPrintButton(
-    "#btnPrint2",
-    "#divStatusReportRespones",
-    "Response Status Report"
-  );
-
-  //////////Note: for the export to work, make sure this is added to the html: <iframe id="CsvExpFrame" style="display: none"></iframe>
-  BindExportButton(
-    ".export1",
-    "RequestStatusReport_",
-    "tblStatusReportRequests"
-  );
-  BindExportButton(
-    ".export2",
-    "ResponseStatusReport_",
-    "tblStatusReportResponses"
-  );
-}
-
-function BindPrintButton(btnPrint, divTbl, pageTitle) {
-  $(btnPrint).on("click", function () {
-    PrintPage(pageTitle, divTbl);
-  });
-}
-
-function BindExportButton(btnExport, fileNamePrefix, tbl) {
-  $(btnExport).on("click", function (event) {
-    var curDate = new Date().format("yyyyMMdd_hhmmtt");
-    ExportToCsv(fileNamePrefix + curDate, tbl);
-  });
-}
-
-function PrintPage(pageTitle, divTbl) {
-  var curDate = new Date();
-  var siteUrl = Audit.Common.Utilities.GetSiteUrl();
-  var cssLink1 =
-    siteUrl +
-    "/siteassets/css/tablesorter/style.css?v=" +
-    curDate.format("MM_dd_yyyy");
-  var cssLink2 =
-    siteUrl +
-    "/siteAssets/css/audit_styles.css?v=" +
-    curDate.format("MM_dd_yyyy");
-
-  var divOutput = $(divTbl).html();
-
-  //remove hyperlinks pointing to the job codes
-  var updatedDivOutput = $("<div>").append(divOutput);
-  updatedDivOutput.find(".sr1-request-requestNum a").each(function () {
-    $(this).removeAttr("onclick");
-    $(this).removeAttr("href");
-  });
-
-  updatedDivOutput.find(".sr2-response-requestNum a").each(function () {
-    $(this).removeAttr("onclick");
-    $(this).removeAttr("href");
-  });
-
-  divOutput = updatedDivOutput.html();
-
-  var printDateString = curDate.format("MM/dd/yyyy hh:mm tt");
-  printDateString =
-    "<div style='padding-bottom:10px;'>" +
-    printDateString +
-    " - " +
-    pageTitle +
-    "</div>";
-
-  divOutput = printDateString + divOutput;
-
-  var cssFile1 = $("<div></div>");
-  var cssFile2 = $("<div></div>");
-
-  var def1 = $.Deferred();
-  var def2 = $.Deferred();
-
-  var cssFileText = "";
-  cssFile1.load(cssLink1, function () {
-    cssFileText += "<style>" + cssFile1.html() + "</style>";
-    def1.resolve();
-  });
-  cssFile2.load(cssLink2, function () {
-    cssFileText += "<style>" + cssFile2.html() + "</style>";
-    def2.resolve();
-  });
-
-  //gets called asynchronously after the css files have been loaded
-  $.when(def1, def2).done(function () {
-    var html =
-      "<HTML>\n" +
-      "<HEAD>\n\n" +
-      "<Title>" +
-      pageTitle +
-      "</Title>\n" +
-      cssFileText +
-      "\n" +
-      "<style>" +
-      ".hideOnPrint, .rowFilters, .actionOfficeContainer {display:none}" +
-      "</style>\n" +
-      "</HEAD>\n" +
-      "<BODY>\n" +
-      divOutput +
-      "\n" +
-      "</BODY>\n" +
-      "</HTML>";
-
-    var printWP = window.open("", "printWebPart");
-    if (!printWP) {
-      alert("No printWebPart!");
-      return;
-    }
-    printWP.document.open();
-    //insert content
-    printWP.document.write(html);
-
-    printWP.document.close();
-    //open print dialog
-    printWP.print();
-  });
-}
-//make sure iframe with id csvexprframe is added to page up top
-//http://stackoverflow.com/questions/18185660/javascript-jquery-exporting-data-in-csv-not-working-in-ie
-function ExportToCsv(fileName, tableName, removeHeader) {
-  var data = GetCellValues(tableName);
-
-  if (!data) {
-    alert("No data!");
-    return;
-  }
-
-  if (removeHeader == true) data = data.slice(1);
-
-  var csv = ConvertToCsv(data);
-  //	console.log( csv );
-  if (navigator.userAgent.search("Trident") >= 0) {
-    window.CsvExpFrame.document.open("text/html", "replace");
-    //		window.CsvExpFrame.document.open("application/csv", "replace");
-    //		window.CsvExpFrame.document.charset = "utf-8";
-    //		window.CsvExpFrame.document.open("application/ms-excel", "replace");
-    window.CsvExpFrame.document.write(csv);
-    window.CsvExpFrame.document.close();
-    window.CsvExpFrame.focus();
-    window.CsvExpFrame.document.execCommand("SaveAs", true, fileName + ".csv");
-  } else {
-    var uri = "data:text/csv;charset=utf-8," + escape(csv);
-    var downloadLink = document.createElement("a");
-    downloadLink.href = uri;
-    downloadLink.download = fileName + ".csv";
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-  }
-}
-
-function GetCellValues(tableName) {
-  var table = document.getElementById(tableName);
-
-  if (!table) return;
-  //remove headers and footers
-  if (table.innerHTML.indexOf("rowFilters") >= 0) {
-    var deets = $("<div>").append(table.outerHTML);
-    deets.find(".rowFilters").each(function () {
-      $(this).remove();
-    });
-    table = deets.find("table")[0];
-  }
-  if (table.innerHTML.indexOf("footer") >= 0) {
-    var deets = $("<div>").append(table.outerHTML);
-    deets.find(".footer").each(function () {
-      $(this).remove();
-    });
-    table = deets.find("table")[0];
-  }
-
-  if (table.innerHTML.indexOf("actionOfficeContainer") >= 0) {
-    var deets = $("<div>").append(table.outerHTML);
-    deets.find(".actionOfficeContainer").each(function () {
-      $(this).remove();
-    });
-
-    deets.find(".sr1-request-actionOffice-item").each(function () {
-      var curText = $(this).text() + ", ";
-
-      $(this).text(curText);
-    });
-
-    table = deets.find("table")[0];
-  }
-
-  var tableArray = [];
-  for (var r = 0, n = table.rows.length; r < n; r++) {
-    tableArray[r] = [];
-    for (var c = 0, m = table.rows[r].cells.length; c < m; c++) {
-      var text =
-        table.rows[r].cells[c].textContent || table.rows[r].cells[c].innerText;
-      tableArray[r][c] = text.trim();
-    }
-  }
-  return tableArray;
-}
-
-function ConvertToCsv(objArray) {
-  var array = typeof objArray != "object" ? JSON.parse(objArray) : objArray;
-  var str = "sep=,\r\n";
-  var line = "";
-  var index;
-  var value;
-  for (var i = 0; i < array.length; i++) {
-    line = "";
-    var array1 = array[i];
-    for (index in array1) {
-      if (array1.hasOwnProperty(index)) {
-        value = array1[index] + "";
-        line += '"' + value.replace(/"/g, '""') + '",';
-      }
-    }
-    line = line.slice(0, -1);
-    str += line + "\r\n";
-  }
-  return str;
 }

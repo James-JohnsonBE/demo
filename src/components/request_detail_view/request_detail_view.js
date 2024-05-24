@@ -242,6 +242,31 @@ export class RequestDetailView {
   };
 
   // ResponseDocs
+  clickHelpResponseDocs = () => {
+    var helpDlg =
+      "<div id='helpDlg' style='padding:20px; height:100px; width:700px'>" +
+      "<div style='padding:20px;'><fieldset><legend>Response Document Status</legend> <ul style='padding-top:10px;'>" +
+      "<li style='padding-top:5px;'><b>Open</b> - Uploaded by the Action Office but not yet submitted to the Internal Auditor</li>" +
+      "<li style='padding-top:5px;'><b>Submitted</b> - Submitted to the Internal Auditor by the Action Office</li>" +
+      "<li style='padding-top:5px;'><b>Sent to QA</b> - Submitted to the Quality Assurance team by the Internal Auditor</li>" +
+      "<li style='padding-top:5px;'><b>Approved</b> - Approved by the Quality Assurance team and submitted to the External Auditor</li>" +
+      "<li style='padding-top:5px;'><b>Rejected</b> - Rejected by the Quality Assurance team and returned to the Internal Auditor</li>" +
+      "<li style='padding-top:5px;'><b>Archived</b> - Previously Rejected by the Quality Assurance team and is now read-only for record keeping</li>" +
+      "</ul></fieldset></div>" +
+      "<table style='padding-top:10px; width:200px; float:right;'>" +
+      "<tr><td class='ms-separator'>&#160;</td><td><input id='btnCancel' type='button' class='ms-ButtonHeightWidth' value='Close' title='Close Help' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)'/></td></tr>" +
+      "</table></div>";
+
+    $("body").append(helpDlg);
+
+    var options = SP.UI.$create_DialogOptions();
+    options.title = "Response Documents Help";
+    options.height = 300;
+    // options.dialogReturnValueCallback = OnCallbackForm;
+    options.html = document.getElementById("helpDlg");
+    SP.UI.ModalDialog.showModalDialog(options);
+  };
+
   ClickBulkApprove = (responseDocSummary) => {
     const oResponseDocsForApproval = responseDocSummary.responseDocs.filter(
       (responseDoc) =>
