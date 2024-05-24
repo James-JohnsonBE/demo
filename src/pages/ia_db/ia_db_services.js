@@ -793,6 +793,13 @@ function ViewModel() {
   self.requestDetailViewComponent = new RequestDetailView(self);
 
   /** Subscriptions **/
+  self.arrRequests.subscribe((arrayChanges) => {
+    document.getElementById("tblStatusReportRequests")?.update();
+  }, "arrayChange");
+
+  self.arrResponses.subscribe((arrayChanges) => {
+    document.getElementById("tblStatusReportResponses")?.update();
+  }, "arrayChange");
 
   self.selectedFiltersRequestTab.subscribe(function (value) {
     self.FilterChangedRequestTab();
