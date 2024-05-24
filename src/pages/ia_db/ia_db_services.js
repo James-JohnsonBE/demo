@@ -961,13 +961,13 @@ function ViewModel() {
 
         // new DataTable(document.getElementById("tblStatusReportRequests"));
 
-        if (self.arrResponses().length > 0) {
-          $("#tblStatusReportResponses").tablesorter({
-            sortList: [[0, 0]],
-            //showProcessing: true,
-            selectorHeaders: ".sorter-true",
-          });
-        }
+        // if (self.arrResponses().length > 0) {
+        //   $("#tblStatusReportResponses").tablesorter({
+        //     sortList: [[0, 0]],
+        //     //showProcessing: true,
+        //     selectorHeaders: ".sorter-true",
+        //   });
+        // }
       }, 200);
     }
   });

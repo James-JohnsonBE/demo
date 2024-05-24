@@ -513,6 +513,7 @@ legend {
   padding: 0.5rem;
   vertical-align: middle;
 }
+
 .tablesorter thead th:nth-of-type(even) {
   background-color: #2a3c48;
 }
@@ -524,6 +525,18 @@ legend {
 }
 .tablesorter thead .rowFilters th.filter {
   background-color: var(--primary-color);
+}
+
+.tablesorter th.sorter-true {
+  position: relative;
+  cursor: pointer;
+}
+
+.tablesorter th.sorter-true i[class*="fa-sort"] {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translate(-100%, -50%);
 }
 
 .sorter-true.asc,

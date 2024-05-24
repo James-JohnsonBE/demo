@@ -206,6 +206,7 @@
         <input
           id="search-input"
           class="search-input"
+          placeholder="Search..."
           type="text"
           autocomplete="off"
         />
