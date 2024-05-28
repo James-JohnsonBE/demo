@@ -557,7 +557,7 @@ function LoadInfo() {
   //currCtx.load( m_requestItems, 'Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))');
   currCtx.load(
     m_requestItems,
-    "Include(ID, Title, ReqSubject, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
+    "Include(ID, Title, ReqSubject, ReqStatus, RequestingOffice, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
   );
 
   var requestInternalList = web
@@ -751,12 +751,12 @@ export async function m_fnRequeryRequest(requestId = null) {
     $(".response-permissions").hide(); //resets this in case it was toggled to show
     currCtx.load(
       m_aRequestItem,
-      "Include(ID, Title, ReqSubject, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+      "Include(ID, Title, ReqSubject, RequestingOffice, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
     );
   } else {
     currCtx.load(
       m_aRequestItem,
-      "Include(ID, Title, ReqSubject, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
+      "Include(ID, Title, ReqSubject, RequestingOffice, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
     );
   }
 
@@ -1216,6 +1216,11 @@ function LoadRequests(m_requestItems) {
       var sensitivity = oListItem.get_item("Sensitivity");
       if (sensitivity == null) sensitivity = "None";
 
+      var requestingOffice = oListItem.get_item("RequestingOffice");
+      if (requestingOffice != null)
+        requestingOffice = requestingOffice.get_lookupValue();
+      else requestingOffice = "";
+
       var fiscalYear = oListItem.get_item("FiscalYear");
       var sample = oListItem.get_item("IsSample");
       var dueDate = oListItem.get_item("ReqDueDate");
@@ -1284,6 +1289,7 @@ function LoadRequests(m_requestItems) {
       requestObject["number"] = number;
       requestObject["subject"] = subject;
       requestObject["sensitivity"] = sensitivity;
+      requestObject["requestingOffice"] = requestingOffice;
       requestObject["fiscalYear"] = fiscalYear;
       requestObject["dueDate"] = dueDate;
       requestObject["status"] = status;
@@ -2412,6 +2418,7 @@ function LoadTabStatusReport1() {
       reqNumber: oRequest.number,
       subject: oRequest.subject,
       sensitivity: oRequest.sensitivity,
+      requestingOffice: oRequest.requestingOffice,
       status: oRequest.status,
       internalDueDate: oRequest.internalDueDate,
       dueDate: oRequest.dueDate,

@@ -1,4 +1,4 @@
-import { AuditOrganization } from "./audit_organization.js";
+import { AuditOrganization, ORGTYPES } from "./audit_organization.js";
 import {
   LookupField,
   PeopleField,
@@ -46,6 +46,16 @@ export class AuditRequest extends ConstrainedEntity {
 
   ReqSubject = new TextField({
     displayName: "Request Subject",
+    isRequired: true,
+  });
+
+  RequestingOffice = new LookupField({
+    displayName: "Requesting Office",
+    type: AuditOrganization,
+    options: auditOrganizationStore,
+    optionsFilter: (org) => org.Org_Type == ORGTYPES.REQUESTINGOFFICE,
+    lookupCol: "Title",
+    entitySet: appContext.AuditOrganizations,
     isRequired: true,
   });
 
@@ -166,13 +176,14 @@ export class AuditRequest extends ConstrainedEntity {
       "Sensitivity",
       "ActionOffice",
       "EmailActionOffice",
-      "EmailActionOffice",
+      "RequestingOffice",
       "ClosedDate",
       "ClosedBy",
     ],
     New: [
       "Title",
       "ReqSubject",
+      "RequestingOffice",
       "FiscalYear",
       "InternalDueDate",
       "ReqDueDate",
@@ -189,6 +200,7 @@ export class AuditRequest extends ConstrainedEntity {
     IACanUpdate: [
       "ReqSubject",
       "FiscalYear",
+      "RequestingOffice",
       "InternalDueDate",
       "ReqDueDate",
       "ReqStatus",

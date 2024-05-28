@@ -450,6 +450,12 @@
             nowrap="nowrap"
           ></th>
           <th
+            class="sorter-false"
+            data-filter="multiselect"
+            data-filter-prop="requestingOffice"
+            nowrap="nowrap"
+          ></th>
+          <th
             class="sorter-false filter"
             data-filter="multiselect"
             data-filter-prop="sensitivity"
@@ -511,6 +517,7 @@
         <tr valign="top">
           <th class="sorter-true" nowrap="nowrap">Request #</th>
           <th class="sorter-true" nowrap="nowrap">Subject</th>
+          <th class="sorter-true" nowrap="nowrap">Requesting Office</th>
           <th class="sorter-true" nowrap="nowrap">Sensitivity</th>
           <th class="sorter-true" nowrap="nowrap">Status</th>
           <th class="sorter-true desc" nowrap="nowrap">Internal Due Date</th>
@@ -534,6 +541,10 @@
             ></a>
           </td>
           <td class="sr1-request-subject" data-bind="text: subject"></td>
+          <td
+            class="sr1-request-requestingOffice"
+            data-bind="text: requestingOffice"
+          ></td>
           <td
             class="sr1-request-sensitivity"
             data-bind="text: sensitivity"
