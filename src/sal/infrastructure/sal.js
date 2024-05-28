@@ -734,12 +734,12 @@ export function SPList(listDef) {
 
       var data = { oList: oList, callback: callback };
 
-      function onSetItemPermissionsSuccess() {
+      function onSetListPermissionsSuccess() {
         console.log("Successfully set permissions");
         callback(oList);
       }
 
-      function onSetItemPermissionsFailure(sender, args) {
+      function onSetListPermissionsFailure(sender, args) {
         console.error(
           "Failed to update permissions on List: " +
             this.oList.get_title() +
@@ -751,8 +751,8 @@ export function SPList(listDef) {
 
       currCtx.load(oList);
       currCtx.executeQueryAsync(
-        Function.createDelegate(data, onSetItemPermissionsSuccess),
-        Function.createDelegate(data, onSetItemPermissionsFailure)
+        Function.createDelegate(data, onSetListPermissionsSuccess),
+        Function.createDelegate(data, onSetListPermissionsFailure)
       );
     }
 
@@ -1053,6 +1053,7 @@ export function SPList(listDef) {
     const [queryFields, expandFields] = await getQueryFields(fields);
     if (includePermissions) {
       queryFields.push("RoleAssignments");
+      queryFields.push("HasUniqueRoleAssignments");
       expandFields.push("RoleAssignments");
     }
     const orderBy = orderByColumn

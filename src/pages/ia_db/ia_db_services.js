@@ -32,6 +32,7 @@ import {
   runningTasks,
   taskDefs,
 } from "../../services/tasks.js";
+import { resetAllDBPerms } from "../../services/permission_manager.js";
 
 var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
@@ -59,6 +60,8 @@ export async function InitReport() {
   );
 
   await Promise.all([configurationsPromise, auditOrganizationsPromise]);
+
+  resetAllDBPerms();
 
   Audit.IAReport.Report = new Audit.IAReport.NewReportPage();
   Audit.IAReport.Init();
@@ -633,7 +636,7 @@ function LoadInfo() {
       var pagesLib = web.get_lists().getByTitle("Pages");
       var pagesQuery = new SP.CamlQuery();
       pagesQuery.set_viewXml(
-        '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><Eq><FieldRef Name="FileLeafRef"/><Value Type="Text">AO_DB.aspx</Value></Eq></Where></Query></View>'
+        '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><Or><Eq><FieldRef Name="FileLeafRef"/><Value Type="Text">AO_DB.aspx</Value></Eq><Eq><FieldRef Name="FileLeafRef"/><Value Type="Text">RO_DB.aspx</Value></Eq></Or></Where></Query></View>'
       );
       m_PageItems = pagesLib.getItems(pagesQuery);
       currCtx.load(
@@ -660,7 +663,7 @@ function LoadInfo() {
           m_responseItems,
           m_ResponseDocsItems
         );
-        m_fnResetAODBPerms(m_PageItems);
+        // m_fnResetAODBPerms(m_PageItems);
 
         m_fnCheckForEAEmailFolder(emailListFolderItemsEA);
       }
@@ -942,6 +945,21 @@ function m_fnLoadRemainder() {
     SP.UI.Status.setStatusPriColor(statusId, "red");
   }
   currCtx.executeQueryAsync(OnSuccess, OnFailure);
+}
+
+function m_fnResetAllDBPerms(pageItems) {
+  var listItemEnumerator = pageItems.getEnumerator();
+  while (listItemEnumerator.moveNext()) {
+    var oListItem = listItemEnumerator.get_current();
+
+    if (oListItem.get_item("FileLeafRef") == "AO_DB.aspx") {
+      var arrOffices = Audit.Common.Utilities.GetActionOffices();
+      m_fnResetPageDBPerms(oListItem, arrOffices);
+    } else if (oListItem.get_item("FileLeafRef") == "RO_DB.aspx") {
+      var arrOffices = Audit.Common.Utilities.GetRequestingOffices();
+      m_fnResetPageDBPerms(oListItem, arrOffices);
+    }
+  }
 }
 
 //always check ao permissions and reset them
