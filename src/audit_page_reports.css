@@ -127,10 +127,18 @@ div.cell-margin {
   background-color: #2a3c48;
 }
 
-.audit-body .quick-info fieldset legend a {
+.audit-body .quick-info details summary {
   /* text-decoration: none; */
   color: white;
   font-weight: bold;
+  cursor: pointer;
+}
+
+.audit-body .quick-info details summary:hover {
+  /* text-decoration: none; */
+  color: white;
+  font-weight: bold;
+  text-decoration: underline;
 }
 
 .audit-body .quick-info a {

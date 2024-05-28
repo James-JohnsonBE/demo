@@ -64,13 +64,13 @@
         title="Click here to View"
         data-bind="visible: arrRequestsWithNoEmailSent().length > 0"
       >
-        <details style="border: 0px solid white">
-          <summary class="warning" style="color: red">
-            <span class="ui-icon ui-icon-alert"></span
-            ><span data-bind="text: arrRequestsWithNoEmailSent().length"></span>
+        <details>
+          <summary>
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span data-bind="text: arrRequestsWithNoEmailSent().length"></span>
             Requests need Emails sent out
           </summary>
-          <div id="divRequestsWithNoEmailSentItems" class="">
+          <div id="divRequestsWithNoEmailSentItems">
             <ul data-bind="foreach: arrRequestsWithNoEmailSent">
               <li>
                 <a
@@ -90,13 +90,13 @@
         title="Click here to View"
         data-bind="visible: arrResponsesSubmittedByAO().length > 0"
       >
-        <details style="border: 0px solid white">
-          <summary class="warning" style="color: red">
-            <span class="ui-icon ui-icon-alert"></span
-            ><span data-bind="text: arrResponsesSubmittedByAO().length"></span>
+        <details>
+          <summary class="warning">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span data-bind="text: arrResponsesSubmittedByAO().length"></span>
             Responses have been Submitted by the Action Offices
           </summary>
-          <div id="divResponsesSubmittedItems" class="collapsed">
+          <div id="divResponsesSubmittedItems">
             <ul data-bind="foreach: arrResponsesSubmittedByAO">
               <li>
                 <a
@@ -116,15 +116,15 @@
         title="Click here to View"
         data-bind="visible: arrRequestsInternalAlmostDue().length > 0"
       >
-        <details style="border: 0px solid white">
-          <summary class="warning" style="color: red">
-            <span class="ui-icon ui-icon-alert"></span
-            ><span
+        <details>
+          <summary class="warning">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span
               data-bind="text: arrRequestsInternalAlmostDue().length"
             ></span>
             Requests are reaching their Internal Due Date
           </summary>
-          <div id="divRequestsAlmostInternalDueItems" class="collapsed">
+          <div id="divRequestsAlmostInternalDueItems">
             <ul data-bind="foreach: arrRequestsInternalAlmostDue">
               <li>
                 <a
@@ -146,13 +146,13 @@
         title="Click here to View"
         data-bind="visible: arrRequestsInternalPastDue().length > 0"
       >
-        <details style="border: 0px solid white">
-          <summary class="warning" style="color: red">
-            <span class="ui-icon ui-icon-alert"></span
-            ><span data-bind="text: arrRequestsInternalPastDue().length"></span>
+        <details>
+          <summary class="warning">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span data-bind="text: arrRequestsInternalPastDue().length"></span>
             Requests have PASSED their Internal Due Date
           </summary>
-          <div id="divRequestsPastInternalDueItems" class="collapsed">
+          <div id="divRequestsPastInternalDueItems">
             <ul data-bind="foreach: arrRequestsInternalPastDue">
               <li>
                 <a
@@ -174,13 +174,13 @@
         title="Click here to View"
         data-bind="visible: arrRequestsAlmostDue().length > 0"
       >
-        <details style="border: 0px solid white">
-          <summary class="warning" style="color: red">
-            <span class="ui-icon ui-icon-alert"></span
-            ><span data-bind="text: arrRequestsAlmostDue().length"></span>
+        <details>
+          <summary class="warning">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span data-bind="text: arrRequestsAlmostDue().length"></span>
             Requests are reaching their Due Date
           </summary>
-          <div id="divRequestsAlmostDueItems" class="collapsed">
+          <div id="divRequestsAlmostDueItems">
             <ul data-bind="foreach: arrRequestsAlmostDue">
               <li>
                 <a
@@ -200,13 +200,13 @@
         title="Click here to View"
         data-bind="visible: arrRequestsPastDue().length > 0"
       >
-        <details style="border: 0px solid white">
-          <summary class="warning" style="color: red">
-            <span class="ui-icon ui-icon-alert"></span
-            ><span data-bind="text: arrRequestsPastDue().length"></span>
+        <details>
+          <summary class="warning">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span data-bind="text: arrRequestsPastDue().length"></span>
             Requests have PASSED their Due Date
           </summary>
-          <div id="divRequestsPastDueItems" class="collapsed">
+          <div id="divRequestsPastDueItems">
             <ul data-bind="foreach: arrRequestsPastDue">
               <li>
                 <a
@@ -226,13 +226,13 @@
         title="Click here to View"
         data-bind="visible: arrResponseDocsCheckedOut().length > 0"
       >
-        <details style="border: 0px solid white">
-          <summary class="warning" style="color: red">
-            <span class="ui-icon ui-icon-alert"></span
-            ><span data-bind="text: arrResponseDocsCheckedOut().length"></span>
+        <details>
+          <summary class="warning">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span data-bind="text: arrResponseDocsCheckedOut().length"></span>
             Response Documents are Checked Out
           </summary>
-          <div id="divCheckedOutResponseDocsItems" class="collapsed">
+          <div id="divCheckedOutResponseDocsItems">
             <ul data-bind="foreach: arrResponseDocsCheckedOut">
               <li>
                 <a
@@ -251,15 +251,15 @@
         class="status-set-container"
         data-bind="visible: arrResponsesWithUnsubmittedResponseDocs().length > 0"
       >
-        <details style="border: 0px solid white">
-          <summary class="warning" style="color: red">
-            <span class="ui-icon ui-icon-alert"></span
-            ><span
+        <details>
+          <summary class="warning btn btn-link">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span
               data-bind="text: arrResponsesWithUnsubmittedResponseDocs().length"
             ></span>
             Responses have Unsubmitted Response Documents
           </summary>
-          <div id="divResponsesWithUnsubmittedResponseDocsItems" class="">
+          <div id="divResponsesWithUnsubmittedResponseDocsItems">
             <table class="tablesorter">
               <thead>
                 <tr>
@@ -303,15 +303,11 @@
         title="Click here to View"
         data-bind="visible: arrRequestsWithNoResponses().length > 0"
       >
-        <details style="border: 0px solid white">
-          <summary class="warning" style="color: red">
-            <span class="ui-icon ui-icon-alert"></span>
-            <h4 class="btn btn-link">
-              <span
-                data-bind="text: arrRequestsWithNoResponses().length"
-              ></span>
-              Requests have 0 Responses
-            </h4>
+        <details>
+          <summary class="warning btn btn-link">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span data-bind="text: arrRequestsWithNoResponses().length"></span>
+            Requests have 0 Responses
           </summary>
           <div id="divRequestsWithNoResponseItems" class="">
             <ul data-bind="foreach: arrRequestsWithNoResponses">
