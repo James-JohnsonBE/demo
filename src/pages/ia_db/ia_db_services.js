@@ -173,8 +173,6 @@ function ViewModel() {
   //self.arrResponses = ko.observableArray( null ).extend({ rateLimit: 500 });
   self.arrRequests = ko.observableArray(null);
   self.arrResponses = ko.observableArray(null);
-  self.arrFilteredRequestsCount = ko.observable(0);
-  self.arrFilteredResponsesCount = ko.observable(0);
   self.cntPendingReview = ko.observable(0);
 
   /* alerts */
@@ -197,42 +195,12 @@ function ViewModel() {
       .classList.toggle("collapsed");
   };
 
-  self.ddOptionsRequestTabRequestID = ko.observableArray();
-  self.ddOptionsRequestTabRequestStatus = ko.observableArray();
-  self.ddOptionsRequestTabRequestSensitivity = ko.observableArray();
-  self.ddOptionsRequestTabRequestInternalDueDate = ko.observableArray();
-  self.ddOptionsRequestTabRequestDueDate = ko.observableArray();
-  self.ddOptionsRequestTabRequestSample = ko.observableArray();
-  self.ddOptionsRequestTabRequestSentEmail = ko.observableArray();
-  self.ddOptionsRequestTabRequestAO = ko.observableArray();
-  self.filterRequestTabRequestID = ko.observable();
-  self.filterRequestTabRequestStatus = ko.observable();
-  self.filterRequestTabRequestSensitivity = ko.observable();
-  self.filterRequestTabRequestInternalDueDate = ko.observable();
-  self.filterRequestTabRequestDueDate = ko.observable();
-  self.filterRequestTabRequestSample = ko.observable();
-  self.filterRequestTabRequestSentEmail = ko.observable();
-  self.filterRequestTabRequestAO = ko.observable();
-
-  /* response tab */
-  self.ddOptionsResponseTabRequestID = ko.observableArray();
-  self.ddOptionsResponseTabRequestStatus = ko.observableArray();
-  self.ddOptionsResponseTabRequestInternalDueDate = ko.observableArray();
-  self.ddOptionsResponseTabRequestSample = ko.observableArray();
-  self.ddOptionsResponseTabResponseTitle = ko.observableArray();
-  self.ddOptionsResponseTabResponseStatus = ko.observableArray();
-  self.ddOptionsResponseTabResponseAO = ko.observableArray();
-  self.ddOptionsResponseTabResponseModified = ko.observableArray();
-  self.filterResponseTabRequestID = ko.observable();
-  self.filterResponseTabSampleNum = ko.observable();
-  self.filterResponseTabRequestIntDueDate = ko.observable();
-  self.filterResponseTabResponseName = ko.observable();
-  self.filterResponseTabResponseStatus = ko.observable();
-  self.filterResponseTabResponseAO = ko.observable();
-  self.filterResponseTabResponseModified = ko.observable();
-  self.doSort = ko.observable(false).extend({ rateLimit: 1000 });
-
-  self.ddOptionsRequestInfoTabRequestName = ko.observableArray();
+  self.ddOptionsRequestInfoTabRequestName = ko.pureComputed(() => {
+    return self
+      .arrRequests()
+      .map((req) => req.reqNumber)
+      .sort();
+  });
   self.filterRequestInfoTabRequestName = ko.observableArray();
 
   self.currentRequest = ko.observable();
@@ -245,61 +213,6 @@ function ViewModel() {
 
   self.showUpload = ko.observable(false);
   self.showSubmit = ko.observable(false);
-
-  self.selectedFiltersRequestTab = ko.computed(function () {
-    var requestID = self.filterRequestTabRequestID();
-    var requestStatus = self.filterRequestTabRequestStatus();
-    var requestSensitivity = self.filterRequestTabRequestSensitivity();
-    var requestIntDueDate = self.filterRequestTabRequestInternalDueDate();
-    var requestDueDate = self.filterRequestTabRequestDueDate();
-    var requestSample = self.filterRequestTabRequestSample();
-    var requestSentEmail = self.filterRequestTabRequestSentEmail();
-    var requestAO = self.filterRequestTabRequestAO();
-
-    return (
-      requestID +
-      " " +
-      requestStatus +
-      " " +
-      requestSensitivity +
-      " " +
-      requestIntDueDate +
-      " " +
-      requestDueDate +
-      " " +
-      requestSample +
-      " " +
-      requestSentEmail +
-      " " +
-      requestAO
-    );
-  });
-
-  self.selectedFiltersResponseTab = ko.computed(function () {
-    var requestID = self.filterResponseTabRequestID();
-    var sampleNum = self.filterResponseTabSampleNum();
-    var responseName = self.filterResponseTabResponseName();
-    var requestIntDueDate = self.filterResponseTabRequestIntDueDate();
-    var responseStatus = self.filterResponseTabResponseStatus();
-    var responseAO = self.filterResponseTabResponseAO();
-    var responseModified = self.filterResponseTabResponseModified();
-
-    return (
-      requestID +
-      " " +
-      sampleNum +
-      " " +
-      responseName +
-      " " +
-      requestIntDueDate +
-      " " +
-      responseStatus +
-      " " +
-      responseAO +
-      " " +
-      responseModified
-    );
-  });
 
   self.currentDialog = ModalDialog.currentDialog;
 
@@ -334,294 +247,6 @@ function ViewModel() {
   self.blockingTasks = blockingTasks;
 
   /** Behaviors **/
-
-  self.ClearFiltersRequestTab = function () {
-    self.filterRequestTabRequestID("");
-    self.filterRequestTabRequestStatus("");
-    self.filterRequestTabRequestSensitivity("");
-    self.filterRequestTabRequestInternalDueDate("");
-    self.filterRequestTabRequestDueDate("");
-    self.filterRequestTabRequestSample("");
-    self.filterRequestTabRequestSentEmail("");
-    self.filterRequestTabRequestAO("");
-  };
-
-  self.ClearFiltersResponseTab = function () {
-    self.filterResponseTabRequestID("");
-    self.filterResponseTabSampleNum("");
-    self.filterResponseTabResponseName("");
-    self.filterResponseTabRequestIntDueDate("");
-    self.filterResponseTabResponseStatus("");
-    self.filterResponseTabResponseAO("");
-    self.filterResponseTabResponseModified("");
-  };
-
-  self.FilterChangedRequestTab = function () {
-    return;
-    //	console.log("filter changed");
-    setTimeout(function () {
-      const timerStart = new Date();
-
-      var requestID = self.filterRequestTabRequestID();
-      var requestStatus = self.filterRequestTabRequestStatus();
-      var requestSensitivity = self.filterRequestTabRequestSensitivity();
-      var requestIntDueDate = self.filterRequestTabRequestInternalDueDate();
-      var requestDueDate = self.filterRequestTabRequestDueDate();
-      var requestSample = self.filterRequestTabRequestSample();
-      var requestSentEmail = self.filterRequestTabRequestSentEmail();
-      var requestAO = self.filterRequestTabRequestAO();
-
-      if (
-        !requestID &&
-        !requestStatus &&
-        !requestSensitivity &&
-        !requestIntDueDate &&
-        !requestDueDate &&
-        !requestSample &&
-        !requestSentEmail &&
-        !requestAO
-      ) {
-        $(".sr1-request-item").show();
-
-        self.arrFilteredRequestsCount(self.arrRequests().length);
-
-        //SP.UI.Notify.removeNotification( notifyId );
-        return;
-      }
-
-      requestID = !requestID ? "" : requestID;
-      requestStatus = !requestStatus ? "" : requestStatus;
-      requestSensitivity = !requestSensitivity ? "" : requestSensitivity;
-      requestIntDueDate = !requestIntDueDate ? "" : requestIntDueDate;
-      requestDueDate = !requestDueDate ? "" : requestDueDate;
-      requestSample = !requestSample ? "" : requestSample.toString();
-      requestSentEmail = !requestSentEmail ? "" : requestSentEmail.toString();
-      requestAO = !requestAO ? "" : requestAO;
-
-      var count = 0;
-      var eacher = $(".sr1-request-item");
-      eacher.each(function () {
-        var hide = false;
-
-        if (
-          !hide &&
-          requestID != "" &&
-          $.trim($(this).find(".sr1-request-requestNum").text()) != requestID
-        )
-          hide = true;
-        if (
-          !hide &&
-          requestStatus != "" &&
-          $.trim($(this).find(".sr1-request-status").text()).indexOf(
-            requestStatus
-          ) < 0
-        )
-          hide = true;
-        if (
-          !hide &&
-          requestSensitivity != "" &&
-          $.trim($(this).find(".sr1-request-sensitivity").text()).indexOf(
-            requestSensitivity
-          ) < 0
-        )
-          hide = true;
-        if (
-          !hide &&
-          requestIntDueDate != "" &&
-          $.trim($(this).find(".sr1-request-internalDueDate").text()) !=
-            requestIntDueDate
-        )
-          hide = true;
-        if (
-          !hide &&
-          requestDueDate != "" &&
-          $.trim($(this).find(".sr1-request-dueDate").text()) != requestDueDate
-        )
-          hide = true;
-        if (
-          !hide &&
-          requestSample != "" &&
-          $.trim($(this).find(".sr1-request-sample").text()) != requestSample
-        )
-          hide = true;
-        if (
-          !hide &&
-          requestSentEmail != "" &&
-          $.trim($(this).find(".sr1-request-sentEmail").text()) !=
-            requestSentEmail
-        )
-          hide = true;
-        if (!hide && requestAO != "") {
-          var bFound = false;
-          $(this)
-            .find(".sr1-request-actionOffice-item")
-            .each(function () {
-              if ($(this).text() == requestAO) {
-                bFound = true;
-                return;
-              }
-            });
-          if (!bFound) hide = true;
-        }
-
-        if (hide) $(this).hide();
-        else {
-          $(this).show();
-          count++;
-        }
-      });
-
-      self.arrFilteredRequestsCount(count);
-      console.log("Requests Filtered in: ", (new Date() - timerStart) / 1000);
-    }, 100);
-  };
-
-  self.FilterChangedResponseTab = function () {
-    document.body.style.cursor = "wait";
-    setTimeout(function () {
-      const timerStart = new Date();
-      var requestID = self.filterResponseTabRequestID();
-      var sampleNum = self.filterResponseTabSampleNum();
-      var responseName = self.filterResponseTabResponseName();
-      var requestIntDueDate = self.filterResponseTabRequestIntDueDate();
-      var responseStatus = self.filterResponseTabResponseStatus();
-      var responseAO = self.filterResponseTabResponseAO();
-      var responseModified = self.filterResponseTabResponseModified();
-
-      if (
-        !requestID &&
-        !sampleNum &&
-        !responseName &&
-        !requestIntDueDate &&
-        !responseStatus &&
-        !responseAO &&
-        !responseModified
-      ) {
-        $(".sr2-response-item").show();
-        self.arrFilteredResponsesCount(self.arrResponses().length);
-        document.body.style.cursor = "default";
-        return;
-      }
-
-      requestID = !requestID ? "" : requestID;
-      sampleNum = !sampleNum ? "" : sampleNum;
-      responseName = !responseName ? "" : responseName;
-      requestIntDueDate = !requestIntDueDate ? "" : requestIntDueDate;
-      responseStatus = !responseStatus ? "" : responseStatus;
-      responseAO = !responseAO ? "" : responseAO;
-      responseModified = !responseModified ? "" : responseModified;
-
-      var count = 0;
-      var eacher = $(".sr2-response-item");
-      eacher.each(function () {
-        var hide = false;
-
-        if (
-          !hide &&
-          requestID != "" &&
-          $.trim($(this).find(".sr2-response-requestNum").text()) != requestID
-        )
-          hide = true;
-        if (
-          !hide &&
-          sampleNum != "" &&
-          $.trim($(this).find(".sr2-response-sample").text()) != sampleNum
-        )
-          hide = true;
-        if (
-          !hide &&
-          responseName != "" &&
-          $.trim($(this).find(".sr2-response-title").text()) != responseName
-        )
-          hide = true;
-        if (
-          !hide &&
-          requestIntDueDate != "" &&
-          $.trim($(this).find(".sr2-response-internalDueDate").text()) !=
-            requestIntDueDate
-        )
-          hide = true;
-        if (
-          !hide &&
-          responseStatus != "" &&
-          $.trim($(this).find(".sr2-response-status").text()) != responseStatus
-        )
-          hide = true;
-        if (
-          !hide &&
-          responseAO != "" &&
-          $.trim($(this).find(".sr2-response-ao").text()) != responseAO
-        )
-          hide = true;
-        if (!hide && responseModified != "") {
-          var curDate = new Date();
-          var responseModifiedDate = $(this)
-            .find(".sr2-response-modified")
-            .text();
-
-          if (responseModified == "Last 7 Days") {
-            var modifiedDate = new Date(responseModifiedDate);
-            curDate.setDate(curDate.getDate() - 7);
-            if (curDate > modifiedDate) hide = true;
-          } else if (responseModified == "This Month") {
-            var modifiedDate = new Date(responseModifiedDate);
-            curDate.setDate(1);
-            if (curDate > modifiedDate) hide = true;
-          } else if (responseModified == "This Quarter") {
-            var modifiedDate = new Date(responseModifiedDate);
-
-            if (modifiedDate.getFullYear() != curDate.getFullYear()) {
-              hide = true;
-            } else {
-              var modifiedMonth = modifiedDate.getMonth();
-              var curMonth = curDate.getMonth();
-
-              if (curMonth == 0 || curMonth == 1 || curMonth == 2) {
-                if (
-                  modifiedMonth != 0 &&
-                  modifiedMonth != 1 &&
-                  modifiedMonth != 2
-                )
-                  hide = true;
-              } else if (curMonth == 3 || curMonth == 4 || curMonth == 5) {
-                if (
-                  modifiedMonth != 3 &&
-                  modifiedMonth != 4 &&
-                  modifiedMonth != 5
-                )
-                  hide = true;
-              } else if (curMonth == 6 || curMonth == 7 || curMonth == 8) {
-                if (
-                  modifiedMonth != 6 &&
-                  modifiedMonth != 7 &&
-                  modifiedMonth != 8
-                )
-                  hide = true;
-              } else if (curMonth == 9 || curMonth == 10 || curMonth == 11) {
-                if (
-                  modifiedMonth != 9 &&
-                  modifiedMonth != 10 &&
-                  modifiedMonth != 11
-                )
-                  hide = true;
-              }
-            }
-          } else if ($.trim(responseModifiedDate).indexOf(responseModified) < 0)
-            hide = true;
-        }
-
-        if (hide) $(this).hide();
-        else {
-          $(this).show();
-          count++;
-        }
-      });
-
-      self.arrFilteredResponsesCount(count);
-      document.body.style.cursor = "default";
-      console.log("Responses Filtered in: ", (new Date() - timerStart) / 1000);
-    }, 200);
-  };
 
   self.ClickNewRequest = () => {
     m_fnCreateRequest();
@@ -806,188 +431,47 @@ function ViewModel() {
     document.getElementById("tblStatusReportResponses")?.update();
   }, "arrayChange");
 
-  self.selectedFiltersRequestTab.subscribe(function (value) {
-    self.FilterChangedRequestTab();
-  });
-
-  self.selectedFiltersResponseTab.subscribe(function (value) {
-    self.FilterChangedResponseTab();
-  });
-
-  self.doSort.subscribe(function (newValue) {
+  self.filterStatusTables = (newValue) => {
     Audit.Common.Utilities.OnLoadDisplayTimeStamp();
 
-    //alert("in dosort: " + self.arrResponses().length );
-    if (self.arrRequests().length > 0 && newValue) {
-      //should trigger only once
-      self.arrFilteredRequestsCount(self.arrRequests().length);
-      self.arrFilteredResponsesCount(self.arrResponses().length);
+    var paramTabIndex = GetUrlKeyValue("Tab");
+    var paramRequestNum = GetUrlKeyValue("ReqNum");
+    var paramResNum = GetUrlKeyValue("ResNum");
 
-      //tab1
-      ko.utils.arrayPushAll(
-        self.ddOptionsRequestTabRequestID(),
-        self.GetDDVals({ type: 0, field: "reqNumber" })
-      );
-      self.ddOptionsRequestTabRequestID.valueHasMutated();
-
-      ko.utils.arrayPushAll(
-        self.ddOptionsRequestTabRequestStatus(),
-        self.GetDDVals({ type: 0, field: "status" })
-      );
-      self.ddOptionsRequestTabRequestStatus.valueHasMutated();
-
-      ko.utils.arrayPushAll(
-        self.ddOptionsRequestTabRequestInternalDueDate(),
-        self.GetDDVals({ type: 0, field: "internalDueDate" })
-      );
-      self.ddOptionsRequestTabRequestInternalDueDate.valueHasMutated();
-
-      ko.utils.arrayPushAll(
-        self.ddOptionsRequestTabRequestSensitivity(),
-        self.GetDDVals({ type: 0, field: "sensitivity" })
-      );
-      self.ddOptionsRequestTabRequestSensitivity.valueHasMutated();
-
-      ko.utils.arrayPushAll(
-        self.ddOptionsRequestTabRequestDueDate(),
-        self.GetDDVals({ type: 0, field: "dueDate" })
-      );
-      self.ddOptionsRequestTabRequestDueDate.valueHasMutated();
-
-      ko.utils.arrayPushAll(
-        self.ddOptionsRequestTabRequestSample(),
-        self.GetDDVals({ type: 0, field: "sample" })
-      );
-      self.ddOptionsRequestTabRequestSample.valueHasMutated();
-
-      ko.utils.arrayPushAll(
-        self.ddOptionsRequestTabRequestSentEmail(),
-        self.GetDDVals({ type: 0, field: "sentEmail" })
-      );
-      self.ddOptionsRequestTabRequestSentEmail.valueHasMutated();
-
-      ko.utils.arrayPushAll(
-        self.ddOptionsRequestTabRequestAO(),
-        self.GetDDVals({ type: 0, field: "actionOffices", isArr: true })
-      );
-      self.ddOptionsRequestTabRequestAO.valueHasMutated();
-
-      //tab 2
-      ko.utils.arrayPushAll(
-        self.ddOptionsResponseTabRequestID(),
-        self.GetDDVals({ type: 1, field: "reqNumber" })
-      );
-      self.ddOptionsResponseTabRequestID.valueHasMutated();
-
-      ko.utils.arrayPushAll(
-        self.ddOptionsResponseTabRequestSample(),
-        self.GetDDVals({ type: 1, field: "sample" })
-      );
-      self.ddOptionsResponseTabRequestSample.valueHasMutated();
-
-      ko.utils.arrayPushAll(
-        self.ddOptionsResponseTabResponseTitle(),
-        self.GetDDVals({ type: 1, field: "title", sort: true })
-      );
-      self.ddOptionsResponseTabResponseTitle.valueHasMutated();
-
-      ko.utils.arrayPushAll(
-        self.ddOptionsResponseTabRequestInternalDueDate(),
-        self.GetDDVals({ type: 1, field: "internalDueDate" })
-      );
-      self.ddOptionsResponseTabRequestInternalDueDate.valueHasMutated();
-
-      ko.utils.arrayPushAll(
-        self.ddOptionsResponseTabResponseStatus(),
-        self.GetDDVals({ type: 1, field: "status" })
-      );
-      self.ddOptionsResponseTabResponseStatus.valueHasMutated();
-
-      ko.utils.arrayPushAll(
-        self.ddOptionsResponseTabResponseAO(),
-        self.GetDDVals({ type: 1, field: "ao" })
-      );
-      self.ddOptionsResponseTabResponseAO.valueHasMutated();
-
-      //tab 3
-      ko.utils.arrayPushAll(
-        self.ddOptionsRequestInfoTabRequestName(),
-        self.GetDDVals({ type: 0, field: "reqNumber" })
-      );
-      self.ddOptionsRequestInfoTabRequestName.valueHasMutated();
-
-      var tempArrModifed = new Array();
-      tempArrModifed.push("Last 7 Days");
-      tempArrModifed.push("This Month");
-      tempArrModifed.push("This Quarter");
-      ko.utils.arrayPushAll(
-        self.ddOptionsResponseTabResponseModified(),
-        tempArrModifed
-      );
-      ko.utils.arrayPushAll(
-        self.ddOptionsResponseTabResponseModified(),
-        self.GetDDVals({ type: 1, field: "modified", isDate: true })
-      );
-      self.ddOptionsResponseTabResponseModified.valueHasMutated();
-
-      setTimeout(function () {
-        var paramTabIndex = GetUrlKeyValue("Tab");
-        var paramRequestNum = GetUrlKeyValue("ReqNum");
-        var paramResNum = GetUrlKeyValue("ResNum");
-
-        if (paramTabIndex != null && paramTabIndex != "") {
-          self.tabs.selectById(paramTabIndex);
-        } else {
-          self.tabs.selectTab(self.tabOpts.Requests);
-        }
-
-        if (paramRequestNum != null && paramRequestNum != "") {
-          if (paramTabIndex == self.tabOpts.Responses.id)
-            // self.filterRequestTabRequestID(paramRequestNum);
-            document
-              .getElementById("tblStatusReportResponses")
-              .filterByColIndex(0, paramRequestNum);
-          //if (paramTabIndex == self.tabOpts.RequestDetail.id)
-          else self.filterRequestInfoTabRequestName(paramRequestNum);
-        }
-        /**Note: on the jsrender of the request/response tables, I set the rows to display none; the filters below show the rows I want **/
-        // self.filterRequestTabRequestStatus(m_sRequestStatusToFilterOn);
-
-        if (
-          paramResNum != null &&
-          paramResNum != "" &&
-          paramTabIndex == self.tabOpts.Responses.id
-        ) {
-          // self.filterResponseTabResponseName(paramResNum);
-          document
-            .getElementById("tblStatusReportResponses")
-            .filterByColIndex(2, paramResNum);
-        }
-        //dont filter here because IA has received a link to the response and we don't want the status to be filtered
-        else
-          document
-            .getElementById("tblStatusReportResponses")
-            .filterByColIndex(4, m_sResponseStatusToFilterOn);
-
-        //$( "#tblStatusReportResponses" ).trigger("update");
-        // $("#tblStatusReportRequests").tablesorter({
-        //   sortList: [[4, 0]],
-        //   //showProcessing: true,
-        //   selectorHeaders: ".sorter-true",
-        // });
-
-        // new DataTable(document.getElementById("tblStatusReportRequests"));
-
-        // if (self.arrResponses().length > 0) {
-        //   $("#tblStatusReportResponses").tablesorter({
-        //     sortList: [[0, 0]],
-        //     //showProcessing: true,
-        //     selectorHeaders: ".sorter-true",
-        //   });
-        // }
-      }, 200);
+    if (paramTabIndex != null && paramTabIndex != "") {
+      self.tabs.selectById(paramTabIndex);
+    } else {
+      self.tabs.selectTab(self.tabOpts.Requests);
     }
-  });
+
+    if (paramRequestNum != null && paramRequestNum != "") {
+      if (paramTabIndex == self.tabOpts.Responses.id)
+        // self.filterRequestTabRequestID(paramRequestNum);
+        document
+          .getElementById("tblStatusReportResponses")
+          .filterByColIndex(0, paramRequestNum);
+      //if (paramTabIndex == self.tabOpts.RequestDetail.id)
+      else self.filterRequestInfoTabRequestName(paramRequestNum);
+    }
+    /**Note: on the jsrender of the request/response tables, I set the rows to display none; the filters below show the rows I want **/
+    // self.filterRequestTabRequestStatus(m_sRequestStatusToFilterOn);
+
+    if (
+      paramResNum != null &&
+      paramResNum != "" &&
+      paramTabIndex == self.tabOpts.Responses.id
+    ) {
+      // self.filterResponseTabResponseName(paramResNum);
+      document
+        .getElementById("tblStatusReportResponses")
+        .filterByColIndex(2, paramResNum);
+    }
+    //dont filter here because IA has received a link to the response and we don't want the status to be filtered
+    else
+      document
+        .getElementById("tblStatusReportResponses")
+        .filterByColIndex(4, m_sResponseStatusToFilterOn);
+  };
 
   var requestUnloadEventHandler = function (oRequest) {
     return function (event) {
@@ -995,6 +479,7 @@ function ViewModel() {
       oRequest.activeViewers.removeCurrentuser();
     };
   };
+
   var currentRequestUnloadEventHandler;
   /* 3rd tab */
   // Before Change
@@ -3120,7 +2605,7 @@ function LoadTabStatusReport2() {
     //   .html(responseOutput)
     //   .show();
   }
-  _myViewModel.doSort(true);
+  _myViewModel.filterStatusTables(true);
 
   ko.utils.arrayPushAll(
     _myViewModel.arrResponsesSubmittedByAO(),
