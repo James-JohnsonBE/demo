@@ -8,6 +8,7 @@ import {
   AuditResponseDoc,
   AuditCoversheet,
   AuditConfiguration,
+  AuditResponseDocRO,
 } from "../entities/index.js";
 import { EntitySet, DbContext } from "../sal/index.js";
 
@@ -31,6 +32,7 @@ export class ApplicationDbContext extends DbContext {
   AuditResponses = new EntitySet(AuditResponse);
 
   AuditResponseDocs = new EntitySet(AuditResponseDoc);
+  AuditResponseDocsRO = new EntitySet(AuditResponseDocRO);
 
   AuditRequests = new EntitySet(AuditRequest);
 

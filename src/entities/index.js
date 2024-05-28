@@ -6,4 +6,5 @@ export * from "./audit_request.js";
 export * from "./audit_request_internal.js";
 export * from "./audit_response.js";
 export * from "./audit_response_doc.js";
+export * from "./audit_response_doc_ro.js";
 export * from "./config.js";

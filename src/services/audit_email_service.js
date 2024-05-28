@@ -1,6 +1,7 @@
 import { appContext } from "../infrastructure/application_db_context.js";
 import { roleNames } from "./permission_manager.js";
 import { getQAGroup, getSiteGroups } from "./people_manager.js";
+import { ItemPermissions } from "../sal/infrastructure/index.js";
 
 export async function ensureROEmailFolder() {
   const folderResults = await appContext.AuditEmails.FindByColumnValue(
@@ -18,34 +19,22 @@ export async function ensureROEmailFolder() {
     "RONotifications"
   );
 
-  const siteGroups = getSiteGroups();
-  const newRoles = [];
-  newRoles.push({
-    principal: siteGroups.owners,
-    roleDefs: [{ name: roleNames.FullControl }],
-  });
-  newRoles.push({
-    principal: siteGroups.members,
-    roleDefs: [{ name: roleNames.Contribute }],
-  });
-  newRoles.push({
-    principal: siteGroups.visitors,
-    roleDefs: [{ name: roleNames.RestrictedRead }],
+  const { owners, members, visitors } = getSiteGroups();
+  let qaGroup = await getQAGroup();
+
+  const newPermissions = new ItemPermissions({
+    hasUniqueRoleAssignments: true,
+    roles: [],
   });
 
-  let qaGroup = getQAGroup();
-  newRoles.push({
-    principal: qaGroup,
-    roleDefs: [{ name: roleNames.RestrictedContribute }],
-  });
-
-  const newPerms = {
-    roles: newRoles,
-  };
+  newPermissions.addPrincipalRole(owners, roleNames.FullControl);
+  newPermissions.addPrincipalRole(members, roleNames.Contribute);
+  newPermissions.addPrincipalRole(visitors, roleNames.RestrictedRead);
+  newPermissions.addPrincipalRole(qaGroup, roleNames.RestrictedContribute);
 
   await appContext.AuditEmails.SetItemPermissions(
     { ID: newFolderId },
-    newPerms,
+    newPermissions,
     true
   );
 }
