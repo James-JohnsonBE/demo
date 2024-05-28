@@ -102,9 +102,8 @@ export class EntitySet {
   FindByColumnValue = async (
     columnFilters,
     { orderByColumn, sortAsc },
-    { count = null, includePermissions = false },
-    fields = this.AllDeclaredFields,
-    includeFolders = false
+    { count = null, includePermissions = false, includeFolders = false },
+    fields = this.AllDeclaredFields
   ) => {
     // if we pass in a count, we are expecting a cursor result
     const returnCursor = count != null;
@@ -114,9 +113,8 @@ export class EntitySet {
     const results = await this.ListRef.findByColumnValueAsync(
       columnFilters,
       { orderByColumn, sortAsc },
-      { count, includePermissions },
-      fields,
-      includeFolders
+      { count, includePermissions, includeFolders },
+      fields
     );
 
     let cursor = {

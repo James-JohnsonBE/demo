@@ -311,9 +311,8 @@ export async function getRequestResponseDocsFolders(responseTitle) {
   const responsesResult = await appContext.AuditResponseDocs.FindByColumnValue(
     [{ column: "Title", value: responseTitle }],
     {},
-    {},
-    ["ID", "Title"],
-    true
+    { includeFolders: true },
+    ["ID", "Title"]
   );
 
   return responsesResult.results;

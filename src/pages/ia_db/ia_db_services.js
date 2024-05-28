@@ -33,6 +33,7 @@ import {
   taskDefs,
 } from "../../services/tasks.js";
 import { resetAllDBPerms } from "../../services/permission_manager.js";
+import { ensureROEmailFolder } from "../../services/audit_email_service.js";
 
 var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
@@ -664,8 +665,8 @@ function LoadInfo() {
           m_ResponseDocsItems
         );
         // m_fnResetAODBPerms(m_PageItems);
-
-        m_fnCheckForEAEmailFolder(emailListFolderItemsEA);
+        ensureROEmailFolder();
+        // m_fnCheckForEAEmailFolder(emailListFolderItemsEA);
       }
       function OnFailureLoadPages(sender, args) {
         $("#divIA").show();

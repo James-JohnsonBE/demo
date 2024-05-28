@@ -1046,9 +1046,8 @@ export function SPList(listDef) {
   async function findByColumnValueAsync(
     columnFilters,
     { orderByColumn = null, sortAsc },
-    { count = null, includePermissions = false },
-    fields,
-    includeFolders
+    { count = null, includePermissions = false, includeFolders = false },
+    fields
   ) {
     const [queryFields, expandFields] = await getQueryFields(fields);
     if (includePermissions) {
