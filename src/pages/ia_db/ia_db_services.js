@@ -539,50 +539,6 @@ function ViewModel() {
   self.currentRequest.subscribe((request) => {
     if (request) setUrlParam(requestParam, request.number);
   });
-
-  /**Other**/
-  self.GetDDVals = function (oObjectProperties) {
-    var arr = self.arrRequests();
-    if (oObjectProperties.type == 1) arr = self.arrResponses();
-
-    var fieldName = oObjectProperties.field;
-    var types = ko.utils.arrayMap(arr, function (item) {
-      if (oObjectProperties.isArr) {
-        var fieldArr = item[fieldName];
-
-        var arrToReturn = new Array();
-        //var arrToReturn = "";
-        for (var x = 0; x < fieldArr.length; x++) {
-          arrToReturn.push(fieldArr[x].ao);
-          //	arrToReturn += fieldArr[x].ao  + ","
-        }
-        return arrToReturn;
-      } else if (oObjectProperties.isDate) return item[fieldName].split(" ")[0];
-      else {
-        if (item[fieldName] == null) return "";
-        else return item[fieldName].toString();
-      }
-    });
-
-    var ddArr = null;
-    if (oObjectProperties.isArr) {
-      var tempArr = new Array();
-      for (var x = 0; x < types.length; x++) {
-        if (types[x].length > 0) {
-          for (var y = 0; y < types[x].length; y++) {
-            tempArr.push(types[x][y]);
-          }
-        }
-      }
-      ddArr = ko.utils.arrayGetDistinctValues(tempArr).sort();
-    } else ddArr = ko.utils.arrayGetDistinctValues(types).sort();
-    if (oObjectProperties.sort)
-      ddArr.sort(Audit.Common.Utilities.SortResponseTitles);
-
-    if (ddArr[0] == "") ddArr.shift();
-
-    return ddArr;
-  };
 }
 
 function LoadInfo() {
@@ -2597,13 +2553,7 @@ function LoadTabStatusReport2() {
 
   if (responseArr.length > 0) {
     ko.utils.arrayPushAll(_myViewModel.arrResponses, responseArr);
-    _myViewModel.arrResponses.valueHasMutated(); //not doing this because we're using jsrender
-
-    //do this after push all because this takes some time
-    // var responseOutput = $("#responseTemplate").render(responseArr);
-    // $("#" + fbody)
-    //   .html(responseOutput)
-    //   .show();
+    _myViewModel.arrResponses.valueHasMutated();
   }
   _myViewModel.filterStatusTables(true);
 
