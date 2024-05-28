@@ -2209,73 +2209,8 @@ async function LoadTabRequestInfoResponseDocs(oRequest) {
     SP.UI.Status.setStatusPriColor(statusId, "red");
   });
 
-  var sReponseDocs = "";
-  var cnt = 0;
-
   oRequest.responses.sort(Audit.Common.Utilities.SortResponseObjects);
 
-  var onc =
-    "onclick=\"return DispEx(this,event,'TRUE','FALSE','FALSE','SharePoint.OpenDocuments.3','1','SharePoint.OpenDocuments','','','','2','0','0','0x7fffffffffffffff','','')\"";
-
-  var arrResponseSummaries = new Array();
-  for (var y = 0; y < oRequest.responses.length; y++) {
-    continue;
-    var oResponse = oRequest.responses[y];
-
-    var showBulkApprove = false;
-
-    var arrResponseDocs = new Array();
-    for (var z = 0; z < oResponse.responseDocs.length; z++) {
-      var oResponseDoc = oResponse.responseDocs[z];
-
-      oResponseDoc.chkApproveResDoc = ko.observable(false);
-
-      if (oResponseDoc.documentStatus == "Marked for Deletion") continue;
-
-      oResponseDoc.docIcon = oResponseDoc.docIcon.get_value();
-      oResponseDoc.styleTag = Audit.Common.Utilities.GetResponseDocStyleTag2(
-        oResponseDoc.documentStatus
-      );
-      oResponseDoc.requestID = oRequest.ID; //needed for view document
-      oResponseDoc.responseID = oResponse.ID;
-      oResponseDoc.responseTitle = oResponse.title; //needed for view document
-      oResponseDoc.responseDocOpenInIELink =
-        "<a class='btn btn-link' target='_blank' title='Click to Open the document' onmousedown=\"return VerifyHref(this,event,'1','SharePoint.OpenDocuments','')\" " +
-        onc +
-        ' href="' +
-        oResponseDoc.folder +
-        "/" +
-        oResponseDoc.fileName +
-        '">' +
-        oResponseDoc.fileName +
-        "</a>";
-      arrResponseDocs.push(oResponseDoc);
-      cnt++;
-
-      if (
-        oResponse.resStatus == "2-Submitted" &&
-        oResponseDoc.documentStatus == "Submitted"
-      ) {
-        showBulkApprove = true;
-      }
-    }
-    const responseSummary = {
-      responseId: oResponse.ID,
-      responseTitle: oResponse.title,
-      responseDocs: arrResponseDocs,
-      responseStatus: oResponse.resStatus,
-      requestStatus: oRequest.status,
-      collapsed: ko.observable(false),
-      showBulkApprove,
-    };
-    arrResponseSummaries.push(responseSummary);
-  }
-
-  // ko.utils.arrayPushAll(
-  //   _myViewModel.arrCurrentRequestResponseDocs,
-  //   arrResponseSummaries
-  // );
-  // _myViewModel.cntResponseDocs(cnt);
   RequestFinishedLoading();
 }
 
