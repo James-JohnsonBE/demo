@@ -123,7 +123,7 @@ TABLE.tablesorter THEAD TR .header {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 .button {

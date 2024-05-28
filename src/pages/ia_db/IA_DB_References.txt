@@ -458,7 +458,7 @@
           <th
             class="sorter-false filter"
             data-filter="multiselect"
-            data-filter-default="Open"
+            data-filter-value="Open"
             data-filter-prop="status"
             nowrap="nowrap"
           ></th>
@@ -638,7 +638,6 @@
           <th
             class="sorter-false"
             data-filter="multiselect"
-            data-filter-default="1-Open"
             nowrap="nowrap"
           ></th>
           <th

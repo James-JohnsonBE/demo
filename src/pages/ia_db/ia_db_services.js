@@ -792,6 +792,11 @@ function ViewModel() {
 
   self.requestDetailViewComponent = new RequestDetailView(self);
 
+  self.filterRequestInfoTable = (prop, value) => {
+    const tbl = document.getElementById("tblStatusReportRequests");
+    tbl.filterByColIndex();
+  };
+
   /** Subscriptions **/
   self.arrRequests.subscribe((arrayChanges) => {
     document.getElementById("tblStatusReportRequests")?.update();
@@ -938,26 +943,31 @@ function ViewModel() {
 
         if (paramRequestNum != null && paramRequestNum != "") {
           if (paramTabIndex == self.tabOpts.Responses.id)
-            self.filterRequestTabRequestID(paramRequestNum);
+            // self.filterRequestTabRequestID(paramRequestNum);
+            document
+              .getElementById("tblStatusReportResponses")
+              .filterByColIndex(0, paramRequestNum);
           //if (paramTabIndex == self.tabOpts.RequestDetail.id)
           else self.filterRequestInfoTabRequestName(paramRequestNum);
         }
         /**Note: on the jsrender of the request/response tables, I set the rows to display none; the filters below show the rows I want **/
-        self.filterRequestTabRequestStatus(m_sRequestStatusToFilterOn);
+        // self.filterRequestTabRequestStatus(m_sRequestStatusToFilterOn);
 
         if (
           paramResNum != null &&
           paramResNum != "" &&
           paramTabIndex == self.tabOpts.Responses.id
         ) {
-          self.filterResponseTabResponseName(paramResNum);
-        } else if (
-          paramTabIndex != self.tabOpts.Responses.id ||
-          (paramTabIndex == self.tabOpts.Responses.id &&
-            (paramResNum == null || paramResNum == ""))
-        )
-          //dont filter here because IA has received a link to the response and we don't want the status to be filtered
-          self.filterResponseTabResponseStatus(m_sResponseStatusToFilterOn);
+          // self.filterResponseTabResponseName(paramResNum);
+          document
+            .getElementById("tblStatusReportResponses")
+            .filterByColIndex(2, paramResNum);
+        }
+        //dont filter here because IA has received a link to the response and we don't want the status to be filtered
+        else
+          document
+            .getElementById("tblStatusReportResponses")
+            .filterByColIndex(4, m_sResponseStatusToFilterOn);
 
         //$( "#tblStatusReportResponses" ).trigger("update");
         // $("#tblStatusReportRequests").tablesorter({
@@ -985,7 +995,7 @@ function ViewModel() {
       oRequest.activeViewers.removeCurrentuser();
     };
   };
-  var currentEventHandler;
+  var currentRequestUnloadEventHandler;
   /* 3rd tab */
   // Before Change
   self.filterRequestInfoTabRequestName.subscribe(
@@ -993,7 +1003,10 @@ function ViewModel() {
       var oRequest = m_bigMap["request-" + oldValue];
       if (oRequest && oRequest.activeViewers) {
         oRequest.activeViewers.removeCurrentuser();
-        window.removeEventListener("beforeunload", currentEventHandler);
+        window.removeEventListener(
+          "beforeunload",
+          currentRequestUnloadEventHandler
+        );
       }
     },
     null,
@@ -1021,8 +1034,11 @@ function ViewModel() {
     if (oRequest) {
       if (oRequest.activeViewers) {
         oRequest.activeViewers.pushCurrentUser();
-        currentEventHandler = requestUnloadEventHandler(oRequest);
-        window.addEventListener("beforeunload", currentEventHandler);
+        currentRequestUnloadEventHandler = requestUnloadEventHandler(oRequest);
+        window.addEventListener(
+          "beforeunload",
+          currentRequestUnloadEventHandler
+        );
       }
       m_fnRequeryRequest(oRequest.ID);
     } else {
