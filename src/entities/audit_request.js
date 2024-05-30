@@ -12,7 +12,11 @@ import {
 import { ConstrainedEntity } from "../sal/primitives/index.js";
 
 import { ValidationError } from "../sal/primitives/validation_error.js";
-import { auditOrganizationStore } from "../infrastructure/store.js";
+import {
+  allActionOfficesFilter,
+  allRequestingOfficesFilter,
+  auditOrganizationStore,
+} from "../infrastructure/store.js";
 import { appContext } from "../infrastructure/application_db_context.js";
 
 export const AUDITREQUESTSTATES = {
@@ -76,7 +80,7 @@ export class AuditRequest extends ConstrainedEntity {
     displayName: "Requesting Office",
     type: AuditOrganization,
     options: auditOrganizationStore,
-    optionsFilter: (org) => org.Org_Type == ORGTYPES.REQUESTINGOFFICE,
+    optionsFilter: allRequestingOfficesFilter,
     lookupCol: "Title",
     entitySet: appContext.AuditOrganizations,
     isRequired: true,
@@ -156,6 +160,7 @@ export class AuditRequest extends ConstrainedEntity {
     displayName: "Action Offices",
     type: AuditOrganization,
     options: auditOrganizationStore,
+    optionsFilter: allActionOfficesFilter,
     lookupCol: "Title",
     multiple: true,
     entitySet: appContext.AuditOrganizations,
@@ -165,6 +170,7 @@ export class AuditRequest extends ConstrainedEntity {
     displayName: "Email Action Offices",
     type: AuditOrganization,
     options: auditOrganizationStore,
+    optionsFilter: allActionOfficesFilter,
     lookupCol: "Title",
     multiple: true,
     entitySet: appContext.AuditOrganizations,

@@ -7,7 +7,10 @@ import {
   deleteRequestCoversheetById,
   uploadRequestCoversheetFile,
 } from "../../services/coversheet_manager.js";
-import { getRequestByTitle } from "../../services/audit_request_service.js";
+import {
+  getRequestById,
+  getRequestByTitle,
+} from "../../services/audit_request_service.js";
 import {
   deleteResponseAndFolder,
   uploadResponseDocFile,
@@ -53,31 +56,6 @@ export class RequestDetailView {
 
     this.ModalDialog = ModalDialog;
 
-    /*
-    ROOT FUNCTIONS 
-    ClickViewCoversheet
-    ClickEditCoversheet
-    ClickUploadCoverSheet
-
-    ClickAddResponse
-    ClickBulkAddResponse
-    ClickBulkEditResponse
-    ClickReOpenResponse
-
-    ClickViewResponse
-    ClickEditResponse
-    ClickReviewingResponse
-    ClickViewResponseDocFolder
-    ClickUploadToResponseDocFolder
-
-
-    ClickDeleteResponseDoc
-    ClickCheckInResponseDocument
-    ClickResendRejectedResponseDocToQA
-    ClickViewResponseDoc
-    ClickEditResponseDoc
-    ApproveCheckedResponseDocs
-    */
     this.showCollapsed.subscribe(this.showCollapseToggledHandler);
     this.coverSheetFiles.subscribeAdded(this.onCoverSheetFileAttachedHandler);
 
@@ -87,7 +65,18 @@ export class RequestDetailView {
     );
 
     this.setInitialTab();
+    this.currentRequest.subscribe(this.onRequestChangeHandler);
   }
+
+  request = ko.observable();
+
+  onRequestChangeHandler = async (newRequest) => {
+    if (!newRequest || !newRequest.ID) return;
+    if (newRequest.ID == ko.unwrap(this.request)?.ID) return;
+
+    const request = await getRequestById(newRequest.ID);
+    this.request(request);
+  };
 
   // Fields
   componentName = componentName;

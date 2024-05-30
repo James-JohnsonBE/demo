@@ -84,6 +84,8 @@
           <dd data-bind="text: dueDate"></dd>
         </dl>
         <dl>
+          <dt>Type</dt>
+          <dd data-bind="text: $parent.request()?.ReqType?.toString()"></dd>
           <dt>Status</dt>
           <dd>
             <span

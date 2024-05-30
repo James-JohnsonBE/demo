@@ -34,6 +34,7 @@ import {
 } from "../../services/tasks.js";
 import { resetAllDBPerms } from "../../services/permission_manager.js";
 import { ensureROEmailFolder } from "../../services/audit_email_service.js";
+import { sortByTitle } from "../../sal/infrastructure/index.js";
 
 var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
@@ -56,7 +57,10 @@ export async function InitReport() {
 
   const auditOrganizationsPromise = appContext.AuditOrganizations.ToList().then(
     (organizations) => {
-      ko.utils.arrayPushAll(auditOrganizationStore, organizations);
+      ko.utils.arrayPushAll(
+        auditOrganizationStore,
+        organizations.sort(sortByTitle)
+      );
     }
   );
 
