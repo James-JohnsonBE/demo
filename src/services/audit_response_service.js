@@ -161,6 +161,21 @@ async function isResponseReadyToClose(response, responseDocs) {
   return openResponseDocs.length;
 }
 
+export async function closeResponseById(responseId) {
+  const response = await appContext.AuditResponses.FindById(responseId);
+  // TODO: Use Result
+  if (!response) return;
+  return closeResponse(response);
+}
+
+async function closeResponse(response) {
+  response.markClosed();
+  await appContext.AuditResponses.UpdateEntity(
+    response,
+    AuditResponse.Views.IAUpdateClosed
+  );
+}
+
 export async function uploadResponseDocFile(response, file) {
   const uploadResponseDocTask = addTask(taskDefs.uploadResponseDoc(file.name));
   const fileMetadata = {

@@ -20,6 +20,52 @@
       </fieldset>
     </div>
 
+    <div data-bind="if: currentRequestResponsesReadyToClose().length">
+      <fieldset>
+        <legend>Responses Ready to Close</legend>
+        <table class="tablesorter">
+          <thead>
+            <tr>
+              <th>Response</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach: currentRequestResponsesReadyToClose">
+            <tr>
+              <td
+                class="response-title"
+                data-bind="attr: {'id': 'response-item-title-' + title}"
+              >
+                <span
+                  title="View Response Docs"
+                  class="btn btn-link"
+                  data-bind="text: title, click: $parent.viewResponseDocs"
+                ></span>
+              </td>
+              <td>
+                <button
+                  type="button"
+                  class="btn btn-link"
+                  title="Close Response"
+                  data-bind="click: clickCloseResponse"
+                >
+                  <span class="fa-solid fa-circle-check"></span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <button
+          type="button"
+          class="btn btn-link"
+          title="Close all Responses"
+          data-bind="click: clickCloseReadyResponses"
+        >
+          <span class="fa-solid fa-check-double"></span> Close All Responses
+        </button>
+      </fieldset>
+    </div>
+
     <div
       id="divRequestInfo"
       class="audit-form"

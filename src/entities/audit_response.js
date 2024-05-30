@@ -181,6 +181,7 @@ export class AuditResponse extends ConstrainedEntity {
       "POC",
       "POCCC",
     ],
+    IAUpdateClosed: ["ResStatus", "ClosedDate", "ClosedBy"],
   };
 
   static ListDef = {

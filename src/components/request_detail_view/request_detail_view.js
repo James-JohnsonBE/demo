@@ -12,6 +12,7 @@ import {
   getRequestByTitle,
 } from "../../services/audit_request_service.js";
 import {
+  closeResponseById,
   deleteResponseAndFolder,
   uploadResponseDocFile,
 } from "../../services/audit_response_service.js";
@@ -187,7 +188,8 @@ export class RequestDetailView {
 
   // collapseResponseDocs = (collapse) =>
 
-  refreshRequest = m_fnRefreshData;
+  // Need to wrap this this m_fnRefreshData optionally takes a requestId param
+  refreshRequest = () => m_fnRefreshData();
 
   // Coversheets
   onCoverSheetFileAttachedHandler = async (newFiles) => {
@@ -210,6 +212,14 @@ export class RequestDetailView {
     }
   };
   // Responses
+  clickCloseReadyResponses = async () => {
+    await Promise.all(
+      this.currentRequestResponsesReadyToClose().map(
+        (response) => response.closeResponse
+      )
+    );
+  };
+
   viewResponseDocs = (response) => {
     this.tabs.selectTab(this.tabOpts.ResponseDocs);
     // Manually invoke the handler so we don't have to wait for the sub
@@ -418,12 +428,22 @@ class ResponseItem {
   responseDocFiles = ko.observableArray();
 
   isReadyToClose = () =>
-    this.responseDocFiles.length &&
-    !this.responseDocFiles().find((responseDoc) =>
+    this.resStatus != AuditResponseStates.Closed &&
+    this.responseDocs.length &&
+    !this.responseDocs.find((responseDoc) =>
       [AuditResponseDocStates.Open, AuditResponseDocStates.Submitted].includes(
         responseDoc.documentStatus
       )
     );
+
+  clickCloseResponse = async () => {
+    await this.closeResponse();
+    refreshData();
+  };
+
+  closeResponse = () => {
+    return closeResponseById(this.ID);
+  };
 
   ClickViewResponseHistory = () => {
     appContext.AuditResponses.ListRef.showVersionHistoryModal(this.ID);
