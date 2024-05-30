@@ -49,7 +49,7 @@ export async function ensureRequestROEmailLogItem(requestingOffice) {
   const emailLogResult = await appContext.AuditROEmailsLog.FindByColumnValue(
     [
       { column: "Title", value: logItemTitle },
-      { column: "RO", value: roGroupName },
+      { column: "RequestingOffice", value: roGroupName },
     ],
     {},
     { count: 1, includeFolders: true }

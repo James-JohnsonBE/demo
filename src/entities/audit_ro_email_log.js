@@ -5,6 +5,9 @@ export class AuditROEmailLog extends ConstrainedEntity {
     super(params);
   }
 
+  Responses = "";
+  ResponseCount = 0;
+
   static Views = {
     All: [
       "ID",
@@ -19,5 +22,6 @@ export class AuditROEmailLog extends ConstrainedEntity {
   static ListDef = {
     name: "AuditROEmailLog",
     title: "AuditROEmailLog",
+    fields: AuditROEmailLog.Views.All,
   };
 }

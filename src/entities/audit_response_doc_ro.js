@@ -5,6 +5,14 @@ export class AuditResponseDocRO extends ConstrainedEntity {
     super(params);
   }
 
+  markApprovedForRO(request, response) {
+    this.ReqNum = request.Title;
+    this.ResID = response.Title.toString();
+    this.FiscalYear = request.FiscalYear.toString();
+    this.ReqSubject = request.ReqSubject.toString();
+    this.RequestingOffice = request.RequestingOffice.Value()?.UserGroup?.Title;
+  }
+
   static Views = {
     All: [
       "ID",
@@ -14,6 +22,15 @@ export class AuditResponseDocRO extends ConstrainedEntity {
       "FiscalYear",
       "RequestingOffice",
       "ReqSubject",
+      "FileLeafRef",
+      "FileRef",
+    ],
+    ApprovedForROUpdate: [
+      "ReqNum",
+      "ResID",
+      "FiscalYear",
+      "ReqSubject",
+      "RequestingOffice",
     ],
   };
 

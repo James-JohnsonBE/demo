@@ -128,7 +128,7 @@ export async function ensureRequestAuditResponseDocsROFolder(
 
   const roFolder = roFolderResults.results[0] ?? null;
 
-  if (roFolder) return;
+  if (roFolder) return roFolder.FileRef;
 
   const requestingOffice = auditOrganizationStore().find(
     (ao) => ao.ID == requestingOfficeId
@@ -158,6 +158,12 @@ export async function ensureRequestAuditResponseDocsROFolder(
     newPermissions,
     true
   );
+
+  const newFolderEntity = await appContext.AuditResponseDocsRO.FindById(
+    newRoFolderId
+  );
+
+  return newFolderEntity.FileRef;
 }
 
 /* Begin Unreferenced Service Rewrites */

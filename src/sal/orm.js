@@ -9,7 +9,7 @@ export class DbContext {
   Pages = new EntitySet(Page);
 
   utilities = {
-    CopyFileAsync: copyFileAsync,
+    copyFileAsync,
   };
   virtualSets = new Map();
 
@@ -190,7 +190,7 @@ export class EntitySet {
   // Mutators
   AddEntity = async function (entity, folderPath) {
     const creationfunc = mapEntityToObject.bind(this);
-    const writeableEntity = creationfunc(entity);
+    const writeableEntity = creationfunc(entity, this.AllDeclaredFields);
 
     if (DEBUG) console.log(writeableEntity);
     const newId = await this.ListRef.createListItemAsync(
@@ -436,6 +436,9 @@ export function mapEntityToObject(input, selectedFields = null) {
   const allWriteableFieldsSet = new Set([]);
   if (this?.ListDef?.fields) {
     this.ListDef.fields.forEach((field) => allWriteableFieldsSet.add(field));
+  }
+  if (this?.AllDeclaredFields) {
+    this.AllDeclaredFields.map((field) => allWriteableFieldsSet.add(field));
   }
   if (input.FieldMap) {
     Object.keys(input.FieldMap).forEach((field) =>

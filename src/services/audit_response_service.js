@@ -139,6 +139,28 @@ export async function updateResponseDoc(request, response, responseDoc) {
   finishTask(updateResponseDocTask);
 }
 
+export async function getResponsesReadyToClose(request) {
+  const allRequestResponseDocs = await getRequestResponseDocs(request);
+
+  const allRequestResponses = await getRequestResponses(request);
+
+  return allRequestResponses.filter((response) =>
+    isResponseReadyToClose(response, allRequestResponseDocs)
+  );
+}
+
+async function isResponseReadyToClose(response, responseDocs) {
+  const openResponseDocs = responseDocs.filter(
+    (responseDoc) =>
+      responseDoc.ResID.ID == response.ID &&
+      [AuditResponseDocStates.Open, AuditResponseDocStates.Submitted].includes(
+        responseDoc.DocumentStatus.Value()
+      )
+  );
+
+  return openResponseDocs.length;
+}
+
 export async function uploadResponseDocFile(response, file) {
   const uploadResponseDocTask = addTask(taskDefs.uploadResponseDoc(file.name));
   const fileMetadata = {
@@ -168,27 +190,33 @@ function getResponseTitle(request, response) {
 
 /* Begin Unreferenced Service Rewrites */
 
-export function getNewResponseDocTtitle(request, response, responseDoc) {
-  const createdDate = responseDoc.Created.Value();
+export function getNewResponseDocTitle(request, response, responseDoc) {
+  const oldResponseDocTitle = responseDoc.FileName.Value();
+
+  const createdDate = responseDoc.Created.Value().format("yyyyMMddTHHmmss");
   const responseName = response.Title.Value();
   const sensitivity = request.Sensitivity.Value();
 
   let newResponseDocTitle =
-    responseName +
-    "_" +
-    createdDate.format("yyyyMMddTHHmmss") +
-    "_" +
-    Math.ceil(Math.random() * 10000);
+    responseName + "_" + createdDate + "_" + Math.ceil(Math.random() * 10000);
 
-  if (sensitivity != null && sensitivity != "" && sensitivity != "None")
+  if (sensitivity && sensitivity != "None")
     newResponseDocTitle += "_" + sensitivity;
 
-  var oldResponseDocTitle = responseDoc.FileName.Value();
   var docName = oldResponseDocTitle.substring(
     0,
     oldResponseDocTitle.lastIndexOf(".")
   );
   var docExt = oldResponseDocTitle.replace(docName, "");
   newResponseDocTitle += docExt;
-  return newResponseDocTitle;
+
+  // Only use the new filename if it's not already encoded
+  if (
+    !oldResponseDocTitle.includes(responseName) ||
+    !oldResponseDocTitle.includes(createdDate) ||
+    (sensitivity && !oldResponseDocTitle.includes(sensitivity))
+  )
+    return newResponseDocTitle;
+
+  return oldResponseDocTitle;
 }

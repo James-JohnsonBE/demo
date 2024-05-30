@@ -4,16 +4,21 @@ import {
   getRequestResponseDocs,
   getRequestResponses,
   breakRequestCoversheetPerms,
-  getNewResponseDocTtitle,
+  getNewResponseDocTitle,
   ensureRequestAuditResponseDocsROFolder,
   ensureRequestROEmailLogItem,
 } from "./index.js";
 
-import { AuditResponseStates } from "../entities/index.js";
+import {
+  AuditResponseDoc,
+  AuditResponseStates,
+  AuditResponseDocStates,
+  AuditResponseDocRO,
+} from "../entities/index.js";
 
 import { appContext } from "../infrastructure/application_db_context.js";
 
-async function approveResponseDocsForQA(
+export async function approveResponseDocsForQA(
   requestId,
   responseId = null,
   responseDocsToApproveIds
@@ -57,7 +62,7 @@ async function approveResponseDocsForQA(
 
       // TODO: Fix naming conflicting with drag and drop upload
 
-      const newReponseDocName = getNewResponseDocTtitle(
+      const newReponseDocName = getNewResponseDocTitle(
         request,
         response,
         responseDoc
@@ -91,7 +96,10 @@ async function approveResponseDocsForQA(
   }
 }
 
-async function approveResponseDocsForRO(requestId, responseDocsToApproveIds) {
+export async function approveResponseDocsForRO(
+  requestId,
+  responseDocsToApproveIds
+) {
   const request = await getRequestById(requestId);
 
   const requestingOffice = request.RequestingOffice.Value();
@@ -115,14 +123,18 @@ async function approveResponseDocsForRO(requestId, responseDocsToApproveIds) {
 
   if (!updatedResponses.length) return;
 
-  await ensureRequestAuditResponseDocsROFolder(
-    request.Title,
-    requestingOffice.ID
-  );
+  const roResponseDocROFolderPath =
+    await ensureRequestAuditResponseDocsROFolder(
+      request.Title,
+      requestingOffice.ID
+    );
 
   const roEmailLogItem = await ensureRequestROEmailLogItem(requestingOffice);
 
-  let cntApprovedResponseDocs = 0;
+  let cntApprovedResponseDocs = parseInt(roEmailLogItem.ResponseCount);
+  if (!cntApprovedResponseDocs) cntApprovedResponseDocs = 0;
+  let responseLogBody = "";
+
   // For each response doc to approve
   await Promise.all(
     responseDocsToApproveIds.map(async (responseDocId) => {
@@ -131,10 +143,7 @@ async function approveResponseDocsForRO(requestId, responseDocsToApproveIds) {
       );
 
       // 1. Check that the status isn't already approved
-      if (
-        responseDoc.DocumentStatus.Value() ==
-        AuditResponseDocStates.ApprovedForQA
-      )
+      if (responseDoc.DocumentStatus.Value() == AuditResponseDocStates.SentToQA)
         return;
 
       cntApprovedResponseDocs++;
@@ -144,15 +153,60 @@ async function approveResponseDocsForRO(requestId, responseDocsToApproveIds) {
       );
 
       // 2. Get New ResponseDoc title
-      const newReponseDocFileName = getNewResponseDocTtitle(
+      const newResponseDocFileName = getNewResponseDocTitle(
         request,
         response,
         responseDoc
       );
 
       // 3. Copy File to RO
+      const source = responseDoc.FileRef.Value();
+      const dest = roResponseDocROFolderPath + "/" + newResponseDocFileName;
+
+      await appContext.utilities.copyFileAsync(source, dest);
+
+      const newRoFileResults =
+        await appContext.AuditResponseDocsRO.FindByColumnValue(
+          [{ column: "FileRef", value: dest }],
+          {},
+          { count: 1 }
+        );
+      const newRoFile = newRoFileResults.results[0] ?? null;
+
+      if (!newRoFile) return;
+
+      // 4. Update ResponseDocRo
+      newRoFile.markApprovedForRO(request, response);
+      await appContext.AuditResponseDocsRO.UpdateEntity(
+        newRoFile,
+        AuditResponseDocRO.Views.ApprovedForROUpdate
+      );
 
       // 4. Update ResponseDoc Status
+      responseDoc.markApprovedForRO(newResponseDocFileName);
+      await appContext.AuditResponseDocs.UpdateEntity(responseDoc, [
+        "DocumentStatus",
+        "RejectReason",
+        "FileLeafRef",
+      ]);
+
+      responseLogBody += `<li><a href="${
+        window.location.origin + newRoFile.FileRef
+      }" target="_blank">${newResponseDocFileName}</a></li>`;
     })
   );
+
+  roEmailLogItem.ResponseCount = cntApprovedResponseDocs;
+  roEmailLogItem.Responses += responseLogBody;
+
+  await appContext.AuditROEmailsLog.UpdateEntity(roEmailLogItem, [
+    "Responses",
+    "ResponseCount",
+  ]);
+
+  // Update response status if all docs are approved
+  // await Promise.all(updatedResponses.map(async (response) => {
+  //     const filteredResponseDocs = allRequestResponseDocs()
+  // }))
+  return true;
 }
