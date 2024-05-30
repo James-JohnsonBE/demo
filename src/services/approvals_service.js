@@ -204,9 +204,5 @@ export async function approveResponseDocsForRO(
     "ResponseCount",
   ]);
 
-  // Update response status if all docs are approved
-  // await Promise.all(updatedResponses.map(async (response) => {
-  //     const filteredResponseDocs = allRequestResponseDocs()
-  // }))
   return true;
 }

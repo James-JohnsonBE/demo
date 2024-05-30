@@ -32,15 +32,9 @@ registerFieldComponent({
 });
 
 export class SelectField extends BaseField {
-  constructor({
-    displayName,
-    isRequired = false,
-    Visible,
-    options,
-    multiple = false,
-    optionsText,
-  }) {
-    super({ Visible, displayName, isRequired });
+  constructor(params) {
+    super(params);
+    const { options, multiple, optionsText } = params;
     this.Options(options);
     this.multiple = multiple;
     this.Value = multiple ? ko.observableArray() : ko.observable();

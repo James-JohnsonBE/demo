@@ -22,6 +22,12 @@ export const AUDITREQUESTSTATES = {
   REOPENED: "ReOpened",
 };
 
+export const AUDITREQUESTTYPES = {
+  TASKER: "Tasker",
+  REQUEST: "Request",
+  NOTIFICATION: "Notification",
+};
+
 export class AuditRequest extends ConstrainedEntity {
   constructor(params) {
     super(params);
@@ -37,6 +43,23 @@ export class AuditRequest extends ConstrainedEntity {
       ),
     });
   }
+
+  ReqType = new SelectField({
+    displayName: "Request Type",
+    options: Object.values(AUDITREQUESTTYPES),
+    isRequired: true,
+    instructions: ko.pureComputed(() => {
+      switch (this.ReqType.Value()) {
+        case AUDITREQUESTTYPES.TASKER:
+          return "A request that doesn't require QA Approval.";
+        case AUDITREQUESTTYPES.REQUEST:
+          return "A request requiring QA Approval";
+        case AUDITREQUESTTYPES.NOTIFICATION:
+          return "A request that is closed after the email is sent";
+        default:
+      }
+    }),
+  });
 
   ReqNum = new TextField({
     displayName: "Request Number",
@@ -161,6 +184,7 @@ export class AuditRequest extends ConstrainedEntity {
     All: [
       "ID",
       "Title",
+      "ReqType",
       "ReqSubject",
       "FiscalYear",
       "InternalDueDate",
@@ -182,6 +206,7 @@ export class AuditRequest extends ConstrainedEntity {
     ],
     New: [
       "Title",
+      "ReqType",
       "ReqSubject",
       "RequestingOffice",
       "FiscalYear",
@@ -198,6 +223,7 @@ export class AuditRequest extends ConstrainedEntity {
       "ActionOffice",
     ],
     IACanUpdate: [
+      "ReqType",
       "ReqSubject",
       "FiscalYear",
       "RequestingOffice",
