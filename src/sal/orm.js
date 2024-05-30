@@ -1,5 +1,5 @@
 import { Page } from "./entities/index.js";
-import { SPList } from "./infrastructure/index.js";
+import { SPList, copyFileAsync } from "./infrastructure/index.js";
 
 const DEBUG = false;
 
@@ -8,6 +8,9 @@ export class DbContext {
 
   Pages = new EntitySet(Page);
 
+  utilities = {
+    CopyFileAsync: copyFileAsync,
+  };
   virtualSets = new Map();
 
   Set = (entityType) => {

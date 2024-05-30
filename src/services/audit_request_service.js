@@ -115,7 +115,10 @@ export async function deleteRequest(requestId) {
   return true;
 }
 
-async function createROFolder(reqNum, requestingOfficeId) {
+export async function ensureRequestAuditResponseDocsROFolder(
+  reqNum,
+  requestingOfficeId
+) {
   const roFolderResults =
     await appContext.AuditResponseDocsRO.FindByColumnValue(
       [{ column: "FileLeafRef", value: reqNum }],

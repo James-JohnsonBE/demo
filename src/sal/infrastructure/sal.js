@@ -462,9 +462,10 @@ sal.NewUtilities = function () {
       copyFiles(sourceFolder, destFolder, resolve, reject);
     });
   }
+
   var publicMembers = {
     copyFiles: copyFiles,
-    copyFilesAsync: copyFilesAsync,
+    copyFilesAsync,
     createSiteGroup: createSiteGroup,
     getUserGroups: getUserGroups,
     getUsersWithGroup: getUsersWithGroup,
@@ -472,6 +473,14 @@ sal.NewUtilities = function () {
 
   return publicMembers;
 };
+
+export async function copyFileAsync(sourceFilePath, destFilePath) {
+  const uri = `/web/getfilebyserverrelativeurl('${sourceFilePath}')/copyto('${destFilePath}')`;
+
+  const result = await fetchSharePointData(uri, "POST");
+
+  return result;
+}
 
 // Used in Authorization
 async function getCurrentUserPropertiesAsync() {

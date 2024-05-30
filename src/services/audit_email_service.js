@@ -2,6 +2,7 @@ import { appContext } from "../infrastructure/application_db_context.js";
 import { roleNames } from "./permission_manager.js";
 import { getQAGroup, getSiteGroups } from "./people_manager.js";
 import { ItemPermissions } from "../sal/infrastructure/index.js";
+import { AuditROEmailLog } from "../entities/audit_ro_email_log.js";
 
 export async function ensureROEmailFolder() {
   const folderResults = await appContext.AuditEmails.FindByColumnValue(
@@ -37,4 +38,32 @@ export async function ensureROEmailFolder() {
     newPermissions,
     true
   );
+}
+
+export async function ensureRequestROEmailLogItem(requestingOffice) {
+  const roGroupName = requestingOffice?.UserGroup?.Title;
+  if (!roGroupName) return;
+
+  const logItemTitle = new Date().format("MM/dd/yyyy");
+
+  const emailLogResult = await appContext.AuditROEmailsLog.FindByColumnValue(
+    [
+      { column: "Title", value: logItemTitle },
+      { column: "RO", value: roGroupName },
+    ],
+    {},
+    { count: 1, includeFolders: true }
+  );
+
+  const auditRoEmailLogItem = emailLogResult?.results[0] ?? null;
+  if (auditRoEmailLogItem) return auditRoEmailLogItem;
+
+  const newLogItem = new AuditROEmailLog();
+
+  newLogItem.Title = logItemTitle;
+  newLogItem.RequestingOffice = roGroupName;
+
+  await appContext.AuditROEmailsLog.AddEntity(newLogItem);
+
+  return newLogItem;
 }

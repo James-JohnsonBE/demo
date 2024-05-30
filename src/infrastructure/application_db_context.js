@@ -9,6 +9,7 @@ import {
   AuditCoversheet,
   AuditConfiguration,
   AuditResponseDocRO,
+  AuditROEmailLog,
 } from "../entities/index.js";
 import { EntitySet, DbContext } from "../sal/index.js";
 
@@ -32,11 +33,14 @@ export class ApplicationDbContext extends DbContext {
   AuditResponses = new EntitySet(AuditResponse);
 
   AuditResponseDocs = new EntitySet(AuditResponseDoc);
+
   AuditResponseDocsRO = new EntitySet(AuditResponseDocRO);
 
   AuditRequests = new EntitySet(AuditRequest);
 
   AuditRequestsInternals = new EntitySet(AuditRequestsInternal);
+
+  AuditROEmailsLog = new EntitySet(AuditROEmailLog);
 }
 
 export const appContext = new ApplicationDbContext();
