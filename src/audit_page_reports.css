@@ -306,7 +306,7 @@ div.cell-margin {
   padding-block-end: 0.75rem;
 }
 
-.audit-form .emphasized-section {
+.audit .emphasized-section {
   /* background-color: var(--bg-dark-secondary-color); */
   background-color: #d7f0f0;
   color: var(--primary-color);
@@ -316,7 +316,11 @@ div.cell-margin {
   padding: 0.5rem;
 }
 
-.audit-form .emphasized-section .btn-link {
+.audit .bg-dark .emphasized-section {
+  background-color: var(--bg-dark-secondary-color);
+}
+
+.audit .emphasized-section .btn-link {
   color: var(--secondary-color);
 }
 
