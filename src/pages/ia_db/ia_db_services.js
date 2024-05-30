@@ -565,7 +565,7 @@ function LoadInfo() {
   //currCtx.load( m_requestItems, 'Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))');
   currCtx.load(
     m_requestItems,
-    "Include(ID, Title, ReqSubject, ReqStatus, RequestingOffice, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
+    "Include(ID, Title, ReqType, ReqSubject, ReqStatus, RequestingOffice, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
   );
 
   var requestInternalList = web
@@ -759,12 +759,12 @@ export async function m_fnRequeryRequest(requestId = null) {
     $(".response-permissions").hide(); //resets this in case it was toggled to show
     currCtx.load(
       m_aRequestItem,
-      "Include(ID, Title, ReqSubject, RequestingOffice, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+      "Include(ID, Title, ReqType, ReqSubject, RequestingOffice, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
     );
   } else {
     currCtx.load(
       m_aRequestItem,
-      "Include(ID, Title, ReqSubject, RequestingOffice, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
+      "Include(ID, Title, ReqType, ReqSubject, RequestingOffice, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
     );
   }
 
@@ -1232,6 +1232,7 @@ function LoadRequests(m_requestItems) {
       var id = oListItem.get_item("ID");
       var number = oListItem.get_item("Title");
       var status = oListItem.get_item("ReqStatus");
+      const reqType = oListItem.get_item("ReqType");
 
       var subject = oListItem.get_item("ReqSubject");
       if (subject == null) subject = "";
@@ -1309,6 +1310,7 @@ function LoadRequests(m_requestItems) {
       // We may be reloading data from another query, don't break any references
       var requestObject = m_bigMap["request-" + number] ?? {};
       requestObject["ID"] = id;
+      requestObject["reqType"] = reqType;
       requestObject["number"] = number;
       requestObject["subject"] = subject;
       requestObject["sensitivity"] = sensitivity;
@@ -6224,7 +6226,7 @@ function OnCallbackFormNewRequest(result, value) {
   //request status has internal name as response status in the request list
   currCtx.load(
     requestItems,
-    "Include(ID, Title, ActionOffice, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+    "Include(ID, Title, ReqType, ActionOffice, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
   );
 
   const emailList = web
@@ -6484,7 +6486,7 @@ async function OnCallbackFormEditRequest(result, value) {
   //request status has internal name as response status in the request list
   currCtx.load(
     requestItems,
-    "Include(ID, Title, ActionOffice, ReqStatus, Sensitivity, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+    "Include(ID, Title, ReqType, ActionOffice, ReqStatus, Sensitivity, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
   );
 
   var responseDocsLibFolderslist = currCtx
