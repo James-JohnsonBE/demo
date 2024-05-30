@@ -110,6 +110,12 @@ export class RequestDetailView {
     );
   });
 
+  currentRequestResponsesReadyToClose = ko.pureComputed(() => {
+    return this.currentRequestResponseItems().filter((response) =>
+      response.isReadyToClose()
+    );
+  });
+
   currentRequestResponseDocs = ko.pureComputed(() => {
     const request = ko.unwrap(this.currentRequest);
     const responseSummaries =
@@ -181,9 +187,7 @@ export class RequestDetailView {
 
   // collapseResponseDocs = (collapse) =>
 
-  refreshRequest() {
-    m_fnRefreshData();
-  }
+  refreshRequest = m_fnRefreshData;
 
   // Coversheets
   onCoverSheetFileAttachedHandler = async (newFiles) => {
@@ -351,7 +355,7 @@ export class RequestDetailView {
   async OnCallBackApproveResponseDoc(result) {
     if (result) {
       // Update is handled in the form, just need to refresh page/data
-      this.refreshRequest();
+      await this.refreshRequest();
     }
   }
 
@@ -413,6 +417,14 @@ class ResponseItem {
   responseCoversheetFiles = ko.observableArray();
   responseDocFiles = ko.observableArray();
 
+  isReadyToClose = () =>
+    this.responseDocFiles.length &&
+    !this.responseDocFiles().find((responseDoc) =>
+      [AuditResponseDocStates.Open, AuditResponseDocStates.Submitted].includes(
+        responseDoc.documentStatus
+      )
+    );
+
   ClickViewResponseHistory = () => {
     appContext.AuditResponses.ListRef.showVersionHistoryModal(this.ID);
   };
@@ -421,7 +433,7 @@ class ResponseItem {
     if (confirm("Delete Response: " + this.title)) {
       const response = await appContext.AuditResponses.FindById(this.ID);
       await deleteResponseAndFolder(response);
-      m_fnRefreshData();
+      refreshData();
     }
   };
 
@@ -453,7 +465,7 @@ class ResponseItem {
     await Promise.all(promises);
     // TODO: need to requery coversheets
     this.responseCoversheetFiles.removeAll();
-    m_fnRefreshData();
+    refreshData();
   };
 
   onResponseDocFilesAttachedHandler = async (files) => {
@@ -475,7 +487,7 @@ class ResponseItem {
     await Promise.all(promises);
     // TODO: need to requery responsedocs
     this.responseDocFiles.removeAll();
-    m_fnRefreshData();
+    refreshData();
   };
 
   highlightResponse = () => {

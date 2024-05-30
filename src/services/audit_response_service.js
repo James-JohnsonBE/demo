@@ -139,7 +139,7 @@ export async function updateResponseDoc(request, response, responseDoc) {
   finishTask(updateResponseDocTask);
 }
 
-export async function getResponsesReadyToClose(request) {
+export async function getResponsesReadyToClose(requestId) {
   const allRequestResponseDocs = await getRequestResponseDocs(request);
 
   const allRequestResponses = await getRequestResponses(request);

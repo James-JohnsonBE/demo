@@ -12,10 +12,8 @@
     <button
       type="button"
       class="btn btn-success"
-      value="Send to Quality Assurance"
-      data-bind="click: clickSubmit"
-    >
-      Send to Quality Assurance
-    </button>
+      data-bind="click: clickSubmit, text: sendToText, 
+      attr: {title: sendToText}"
+    ></button>
   </div>
 </div>
