@@ -177,6 +177,8 @@ function ViewModel() {
   self.debugMode = ko.observable(false);
   self.siteUrl = Audit.Common.Utilities.GetSiteUrl();
 
+  self.showQuickInfo = ko.observable(false);
+
   //cant add rate limit because it'll affect the refresh
   //self.arrResponses = ko.observableArray( null ).extend({ rateLimit: 500 });
   self.arrRequests = ko.observableArray(null);
@@ -195,6 +197,22 @@ function ViewModel() {
   self.arrRequestsWithNoResponses = ko.observableArray(null);
   self.arrRequestsWithNoEmailSent = ko.observableArray(null);
   self.arrResponsesSubmittedByAO = ko.observableArray(null);
+
+  self.alertQuickInfo = ko.pureComputed(() => {
+    return (
+      self.arrRequestsThatNeedClosing().length ||
+      self.arrResponseDocsCheckedOut().length ||
+      self.arrResponsesSubmittedByAO().length ||
+      self.arrResponsesWithUnsubmittedResponseDocs().length ||
+      self.arrRequestsInternalAlmostDue().length ||
+      self.arrRequestsInternalPastDue().length ||
+      self.arrRequestsAlmostDue().length ||
+      self.arrRequestsPastDue().length ||
+      self.arrRequestsWithNoResponses().length ||
+      self.arrRequestsWithNoEmailSent().length ||
+      self.arrResponsesSubmittedByAO().length
+    );
+  });
 
   /* request tab */
   self.clickExpandActionOffices = (item, e) => {
@@ -2522,7 +2540,6 @@ function LoadTabStatusReport2() {
     ko.utils.arrayPushAll(_myViewModel.arrResponses, responseArr);
     _myViewModel.arrResponses.valueHasMutated();
   }
-  _myViewModel.filterStatusTables(true);
 
   ko.utils.arrayPushAll(
     _myViewModel.arrResponsesSubmittedByAO(),
@@ -2534,6 +2551,9 @@ function LoadTabStatusReport2() {
     _myViewModel.arrResponsesWithUnsubmittedResponseDocs,
     arrUnsubmittedResponseDocs
   );
+
+  _myViewModel.filterStatusTables(true);
+  _myViewModel.showQuickInfo(_myViewModel.alertQuickInfo());
 }
 
 function m_fnViewLateRequests() {

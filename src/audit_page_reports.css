@@ -109,21 +109,37 @@ div.cell-margin {
   color: lightgray;
   padding: 0.2rem 0;
 }
-.audit-body .quick-info {
-  height: calc(100vh - 85px);
+
+.audit-body .quick-info-container {
+  display: flex;
+  align-items: stretch;
+  height: calc(100vh - 96px);
   position: sticky;
   top: 0;
-  overflow-y: auto;
-  scrollbar-gutter: stable;
-  scrollbar-width: thin;
-  min-width: 275px;
-  flex: 0;
+  max-width: 356px;
+  /* flex: 0; */
+  /* padding: 0 0.5rem 0 0; */
+  color: white;
+}
+
+.audit-body .quick-info-container .quick-info-toolbar {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-dark-secondary-color);
+}
+
+.audit-body .quick-info-container .quick-info-toolbar button {
+}
+
+.audit-body .quick-info {
   background-color: var(--bg-dark-color);
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
   gap: 0.75rem;
-  color: white;
-  padding: 0 0.5rem;
+  padding: 0 1rem 0 0.5rem;
 }
 
 .audit-body .quick-info .status-set-container {
