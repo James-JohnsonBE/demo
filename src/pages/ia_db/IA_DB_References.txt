@@ -67,8 +67,12 @@
         <details>
           <summary>
             <i class="fa-solid fa-triangle-exclamation"></i>
-            <span data-bind="text: arrRequestsWithNoEmailSent().length"></span>
-            Requests need Emails sent out
+            <div>
+              <span
+                data-bind="text: arrRequestsWithNoEmailSent().length"
+              ></span>
+              Requests need Emails sent out
+            </div>
           </summary>
           <div id="divRequestsWithNoEmailSentItems">
             <ul data-bind="foreach: arrRequestsWithNoEmailSent">
@@ -93,8 +97,10 @@
         <details>
           <summary class="warning">
             <i class="fa-solid fa-triangle-exclamation"></i>
-            <span data-bind="text: arrResponsesSubmittedByAO().length"></span>
-            Responses have been Submitted by the Action Offices
+            <div>
+              <span data-bind="text: arrResponsesSubmittedByAO().length"></span>
+              Responses have been Submitted by the Action Offices
+            </div>
           </summary>
           <div id="divResponsesSubmittedItems">
             <ul data-bind="foreach: arrResponsesSubmittedByAO">
@@ -119,10 +125,12 @@
         <details>
           <summary class="warning">
             <i class="fa-solid fa-triangle-exclamation"></i>
-            <span
-              data-bind="text: arrRequestsInternalAlmostDue().length"
-            ></span>
-            Requests are reaching their Internal Due Date
+            <div>
+              <span
+                data-bind="text: arrRequestsInternalAlmostDue().length"
+              ></span>
+              Requests are reaching their Internal Due Date
+            </div>
           </summary>
           <div id="divRequestsAlmostInternalDueItems">
             <ul data-bind="foreach: arrRequestsInternalAlmostDue">
@@ -149,8 +157,12 @@
         <details>
           <summary class="warning">
             <i class="fa-solid fa-triangle-exclamation"></i>
-            <span data-bind="text: arrRequestsInternalPastDue().length"></span>
-            Requests have PASSED their Internal Due Date
+            <div>
+              <span
+                data-bind="text: arrRequestsInternalPastDue().length"
+              ></span>
+              Requests have PASSED their Internal Due Date
+            </div>
           </summary>
           <div id="divRequestsPastInternalDueItems">
             <ul data-bind="foreach: arrRequestsInternalPastDue">
@@ -177,8 +189,10 @@
         <details>
           <summary class="warning">
             <i class="fa-solid fa-triangle-exclamation"></i>
-            <span data-bind="text: arrRequestsAlmostDue().length"></span>
-            Requests are reaching their Due Date
+            <div>
+              <span data-bind="text: arrRequestsAlmostDue().length"></span>
+              Requests are reaching their Due Date
+            </div>
           </summary>
           <div id="divRequestsAlmostDueItems">
             <ul data-bind="foreach: arrRequestsAlmostDue">
@@ -203,8 +217,10 @@
         <details>
           <summary class="warning">
             <i class="fa-solid fa-triangle-exclamation"></i>
-            <span data-bind="text: arrRequestsPastDue().length"></span>
-            Requests have PASSED their Due Date
+            <div>
+              <span data-bind="text: arrRequestsPastDue().length"></span>
+              Requests have PASSED their Due Date
+            </div>
           </summary>
           <div id="divRequestsPastDueItems">
             <ul data-bind="foreach: arrRequestsPastDue">
@@ -229,8 +245,10 @@
         <details>
           <summary class="warning">
             <i class="fa-solid fa-triangle-exclamation"></i>
-            <span data-bind="text: arrResponseDocsCheckedOut().length"></span>
-            Response Documents are Checked Out
+            <div>
+              <span data-bind="text: arrResponseDocsCheckedOut().length"></span>
+              Response Documents are Checked Out
+            </div>
           </summary>
           <div id="divCheckedOutResponseDocsItems">
             <ul data-bind="foreach: arrResponseDocsCheckedOut">
@@ -254,10 +272,12 @@
         <details>
           <summary class="warning btn btn-link">
             <i class="fa-solid fa-triangle-exclamation"></i>
-            <span
-              data-bind="text: arrResponsesWithUnsubmittedResponseDocs().length"
-            ></span>
-            Responses have Unsubmitted Response Documents
+            <div>
+              <span
+                data-bind="text: arrResponsesWithUnsubmittedResponseDocs().length"
+              ></span>
+              Responses have Unsubmitted Response Documents
+            </div>
           </summary>
           <div id="divResponsesWithUnsubmittedResponseDocsItems">
             <table class="tablesorter">
@@ -306,8 +326,12 @@
         <details>
           <summary class="warning btn btn-link">
             <i class="fa-solid fa-triangle-exclamation"></i>
-            <span data-bind="text: arrRequestsWithNoResponses().length"></span>
-            Requests have 0 Responses
+            <div>
+              <span
+                data-bind="text: arrRequestsWithNoResponses().length"
+              ></span>
+              Requests have 0 Responses
+            </div>
           </summary>
           <div id="divRequestsWithNoResponseItems" class="">
             <ul data-bind="foreach: arrRequestsWithNoResponses">

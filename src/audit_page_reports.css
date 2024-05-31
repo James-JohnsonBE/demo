@@ -6,6 +6,7 @@
 
 #s4-bodyContainer {
   padding-bottom: 0;
+  min-width: min-content;
 }
 
 div.welcome.blank-wp {
@@ -113,6 +114,8 @@ div.cell-margin {
   position: sticky;
   top: 0;
   overflow-y: auto;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
   min-width: 275px;
   flex: 0;
   background-color: var(--bg-dark-color);
@@ -120,11 +123,15 @@ div.cell-margin {
   flex-direction: column;
   gap: 0.75rem;
   color: white;
+  padding: 0 0.5rem;
 }
 
 .audit-body .quick-info .status-set-container {
   color: white;
   background-color: #2a3c48;
+  border-radius: 6px;
+  /* border-color: var(--primary-color);  */
+  padding: 0.5rem;
 }
 
 .audit-body .quick-info details summary {
@@ -132,12 +139,14 @@ div.cell-margin {
   color: white;
   font-weight: bold;
   cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .audit-body .quick-info details summary:hover {
   /* text-decoration: none; */
-  color: white;
-  font-weight: bold;
   text-decoration: underline;
 }
 
@@ -321,7 +330,7 @@ div.cell-margin {
 }
 
 .audit .emphasized-section .btn-link {
-  color: var(--secondary-color);
+  /* color: var(--secondary-color); */
 }
 
 .form-field-component .form-control {
