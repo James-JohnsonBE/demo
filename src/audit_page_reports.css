@@ -130,7 +130,9 @@ div.cell-margin {
   align-items: stretch;
 }
 
-.audit-body .quick-info-container .quick-info-toolbar button {
+.audit-body .quick-info-container.active .quick-info-toolbar button {
+  text-align: end;
+  padding: 0 1.5rem;
 }
 
 .audit-body .quick-info {
@@ -338,6 +340,7 @@ div.cell-margin {
   /* background-color: var(--bg-dark-secondary-color); */
   background-color: #d7f0f0;
   color: var(--primary-color);
+  box-sizing: border-box;
   width: 100%;
   border-radius: 6px;
   border-color: var(--primary-color);
@@ -612,6 +615,15 @@ table .rowFilters .filter-date-range button {
   background-color: lemonchiffon !important;
 }
 
+.request-detail-view {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap-reverse;
+}
+
+#divRequestInfoContainer {
+}
+
 #divRequestInfo {
   max-width: 600px;
   border: 2px solid var(--primary-color);
@@ -743,12 +755,6 @@ table.tablesorter thead tr .header {
 .sr1-request-item .past-due {
   background-color: salmon;
   font-weight: bold;
-}
-
-.request-detail-view {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap-reverse;
 }
 
 label.file-upload-field .dropzone {
