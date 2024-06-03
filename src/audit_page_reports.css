@@ -131,7 +131,8 @@ div.cell-margin {
 }
 
 .audit-body .quick-info-container.active .quick-info-toolbar button {
-  text-align: end;
+  text-align: start;
+  direction: rtl;
   padding: 0 1.5rem;
 }
 
