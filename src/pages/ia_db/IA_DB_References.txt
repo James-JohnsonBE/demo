@@ -13,16 +13,20 @@
   </div>
 
   <div id="divIA" class="audit-body" style="display: none">
-    <div class="quick-info-container">
+    <div class="quick-info-container" data-bind="css: {active: showQuickInfo}">
       <div class="quick-info-toolbar">
         <button
           type="button"
-          title="Toggle Alerts"
           class="btn btn-toolbar"
           data-bind="toggles: showQuickInfo,
-          css: {'warn': alertQuickInfo}"
+          css: {'warn': alertQuickInfo},
+          attr: {title: showQuickInfo() ? 'Hide Alerts' : 'Show Pending Alerts'}"
         >
           <i class="fa-solid fa-xl fa-triangle-exclamation"></i>
+          <i
+            class="fa-solid"
+            data-bind="class: showQuickInfo() ? 'fa-chevron-left' : 'fa-chevron-right'"
+          ></i>
         </button>
       </div>
       <div class="quick-info" data-bind="visible: showQuickInfo">

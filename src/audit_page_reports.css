@@ -112,6 +112,7 @@ div.cell-margin {
 
 .audit-body .quick-info-container {
   display: flex;
+  flex-direction: column;
   align-items: stretch;
   height: calc(100vh - 96px);
   position: sticky;
@@ -126,6 +127,7 @@ div.cell-margin {
   display: flex;
   flex-direction: column;
   background-color: var(--bg-dark-secondary-color);
+  align-items: stretch;
 }
 
 .audit-body .quick-info-container .quick-info-toolbar button {
@@ -135,11 +137,12 @@ div.cell-margin {
   background-color: var(--bg-dark-color);
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
   overflow-y: auto;
   scrollbar-gutter: stable;
   scrollbar-width: thin;
   gap: 0.75rem;
-  padding: 0 1rem 0 0.5rem;
+  padding: 0 0.5rem 0 0.5rem;
 }
 
 .audit-body .quick-info .status-set-container {
