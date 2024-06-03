@@ -23,6 +23,7 @@ import {
   AUDITREQUESTSTATES,
   AuditResponseStates,
   AuditResponseDocStates,
+  AUDITREQUESTTYPES,
 } from "../../entities/index.js";
 
 import { m_fnRefreshData } from "../../pages/ia_db/ia_db_services.js";
@@ -106,12 +107,14 @@ export class RequestDetailView {
   currentRequestResponseItems = ko.pureComputed(() => {
     const request = ko.unwrap(this.currentRequest);
     return (
-      request?.responses.map((response) => new ResponseItem(response, this)) ??
-      []
+      request?.responses.map(
+        (response) => new ResponseItem(request, response, this)
+      ) ?? []
     );
   });
 
   currentRequestResponsesReadyToClose = ko.pureComputed(() => {
+    if (this.currentRequest()?.reqType != AUDITREQUESTTYPES.TASKER) return [];
     return this.currentRequestResponseItems().filter((response) =>
       response.isReadyToClose()
     );
@@ -410,8 +413,11 @@ registerComponent({
 });
 
 class ResponseItem {
-  constructor(response, report) {
+  constructor(request, response, report) {
     Object.assign(this, response);
+    this.request = request;
+
+    this.refreshData = report.refreshRequest;
 
     this.responseCoversheetFiles.subscribeAdded(
       this.onCoversheetFilesAttachedHandler
@@ -428,6 +434,7 @@ class ResponseItem {
   responseDocFiles = ko.observableArray();
 
   isReadyToClose = () =>
+    this.request.reqType == AUDITREQUESTTYPES.TASKER &&
     this.resStatus != AuditResponseStates.Closed &&
     this.responseDocs.length &&
     !this.responseDocs.find((responseDoc) =>
@@ -438,7 +445,7 @@ class ResponseItem {
 
   clickCloseResponse = async () => {
     await this.closeResponse();
-    refreshData();
+    this.refreshData();
   };
 
   closeResponse = () => {
@@ -453,7 +460,7 @@ class ResponseItem {
     if (confirm("Delete Response: " + this.title)) {
       const response = await appContext.AuditResponses.FindById(this.ID);
       await deleteResponseAndFolder(response);
-      refreshData();
+      this.refreshData();
     }
   };
 
@@ -485,7 +492,7 @@ class ResponseItem {
     await Promise.all(promises);
     // TODO: need to requery coversheets
     this.responseCoversheetFiles.removeAll();
-    refreshData();
+    this.refreshData();
   };
 
   onResponseDocFilesAttachedHandler = async (files) => {
@@ -507,7 +514,7 @@ class ResponseItem {
     await Promise.all(promises);
     // TODO: need to requery responsedocs
     this.responseDocFiles.removeAll();
-    refreshData();
+    this.refreshData();
   };
 
   highlightResponse = () => {
@@ -554,12 +561,25 @@ class ResponseDocSummary {
         oResponseDoc.fileName +
         "</a>";
 
+      // oResponseDoc.responseDocCanBeApproved = (oResponseDoc) => {
+      //   if (oResponseDoc.documentStatus != AuditResponseDocStates.Submitted)
+      //     return false;
+      //   return (
+      //     (this.responseStatus == AuditResponseStates.Submitted ||
+      //       this.responseStatus == AuditResponseStates.ApprovedForQA) &&
+      //     (this.requestStatus == AUDITREQUESTSTATES.OPEN ||
+      //       this.requestStatus == AUDITREQUESTSTATES.REOPENED)
+      //   );
+      // };
       arrResponseDocs.push(oResponseDoc);
       // cnt++;
 
       if (
-        oResponse.resStatus == "2-Submitted" &&
-        oResponseDoc.documentStatus == "Submitted"
+        [
+          AuditResponseStates.Submitted,
+          AuditResponseStates.ApprovedForQA,
+        ].includes(oResponse.resStatus) &&
+        oResponseDoc.documentStatus == AuditResponseDocStates.Submitted
       ) {
         showBulkApprove = true;
       }
@@ -589,6 +609,17 @@ class ResponseDocSummary {
   ClickViewResponseDocHistory = (responseDoc) => {
     appContext.AuditResponseDocs.ListRef.showVersionHistoryModal(
       responseDoc.ID
+    );
+  };
+
+  responseDocCanBeApproved = (oResponseDoc) => {
+    if (oResponseDoc.documentStatus != AuditResponseDocStates.Submitted)
+      return false;
+    return (
+      (this.responseStatus == AuditResponseStates.Submitted ||
+        this.responseStatus == AuditResponseStates.ApprovedForQA) &&
+      (this.requestStatus == AUDITREQUESTSTATES.OPEN ||
+        this.requestStatus == AUDITREQUESTSTATES.REOPENED)
     );
   };
 }

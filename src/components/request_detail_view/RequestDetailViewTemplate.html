@@ -757,7 +757,14 @@
               ></span
               >&nbsp;by&nbsp;<span data-bind="text: closedBy"></span
             ></span>
-
+              <!-- ko if: isReadyToClose($data) -->
+              <button type="button"
+                class="btn btn-link"
+                title="All response docs sent to RO. Click to Close."
+                data-bind="click: clickCloseResponse">
+                Ready to Close <span class="fa-solid fa-circle-check"></span>
+              </button>
+              <!-- /ko -->
             <div
               style="padding-top: 5px; padding-left: 20px"
               data-bind="visible: resStatus == '7-Closed'"
@@ -1066,7 +1073,7 @@
           <td class="requestInfo-response-doc-title">
             <input
               type="checkbox"
-              data-bind="attr: { id: ID }, visible: $parents[1].responseDocCanBeApproved(responseDocSummary, $data), checked: chkApproveResDoc"
+              data-bind="attr: { id: ID }, visible: $parent.responseDocCanBeApproved($data), checked: chkApproveResDoc"
             />
 
             <a
@@ -1133,7 +1140,7 @@
           ></td>
           <td nowrap>
             <span
-              data-bind="visible: $parent.responseStatus == '2-Submitted' && documentStatus == 'Submitted'"
+              data-bind="visible: $parent.responseDocCanBeApproved($data)"
             >
               <button
                 type="button"
