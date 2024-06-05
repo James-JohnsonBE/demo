@@ -224,262 +224,260 @@
         </tr>
       </table>
     </div>
+    <div class="response-detail-view">
+      <div
+        id="divResponseInfo"
+        class="audit-form response-info-form"
+        data-bind="with: currentResponse"
+      >
+        <div class="form-header">
+          <h3 class="uppercase form-title">
+            AUDIT RESPONSE DETAILS
+            <div class="fw-semibold" data-bind="text: title"></div>
+          </h3>
+          <!-- <button
+          type="button"
+          class="btn btn-link form-title"
+          data-bind="click: $parent.refreshRequest"
+        >
+          <i title="Refresh Request" class="fa-solid fa-arrows-rotate"></i>
+        </button> -->
+        </div>
 
-    <div id="divResponseInfo" data-bind="with: currentResponse">
-      <fieldset>
-        <legend>Response Information</legend>
-        <table id="tblResponseInfo" class="tablesorter">
-          <tbody>
-            <tr>
-              <td>Response</td>
-              <td>
-                <span id="responseInfoName" data-bind="text: title"></span>
-              </td>
-            </tr>
-            <tr>
-              <td>Subject</td>
-              <td>
-                <span
-                  id="requestInfoSubject"
-                  data-bind="text: request.subject"
-                ></span>
-              </td>
-            </tr>
-            <tr>
-              <td>Due Date</td>
-              <td>
-                <span
-                  id="requestInfoInternalDueDate"
-                  data-bind="text: request.internalDueDate"
-                ></span>
-              </td>
-            </tr>
-            <tr>
-              <td>Response Status</td>
-              <td>
-                <span
-                  id="responseInfoStatus"
-                  data-bind="style: { color:  resStatus == '7-Closed' ? 'red' : 'green' }"
-                >
-                  <span data-bind="text: resStatus"></span
-                  ><span data-bind="visible: resStatus == '7-Closed'">
-                    on <span data-bind="text: closedDate "></span> by
-                    <span data-bind="text: closedBy"></span>
-                  </span>
+        <div class="form-row uppercase">
+          <dl>
+            <dt>Subject</dt>
+            <dd>
+              <span
+                id="requestInfoSubject"
+                data-bind="text: request.subject"
+              ></span>
+            </dd>
+            <dt>Due Date</dt>
+            <dd>
+              <span
+                id="requestInfoInternalDueDate"
+                data-bind="text: request.internalDueDate"
+              ></span>
+            </dd>
+            <dt>Response Status</dt>
+            <dd>
+              <span
+                id="responseInfoStatus"
+                data-bind="style: { color:  resStatus == '7-Closed' ? 'red' : 'green' }"
+              >
+                <span data-bind="text: resStatus"></span
+                ><span data-bind="visible: resStatus == '7-Closed'">
+                  on <span data-bind="text: closedDate "></span> by
+                  <span data-bind="text: closedBy"></span>
                 </span>
-              </td>
-            </tr>
-            <tr>
-              <td>Action Office</td>
-              <td>
-                <span id="responseInfoAO" data-bind="text: actionOffice"></span>
-                <span data-bind="visible: poc" style="color: green">POC: </span
-                ><span data-bind="text: poc" style="color: green"></span>
-              </td>
-            </tr>
-            <tr>
-              <td>Related Audit</td>
-              <td>
-                <span
-                  id="requestInfoRelatedAudit"
-                  data-bind="text: request.relatedAudit"
-                ></span>
-              </td>
-            </tr>
-            <tr>
-              <td>Action Items</td>
-              <td>
-                <span
-                  id="requestInfoActionItems"
-                  data-bind="html: request.actionItems"
-                ></span>
-              </td>
-            </tr>
-            <tr>
-              <td>Comments</td>
-              <td>
-                <span
-                  id="responseInfoComments"
-                  data-bind="html: comments"
-                ></span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </fieldset>
-    </div>
+              </span>
+            </dd>
+            <dt>Action Office</dt>
+            <dd>
+              <span id="responseInfoAO" data-bind="text: actionOffice"></span>
+              <span data-bind="visible: poc" style="color: green">POC: </span
+              ><span data-bind="text: poc" style="color: green"></span>
+            </dd>
+            <dt>Related Audit</dt>
+            <dd>
+              <span
+                id="requestInfoRelatedAudit"
+                data-bind="text: request.relatedAudit"
+              ></span>
+            </dd>
+            <dt>Action Items</dt>
+            <dd>
+              <span
+                id="requestInfoActionItems"
+                data-bind="html: request.actionItems"
+              ></span>
+            </dd>
+            <dt>Comments</dt>
+            <dd>
+              <span id="responseInfoComments" data-bind="html: comments"></span>
+            </dd>
+          </dl>
+        </div>
+      </div>
 
-    <div id="divCoverSheets" data-bind="visible: currentResponse">
-      <fieldset>
-        <legend>Cover Sheets/Supplemental Documents</legend>
+      <div>
+        <div id="divCoverSheets" data-bind="visible: currentResponse">
+          <fieldset>
+            <legend>Cover Sheets/Supplemental Documents</legend>
+
+            <div
+              id="divEmptyCoversheetsMsg"
+              style="border: 0px !important; font-style: italic"
+              data-bind="visible: arrCoverSheets().length <= 0"
+            >
+              There are 0 cover sheets or supplemental documents
+            </div>
+            <table
+              id="tblCoverSheets"
+              class="tablesorter report"
+              data-bind="visible: arrCoverSheets().length > 0"
+            >
+              <thead>
+                <tr valign="top">
+                  <th class="sorter-false" nowrap="nowrap">Name</th>
+                </tr>
+              </thead>
+              <tbody data-bind="foreach: arrCoverSheets">
+                <tr class="coversheet-item">
+                  <td class="coversheet-title" title="Click to Download">
+                    <a
+                      data-bind="attr: { href: 'javascript:void(0)', onclick: link}"
+                      ><span data-bind="text: title"></span
+                    ></a>
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr valign="top">
+                  <th nowrap="nowrap">
+                    Total:
+                    <span
+                      id="tblCoverSheetsTotal"
+                      data-bind="text: arrCoverSheets().length"
+                      >0</span
+                    >
+                  </th>
+                </tr>
+              </tfoot>
+            </table>
+          </fieldset>
+        </div>
 
         <div
-          id="divEmptyCoversheetsMsg"
-          style="border: 0px !important; font-style: italic"
-          data-bind="visible: arrCoverSheets().length <= 0"
+          class="divSubmit"
+          data-bind="visible: currentResponse && showSubmit"
         >
-          There are 0 cover sheets or supplemental documents
-        </div>
-        <table
-          id="tblCoverSheets"
-          class="tablesorter report"
-          data-bind="visible: arrCoverSheets().length > 0"
-        >
-          <thead>
-            <tr valign="top">
-              <th class="sorter-false" nowrap="nowrap">Name</th>
-            </tr>
-          </thead>
-          <tbody data-bind="foreach: arrCoverSheets">
-            <tr class="coversheet-item">
-              <td class="coversheet-title" title="Click to Download">
-                <a
-                  data-bind="attr: { href: 'javascript:void(0)', onclick: link}"
-                  ><span data-bind="text: title"></span
-                ></a>
-              </td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr valign="top">
-              <th nowrap="nowrap">
-                Total:
-                <span
-                  id="tblCoverSheetsTotal"
-                  data-bind="text: arrCoverSheets().length"
-                  >0</span
-                >
-              </th>
-            </tr>
-          </tfoot>
-        </table>
-      </fieldset>
-    </div>
-
-    <div class="divSubmit" data-bind="visible: currentResponse && showSubmit">
-      <fieldset style="border-color: GreenYellow">
-        <legend style="font-weight: bold; font-size: 11pt">
-          SUBMIT RESPONSE
-        </legend>
-        <div style="padding-top: 15px; padding-bottom: 15px">
-          <span class="ui-icon ui-icon-disk"></span
-          ><a
-            class="btnSubmitPackage"
-            href="javascript:void(0)"
-            title="Click to Submit the Response Package"
-            data-bind="click: ClickSubmitResponse"
-            >Submit this Response Package</a
-          >
-        </div>
-      </fieldset>
-    </div>
-
-    <div id="divResponseDocs" data-bind="visible: currentResponse">
-      <fieldset>
-        <legend>Response Documents</legend>
-
-        <table
-          id="tblResponseDocs"
-          class="tablesorter report"
-          data-bind="visible: cntResponseDocs() > 0"
-        >
-          <thead>
-            <tr valign="top">
-              <th class="sorter-false" nowrap="nowrap">Type</th>
-              <th class="sorter-false" nowrap="nowrap">Name</th>
-              <th class="sorter-false" nowrap="nowrap">Title</th>
-              <th class="sorter-false" nowrap="nowrap">Receipt Date</th>
-              <th class="sorter-false" nowrap="nowrap">File Size</th>
-              <th class="sorter-false" nowrap="nowrap">Modified</th>
-              <th class="sorter-false" nowrap="nowrap">Modified By</th>
-            </tr>
-          </thead>
-          <tbody data-bind="with: arrResponseDocs">
-            <tr class="requestInfo-response-doc">
-              <td colspan="10">
-                <img
-                  style="background-color: transparent"
-                  src="/_layouts/images/minus.gif"
-                  title="Expand/Collapse"
-                  data-bind="toggleClick: $data, toggleClass: 'collapsed', containerType: 'doc', classContainer: '.requestInfo-response-doc'"
-                /><span data-bind="text: responseTitle"></span>
-              </td>
-            </tr>
-
-            <!-- ko foreach: responseDocs-->
-
-            <tr
-              class="requestInfo-response-doc-item"
-              data-bind="style: styleTag"
-            >
-              <td>
-                <img
-                  data-bind="attr:{ src: $parent.siteUrl + '/_layouts/images/' + docIcon}"
-                />
-              </td>
-              <td
-                class="requestInfo-response-doc-title"
-                title="Click to Download"
+          <fieldset style="border-color: GreenYellow">
+            <legend style="font-weight: bold; font-size: 11pt">
+              SUBMIT RESPONSE
+            </legend>
+            <div style="padding-top: 15px; padding-bottom: 15px">
+              <span class="ui-icon ui-icon-disk"></span
+              ><a
+                class="btnSubmitPackage"
+                href="javascript:void(0)"
+                title="Click to Submit the Response Package"
+                data-bind="click: ClickSubmitResponse"
+                >Submit this Response Package</a
               >
-                <a
-                  data-bind="downloadLink: '../_layouts/download.aspx?SourceUrl=:folder/:fileName'"
-                  ><span data-bind="text: fileName"></span
-                ></a>
-                <span
-                  style="float: right"
-                  data-bind="visible: ($parent.responseStatus == '1-Open' || $parent.responseStatus == '3-Returned to Action Office') && documentStatus == 'Open'"
-                >
-                  <a
-                    title="Delete Response Document"
-                    href="javascript:void(0)"
-                    data-bind="click:  $root.ClickMarkForDeletionResponseDoc"
-                    ><span class="ui-icon ui-icon-trash"
-                      >Delete Response Document</span
-                    ></a
-                  >
-                </span>
-              </td>
-              <td nowrap data-bind="text: title"></td>
-              <td nowrap data-bind="text: receiptDate"></td>
-              <td nowrap data-bind="text: fileSize"></td>
-              <td
-                class="requestInfo-response-doc-modified"
-                data-bind="text: modifiedDate"
-              ></td>
-              <td
-                class="requestInfo-response-doc-modifiedBy"
-                data-bind="text: modifiedBy"
-              ></td>
-            </tr>
-
-            <!-- /ko -->
-          </tbody>
-          <tfoot>
-            <tr valign="top">
-              <th colspan="7" nowrap="nowrap">
-                Total:
-                <span
-                  id="tblResponseDocsTotal"
-                  data-bind="text: cntResponseDocs"
-                  >0</span
-                >
-              </th>
-            </tr>
-          </tfoot>
-        </table>
-        <div class="divUpload" data-bind="visible: showUpload()">
-          <label class="file-upload-field">
-            Upload Response Documents:
-            <div class="dropzone" data-bind="">Drop Files Here</div>
-            <input
-              class="file-upload"
-              type="file"
-              multiple
-              data-bind="files: responseDocFiles"
-            />
-          </label>
+            </div>
+          </fieldset>
         </div>
-      </fieldset>
+
+        <div id="divResponseDocs" data-bind="visible: currentResponse">
+          <fieldset>
+            <legend>Response Documents</legend>
+
+            <table
+              id="tblResponseDocs"
+              class="tablesorter report"
+              data-bind="visible: cntResponseDocs() > 0"
+            >
+              <thead>
+                <tr valign="top">
+                  <th class="sorter-false" nowrap="nowrap">Type</th>
+                  <th class="sorter-false" nowrap="nowrap">Name</th>
+                  <th class="sorter-false" nowrap="nowrap">Title</th>
+                  <th class="sorter-false" nowrap="nowrap">Receipt Date</th>
+                  <th class="sorter-false" nowrap="nowrap">File Size</th>
+                  <th class="sorter-false" nowrap="nowrap">Modified</th>
+                  <th class="sorter-false" nowrap="nowrap">Modified By</th>
+                </tr>
+              </thead>
+              <tbody data-bind="with: arrResponseDocs">
+                <tr class="requestInfo-response-doc">
+                  <td colspan="10">
+                    <img
+                      style="background-color: transparent"
+                      src="/_layouts/images/minus.gif"
+                      title="Expand/Collapse"
+                      data-bind="toggleClick: $data, toggleClass: 'collapsed', containerType: 'doc', classContainer: '.requestInfo-response-doc'"
+                    /><span data-bind="text: responseTitle"></span>
+                  </td>
+                </tr>
+
+                <!-- ko foreach: responseDocs-->
+
+                <tr
+                  class="requestInfo-response-doc-item"
+                  data-bind="style: styleTag"
+                >
+                  <td>
+                    <img
+                      data-bind="attr:{ src: $parent.siteUrl + '/_layouts/images/' + docIcon}"
+                    />
+                  </td>
+                  <td
+                    class="requestInfo-response-doc-title"
+                    title="Click to Download"
+                  >
+                    <a
+                      data-bind="downloadLink: '../_layouts/download.aspx?SourceUrl=:folder/:fileName'"
+                      ><span data-bind="text: fileName"></span
+                    ></a>
+                    <span
+                      style="float: right"
+                      data-bind="visible: ($parent.responseStatus == '1-Open' || $parent.responseStatus == '3-Returned to Action Office') && documentStatus == 'Open'"
+                    >
+                      <a
+                        title="Delete Response Document"
+                        href="javascript:void(0)"
+                        data-bind="click:  $root.ClickMarkForDeletionResponseDoc"
+                        ><span class="ui-icon ui-icon-trash"
+                          >Delete Response Document</span
+                        ></a
+                      >
+                    </span>
+                  </td>
+                  <td nowrap data-bind="text: title"></td>
+                  <td nowrap data-bind="text: receiptDate"></td>
+                  <td nowrap data-bind="text: fileSize"></td>
+                  <td
+                    class="requestInfo-response-doc-modified"
+                    data-bind="text: modifiedDate"
+                  ></td>
+                  <td
+                    class="requestInfo-response-doc-modifiedBy"
+                    data-bind="text: modifiedBy"
+                  ></td>
+                </tr>
+
+                <!-- /ko -->
+              </tbody>
+              <tfoot>
+                <tr valign="top">
+                  <th colspan="7" nowrap="nowrap">
+                    Total:
+                    <span
+                      id="tblResponseDocsTotal"
+                      data-bind="text: cntResponseDocs"
+                      >0</span
+                    >
+                  </th>
+                </tr>
+              </tfoot>
+            </table>
+            <div class="divUpload" data-bind="visible: showUpload()">
+              <label class="file-upload-field">
+                Upload Response Documents:
+                <div class="dropzone" data-bind="">Drop Files Here</div>
+                <input
+                  class="file-upload"
+                  type="file"
+                  multiple
+                  data-bind="files: responseDocFiles"
+                />
+              </label>
+            </div>
+          </fieldset>
+        </div>
+      </div>
     </div>
   </div>
 </script>

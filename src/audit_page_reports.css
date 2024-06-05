@@ -102,7 +102,6 @@ div.cell-margin {
 .audit-body {
   display: flex;
   justify-content: start;
-  gap: 1rem;
 }
 
 #divLoading {
@@ -185,7 +184,7 @@ div.cell-margin {
 
 .audit-body .reports-container {
   min-width: 1200px;
-  padding: 1rem 0;
+  padding: 1rem;
 }
 
 .audit-body .quick-links {
@@ -628,16 +627,36 @@ table .rowFilters .filter-date-range button {
   flex-wrap: wrap-reverse;
 }
 
-#divRequestInfoContainer {
-}
-
-#divRequestInfo {
+.request-info-form {
   max-width: 600px;
   border: 2px solid var(--primary-color);
   border-radius: 6px;
 }
 
 .request-detail-view .request-detail-documents {
+  min-width: 860px;
+  background-color: white;
+}
+
+.response-detail-view {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap-reverse;
+}
+
+.response-detail-view .response-info-form {
+  max-width: 600px;
+  border: 2px solid var(--primary-color);
+  border-radius: 6px;
+}
+
+.response-detail-view .response-info-form {
+  max-width: 600px;
+  border: 2px solid var(--primary-color);
+  border-radius: 6px;
+}
+
+.response-detail-view .response-detail-documents {
   min-width: 860px;
   background-color: white;
 }
