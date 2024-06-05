@@ -149,8 +149,6 @@ var m_arrPermissionsResponseFolders = new Array();
 // var m_ResponseDocsItems = null;
 // var m_ResponseDocsFoldersItems = null;
 
-var m_groupColl = null;
-var m_aoItems = null;
 var m_userPermissionAccess = null;
 var m_PageItems = null;
 
@@ -633,7 +631,7 @@ function LoadInfo() {
     "Include(ID, Title, ReqNum, ResID, DocumentStatus, RejectReason, ReceiptDate, FileLeafRef, FileDirRef, File_x0020_Size, CheckoutUser, Modified, Editor, Created)"
   );
 
-  m_groupColl = web.get_siteGroups();
+  const m_groupColl = web.get_siteGroups();
   currCtx.load(m_groupColl);
 
   var aoList = web
@@ -643,7 +641,7 @@ function LoadInfo() {
   aoQuery.set_viewXml(
     '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
   );
-  m_aoItems = aoList.getItems(aoQuery);
+  const m_aoItems = aoList.getItems(aoQuery);
   currCtx.load(m_aoItems, "Include(ID, Title, UserGroup)");
 
   var ob = new SP.BasePermissions();
@@ -684,7 +682,10 @@ function LoadInfo() {
       function OnSuccessLoadPages(sender, args) {
         $("#divIA").show();
         //if they can iterate the pages and the permissions on the pages, we'll consider them a site owner
-        m_fnLoadData(
+
+        m_fnLoadInitialData(
+          m_aoItems,
+          m_groupColl,
           m_requestItems,
           m_requestInternalItems,
           m_responseItems,
@@ -696,7 +697,9 @@ function LoadInfo() {
       }
       function OnFailureLoadPages(sender, args) {
         $("#divIA").show();
-        m_fnLoadData(
+        m_fnLoadInitialData(
+          m_aoItems,
+          m_groupColl,
           m_requestItems,
           m_requestInternalItems,
           m_responseItems,
@@ -707,7 +710,9 @@ function LoadInfo() {
     } else {
       $("#divIA").show();
       m_bIsSiteOwner = false;
-      m_fnLoadData(
+      m_fnLoadInitialData(
+        m_aoItems,
+        m_groupColl,
         m_requestItems,
         m_requestInternalItems,
         m_responseItems,
@@ -733,7 +738,30 @@ function m_fnRefresh(requestNumber) {
   window.location.reload();
 }
 
-function m_fnLoadData(
+// function m_fnLoadInit(
+//   m_requestItems,
+//   m_requestInternalItems,
+//   m_responseItems,
+//   m_ResponseDocsItems
+// ) {
+//   Audit.Common.Utilities.LoadSiteGroups(m_groupColl);
+//   Audit.Common.Utilities.LoadActionOffices(m_aoItems);
+
+//   LoadRequests(m_requestItems);
+//   LoadRequestsInternal(m_requestInternalItems);
+//   LoadResponses(m_responseItems);
+//   LoadResponseDocs(m_ResponseDocsItems);
+//   LoadResponseCounts();
+
+//   DisplayRequestsThatShouldClose();
+
+//   LoadTabStatusReport1();
+//   LoadTabStatusReport2();
+// }
+
+function m_fnLoadInitialData(
+  m_aoItems,
+  m_groupColl,
   m_requestItems,
   m_requestInternalItems,
   m_responseItems,
@@ -742,6 +770,20 @@ function m_fnLoadData(
   Audit.Common.Utilities.LoadSiteGroups(m_groupColl);
   Audit.Common.Utilities.LoadActionOffices(m_aoItems);
 
+  m_fnLoadData(
+    m_requestItems,
+    m_requestInternalItems,
+    m_responseItems,
+    m_ResponseDocsItems
+  );
+}
+
+function m_fnLoadData(
+  m_requestItems,
+  m_requestInternalItems,
+  m_responseItems,
+  m_ResponseDocsItems
+) {
   LoadRequests(m_requestItems);
   LoadRequestsInternal(m_requestInternalItems);
   LoadResponses(m_responseItems);
@@ -758,6 +800,82 @@ export async function m_fnRefreshData(requestId = null) {
   if (!requestId) requestId = _myViewModel.currentRequest()?.ID;
   await m_fnRequeryRequest(requestId);
 
+  return;
+  // TODO: reload data without blocking entire page.
+  var currCtx = new SP.ClientContext.get_current();
+  var web = currCtx.get_web();
+
+  var requestList = web
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetListTitleRequests());
+  var requestQuery = new SP.CamlQuery();
+  requestQuery.set_viewXml(
+    '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
+  );
+  const m_requestItems = requestList.getItems(requestQuery);
+  //need to check permissions because of displaying special perms and granting special perms
+  //currCtx.load( m_requestItems, 'Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))');
+  currCtx.load(
+    m_requestItems,
+    "Include(ID, Title, ReqType, ReqSubject, ReqStatus, RequestingOffice, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
+  );
+
+  var requestInternalList = web
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetListTitleRequestsInternal());
+  var requestInternalQuery = new SP.CamlQuery();
+  requestInternalQuery.set_viewXml(
+    '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
+  );
+  const m_requestInternalItems =
+    requestInternalList.getItems(requestInternalQuery);
+  currCtx.load(
+    m_requestInternalItems,
+    "Include(ID, Title, ReqNum, InternalStatus, ActiveViewers)"
+  );
+
+  var responseList = web
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetListTitleResponses());
+  var responseQuery = new SP.CamlQuery();
+  responseQuery.set_viewXml(
+    '<View><Query><OrderBy><FieldRef Name="ReqNum"/></OrderBy></Query></View>'
+  );
+  const m_responseItems = responseList.getItems(responseQuery);
+  //need to check permissions because of granting/removing special perms
+  //currCtx.load( m_responseItems, 'Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, Comments, Modified, ClosedDate, ClosedBy, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))' );
+  currCtx.load(
+    m_responseItems,
+    "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, ActiveViewers, Comments, Modified, ClosedDate, ClosedBy, POC, POCCC)"
+  );
+
+  //make sure to only pull documents (fsobjtype = 0)
+  var responseDocsLib = web
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
+  var responseDocsQuery = new SP.CamlQuery();
+  responseDocsQuery.set_viewXml(
+    '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="ReqNum"/><FieldRef Name="ResID"/></OrderBy><Where><Eq><FieldRef Name="ContentType"/><Value Type="Text">Document</Value></Eq></Where></Query></View>'
+  );
+  const m_ResponseDocsItems = responseDocsLib.getItems(responseDocsQuery);
+  currCtx.load(
+    m_ResponseDocsItems,
+    "Include(ID, Title, ReqNum, ResID, DocumentStatus, RejectReason, ReceiptDate, FileLeafRef, FileDirRef, File_x0020_Size, CheckoutUser, Modified, Editor, Created)"
+  );
+
+  await executeQuery(currCtx).catch(({ sender, args }) => {
+    const statusId = SP.UI.Status.addStatus(
+      "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
+    );
+    SP.UI.Status.setStatusPriColor(statusId, "red");
+  });
+
+  m_fnLoadData(
+    m_requestItems,
+    m_requestInternalItems,
+    m_responseItems,
+    m_ResponseDocsItems
+  );
   // TODO: Update status reports and other data.
   // LoadTabStatusReport1();
   // LoadTabStatusReport2();
