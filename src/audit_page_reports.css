@@ -326,7 +326,7 @@ div.cell-margin {
 }
 
 .audit-form dl {
-  min-width: 200px;
+  padding: 0 1.5rem 0 0;
 }
 
 .audit-form dt {

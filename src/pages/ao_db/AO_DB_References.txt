@@ -260,6 +260,8 @@
                 data-bind="text: request.internalDueDate"
               ></span>
             </dd>
+          </dl>
+          <dl>
             <dt>Response Status</dt>
             <dd>
               <span
@@ -286,6 +288,10 @@
                 data-bind="text: request.relatedAudit"
               ></span>
             </dd>
+          </dl>
+        </div>
+        <div class="form-row uppercase">
+          <dl>
             <dt>Action Items</dt>
             <dd>
               <span
