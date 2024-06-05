@@ -35,6 +35,7 @@ import {
 import { resetAllDBPerms } from "../../services/permission_manager.js";
 import { ensureROEmailFolder } from "../../services/audit_email_service.js";
 import { sortByTitle } from "../../sal/infrastructure/index.js";
+import { BulkAddRequestForm } from "../../components/bulk_add_request/bulk_add_request.js";
 
 var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
@@ -2653,16 +2654,24 @@ function m_fnBulkAddRequest() {
     return;
   }
 
-  m_bIsTransactionExecuting = true;
+  const bulkAddRequestForm = new BulkAddRequestForm();
+  const options = {
+    title: "Bulk Add Request",
+    form: bulkAddRequestForm,
+    dialogReturnValueCallback: m_fnRefresh,
+  };
 
-  var options = SP.UI.$create_DialogOptions();
-  options.title = "Bulk Add Requests";
-  options.dialogReturnValueCallback = m_fnRefresh;
-  options.height = 800;
-  options.url =
-    Audit.Common.Utilities.GetSiteUrl() + "/pages/AuditBulkAddRequest.aspx";
+  ModalDialog.showModalDialog(options);
+  // m_bIsTransactionExecuting = true;
 
-  SP.UI.ModalDialog.showModalDialog(options);
+  // var options = SP.UI.$create_DialogOptions();
+  // options.title = "Bulk Add Requests";
+  // options.dialogReturnValueCallback = m_fnRefresh;
+  // options.height = 800;
+  // options.url =
+  //   Audit.Common.Utilities.GetSiteUrl() + "/pages/AuditBulkAddRequest.aspx";
+
+  // SP.UI.ModalDialog.showModalDialog(options);
 }
 
 async function m_fnViewRequest(id) {
