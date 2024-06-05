@@ -24,7 +24,10 @@ import {
   auditOrganizationStore,
   configurationsStore,
 } from "../../infrastructure/store.js";
-import { AuditResponseDocStates } from "../../entities/index.js";
+import {
+  AUDITREQUESTTYPES,
+  AuditResponseDocStates,
+} from "../../entities/index.js";
 import {
   addTask,
   blockingTasks,
@@ -189,7 +192,6 @@ function ViewModel() {
   /* alerts */
   self.arrRequestsThatNeedClosing = ko.observableArray(null);
   self.arrResponseDocsCheckedOut = ko.observableArray(null);
-  self.arrResponsesSubmittedByAO = ko.observableArray(null);
   self.arrResponsesWithUnsubmittedResponseDocs = ko.observableArray();
   self.arrRequestsInternalAlmostDue = ko.observableArray(null);
   self.arrRequestsInternalPastDue = ko.observableArray(null);
@@ -198,12 +200,12 @@ function ViewModel() {
   self.arrRequestsWithNoResponses = ko.observableArray(null);
   self.arrRequestsWithNoEmailSent = ko.observableArray(null);
   self.arrResponsesSubmittedByAO = ko.observableArray(null);
+  self.arrResponsesReadyToClose = ko.observableArray();
 
   self.alertQuickInfo = ko.pureComputed(() => {
     return (
       self.arrRequestsThatNeedClosing().length ||
       self.arrResponseDocsCheckedOut().length ||
-      self.arrResponsesSubmittedByAO().length ||
       self.arrResponsesWithUnsubmittedResponseDocs().length ||
       self.arrRequestsInternalAlmostDue().length ||
       self.arrRequestsInternalPastDue().length ||
@@ -211,7 +213,8 @@ function ViewModel() {
       self.arrRequestsPastDue().length ||
       self.arrRequestsWithNoResponses().length ||
       self.arrRequestsWithNoEmailSent().length ||
-      self.arrResponsesSubmittedByAO().length
+      self.arrResponsesSubmittedByAO().length ||
+      self.arrResponsesReadyToClose().length
     );
   });
 
@@ -2464,11 +2467,26 @@ function LoadTabStatusReport2() {
 
   var arrSubmittedResponsesByAO = new Array();
   var arrUnsubmittedResponseDocs = [];
+  const arrResponsesReadyToClose = [];
 
   //var bLoadTest = GetUrlKeyValue("LoadTest");
   var responseArr = new Array();
 
   var requestLength = arr.length;
+
+  function responseReadyToClose(response) {
+    if (response.resStatus == AuditResponseStates.Closed) return false;
+    return (
+      response.responseDocs.length &&
+      !response.responseDocs.find((responseDoc) =>
+        [
+          AuditResponseDocStates.Open,
+          AuditResponseDocStates.Submitted,
+        ].includes(responseDoc.documentStatus)
+      )
+    );
+  }
+
   for (var x = 0; x < requestLength; x++) {
     var oRequest = arr[x];
 
@@ -2510,6 +2528,12 @@ function LoadTabStatusReport2() {
       };
       responseArr.push(aResponse);
 
+      if (
+        oRequest.reqType == AUDITREQUESTTYPES.TASKER &&
+        responseReadyToClose(oResponse)
+      ) {
+        arrResponsesReadyToClose.push(oResponse);
+      }
       /*if( bLoadTest )
 				{
 					for( var z = 0; z < 99; z++ )
@@ -2547,6 +2571,11 @@ function LoadTabStatusReport2() {
     arrSubmittedResponsesByAO
   );
   _myViewModel.arrResponsesSubmittedByAO.valueHasMutated();
+
+  ko.utils.arrayPushAll(
+    _myViewModel.arrResponsesReadyToClose,
+    arrResponsesReadyToClose
+  );
 
   ko.utils.arrayPushAll(
     _myViewModel.arrResponsesWithUnsubmittedResponseDocs,

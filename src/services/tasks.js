@@ -63,6 +63,12 @@ export const taskDefs = {
       blocking: true,
     };
   },
+  closeResponse: (responseTitle) => {
+    return {
+      msg: "Closing Response: " + responseTitle,
+      blocking: true,
+    };
+  },
   uploadResponseDoc: (responseDocTitle) => {
     return {
       msg: "Uploading Response Document: " + responseDocTitle,

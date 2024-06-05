@@ -217,10 +217,12 @@ export class RequestDetailView {
   // Responses
   clickCloseReadyResponses = async () => {
     await Promise.all(
-      this.currentRequestResponsesReadyToClose().map(
-        (response) => response.closeResponse
+      this.currentRequestResponsesReadyToClose().map((response) =>
+        response.closeResponse()
       )
     );
+
+    this.refreshRequest();
   };
 
   viewResponseDocs = (response) => {

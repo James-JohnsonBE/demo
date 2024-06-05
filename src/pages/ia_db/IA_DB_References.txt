@@ -287,6 +287,36 @@
           </details>
         </div>
         <div
+          id="divResponsesReadyToClose"
+          class="status-set-container"
+          title="Click here to View"
+          data-bind="visible: arrResponsesReadyToClose().length > 0"
+        >
+          <details>
+            <summary class="warning">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <div>
+                <span
+                  data-bind="text: arrResponsesReadyToClose().length"
+                ></span>
+                Responses are Ready to Close
+              </div>
+            </summary>
+            <div id="divResponsesReadyToCloseItems">
+              <ul data-bind="foreach: arrResponsesReadyToClose">
+                <li>
+                  <a
+                    href="javascript:void(0);"
+                    title="Go to Request Details"
+                    data-bind="click: $root.ClickGoToRequest"
+                    ><span data-bind="text: title"></span
+                  ></a>
+                </li>
+              </ul>
+            </div>
+          </details>
+        </div>
+        <div
           id="divResponsesWithUnsubmittedResponsDocs"
           class="status-set-container"
           data-bind="visible: arrResponsesWithUnsubmittedResponseDocs().length > 0"

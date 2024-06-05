@@ -169,11 +169,17 @@ export async function closeResponseById(responseId) {
 }
 
 async function closeResponse(response) {
+  const closeResponseTask = addTask(
+    taskDefs.closeResponse(response.Title.Value())
+  );
+
   response.markClosed();
   await appContext.AuditResponses.UpdateEntity(
     response,
     AuditResponse.Views.IAUpdateClosed
   );
+
+  finishTask(closeResponseTask);
 }
 
 export async function uploadResponseDocFile(response, file) {
