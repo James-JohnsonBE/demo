@@ -25,15 +25,21 @@ export class DefaultForm extends BaseForm {
   componentName = componentName;
 }
 
-// registerComponent({
-//   name: componentName,
-//   folder: "forms/default",
-//   // module: ConstrainedEntityModule,
-//   template: "DefaultFormTemplate",
-// });
+const template = `
+  <div class="audit-form bg-dark">
+    <div class="form-fields vertical" data-bind="foreach: FormFields">
+      <div
+        class="form-field-component"
+        data-bind="component: {
+            name: components[$parent.displayMode()], params: $data}, 
+            class: width"
+      ></div>
+    </div>
+  </div>
+`;
 
 ko.components.register(componentName, {
-  template: {
-    fromPath: `/sal/components/forms/default/DefaultFormTemplate.html`,
-  },
+  template,
 });
+
+console.log("template", template);
