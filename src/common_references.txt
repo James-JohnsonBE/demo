@@ -3,9 +3,9 @@
 <script type="importmap">
   {
     "imports": {
-      "sal/fields": "/sites/CGFS/Style Library/apps/audit/src/sal/fields/index.js",
-      "sal/components": "/sites/CGFS/Style Library/apps/audit/src/sal/components/index.js",
-      "sal/infrastructure": "/sites/CGFS/Style Library/apps/audit/src/sal/infrastructure/index.js"
+      "sal/fields": "/sites/CGFS/Style Library/apps/tasker/src/sal/fields/index.js",
+      "sal/components": "/sites/CGFS/Style Library/apps/tasker/src/sal/components/index.js",
+      "sal/infrastructure": "/sites/CGFS/Style Library/apps/tasker/src/sal/infrastructure/index.js"
     }
   }
 </script>
@@ -13,35 +13,35 @@
 <link
   rel="stylesheet"
   type="text/css"
-  href="/sites/CGFS/Style Library/apps/audit/lib/jquery-ui-1.13.2/jquery-ui.theme.min.css"
+  href="/sites/CGFS/Style Library/apps/tasker/lib/jquery-ui-1.13.2/jquery-ui.theme.min.css"
 />
 <link
   rel="stylesheet"
   type="text/css"
-  href="/sites/CGFS/Style Library/apps/audit/lib/tablesorter-2.31.3/css/theme.default.min.css"
+  href="/sites/CGFS/Style Library/apps/tasker/lib/tablesorter-2.31.3/css/theme.default.min.css"
 />
 <link
   rel="stylesheet"
-  href="/sites/CGFS/Style Library/apps/audit/lib/fontawesome-6.5.1/css/fontawesome.min.css"
+  href="/sites/CGFS/Style Library/apps/tasker/lib/fontawesome-6.5.1/css/fontawesome.min.css"
 />
 <link
   rel="stylesheet"
-  href="/sites/CGFS/Style Library/apps/audit/lib/fontawesome-6.5.1/css/solid.min.css"
-/>
-<link
-  rel="stylesheet"
-  type="text/css"
-  href="/sites/CGFS/Style Library/apps/audit/src/audit_styles.css"
+  href="/sites/CGFS/Style Library/apps/tasker/lib/fontawesome-6.5.1/css/solid.min.css"
 />
 <link
   rel="stylesheet"
   type="text/css"
-  href="/sites/CGFS/Style Library/apps/audit/src/audit_page_reports.css"
+  href="/sites/CGFS/Style Library/apps/tasker/src/audit_styles.css"
+/>
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="/sites/CGFS/Style Library/apps/tasker/src/audit_page_reports.css"
 />
 
 <script
   type="text/javascript"
-  src="/sites/CGFS/Style Library/apps/audit/lib/jquery-3.7.1.min.js"
+  src="/sites/CGFS/Style Library/apps/tasker/lib/jquery-3.7.1.min.js"
 ></script>
 
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.2/dist/quill.js"></script>
@@ -59,7 +59,7 @@
 
 <script
   type="text/javascript"
-  src="/sites/CGFS/Style Library/apps/audit/lib/jquery-ui-1.13.2/jquery-ui.min.js"
+  src="/sites/CGFS/Style Library/apps/tasker/lib/jquery-ui-1.13.2/jquery-ui.min.js"
 ></script>
 
 <!-- <script type="text/javascript" src="../SiteAssets/js/jsrender.min.js"></script> -->
@@ -96,39 +96,39 @@
 
 <!-- <script
   defer
-  src="/sites/CGFS/Style Library/apps/audit/lib/fontawesome-6.5.1/js/fontawesome.min.js"
+  src="/sites/CGFS/Style Library/apps/tasker/lib/fontawesome-6.5.1/js/fontawesome.min.js"
 ></script>
 <script
   defer
-  src="/sites/CGFS/Style Library/apps/audit/lib/fontawesome-6.5.1/js/solid.min.js"
+  src="/sites/CGFS/Style Library/apps/tasker/lib/fontawesome-6.5.1/js/solid.min.js"
 ></script> -->
 <script
   type="text/javascript"
-  src="/sites/CGFS/Style Library/apps/audit/lib/tablesorter-2.31.3/js/jquery.tablesorter.min.js"
+  src="/sites/CGFS/Style Library/apps/tasker/lib/tablesorter-2.31.3/js/jquery.tablesorter.min.js"
 ></script>
 <script
   type="text/javascript"
-  src="/sites/CGFS/Style Library/apps/audit/lib/knockout-3.5.1.js"
+  src="/sites/CGFS/Style Library/apps/tasker/lib/knockout-3.5.1.js"
 ></script>
 
 <!-- <script
   type="module"
-  src="/sites/CGFS/Style Library/apps/audit/src/common/knockout_extensions.js"
+  src="/sites/CGFS/Style Library/apps/tasker/src/common/knockout_extensions.js"
 ></script> -->
 
 <script
   type="text/javascript"
-  src="/sites/CGFS/Style Library/apps/audit/src/common/utilities.js"
+  src="/sites/CGFS/Style Library/apps/tasker/src/common/utilities.js"
 ></script>
 
 <script
   defer
-  src="/sites/CGFS/Style Library/apps/audit/lib/webcomponents/searchselect/searchselect.js"
+  src="/sites/CGFS/Style Library/apps/tasker/lib/webcomponents/searchselect/searchselect.js"
 ></script>
 
 <script
   defer
-  src="/sites/CGFS/Style Library/apps/audit/lib/webcomponents/data-table/data-table.js"
+  src="/sites/CGFS/Style Library/apps/tasker/lib/webcomponents/data-table/data-table.js"
 ></script>
 
 <div class="audit">
@@ -192,7 +192,7 @@
   <template id="search-select-template">
     <link
       rel="stylesheet"
-      href="/sites/CGFS/Style Library/apps/audit/lib/webcomponents/searchselect/styles.css"
+      href="/sites/CGFS/Style Library/apps/tasker/lib/webcomponents/searchselect/styles.css"
     />
     <!-- Hide the element, stylesheet overrides on load -->
     <style>

@@ -93,8 +93,8 @@ AuditUpdateSiteGroups
 default
 /sites/CGFS/Style Library/apps/tasker/src/pages/home/Home_References.txt
 
-EA_DB
-/sites/CGFS/Style Library/apps/tasker/src/Pages/ea_db/EA_DB_References.txt
+RO_DB
+/sites/CGFS/Style Library/apps/tasker/src/Pages/ro_db/RO_DB_References.txt
 
 IA_DB
 /sites/CGFS/Style Library/apps/tasker/src/Pages/ia_db/IA_DB_References.txt

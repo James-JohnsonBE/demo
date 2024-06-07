@@ -353,5 +353,5 @@
 
 <script
   type="text/javascript"
-  src="/sites/CGFS/Style Library/apps/audit/src/pages/bulk_edit_response/bulk_edit_response.js"
+  src="/sites/CGFS/Style Library/apps/tasker/src/pages/bulk_edit_response/bulk_edit_response.js"
 ></script>

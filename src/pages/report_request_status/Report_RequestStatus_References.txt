@@ -137,10 +137,10 @@
 
 <script
   type="text/javascript"
-  src="/sites/CGFS/Style Library/apps/audit/lib/google-charts/loader.js"
+  src="/sites/CGFS/Style Library/apps/tasker/lib/google-charts/loader.js"
 ></script>
 
 <script
   type="module"
-  src="/sites/CGFS/Style Library/apps/audit/src/pages/report_request_status/report_request_status.js"
+  src="/sites/CGFS/Style Library/apps/tasker/src/pages/report_request_status/report_request_status.js"
 ></script>

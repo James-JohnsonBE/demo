@@ -649,11 +649,11 @@
 <link
   rel="stylesheet"
   type="text/css"
-  href="/sites/CGFS/Style Library/apps/audit/src/audit_styles_hide_ribbon.css"
+  href="/sites/CGFS/Style Library/apps/tasker/src/audit_styles_hide_ribbon.css"
 />
 
 <script
   defer
   type="module"
-  src="/sites/CGFS/Style Library/apps/audit/src/pages/qa_db/qa_db.js"
+  src="/sites/CGFS/Style Library/apps/tasker/src/pages/qa_db/qa_db.js"
 ></script>

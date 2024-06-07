@@ -43,5 +43,5 @@
 
 <script
   type="text/javascript"
-  src="/sites/CGFS/Style Library/apps/audit/src/pages/bulk_add_response/bulk_add_response.js"
+  src="/sites/CGFS/Style Library/apps/tasker/src/pages/bulk_add_response/bulk_add_response.js"
 ></script>
