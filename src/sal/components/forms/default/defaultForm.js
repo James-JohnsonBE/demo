@@ -25,7 +25,9 @@ export class DefaultForm extends BaseForm {
   componentName = componentName;
 }
 
-const template = `
+const html = String.raw;
+
+const template = html`
   <div class="audit-form bg-dark">
     <div class="form-fields vertical" data-bind="foreach: FormFields">
       <div
