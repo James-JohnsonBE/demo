@@ -220,6 +220,9 @@ export class EntitySet {
   };
 
   // Permissions
+  GetItemPermissions = function (entity) {
+    return this.ListRef.getItemPermissionsAsync(entity.ID);
+  };
 
   SetItemPermissions = async function (entity, valuePairs, reset = false) {
     // const salValuePairs = valuePairs
@@ -228,8 +231,13 @@ export class EntitySet {
     return this.ListRef.setItemPermissionsAsync(entity.ID, valuePairs, reset);
   };
 
-  GetItemPermissions = function (entity) {
-    return this.ListRef.getItemPermissionsAsync(entity.ID);
+  GetRootPermissions = async function () {
+    const roles = this.ListRef.getListPermissions();
+  };
+
+  SetRootPermissions = async function (itemPermissions) {
+    const valuePairs = itemPermissions.getValuePairs();
+    await this.ListRef.setListPermissionsAsync(valuePairs, true);
   };
 
   // Folder Methods

@@ -17,20 +17,33 @@ export const roleNames = {
   InitialCreate: "Initial Create",
 };
 
-resetListPermissions;
+export function ensureAllAppPerms() {
+  ensureAllPagePerms();
+  ensureAllListPermissions();
+}
 
-export function resetAllDBPerms() {
+function ensureAllPagePerms() {
   const aos = auditOrganizationStore().filter(
     (ao) => ao.Org_Type != ORGTYPES.REQUESTINGOFFICE
   );
-  resetPagePerms("AO_DB.aspx", aos);
+  ensurePagePerms("AO_DB.aspx", aos);
 
   const ros = auditOrganizationStore().filter(
     (ao) => ao.Org_Type == ORGTYPES.REQUESTINGOFFICE
   );
-  resetPagePerms("RO_DB.aspx", ros);
+  ensurePagePerms("RO_DB.aspx", ros);
 
-  // Internal Auditor Access
+  const qas = auditOrganizationStore().filter(
+    (ao) => ao.Org_Type == ORGTYPES.QUALITYASSURANCE
+  );
+  ensurePagePerms("QA_DB.aspx", qas);
+
+  const sps = auditOrganizationStore().filter(
+    (ao) => ao.Org_Type == ORGTYPES.SPECIALPERMISSIONS
+  );
+  ensurePagePerms("SP_DB.aspx", sps);
+
+  // Reset Other Pages
   [
     "AuditBulkAddResponse.aspx",
     "AuditBulkEditResponse.aspx",
@@ -39,20 +52,10 @@ export function resetAllDBPerms() {
     "AuditReturnedResponses.aspx",
     "AuditUnSubmittedResponseDocuments.aspx",
     "AuditUpdateSiteGroups.aspx",
-  ].map((page) => resetPagePerms(page, []));
-
-  const qas = auditOrganizationStore().filter(
-    (ao) => ao.Org_Type == ORGTYPES.QUALITYASSURANCE
-  );
-  resetPagePerms("QA_DB.aspx", qas);
-
-  const sps = auditOrganizationStore().filter(
-    (ao) => ao.Org_Type == ORGTYPES.SPECIALPERMISSIONS
-  );
-  resetPagePerms("SP_DB.aspx", sps);
+  ].map((page) => ensurePagePerms(page, []));
 }
 
-async function resetPagePerms(pageTitle, orgs) {
+async function ensurePagePerms(pageTitle, orgs) {
   const pageResults = await appContext.Pages.FindByColumnValue(
     [{ column: "FileLeafRef", value: pageTitle }],
     {},
@@ -116,7 +119,7 @@ function getPeopleByOrgType(orgType) {
     .map((ao) => new People(ao.UserGroup));
 }
 
-function resetAllListPermissions() {
+function ensureAllListPermissions() {
   const { owners, members, visitors } = getSiteGroups();
 
   const baseRoles = [
@@ -164,50 +167,78 @@ function resetAllListPermissions() {
       })
   );
 
-  [
+  const setPerms = [
     {
-      list: appContext.AuditBulkRequests,
+      entitySet: appContext.AuditBulkRequests,
       permissions: new ItemPermissions({
         hasUniqueRoleAssignments: true,
         roles: baseRoles,
       }),
     },
     {
-      list: appContext.AuditBulkResponses,
+      entitySet: appContext.AuditBulkResponses,
       permissions: new ItemPermissions({
         hasUniqueRoleAssignments: true,
         roles: baseRoles,
       }),
     },
     {
-      list: appContext.AuditResponseDocsRO,
+      entitySet: appContext.AuditResponseDocsRO,
       permissions: new ItemPermissions({
         hasUniqueRoleAssignments: true,
         roles: [...baseRoles, ...qaRestrictedContributeRoles],
       }),
     },
     {
-      list: appContext.AuditRequests,
+      entitySet: appContext.AuditRequests,
       permissions: new ItemPermissions({
         hasUniqueRoleAssignments: true,
         roles: baseRoles,
       }),
     },
     {
-      list: appContext.AuditRequestsInternal,
+      entitySet: appContext.AuditRequestsInternal,
       permissions: new ItemPermissions({
         hasUniqueRoleAssignments: true,
         roles: [...baseRoles, ...qaRestrictedReadRoles],
       }),
     },
     {
-      list: appContext.AuditROEmailsLog,
+      entitySet: appContext.AuditROEmailsLog,
       permissions: new ItemPermissions({
         hasUniqueRoleAssignments: true,
         roles: [...baseRoles, ...qaRestrictedContributeRoles],
       }),
     },
   ];
+  ensureEntitySetPerms(setPerms[0]);
+
+  return;
+  setPerms.map(ensureEntitySetPerms);
 }
 
-function resetListPerms(list, orgs) {}
+async function ensureEntitySetPerms({ entitySet, permissions }) {
+  const curPerms = await entitySet.GetRootPermissions();
+
+  if (curPerms.hasUniqueRoleAssignments) {
+    entitySet.SetRootPermissions(permissions);
+    return;
+  }
+
+  // Otherwise, verify that all roles match
+  const missingPermission = permissions.roles.find((role) => {
+    const curRole = curPerms.roles.find(
+      (curRole) => curRole.principal.ID == role.principal.ID
+    );
+    // If the principal doesn't have a role assignment
+    if (!curRole) return true;
+    const curRoleDefNames = curRole.roleDefs.map((roleDef) => roleDef.name);
+
+    // Else, if we find a roleDef that isn't already set
+    return role.roleDefs.find(
+      (roleDef) => !curRoleDefNames.includes(roleDef.name)
+    );
+  });
+
+  if (missingPermission) entitySet.SetRootPermissions(itemPermissions);
+}

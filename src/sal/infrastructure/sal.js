@@ -597,6 +597,27 @@ export class ItemPermissions {
       ? true
       : false;
   }
+
+  getValuePairs() {
+    // For backwards compatibility
+    return this.roles.flatMap((role) =>
+      role.roleDefs.map((roleDef) => [role.principal.Title, roleDef.name])
+    );
+  }
+
+  static fromRestResult(result) {
+    const roles = result.RoleAssignments.results.map((role) => {
+      new Role({
+        principal: { ...role.Member, ID: role.Member.Id },
+        roleDefs: role.RoleDefinitionBindings.results,
+      });
+    });
+
+    return new ItemPermissions({
+      hasUniqueRoleAssignments: result.HasUniqueRoleAssignments,
+      roles,
+    });
+  }
 }
 
 export class Role {
@@ -605,13 +626,16 @@ export class Role {
     this.roleDefs = roleDefs;
   }
 
-  principal;
+  principal; // People Entity
   roleDefs = [];
 
   addRoleDef(roleDef) {
     this.roleDefs.push(roleDef);
   }
 
+  static fromRestRoleAssignment(role) {
+    const newRole = new Role({});
+  }
   static fromJsomRole(role) {
     const newRole = new Role({
       principal: principalToPeople(role.get_member()),
@@ -1432,6 +1456,19 @@ export function SPList(listDef) {
         Function.createDelegate(data, onQueryFailed)
       );
     });
+  }
+
+  async function getListPermissions() {
+    const url =
+      `/web/lists/getByTitle(${self.config.def.name})` +
+      `?$select=HasUniqueRoleAssignments,RoleAssignments` +
+      `&$expand=RoleAssignments,RoleAssignments/Member,RoleAssignments/RoleDefinitionBindings`;
+
+    const result = await fetchSharePointData(url);
+
+    if (!result) return;
+
+    return ItemPermissions.fromRestResult(result.d);
   }
 
   /*****************************************************************
@@ -2469,6 +2506,8 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
     deleteListItemAsync,
     setItemPermissionsAsync,
     getItemPermissionsAsync,
+    getListPermissions,
+    setListPermissionsAsync,
     getFolderContentsAsync,
     upsertFolderPathAsync,
     getServerRelativeFolderPath,
