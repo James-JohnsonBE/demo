@@ -25,6 +25,27 @@ export function resetAllDBPerms() {
     (ao) => ao.Org_Type == ORGTYPES.REQUESTINGOFFICE
   );
   resetPagePerms("RO_DB.aspx", ros);
+
+  // Internal Auditor Access
+  [
+    "AuditBulkAddResponse.aspx",
+    "AuditBulkEditResponse.aspx",
+    "AuditPermissions.aspx",
+    "AuditReport_RequestsStatus.aspx",
+    "AuditReturnedResponses.aspx",
+    "AuditUnSubmittedResponseDocuments.aspx",
+    "AuditUpdateSiteGroups.aspx",
+  ].map((page) => resetPagePerms(page, []));
+
+  const qas = auditOrganizationStore().filter(
+    (ao) => ao.Org_Type == ORGTYPES.QUALITYASSURANCE
+  );
+  resetPagePerms("QA_DB.aspx", qas);
+
+  const sps = auditOrganizationStore().filter(
+    (ao) => ao.Org_Type == ORGTYPES.SPECIALPERMISSIONS
+  );
+  resetPagePerms("SP_DB.aspx", sps);
 }
 
 async function resetPagePerms(pageTitle, orgs) {
@@ -67,7 +88,7 @@ async function resetPagePerms(pageTitle, orgs) {
     const siteGroups = getSiteGroups();
     newRoles.push({
       principal: siteGroups.owners,
-      roleDefs: [{ name: roleNames.Contribute }],
+      roleDefs: [{ name: roleNames.FullControl }],
     });
     newRoles.push({
       principal: siteGroups.members,
@@ -80,6 +101,7 @@ async function resetPagePerms(pageTitle, orgs) {
     const newPerms = {
       roles: newRoles,
     };
+    console.warn("Resetting Page Perms: ", pageTitle);
     await appContext.Pages.SetItemPermissions(page, newPerms, true);
   }
 }
