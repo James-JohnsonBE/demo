@@ -4,6 +4,7 @@ import { appContext } from "../infrastructure/application_db_context.js";
 import { auditOrganizationStore } from "../infrastructure/store.js";
 import { ItemPermissions, Role, RoleDef } from "../sal/infrastructure/index.js";
 import { getSiteGroups } from "./people_manager.js";
+import { addTask, finishTask, taskDefs } from "./tasks.js";
 
 export const roleNames = {
   FullControl: "Full Control",
@@ -23,6 +24,21 @@ export function ensureAllAppPerms() {
 }
 
 function ensureAllPagePerms() {
+  ensureDBPermissions();
+
+  // Reset Other Pages
+  [
+    "AuditBulkAddResponse.aspx",
+    "AuditBulkEditResponse.aspx",
+    "AuditPermissions.aspx",
+    "AuditReport_RequestsStatus.aspx",
+    "AuditReturnedResponses.aspx",
+    "AuditUnSubmittedResponseDocuments.aspx",
+    "AuditUpdateSiteGroups.aspx",
+  ].map((page) => ensurePagePerms(page, []));
+}
+
+export function ensureDBPermissions() {
   const aos = auditOrganizationStore().filter(
     (ao) => ao.Org_Type != ORGTYPES.REQUESTINGOFFICE
   );
@@ -42,20 +58,10 @@ function ensureAllPagePerms() {
     (ao) => ao.Org_Type == ORGTYPES.SPECIALPERMISSIONS
   );
   ensurePagePerms("SP_DB.aspx", sps);
-
-  // Reset Other Pages
-  [
-    "AuditBulkAddResponse.aspx",
-    "AuditBulkEditResponse.aspx",
-    "AuditPermissions.aspx",
-    "AuditReport_RequestsStatus.aspx",
-    "AuditReturnedResponses.aspx",
-    "AuditUnSubmittedResponseDocuments.aspx",
-    "AuditUpdateSiteGroups.aspx",
-  ].map((page) => ensurePagePerms(page, []));
 }
 
 async function ensurePagePerms(pageTitle, orgs) {
+  const ensurePageTask = addTask(taskDefs.ensurePagePermissions(pageTitle));
   const pageResults = await appContext.Pages.FindByColumnValue(
     [{ column: "FileLeafRef", value: pageTitle }],
     {},
@@ -64,7 +70,14 @@ async function ensurePagePerms(pageTitle, orgs) {
 
   const page = pageResults.results[0] ?? null;
 
-  if (!page) return;
+  if (!page) {
+    console.warn(
+      "Unable to ensure page permissions. Page not found: " + pageTitle,
+      orgs
+    );
+    finishTask(ensurePageTask);
+    return;
+  }
 
   let reset = false;
   if (!page.HasUniqueRoleAssignments) {
@@ -85,32 +98,42 @@ async function ensurePagePerms(pageTitle, orgs) {
   }
 
   if (reset) {
+    const resetPageTask = addTask(taskDefs.resetPagePermissions(pageTitle));
+    const { owners, members, visitors } = getSiteGroups();
+
+    const baseRoles = [
+      new Role({
+        principal: owners,
+        roleDefs: [new RoleDef({ name: roleNames.FullControl })],
+      }),
+      new Role({
+        principal: members,
+        roleDefs: [new RoleDef({ name: roleNames.RestrictedRead })],
+      }),
+      new Role({
+        principal: visitors,
+        roleDefs: [new RoleDef({ name: roleNames.RestrictedRead })],
+      }),
+    ];
+
     const newRoles = orgs.map((org) => {
-      return {
+      return new Role({
         principal: org.UserGroup,
         roleDefs: [{ name: roleNames.RestrictedRead }],
-      };
+      });
     });
 
-    const siteGroups = getSiteGroups();
-    newRoles.push({
-      principal: siteGroups.owners,
-      roleDefs: [{ name: roleNames.FullControl }],
+    const newPerms = new ItemPermissions({
+      hasUniqueRoleAssignments: true,
+      roles: [...newRoles, ...baseRoles],
     });
-    newRoles.push({
-      principal: siteGroups.members,
-      roleDefs: [{ name: roleNames.Contribute }],
-    });
-    newRoles.push({
-      principal: siteGroups.visitors,
-      roleDefs: [{ name: roleNames.RestrictedRead }],
-    });
-    const newPerms = {
-      roles: newRoles,
-    };
+
     console.warn("Resetting Page Perms: ", pageTitle);
     await appContext.Pages.SetItemPermissions(page, newPerms, true);
+    finishTask(resetPageTask);
   }
+
+  finishTask(ensurePageTask);
 }
 
 function getPeopleByOrgType(orgType) {
@@ -197,7 +220,7 @@ function ensureAllListPermissions() {
       }),
     },
     {
-      entitySet: appContext.AuditRequestsInternal,
+      entitySet: appContext.AuditRequestsInternals,
       permissions: new ItemPermissions({
         hasUniqueRoleAssignments: true,
         roles: [...baseRoles, ...qaRestrictedReadRoles],
@@ -211,34 +234,64 @@ function ensureAllListPermissions() {
       }),
     },
   ];
-  ensureEntitySetPerms(setPerms[0]);
 
-  return;
-  setPerms.map(ensureEntitySetPerms);
+  setPerms.map(async (setPerm) => {
+    const ensureListTask = addTask(
+      taskDefs.ensureListPermissions(setPerm.entitySet)
+    );
+    await ensureEntitySetPerms(setPerm);
+    finishTask(ensureListTask);
+  });
 }
 
 async function ensureEntitySetPerms({ entitySet, permissions }) {
   const curPerms = await entitySet.GetRootPermissions();
 
-  if (curPerms.hasUniqueRoleAssignments) {
-    entitySet.SetRootPermissions(permissions);
+  if (!curPerms.hasUniqueRoleAssignments) {
+    await resetEntitySetPerms(
+      entitySet,
+      permissions,
+      true,
+      "List Inherits Permissions"
+    );
+
     return;
   }
 
   // Otherwise, verify that all roles match
-  const missingPermission = permissions.roles.find((role) => {
-    const curRole = curPerms.roles.find(
-      (curRole) => curRole.principal.ID == role.principal.ID
+  const missingPermission = permissions.roles.find((newRole) => {
+    const existingRole = curPerms.roles.find(
+      (curRole) => curRole.principal.ID == newRole.principal.ID
     );
     // If the principal doesn't have a role assignment
-    if (!curRole) return true;
-    const curRoleDefNames = curRole.roleDefs.map((roleDef) => roleDef.name);
+    if (!existingRole) return true;
+
+    const curRoleDefNames = existingRole.roleDefs.map(
+      (roleDef) => roleDef.name
+    );
 
     // Else, if we find a roleDef that isn't already set
-    return role.roleDefs.find(
+    return newRole.roleDefs.find(
       (roleDef) => !curRoleDefNames.includes(roleDef.name)
     );
   });
 
-  if (missingPermission) entitySet.SetRootPermissions(itemPermissions);
+  if (!missingPermission) return;
+
+  await resetEntitySetPerms(entitySet, permissions, false, {
+    "Missing Permissions": missingPermission,
+  });
+}
+
+async function resetEntitySetPerms(entitySet, permissions, reset, reason) {
+  const resetEntitySetPermsTask = addTask(
+    taskDefs.resetListPermissions(entitySet)
+  );
+  console.warn("Resetting EntitySet Permissions: " + entitySet.ListDef.title, {
+    entitySet,
+    permissions,
+    reason,
+  });
+  await entitySet.SetRootPermissions(permissions, reset);
+  finishTask(resetEntitySetPermsTask);
 }

@@ -231,13 +231,13 @@ export class EntitySet {
     return this.ListRef.setItemPermissionsAsync(entity.ID, valuePairs, reset);
   };
 
-  GetRootPermissions = async function () {
-    const roles = this.ListRef.getListPermissions();
+  GetRootPermissions = function () {
+    return this.ListRef.getListPermissions();
   };
 
-  SetRootPermissions = async function (itemPermissions) {
-    const valuePairs = itemPermissions.getValuePairs();
-    await this.ListRef.setListPermissionsAsync(valuePairs, true);
+  SetRootPermissions = async function (itemPermissions, reset) {
+    // const valuePairs = itemPermissions.getValuePairs();
+    await this.ListRef.setListPermissionsAsync(itemPermissions, reset);
   };
 
   // Folder Methods

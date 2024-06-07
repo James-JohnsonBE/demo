@@ -469,6 +469,15 @@
             ><span class="ui-icon ui-icon-plus"></span>Create a New Request</a
           >
         </div>
+        <div>
+          <a
+            id="linkResetPerms"
+            href="javascript:void(0)"
+            data-bind="click: ClickResetPerms"
+            ><span class="ui-icon ui-icon-locked"></span>Reset App
+            Permissions</a
+          >
+        </div>
       </div>
       <div id="tabs" style="margin-top: 20px">
         <!-- ko using: tabs -->

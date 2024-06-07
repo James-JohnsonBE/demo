@@ -606,12 +606,9 @@ export class ItemPermissions {
   }
 
   static fromRestResult(result) {
-    const roles = result.RoleAssignments.results.map((role) => {
-      new Role({
-        principal: { ...role.Member, ID: role.Member.Id },
-        roleDefs: role.RoleDefinitionBindings.results,
-      });
-    });
+    const roles = result.RoleAssignments.results.map(
+      Role.fromRestRoleAssignment
+    );
 
     return new ItemPermissions({
       hasUniqueRoleAssignments: result.HasUniqueRoleAssignments,
@@ -634,7 +631,12 @@ export class Role {
   }
 
   static fromRestRoleAssignment(role) {
-    const newRole = new Role({});
+    return new Role({
+      principal: { ...role.Member, ID: role.Member.Id },
+      roleDefs: role.RoleDefinitionBindings.results.map(
+        RoleDef.fromRestRoleDef
+      ),
+    });
   }
   static fromJsomRole(role) {
     const newRole = new Role({
@@ -654,11 +656,21 @@ export class Role {
 }
 
 export class RoleDef {
-  constructor({ name }) {
+  constructor({ name, basePermissions = null }) {
     this.name = name;
+    this.basePermissions = basePermissions;
   }
   name;
   basePermissions;
+
+  static fromRestRoleDef(roleDef) {
+    const newRoleDef = new RoleDef({
+      name: roleDef.Name,
+      basePermissions: roleDef.BasePermissions,
+    });
+    Object.assign(newRoleDef, roleDef);
+    return newRoleDef;
+  }
 
   static fromJsomRoleDef(roleDef) {
     const newRoleDef = new RoleDef({ name: roleDef.get_name() });
@@ -707,10 +719,17 @@ export function SPList(listDef) {
                                 Common Public Methods       
     ******************************************************************/
 
-  function setListPermissionsAsync(valuePairs, reset) {
-    return new Promise((resolve, reject) => {
-      setListPermissions(valuePairs, resolve, reset);
-    });
+  async function setListPermissionsAsync(itemPermissions, reset) {
+    const currCtx = new SP.ClientContext.get_current();
+    const web = currCtx.get_web();
+    const oList = web.get_lists().getByTitle(self.config.def.title);
+
+    // await executeQuery(currCtx).catch((sender, args) => {
+    //   console.warn("Unable to get list: ", sender);
+    //   return;
+    // });
+
+    return setResourcePermissionsAsync(oList, itemPermissions, reset);
   }
 
   function setListPermissions(valuePairs, callback, reset) {
@@ -1287,6 +1306,14 @@ export function SPList(listDef) {
 
     const oListItem = await getoListItemByIdAsync(id);
 
+    return setResourcePermissionsAsync(oListItem, itemPermissions, reset);
+  }
+
+  async function setResourcePermissionsAsync(
+    oListItem,
+    itemPermissions,
+    reset
+  ) {
     if (reset) {
       oListItem.resetRoleInheritance();
       oListItem.breakRoleInheritance(false, false);
@@ -1342,6 +1369,8 @@ export function SPList(listDef) {
     }
 
     if (reset) {
+      const currCtx = new SP.ClientContext.get_current();
+
       oListItem
         .get_roleAssignments()
         .getByPrincipal(sal.globalConfig.currentUser)
@@ -1460,11 +1489,14 @@ export function SPList(listDef) {
 
   async function getListPermissions() {
     const url =
-      `/web/lists/getByTitle(${self.config.def.name})` +
+      `/web/lists/getByTitle('${self.config.def.name}')` +
       `?$select=HasUniqueRoleAssignments,RoleAssignments` +
-      `&$expand=RoleAssignments,RoleAssignments/Member,RoleAssignments/RoleDefinitionBindings`;
+      `&$expand=RoleAssignments/Member,RoleAssignments/RoleDefinitionBindings`;
 
-    const result = await fetchSharePointData(url);
+    const headers = {
+      "Cache-Control": "no-cache",
+    };
+    const result = await fetchSharePointData(url, "GET", headers);
 
     if (!result) return;
 

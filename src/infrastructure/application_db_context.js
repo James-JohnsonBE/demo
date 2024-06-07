@@ -5,6 +5,7 @@ import {
   AuditEmail,
   AuditRequestsInternal,
   AuditResponse,
+  AuditBulkResponse,
   AuditResponseDoc,
   AuditCoversheet,
   AuditConfiguration,
@@ -21,6 +22,8 @@ export class ApplicationDbContext extends DbContext {
   }
 
   AuditBulkRequests = new EntitySet(AuditBulkRequest);
+
+  AuditBulkResponses = new EntitySet(AuditBulkResponse);
 
   AuditConfigurations = new EntitySet(AuditConfiguration);
 

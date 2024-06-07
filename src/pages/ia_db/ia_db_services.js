@@ -35,7 +35,10 @@ import {
   runningTasks,
   taskDefs,
 } from "../../services/tasks.js";
-import { ensureAllAppPerms } from "../../services/permission_manager.js";
+import {
+  ensureAllAppPerms,
+  ensureDBPermissions,
+} from "../../services/permission_manager.js";
 import { ensureROEmailFolder } from "../../services/audit_email_service.js";
 import { sortByTitle } from "../../sal/infrastructure/index.js";
 import { BulkAddRequestForm } from "../../components/bulk_add_request/bulk_add_request.js";
@@ -70,7 +73,7 @@ export async function InitReport() {
 
   await Promise.all([configurationsPromise, auditOrganizationsPromise]);
 
-  ensureAllAppPerms();
+  ensureDBPermissions();
 
   Audit.IAReport.Report = new Audit.IAReport.NewReportPage();
   Audit.IAReport.Init();
@@ -278,6 +281,10 @@ function ViewModel() {
 
   self.ClickNewRequest = () => {
     m_fnCreateRequest();
+  };
+
+  self.ClickResetPerms = () => {
+    ensureAllAppPerms();
   };
 
   self.ClickBulkAddRequest = () => {
