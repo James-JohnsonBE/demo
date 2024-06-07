@@ -599,9 +599,10 @@ export class ItemPermissions {
   }
 }
 
-class Role {
-  constructor({ principal }) {
+export class Role {
+  constructor({ principal, roleDefs = [] }) {
     this.principal = principal;
+    this.roleDefs = roleDefs;
   }
 
   principal;
@@ -628,7 +629,7 @@ class Role {
   }
 }
 
-class RoleDef {
+export class RoleDef {
   constructor({ name }) {
     this.name = name;
   }

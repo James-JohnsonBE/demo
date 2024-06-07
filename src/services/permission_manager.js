@@ -1,6 +1,8 @@
 import { ORGTYPES } from "../entities/index.js";
+import { People } from "../sal/entities/index.js";
 import { appContext } from "../infrastructure/application_db_context.js";
 import { auditOrganizationStore } from "../infrastructure/store.js";
+import { ItemPermissions, Role, RoleDef } from "../sal/infrastructure/index.js";
 import { getSiteGroups } from "./people_manager.js";
 
 export const roleNames = {
@@ -14,6 +16,8 @@ export const roleNames = {
   RestrictedContribute: "Restricted Contribute",
   InitialCreate: "Initial Create",
 };
+
+resetListPermissions;
 
 export function resetAllDBPerms() {
   const aos = auditOrganizationStore().filter(
@@ -105,3 +109,105 @@ async function resetPagePerms(pageTitle, orgs) {
     await appContext.Pages.SetItemPermissions(page, newPerms, true);
   }
 }
+
+function getPeopleByOrgType(orgType) {
+  return auditOrganizationStore()
+    .filter((ao) => ao.Org_Type == orgType && ao.UserGroup)
+    .map((ao) => new People(ao.UserGroup));
+}
+
+function resetAllListPermissions() {
+  const { owners, members, visitors } = getSiteGroups();
+
+  const baseRoles = [
+    new Role({
+      principal: owners,
+      roleDefs: [new RoleDef({ name: roleNames.FullControl })],
+    }),
+    new Role({
+      principal: members,
+      roleDefs: [new RoleDef({ name: roleNames.Contribute })],
+    }),
+    new Role({
+      principal: visitors,
+      roleDefs: [new RoleDef({ name: roleNames.RestrictedRead })],
+    }),
+  ];
+
+  const qaRestrictedContributeRoles = getPeopleByOrgType(
+    ORGTYPES.QUALITYASSURANCE
+  ).map(
+    (principal) =>
+      new Role({
+        principal,
+        roleDefs: [new RoleDef({ name: roleNames.RestrictedContribute })],
+      })
+  );
+
+  const qaRestrictedReadRoles = getPeopleByOrgType(
+    ORGTYPES.QUALITYASSURANCE
+  ).map(
+    (principal) =>
+      new Role({
+        principal,
+        roleDefs: [new RoleDef({ name: roleNames.RestrictedRead })],
+      })
+  );
+
+  const roRestrictedReadRoles = getPeopleByOrgType(
+    ORGTYPES.REQUESTINGOFFICE
+  ).map(
+    (principal) =>
+      new Role({
+        principal,
+        roleDefs: [new RoleDef({ name: roleNames.RestrictedRead })],
+      })
+  );
+
+  [
+    {
+      list: appContext.AuditBulkRequests,
+      permissions: new ItemPermissions({
+        hasUniqueRoleAssignments: true,
+        roles: baseRoles,
+      }),
+    },
+    {
+      list: appContext.AuditBulkResponses,
+      permissions: new ItemPermissions({
+        hasUniqueRoleAssignments: true,
+        roles: baseRoles,
+      }),
+    },
+    {
+      list: appContext.AuditResponseDocsRO,
+      permissions: new ItemPermissions({
+        hasUniqueRoleAssignments: true,
+        roles: [...baseRoles, ...qaRestrictedContributeRoles],
+      }),
+    },
+    {
+      list: appContext.AuditRequests,
+      permissions: new ItemPermissions({
+        hasUniqueRoleAssignments: true,
+        roles: baseRoles,
+      }),
+    },
+    {
+      list: appContext.AuditRequestsInternal,
+      permissions: new ItemPermissions({
+        hasUniqueRoleAssignments: true,
+        roles: [...baseRoles, ...qaRestrictedReadRoles],
+      }),
+    },
+    {
+      list: appContext.AuditROEmailsLog,
+      permissions: new ItemPermissions({
+        hasUniqueRoleAssignments: true,
+        roles: [...baseRoles, ...qaRestrictedContributeRoles],
+      }),
+    },
+  ];
+}
+
+function resetListPerms(list, orgs) {}

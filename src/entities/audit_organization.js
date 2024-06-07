@@ -8,7 +8,9 @@ export const ORGTYPES = {
   REQUESTINGOFFICE: "Requesting Office",
   QUALITYASSURANCE: "Quality Assurance",
   SPECIALPERMISSIONS: "Special Permissions",
+  RESTRICTEDREADERS: "Restricted Readers",
 };
+
 export class AuditOrganization extends ConstrainedEntity {
   constructor(params) {
     super(params);
