@@ -326,6 +326,7 @@ div.cell-margin {
 }
 
 .audit-form dl {
+  flex: 1 0;
   padding: 0 1.5rem 0 0;
 }
 

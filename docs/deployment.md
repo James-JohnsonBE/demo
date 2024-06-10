@@ -5,8 +5,9 @@
 
    - Add Page CEWPS
    - Break page permissions:
+   - Update Page Titles (use bulk edit in pages view)
 
-4. Add core groups to site permissions as necessary for each page (hint most of the pages are going to be restricted - to site owners/members, so don't do this until the role dashboard pages).
+4. Add core groups to site permissions as necessary for each page (hint most of the pages are going to be restricted to site owners/members, so don't do this until the role dashboard pages).
 
    1. All groups should be granted "Restricted Read" permission at the site level.
    2. All groups should have the Site Owners group as the site owner, and membership should be visible to everyone.

@@ -490,6 +490,12 @@
 
 <div id="divTest"></div>
 
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="/sites/CGFS/Style Library/apps/tasker/src/audit_styles_hide_ribbon.css"
+/>
+
 <script
   defer
   type="module"
