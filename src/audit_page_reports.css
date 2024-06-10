@@ -630,6 +630,12 @@ table .rowFilters .filter-date-range button {
   display: flex;
   gap: 1rem;
   flex-wrap: wrap-reverse;
+  align-items: start;
+}
+
+#divRequestInfoContainer {
+  position: sticky;
+  top: 0;
 }
 
 .request-info-form {

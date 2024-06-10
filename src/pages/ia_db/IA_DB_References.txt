@@ -29,7 +29,7 @@
           ></i>
         </button>
       </div>
-      <div class="quick-info" data-bind="visible: showQuickInfo">
+      <div class="quick-info">
         <div id="divLoading">Please Wait... Loading</div>
         <div
           id="divRequestsThatNeedToClose"
@@ -469,7 +469,7 @@
             ><span class="ui-icon ui-icon-plus"></span>Create a New Request</a
           >
         </div>
-        <div>
+        <div style="display: none">
           <a
             id="linkResetPerms"
             href="javascript:void(0)"
