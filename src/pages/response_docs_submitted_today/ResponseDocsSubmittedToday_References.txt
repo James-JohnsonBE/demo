@@ -48,5 +48,5 @@
 
 <script
   type="text/javascript"
-  src="/sites/CGFS/Style Library/apps/tasker/src/pages/response_docs_submitted_today/response_docs_submitted_today.js"
+  src="/sites/CGFS/Style Library/apps/audit/src/pages/response_docs_submitted_today/response_docs_submitted_today.js"
 ></script>

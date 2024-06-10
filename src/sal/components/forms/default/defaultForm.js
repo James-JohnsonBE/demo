@@ -43,5 +43,3 @@ const template = html`
 ko.components.register(componentName, {
   template,
 });
-
-console.log("template", template);
