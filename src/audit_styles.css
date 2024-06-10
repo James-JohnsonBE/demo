@@ -38,7 +38,7 @@ table.tablesorter tr {
 }
 
 table.tablesorter input {
-  color: black;
+  /* color: black; */
 }
 
 #tblCommitStatus td span {
@@ -338,8 +338,8 @@ TABLE.tablesorter THEAD TR .header {
   padding: 0.4em 1.5em 0.42em;
 }
 .small {
-  font-size: 11px;
-  padding: 0.2em 1em 0.275em;
+  font-size: 0.75rem;
+  padding: 0.1rem 0.3rem;
 }
 
 /* Font */

@@ -603,6 +603,16 @@ table.tablesorter tbody td:hover {
   /* works background-color: blue !important; */
 }
 
+table .rowFilters .filter-date-range .filter-inputs.active {
+  display: flex;
+}
+
+table .rowFilters .filter-date-range .filter-inputs {
+  display: none;
+  flex-direction: column;
+  align-items: stretch;
+}
+
 table .rowFilters .filter-date-range {
   display: flex;
   flex-direction: column;
