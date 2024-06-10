@@ -1,10 +1,10 @@
-import { ORGTYPES } from "../entities/index.js";
+import { ORGROLES, ORGTYPES } from "../entities/index.js";
 export const configurationsStore = {};
 
 export const auditOrganizationStore = ko.observableArray();
 
 export const allActionOfficesFilter = (org) =>
-  ![ORGTYPES.INTERNAL, ORGTYPES.REQUESTINGOFFICE].includes(org.Org_Type);
+  ORGROLES.ACTIONOFFICE == org.Role;
 
 export const allRequestingOfficesFilter = (org) =>
-  ORGTYPES.REQUESTINGOFFICE == org.Org_Type;
+  ORGROLES.REQUESTINGOFFICE == org.Role;

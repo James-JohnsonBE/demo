@@ -5,6 +5,9 @@ export const ORGTYPES = {
   EXTERNAL: "External",
   INTERNAL: "Internal",
   POST: "Post",
+};
+
+export const ORGROLES = {
   REQUESTINGOFFICE: "Requesting Office",
   QUALITYASSURANCE: "Quality Assurance",
   SPECIALPERMISSIONS: "Special Permissions",
@@ -26,6 +29,7 @@ export class AuditOrganization extends ConstrainedEntity {
       "Org_Type",
       "Post_x0020_Code",
       "UserGroup",
+      "Role",
     ],
   };
 

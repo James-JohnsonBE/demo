@@ -29,6 +29,13 @@
         "name": "Audits Style Library",
         "description": "Style Library of http://cgfs16index1dev:31000/sites/CGFS",
 
+        "dir": "Q:/Style Library/apps/audit"
+      },
+      {
+        "type": "local",
+        "name": "Tasker Style Library",
+        "description": "Style Library of http://cgfs16index1dev:31000/sites/CGFS",
+
         "dir": "Q:/Style Library/apps/tasker"
       }
     ]

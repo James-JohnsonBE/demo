@@ -1,4 +1,4 @@
-import { ORGTYPES } from "../entities/index.js";
+import { ORGROLES } from "../entities/index.js";
 import { People } from "../sal/entities/index.js";
 import { appContext } from "../infrastructure/application_db_context.js";
 import { auditOrganizationStore } from "../infrastructure/store.js";
@@ -40,22 +40,22 @@ function ensureAllPagePerms() {
 
 export function ensureDBPermissions() {
   const aos = auditOrganizationStore().filter(
-    (ao) => ao.Org_Type != ORGTYPES.REQUESTINGOFFICE
+    (ao) => ao.Role != ORGROLES.REQUESTINGOFFICE
   );
   ensurePagePerms("AO_DB.aspx", aos);
 
   const ros = auditOrganizationStore().filter(
-    (ao) => ao.Org_Type == ORGTYPES.REQUESTINGOFFICE
+    (ao) => ao.Role == ORGROLES.REQUESTINGOFFICE
   );
   ensurePagePerms("RO_DB.aspx", ros);
 
   const qas = auditOrganizationStore().filter(
-    (ao) => ao.Org_Type == ORGTYPES.QUALITYASSURANCE
+    (ao) => ao.Role == ORGROLES.QUALITYASSURANCE
   );
   ensurePagePerms("QA_DB.aspx", qas);
 
   const sps = auditOrganizationStore().filter(
-    (ao) => ao.Org_Type == ORGTYPES.SPECIALPERMISSIONS
+    (ao) => ao.Role == ORGROLES.SPECIALPERMISSIONS
   );
   ensurePagePerms("SP_DB.aspx", sps);
 }
@@ -136,9 +136,9 @@ async function ensurePagePerms(pageTitle, orgs) {
   finishTask(ensurePageTask);
 }
 
-function getPeopleByOrgType(orgType) {
+function getPeopleByOrgRole(orgType) {
   return auditOrganizationStore()
-    .filter((ao) => ao.Org_Type == orgType && ao.UserGroup)
+    .filter((ao) => ao.Role == orgType && ao.UserGroup)
     .map((ao) => new People(ao.UserGroup));
 }
 
@@ -160,8 +160,8 @@ function ensureAllListPermissions() {
     }),
   ];
 
-  const qaRestrictedContributeRoles = getPeopleByOrgType(
-    ORGTYPES.QUALITYASSURANCE
+  const qaRestrictedContributeRoles = getPeopleByOrgRole(
+    ORGROLES.QUALITYASSURANCE
   ).map(
     (principal) =>
       new Role({
@@ -170,8 +170,8 @@ function ensureAllListPermissions() {
       })
   );
 
-  const qaRestrictedReadRoles = getPeopleByOrgType(
-    ORGTYPES.QUALITYASSURANCE
+  const qaRestrictedReadRoles = getPeopleByOrgRole(
+    ORGROLES.QUALITYASSURANCE
   ).map(
     (principal) =>
       new Role({
@@ -180,8 +180,8 @@ function ensureAllListPermissions() {
       })
   );
 
-  const roRestrictedReadRoles = getPeopleByOrgType(
-    ORGTYPES.REQUESTINGOFFICE
+  const roRestrictedReadRoles = getPeopleByOrgRole(
+    ORGROLES.REQUESTINGOFFICE
   ).map(
     (principal) =>
       new Role({
