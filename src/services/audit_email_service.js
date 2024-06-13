@@ -41,15 +41,16 @@ export async function ensureROEmailFolder() {
 }
 
 export async function ensureRequestROEmailLogItem(requestingOffice) {
-  const roGroupName = requestingOffice?.UserGroup?.Title;
-  if (!roGroupName) return;
+  if (!requestingOffice?.ID) return;
+  // const roGroupName = requestingOffice?.UserGroup?.Title;
+  // if (!roGroupName) return;
 
   const logItemTitle = new Date().format("MM/dd/yyyy");
 
   const emailLogResult = await appContext.AuditROEmailsLog.FindByColumnValue(
     [
       { column: "Title", value: logItemTitle },
-      { column: "RequestingOffice", value: roGroupName },
+      { column: "RequestingOfficeId", value: requestingOffice.ID },
     ],
     {},
     { count: 1, includeFolders: true }
@@ -61,7 +62,7 @@ export async function ensureRequestROEmailLogItem(requestingOffice) {
   const newLogItem = new AuditROEmailLog();
 
   newLogItem.Title = logItemTitle;
-  newLogItem.RequestingOffice = roGroupName;
+  newLogItem.RequestingOffice = requestingOffice;
 
   await appContext.AuditROEmailsLog.AddEntity(newLogItem);
 
