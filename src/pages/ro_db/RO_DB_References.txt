@@ -19,5 +19,5 @@
 
 <script
   type="text/javascript"
-  src="/sites/CGFS/Style Library/apps/audit/src/pages/ea_db/ea_db.js"
+  src="/sites/CGFS/Style Library/apps/audit/src/pages/ro_db/ro_db.js"
 ></script>

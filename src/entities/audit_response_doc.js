@@ -95,6 +95,12 @@ export class AuditResponseDoc extends ConstrainedEntity {
     displayName: "Checked Out To",
   });
 
+  markApprovedForRO(newFileName) {
+    this.DocumentStatus.Value(AuditResponseDocStates.Approved);
+    this.RejectReason.Value("");
+    if (this.FileName.Value() != newFileName) this.FileName.Value(newFileName);
+  }
+
   static Views = {
     All: [
       "ID",

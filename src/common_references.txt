@@ -67,6 +67,7 @@
 <!-- /to remove -->
 
 <!-- SharePoint Cruft -->
+<script type="text/javascript" src="../Apps/_layouts/15/sp.js"></script>
 <script type="text/javascript" src="../Apps/_layouts/15/sp.runtime.js"></script>
 <script
   type="text/javascript"
@@ -124,6 +125,7 @@
   defer
   src="/sites/CGFS/Style Library/apps/audit/lib/webcomponents/searchselect/searchselect.js"
 ></script>
+
 <script
   defer
   src="/sites/CGFS/Style Library/apps/audit/lib/webcomponents/data-table/data-table.js"
@@ -204,6 +206,7 @@
         <input
           id="search-input"
           class="search-input"
+          placeholder="Search..."
           type="text"
           autocomplete="off"
         />
@@ -246,17 +249,4 @@
       </div>
     </div>
   </template>
-
-  <template id="data-table-template">
-    <!-- <link rel="stylesheet" href="styles.css" /> -->
-    <style>
-      .hidden {
-        display: none;
-      }
-    </style>
-  </template>
 </div>
-
-<style></style>
-
-<script defer></script>

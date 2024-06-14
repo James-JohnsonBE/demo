@@ -5,6 +5,17 @@ export const blockingTasks = ko.pureComputed(() => {
   return runningTasks().filter((task) => task.IsBlocking()) ?? [];
 });
 
+export class TaskDef {
+  constructor(msg, blocking = false, type = null) {
+    this.msg = msg;
+    this.blocking = blocking;
+    this.type = type;
+  }
+  msg;
+  blocking;
+  type;
+}
+
 export const taskDefs = {
   init: { msg: "Initializing the Application", blocking: true },
   save: { msg: "Saving Request", blocking: true },
@@ -44,6 +55,14 @@ export const taskDefs = {
       blocking: true,
     };
   },
+  ensurePagePermissions: (page) =>
+    new TaskDef("Ensuring Page Permissions: " + page),
+  resetPagePermissions: (page) =>
+    new TaskDef("Resetting Page Permissions: " + page, true),
+  ensureListPermissions: (entitySet) =>
+    new TaskDef("Ensuring List Permissions: " + entitySet.ListDef.title),
+  resetListPermissions: (entitySet) =>
+    new TaskDef("Resetting List Permissions: " + entitySet.ListDef.title, true),
   deleteEmailFolder: { msg: "Deleting Email Folder", blocking: true },
   newResponse: (responseTitle) => {
     return {
@@ -60,6 +79,12 @@ export const taskDefs = {
   deleteResponse: (responseTitle) => {
     return {
       msg: "Deleting Response: " + responseTitle,
+      blocking: true,
+    };
+  },
+  closeResponse: (responseTitle) => {
+    return {
+      msg: "Closing Response: " + responseTitle,
       blocking: true,
     };
   },

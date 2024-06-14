@@ -1,48 +1,32 @@
 import { appContext } from "../../infrastructure/application_db_context.js";
-import { InitSal } from "../../infrastructure/sal.js";
-import {
-  onAddNewRequest,
-  addNewRequest,
-} from "../../services/audit_request_service.js";
+import { onAddNewRequest, addNewRequest } from "../../services/index.js";
+import { toggle } from "../../sal/components/modal/modalDialog.js";
 
-import "../../common/knockout_extensions.js";
+import { registerComponent } from "../../sal/infrastructure/index.js";
 
-$(document).ready(function () {
-  SP.SOD.executeFunc(
-    "sp.js",
-    "SP.ClientContext",
-    ExecuteOrDelayUntilScriptLoaded(InitBulk, "sp.js")
-  );
-});
-
-async function InitBulk() {
-  await InitSal();
-  const report = new BulkAddRequestPage();
-  await report.Init();
-  ko.applyBindings(report);
-}
-
-class BulkAddRequestPage {
-  constructor() {
-    console.log("Bulk Add Request");
-  }
+const componentName = "bulk-add-request-form";
+export class BulkAddRequestForm {
+  constructor() {}
 
   bulkRequestItems = ko.observableArray();
   working = ko.observable(false);
 
   async Init() {
     // TODO: need to initialize audit organizations store
-    await appContext.AuditOrganizations.ToList();
+    // await appContext.AuditOrganizations.ToList();
     // await LoadInfo();
     this.fetchBulkRequests();
   }
 
   async clickUploadResponses() {
+    toggle(false);
     await appContext.AuditBulkRequests.ShowForm(
       "BulkAddRequest.aspx",
       "Bulk Add Requests",
       {}
     );
+
+    toggle(true);
 
     this.fetchBulkRequests();
   }
@@ -99,4 +83,13 @@ class BulkAddRequestPage {
     // If any failed, need to alert user!
     this.working(false);
   }
+
+  componentName = componentName;
+  params = this;
 }
+
+registerComponent({
+  name: componentName,
+  folder: "bulk_add_request",
+  template: "BulkAddRequestTemplate",
+});

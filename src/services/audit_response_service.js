@@ -139,6 +139,49 @@ export async function updateResponseDoc(request, response, responseDoc) {
   finishTask(updateResponseDocTask);
 }
 
+export async function getResponsesReadyToClose(requestId) {
+  const allRequestResponseDocs = await getRequestResponseDocs(request);
+
+  const allRequestResponses = await getRequestResponses(request);
+
+  return allRequestResponses.filter((response) =>
+    isResponseReadyToClose(response, allRequestResponseDocs)
+  );
+}
+
+async function isResponseReadyToClose(response, responseDocs) {
+  const openResponseDocs = responseDocs.filter(
+    (responseDoc) =>
+      responseDoc.ResID.ID == response.ID &&
+      [AuditResponseDocStates.Open, AuditResponseDocStates.Submitted].includes(
+        responseDoc.DocumentStatus.Value()
+      )
+  );
+
+  return openResponseDocs.length;
+}
+
+export async function closeResponseById(responseId) {
+  const response = await appContext.AuditResponses.FindById(responseId);
+  // TODO: Use Result
+  if (!response) return;
+  return closeResponse(response);
+}
+
+async function closeResponse(response) {
+  const closeResponseTask = addTask(
+    taskDefs.closeResponse(response.Title.Value())
+  );
+
+  response.markClosed();
+  await appContext.AuditResponses.UpdateEntity(
+    response,
+    AuditResponse.Views.IAUpdateClosed
+  );
+
+  finishTask(closeResponseTask);
+}
+
 export async function uploadResponseDocFile(response, file) {
   const uploadResponseDocTask = addTask(taskDefs.uploadResponseDoc(file.name));
   const fileMetadata = {
@@ -167,101 +210,34 @@ function getResponseTitle(request, response) {
 }
 
 /* Begin Unreferenced Service Rewrites */
-async function approveResponseDocsForQA(
-  requestId,
-  responseId = null,
-  responseDocsToApproveIds
-) {
-  const request = await getRequestById(requestId);
 
-  const allRequestResponseDocs = await getRequestResponseDocs(request);
+export function getNewResponseDocTitle(request, response, responseDoc) {
+  const oldResponseDocTitle = responseDoc.FileName.Value();
 
-  const allRequestResponses = await getRequestResponses(request);
-
-  const updatedResponses = allRequestResponseDocs
-    .filter((responseDoc) => responseDocsToApproveIds.includes(responseDoc.ID))
-    .map((responseDoc) => responseDoc.ResID.Value())
-    .reduce((accumulator, responseDocResponse) => {
-      if (
-        !accumulator.find((response) => response?.ID == responseDocResponse.ID)
-      )
-        accumulator.push(responseDocResponse);
-      return accumulator;
-    }, []);
-
-  await Promise.all(
-    responseDocsToApproveIds.map(async (responseDocId) => {
-      const responseDoc = allRequestResponseDocs.find(
-        (responseDoc) => responseDoc.ID == responseDocId
-      );
-
-      // TODO: this should just be an ensure on our AppDbContext
-      const response = allRequestResponses.find(
-        (response) => response.ID == responseDoc.ResID.Value().ID
-      );
-
-      if (
-        responseDoc.DocumentStatus.Value() != AuditResponseDocStates.Submitted
-      ) {
-        console.error("Document status is not valid for approval");
-        return;
-      }
-
-      responseDoc.DocumentStatus.Value(AuditResponseDocStates.SentToQA);
-
-      // TODO: Fix naming conflicting with drag and drop upload
-
-      const newReponseDocName = getNewResponseDocTtitle(
-        request,
-        response,
-        responseDoc
-      );
-
-      responseDoc.FileName.Value(newReponseDocName);
-
-      await appContext.AuditResponseDocs.UpdateEntity(
-        responseDoc,
-        AuditResponseDoc.Views.UpdateDocStatus
-      );
-    })
-  );
-
-  // Now see if we can approve any responses for QA
-  const responsesToSubmitToQA = updatedResponses.filter((response) => {
-    return response.ResStatus.Value() == AuditResponseStates.Submitted;
-  });
-
-  if (responsesToSubmitToQA.length) {
-    await Promise.all(
-      responsesToSubmitToQA.map(async (response) => {
-        response.ResStatus.Value(AuditResponseStates.ApprovedForQA);
-        await appContext.AuditResponses.UpdateEntity(response, ["ResStatus"]);
-      })
-    );
-
-    // Break the request permissions
-    await breakRequestPermissions(request, AuditResponseStates.ApprovedForQA);
-    await breakRequestCoversheetPerms(request, true);
-  }
-}
-
-function getNewResponseDocTtitle(request, response, responseDoc) {
-  const createdDate = responseDoc.Created.Value();
+  const createdDate = responseDoc.Created.Value().format("yyyyMMddTHHmmss");
   const responseName = response.Title.Value();
   const sensitivity = request.Sensitivity.Value();
 
   let newResponseDocTitle =
-    responseName + "_" + createdDate.format("yyyyMMddTHHmmss");
+    responseName + "_" + createdDate + "_" + Math.ceil(Math.random() * 10000);
 
-  if (sensitivity != null && sensitivity != "" && sensitivity != "None")
+  if (sensitivity && sensitivity != "None")
     newResponseDocTitle += "_" + sensitivity;
 
-  var oldResponseDocTitle = responseDoc.FileName.Value();
   var docName = oldResponseDocTitle.substring(
     0,
     oldResponseDocTitle.lastIndexOf(".")
   );
   var docExt = oldResponseDocTitle.replace(docName, "");
   newResponseDocTitle += docExt;
-  return newResponseDocTitle;
+
+  // Only use the new filename if it's not already encoded
+  if (
+    !oldResponseDocTitle.includes(responseName) ||
+    !oldResponseDocTitle.includes(createdDate) ||
+    (sensitivity && !oldResponseDocTitle.includes(sensitivity))
+  )
+    return newResponseDocTitle;
+
+  return oldResponseDocTitle;
 }

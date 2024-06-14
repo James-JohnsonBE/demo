@@ -35,22 +35,10 @@
     <button
       class="btn btn-success"
       type="button"
-      data-bind="click: clickSubmitRequests, enable: bulkRequestItems"
+      data-bind="click: clickSubmitRequests, enable: bulkRequestItems().length"
       title="Click here to Create the Responses"
     >
       Create Requests
-    </button>
-  </div>
-  <div>
-    <button
-      id="btnCancel"
-      type="button"
-      class="btn btn-danger"
-      value="Close"
-      title="Close"
-      onclick="SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)"
-    >
-      Close
     </button>
   </div>
 </div>
@@ -90,8 +78,3 @@
     background-color: var(--danger-color);
   }
 </style>
-
-<script
-  type="module"
-  src="/sites/CGFS/Style Library/apps/audit/src/pages/bulk_add_request/bulk_add_request.js"
-></script>

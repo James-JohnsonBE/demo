@@ -24,7 +24,10 @@ import {
   auditOrganizationStore,
   configurationsStore,
 } from "../../infrastructure/store.js";
-import { AuditResponseDocStates } from "../../entities/index.js";
+import {
+  AUDITREQUESTTYPES,
+  AuditResponseDocStates,
+} from "../../entities/index.js";
 import {
   addTask,
   blockingTasks,
@@ -32,6 +35,13 @@ import {
   runningTasks,
   taskDefs,
 } from "../../services/tasks.js";
+import {
+  ensureAllAppPerms,
+  ensureDBPermissions,
+} from "../../services/permission_manager.js";
+import { ensureROEmailFolder } from "../../services/audit_email_service.js";
+import { sortByTitle } from "../../sal/infrastructure/index.js";
+import { BulkAddRequestForm } from "../../components/bulk_add_request/bulk_add_request.js";
 
 var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
@@ -54,11 +64,16 @@ export async function InitReport() {
 
   const auditOrganizationsPromise = appContext.AuditOrganizations.ToList().then(
     (organizations) => {
-      ko.utils.arrayPushAll(auditOrganizationStore, organizations);
+      ko.utils.arrayPushAll(
+        auditOrganizationStore,
+        organizations.sort(sortByTitle)
+      );
     }
   );
 
   await Promise.all([configurationsPromise, auditOrganizationsPromise]);
+
+  ensureDBPermissions();
 
   Audit.IAReport.Report = new Audit.IAReport.NewReportPage();
   Audit.IAReport.Init();
@@ -137,8 +152,6 @@ var m_arrPermissionsResponseFolders = new Array();
 // var m_ResponseDocsItems = null;
 // var m_ResponseDocsFoldersItems = null;
 
-var m_groupColl = null;
-var m_aoItems = null;
 var m_userPermissionAccess = null;
 var m_PageItems = null;
 
@@ -169,18 +182,17 @@ function ViewModel() {
   self.debugMode = ko.observable(false);
   self.siteUrl = Audit.Common.Utilities.GetSiteUrl();
 
+  self.showQuickInfo = ko.observable(false);
+
   //cant add rate limit because it'll affect the refresh
   //self.arrResponses = ko.observableArray( null ).extend({ rateLimit: 500 });
   self.arrRequests = ko.observableArray(null);
   self.arrResponses = ko.observableArray(null);
-  self.arrFilteredRequestsCount = ko.observable(0);
-  self.arrFilteredResponsesCount = ko.observable(0);
   self.cntPendingReview = ko.observable(0);
 
   /* alerts */
   self.arrRequestsThatNeedClosing = ko.observableArray(null);
   self.arrResponseDocsCheckedOut = ko.observableArray(null);
-  self.arrResponsesSubmittedByAO = ko.observableArray(null);
   self.arrResponsesWithUnsubmittedResponseDocs = ko.observableArray();
   self.arrRequestsInternalAlmostDue = ko.observableArray(null);
   self.arrRequestsInternalPastDue = ko.observableArray(null);
@@ -189,44 +201,37 @@ function ViewModel() {
   self.arrRequestsWithNoResponses = ko.observableArray(null);
   self.arrRequestsWithNoEmailSent = ko.observableArray(null);
   self.arrResponsesSubmittedByAO = ko.observableArray(null);
+  self.arrResponsesReadyToClose = ko.observableArray();
+
+  self.alertQuickInfo = ko.pureComputed(() => {
+    return (
+      self.arrRequestsThatNeedClosing().length ||
+      self.arrResponseDocsCheckedOut().length ||
+      self.arrResponsesWithUnsubmittedResponseDocs().length ||
+      self.arrRequestsInternalAlmostDue().length ||
+      self.arrRequestsInternalPastDue().length ||
+      self.arrRequestsAlmostDue().length ||
+      self.arrRequestsPastDue().length ||
+      self.arrRequestsWithNoResponses().length ||
+      self.arrRequestsWithNoEmailSent().length ||
+      self.arrResponsesSubmittedByAO().length ||
+      self.arrResponsesReadyToClose().length
+    );
+  });
 
   /* request tab */
-  self.ddOptionsRequestTabRequestID = ko.observableArray();
-  self.ddOptionsRequestTabRequestStatus = ko.observableArray();
-  self.ddOptionsRequestTabRequestSensitivity = ko.observableArray();
-  self.ddOptionsRequestTabRequestInternalDueDate = ko.observableArray();
-  self.ddOptionsRequestTabRequestDueDate = ko.observableArray();
-  self.ddOptionsRequestTabRequestSample = ko.observableArray();
-  self.ddOptionsRequestTabRequestSentEmail = ko.observableArray();
-  self.ddOptionsRequestTabRequestAO = ko.observableArray();
-  self.filterRequestTabRequestID = ko.observable();
-  self.filterRequestTabRequestStatus = ko.observable();
-  self.filterRequestTabRequestSensitivity = ko.observable();
-  self.filterRequestTabRequestInternalDueDate = ko.observable();
-  self.filterRequestTabRequestDueDate = ko.observable();
-  self.filterRequestTabRequestSample = ko.observable();
-  self.filterRequestTabRequestSentEmail = ko.observable();
-  self.filterRequestTabRequestAO = ko.observable();
+  self.clickExpandActionOffices = (item, e) => {
+    e.target.parentElement
+      .querySelector(".sr1-request-actionOffice-items")
+      .classList.toggle("collapsed");
+  };
 
-  /* response tab */
-  self.ddOptionsResponseTabRequestID = ko.observableArray();
-  self.ddOptionsResponseTabRequestStatus = ko.observableArray();
-  self.ddOptionsResponseTabRequestInternalDueDate = ko.observableArray();
-  self.ddOptionsResponseTabRequestSample = ko.observableArray();
-  self.ddOptionsResponseTabResponseTitle = ko.observableArray();
-  self.ddOptionsResponseTabResponseStatus = ko.observableArray();
-  self.ddOptionsResponseTabResponseAO = ko.observableArray();
-  self.ddOptionsResponseTabResponseModified = ko.observableArray();
-  self.filterResponseTabRequestID = ko.observable();
-  self.filterResponseTabSampleNum = ko.observable();
-  self.filterResponseTabRequestIntDueDate = ko.observable();
-  self.filterResponseTabResponseName = ko.observable();
-  self.filterResponseTabResponseStatus = ko.observable();
-  self.filterResponseTabResponseAO = ko.observable();
-  self.filterResponseTabResponseModified = ko.observable();
-  self.doSort = ko.observable(false).extend({ rateLimit: 1000 });
-
-  self.ddOptionsRequestInfoTabRequestName = ko.observableArray();
+  self.ddOptionsRequestInfoTabRequestName = ko.pureComputed(() => {
+    return self
+      .arrRequests()
+      .map((req) => req.reqNumber)
+      .sort();
+  });
   self.filterRequestInfoTabRequestName = ko.observableArray();
 
   self.currentRequest = ko.observable();
@@ -239,61 +244,6 @@ function ViewModel() {
 
   self.showUpload = ko.observable(false);
   self.showSubmit = ko.observable(false);
-
-  self.selectedFiltersRequestTab = ko.computed(function () {
-    var requestID = self.filterRequestTabRequestID();
-    var requestStatus = self.filterRequestTabRequestStatus();
-    var requestSensitivity = self.filterRequestTabRequestSensitivity();
-    var requestIntDueDate = self.filterRequestTabRequestInternalDueDate();
-    var requestDueDate = self.filterRequestTabRequestDueDate();
-    var requestSample = self.filterRequestTabRequestSample();
-    var requestSentEmail = self.filterRequestTabRequestSentEmail();
-    var requestAO = self.filterRequestTabRequestAO();
-
-    return (
-      requestID +
-      " " +
-      requestStatus +
-      " " +
-      requestSensitivity +
-      " " +
-      requestIntDueDate +
-      " " +
-      requestDueDate +
-      " " +
-      requestSample +
-      " " +
-      requestSentEmail +
-      " " +
-      requestAO
-    );
-  });
-
-  self.selectedFiltersResponseTab = ko.computed(function () {
-    var requestID = self.filterResponseTabRequestID();
-    var sampleNum = self.filterResponseTabSampleNum();
-    var responseName = self.filterResponseTabResponseName();
-    var requestIntDueDate = self.filterResponseTabRequestIntDueDate();
-    var responseStatus = self.filterResponseTabResponseStatus();
-    var responseAO = self.filterResponseTabResponseAO();
-    var responseModified = self.filterResponseTabResponseModified();
-
-    return (
-      requestID +
-      " " +
-      sampleNum +
-      " " +
-      responseName +
-      " " +
-      requestIntDueDate +
-      " " +
-      responseStatus +
-      " " +
-      responseAO +
-      " " +
-      responseModified
-    );
-  });
 
   self.currentDialog = ModalDialog.currentDialog;
 
@@ -329,296 +279,12 @@ function ViewModel() {
 
   /** Behaviors **/
 
-  self.ClearFiltersRequestTab = function () {
-    self.filterRequestTabRequestID("");
-    self.filterRequestTabRequestStatus("");
-    self.filterRequestTabRequestSensitivity("");
-    self.filterRequestTabRequestInternalDueDate("");
-    self.filterRequestTabRequestDueDate("");
-    self.filterRequestTabRequestSample("");
-    self.filterRequestTabRequestSentEmail("");
-    self.filterRequestTabRequestAO("");
-  };
-
-  self.ClearFiltersResponseTab = function () {
-    self.filterResponseTabRequestID("");
-    self.filterResponseTabSampleNum("");
-    self.filterResponseTabResponseName("");
-    self.filterResponseTabRequestIntDueDate("");
-    self.filterResponseTabResponseStatus("");
-    self.filterResponseTabResponseAO("");
-    self.filterResponseTabResponseModified("");
-  };
-
-  self.FilterChangedRequestTab = function () {
-    return;
-    //	console.log("filter changed");
-    setTimeout(function () {
-      const timerStart = new Date();
-
-      var requestID = self.filterRequestTabRequestID();
-      var requestStatus = self.filterRequestTabRequestStatus();
-      var requestSensitivity = self.filterRequestTabRequestSensitivity();
-      var requestIntDueDate = self.filterRequestTabRequestInternalDueDate();
-      var requestDueDate = self.filterRequestTabRequestDueDate();
-      var requestSample = self.filterRequestTabRequestSample();
-      var requestSentEmail = self.filterRequestTabRequestSentEmail();
-      var requestAO = self.filterRequestTabRequestAO();
-
-      if (
-        !requestID &&
-        !requestStatus &&
-        !requestSensitivity &&
-        !requestIntDueDate &&
-        !requestDueDate &&
-        !requestSample &&
-        !requestSentEmail &&
-        !requestAO
-      ) {
-        $(".sr1-request-item").show();
-
-        self.arrFilteredRequestsCount(self.arrRequests().length);
-
-        //SP.UI.Notify.removeNotification( notifyId );
-        return;
-      }
-
-      requestID = !requestID ? "" : requestID;
-      requestStatus = !requestStatus ? "" : requestStatus;
-      requestSensitivity = !requestSensitivity ? "" : requestSensitivity;
-      requestIntDueDate = !requestIntDueDate ? "" : requestIntDueDate;
-      requestDueDate = !requestDueDate ? "" : requestDueDate;
-      requestSample = !requestSample ? "" : requestSample.toString();
-      requestSentEmail = !requestSentEmail ? "" : requestSentEmail.toString();
-      requestAO = !requestAO ? "" : requestAO;
-
-      var count = 0;
-      var eacher = $(".sr1-request-item");
-      eacher.each(function () {
-        var hide = false;
-
-        if (
-          !hide &&
-          requestID != "" &&
-          $.trim($(this).find(".sr1-request-requestNum").text()) != requestID
-        )
-          hide = true;
-        if (
-          !hide &&
-          requestStatus != "" &&
-          $.trim($(this).find(".sr1-request-status").text()).indexOf(
-            requestStatus
-          ) < 0
-        )
-          hide = true;
-        if (
-          !hide &&
-          requestSensitivity != "" &&
-          $.trim($(this).find(".sr1-request-sensitivity").text()).indexOf(
-            requestSensitivity
-          ) < 0
-        )
-          hide = true;
-        if (
-          !hide &&
-          requestIntDueDate != "" &&
-          $.trim($(this).find(".sr1-request-internalDueDate").text()) !=
-            requestIntDueDate
-        )
-          hide = true;
-        if (
-          !hide &&
-          requestDueDate != "" &&
-          $.trim($(this).find(".sr1-request-dueDate").text()) != requestDueDate
-        )
-          hide = true;
-        if (
-          !hide &&
-          requestSample != "" &&
-          $.trim($(this).find(".sr1-request-sample").text()) != requestSample
-        )
-          hide = true;
-        if (
-          !hide &&
-          requestSentEmail != "" &&
-          $.trim($(this).find(".sr1-request-sentEmail").text()) !=
-            requestSentEmail
-        )
-          hide = true;
-        if (!hide && requestAO != "") {
-          var bFound = false;
-          $(this)
-            .find(".sr1-request-actionOffice-item")
-            .each(function () {
-              if ($(this).text() == requestAO) {
-                bFound = true;
-                return;
-              }
-            });
-          if (!bFound) hide = true;
-        }
-
-        if (hide) $(this).hide();
-        else {
-          $(this).show();
-          count++;
-        }
-      });
-
-      self.arrFilteredRequestsCount(count);
-      console.log("Requests Filtered in: ", (new Date() - timerStart) / 1000);
-    }, 100);
-  };
-
-  self.FilterChangedResponseTab = function () {
-    document.body.style.cursor = "wait";
-    setTimeout(function () {
-      const timerStart = new Date();
-      var requestID = self.filterResponseTabRequestID();
-      var sampleNum = self.filterResponseTabSampleNum();
-      var responseName = self.filterResponseTabResponseName();
-      var requestIntDueDate = self.filterResponseTabRequestIntDueDate();
-      var responseStatus = self.filterResponseTabResponseStatus();
-      var responseAO = self.filterResponseTabResponseAO();
-      var responseModified = self.filterResponseTabResponseModified();
-
-      if (
-        !requestID &&
-        !sampleNum &&
-        !responseName &&
-        !requestIntDueDate &&
-        !responseStatus &&
-        !responseAO &&
-        !responseModified
-      ) {
-        $(".sr2-response-item").show();
-        self.arrFilteredResponsesCount(self.arrResponses().length);
-        document.body.style.cursor = "default";
-        return;
-      }
-
-      requestID = !requestID ? "" : requestID;
-      sampleNum = !sampleNum ? "" : sampleNum;
-      responseName = !responseName ? "" : responseName;
-      requestIntDueDate = !requestIntDueDate ? "" : requestIntDueDate;
-      responseStatus = !responseStatus ? "" : responseStatus;
-      responseAO = !responseAO ? "" : responseAO;
-      responseModified = !responseModified ? "" : responseModified;
-
-      var count = 0;
-      var eacher = $(".sr2-response-item");
-      eacher.each(function () {
-        var hide = false;
-
-        if (
-          !hide &&
-          requestID != "" &&
-          $.trim($(this).find(".sr2-response-requestNum").text()) != requestID
-        )
-          hide = true;
-        if (
-          !hide &&
-          sampleNum != "" &&
-          $.trim($(this).find(".sr2-response-sample").text()) != sampleNum
-        )
-          hide = true;
-        if (
-          !hide &&
-          responseName != "" &&
-          $.trim($(this).find(".sr2-response-title").text()) != responseName
-        )
-          hide = true;
-        if (
-          !hide &&
-          requestIntDueDate != "" &&
-          $.trim($(this).find(".sr2-response-internalDueDate").text()) !=
-            requestIntDueDate
-        )
-          hide = true;
-        if (
-          !hide &&
-          responseStatus != "" &&
-          $.trim($(this).find(".sr2-response-status").text()) != responseStatus
-        )
-          hide = true;
-        if (
-          !hide &&
-          responseAO != "" &&
-          $.trim($(this).find(".sr2-response-ao").text()) != responseAO
-        )
-          hide = true;
-        if (!hide && responseModified != "") {
-          var curDate = new Date();
-          var responseModifiedDate = $(this)
-            .find(".sr2-response-modified")
-            .text();
-
-          if (responseModified == "Last 7 Days") {
-            var modifiedDate = new Date(responseModifiedDate);
-            curDate.setDate(curDate.getDate() - 7);
-            if (curDate > modifiedDate) hide = true;
-          } else if (responseModified == "This Month") {
-            var modifiedDate = new Date(responseModifiedDate);
-            curDate.setDate(1);
-            if (curDate > modifiedDate) hide = true;
-          } else if (responseModified == "This Quarter") {
-            var modifiedDate = new Date(responseModifiedDate);
-
-            if (modifiedDate.getFullYear() != curDate.getFullYear()) {
-              hide = true;
-            } else {
-              var modifiedMonth = modifiedDate.getMonth();
-              var curMonth = curDate.getMonth();
-
-              if (curMonth == 0 || curMonth == 1 || curMonth == 2) {
-                if (
-                  modifiedMonth != 0 &&
-                  modifiedMonth != 1 &&
-                  modifiedMonth != 2
-                )
-                  hide = true;
-              } else if (curMonth == 3 || curMonth == 4 || curMonth == 5) {
-                if (
-                  modifiedMonth != 3 &&
-                  modifiedMonth != 4 &&
-                  modifiedMonth != 5
-                )
-                  hide = true;
-              } else if (curMonth == 6 || curMonth == 7 || curMonth == 8) {
-                if (
-                  modifiedMonth != 6 &&
-                  modifiedMonth != 7 &&
-                  modifiedMonth != 8
-                )
-                  hide = true;
-              } else if (curMonth == 9 || curMonth == 10 || curMonth == 11) {
-                if (
-                  modifiedMonth != 9 &&
-                  modifiedMonth != 10 &&
-                  modifiedMonth != 11
-                )
-                  hide = true;
-              }
-            }
-          } else if ($.trim(responseModifiedDate).indexOf(responseModified) < 0)
-            hide = true;
-        }
-
-        if (hide) $(this).hide();
-        else {
-          $(this).show();
-          count++;
-        }
-      });
-
-      self.arrFilteredResponsesCount(count);
-      document.body.style.cursor = "default";
-      console.log("Responses Filtered in: ", (new Date() - timerStart) / 1000);
-    }, 200);
-  };
-
   self.ClickNewRequest = () => {
     m_fnCreateRequest();
+  };
+
+  self.ClickResetPerms = () => {
+    ensureAllAppPerms();
   };
 
   self.ClickBulkAddRequest = () => {
@@ -786,186 +452,61 @@ function ViewModel() {
 
   self.requestDetailViewComponent = new RequestDetailView(self);
 
+  self.filterRequestInfoTable = (prop, value) => {
+    const tbl = document.getElementById("tblStatusReportRequests");
+    tbl.filterByColIndex();
+  };
+
   /** Subscriptions **/
+  self.arrRequests.subscribe((arrayChanges) => {
+    document.getElementById("tblStatusReportRequests")?.update();
+  }, "arrayChange");
 
-  self.selectedFiltersRequestTab.subscribe(function (value) {
-    self.FilterChangedRequestTab();
-  });
+  self.arrResponses.subscribe((arrayChanges) => {
+    document.getElementById("tblStatusReportResponses")?.update();
+  }, "arrayChange");
 
-  self.selectedFiltersResponseTab.subscribe(function (value) {
-    self.FilterChangedResponseTab();
-  });
-
-  self.doSort.subscribe(function (newValue) {
+  self.filterStatusTables = (newValue) => {
     Audit.Common.Utilities.OnLoadDisplayTimeStamp();
 
-    BindHandlersOnLoad();
-    //alert("in dosort: " + self.arrResponses().length );
-    if (self.arrRequests().length > 0 && newValue) {
-      //should trigger only once
-      self.arrFilteredRequestsCount(self.arrRequests().length);
-      self.arrFilteredResponsesCount(self.arrResponses().length);
+    var paramTabIndex = GetUrlKeyValue("Tab");
+    var paramRequestNum = GetUrlKeyValue("ReqNum");
+    var paramResNum = GetUrlKeyValue("ResNum");
 
-      //tab1
-      ko.utils.arrayPushAll(
-        self.ddOptionsRequestTabRequestID(),
-        self.GetDDVals({ type: 0, field: "reqNumber" })
-      );
-      self.ddOptionsRequestTabRequestID.valueHasMutated();
-
-      ko.utils.arrayPushAll(
-        self.ddOptionsRequestTabRequestStatus(),
-        self.GetDDVals({ type: 0, field: "status" })
-      );
-      self.ddOptionsRequestTabRequestStatus.valueHasMutated();
-
-      ko.utils.arrayPushAll(
-        self.ddOptionsRequestTabRequestInternalDueDate(),
-        self.GetDDVals({ type: 0, field: "internalDueDate" })
-      );
-      self.ddOptionsRequestTabRequestInternalDueDate.valueHasMutated();
-
-      ko.utils.arrayPushAll(
-        self.ddOptionsRequestTabRequestSensitivity(),
-        self.GetDDVals({ type: 0, field: "sensitivity" })
-      );
-      self.ddOptionsRequestTabRequestSensitivity.valueHasMutated();
-
-      ko.utils.arrayPushAll(
-        self.ddOptionsRequestTabRequestDueDate(),
-        self.GetDDVals({ type: 0, field: "dueDate" })
-      );
-      self.ddOptionsRequestTabRequestDueDate.valueHasMutated();
-
-      ko.utils.arrayPushAll(
-        self.ddOptionsRequestTabRequestSample(),
-        self.GetDDVals({ type: 0, field: "sample" })
-      );
-      self.ddOptionsRequestTabRequestSample.valueHasMutated();
-
-      ko.utils.arrayPushAll(
-        self.ddOptionsRequestTabRequestSentEmail(),
-        self.GetDDVals({ type: 0, field: "sentEmail" })
-      );
-      self.ddOptionsRequestTabRequestSentEmail.valueHasMutated();
-
-      ko.utils.arrayPushAll(
-        self.ddOptionsRequestTabRequestAO(),
-        self.GetDDVals({ type: 0, field: "actionOffices", isArr: true })
-      );
-      self.ddOptionsRequestTabRequestAO.valueHasMutated();
-
-      //tab 2
-      ko.utils.arrayPushAll(
-        self.ddOptionsResponseTabRequestID(),
-        self.GetDDVals({ type: 1, field: "reqNumber" })
-      );
-      self.ddOptionsResponseTabRequestID.valueHasMutated();
-
-      ko.utils.arrayPushAll(
-        self.ddOptionsResponseTabRequestSample(),
-        self.GetDDVals({ type: 1, field: "sample" })
-      );
-      self.ddOptionsResponseTabRequestSample.valueHasMutated();
-
-      ko.utils.arrayPushAll(
-        self.ddOptionsResponseTabResponseTitle(),
-        self.GetDDVals({ type: 1, field: "title", sort: true })
-      );
-      self.ddOptionsResponseTabResponseTitle.valueHasMutated();
-
-      ko.utils.arrayPushAll(
-        self.ddOptionsResponseTabRequestInternalDueDate(),
-        self.GetDDVals({ type: 1, field: "internalDueDate" })
-      );
-      self.ddOptionsResponseTabRequestInternalDueDate.valueHasMutated();
-
-      ko.utils.arrayPushAll(
-        self.ddOptionsResponseTabResponseStatus(),
-        self.GetDDVals({ type: 1, field: "status" })
-      );
-      self.ddOptionsResponseTabResponseStatus.valueHasMutated();
-
-      ko.utils.arrayPushAll(
-        self.ddOptionsResponseTabResponseAO(),
-        self.GetDDVals({ type: 1, field: "ao" })
-      );
-      self.ddOptionsResponseTabResponseAO.valueHasMutated();
-
-      //tab 3
-      ko.utils.arrayPushAll(
-        self.ddOptionsRequestInfoTabRequestName(),
-        self.GetDDVals({ type: 0, field: "reqNumber" })
-      );
-      self.ddOptionsRequestInfoTabRequestName.valueHasMutated();
-
-      var tempArrModifed = new Array();
-      tempArrModifed.push("Last 7 Days");
-      tempArrModifed.push("This Month");
-      tempArrModifed.push("This Quarter");
-      ko.utils.arrayPushAll(
-        self.ddOptionsResponseTabResponseModified(),
-        tempArrModifed
-      );
-      ko.utils.arrayPushAll(
-        self.ddOptionsResponseTabResponseModified(),
-        self.GetDDVals({ type: 1, field: "modified", isDate: true })
-      );
-      self.ddOptionsResponseTabResponseModified.valueHasMutated();
-
-      setTimeout(function () {
-        var paramTabIndex = GetUrlKeyValue("Tab");
-        var paramRequestNum = GetUrlKeyValue("ReqNum");
-        var paramResNum = GetUrlKeyValue("ResNum");
-
-        if (paramTabIndex != null && paramTabIndex != "") {
-          self.tabs.selectById(paramTabIndex);
-        } else {
-          self.tabs.selectTab(self.tabOpts.Requests);
-        }
-
-        if (paramRequestNum != null && paramRequestNum != "") {
-          if (paramTabIndex == self.tabOpts.Responses.id)
-            self.filterRequestTabRequestID(paramRequestNum);
-          //if (paramTabIndex == self.tabOpts.RequestDetail.id)
-          else self.filterRequestInfoTabRequestName(paramRequestNum);
-        }
-        /**Note: on the jsrender of the request/response tables, I set the rows to display none; the filters below show the rows I want **/
-        self.filterRequestTabRequestStatus(m_sRequestStatusToFilterOn);
-
-        if (
-          paramResNum != null &&
-          paramResNum != "" &&
-          paramTabIndex == self.tabOpts.Responses.id
-        ) {
-          self.filterResponseTabResponseName(paramResNum);
-        } else if (
-          paramTabIndex != self.tabOpts.Responses.id ||
-          (paramTabIndex == self.tabOpts.Responses.id &&
-            (paramResNum == null || paramResNum == ""))
-        )
-          //dont filter here because IA has received a link to the response and we don't want the status to be filtered
-          self.filterResponseTabResponseStatus(m_sResponseStatusToFilterOn);
-
-        //$( "#tblStatusReportResponses" ).trigger("update");
-        // $("#tblStatusReportRequests").tablesorter({
-        //   sortList: [[4, 0]],
-        //   //showProcessing: true,
-        //   selectorHeaders: ".sorter-true",
-        // });
-
-        // new DataTable(document.getElementById("tblStatusReportRequests"));
-
-        if (self.arrResponses().length > 0) {
-          $("#tblStatusReportResponses").tablesorter({
-            sortList: [[0, 0]],
-            //showProcessing: true,
-            selectorHeaders: ".sorter-true",
-          });
-        }
-      }, 200);
+    if (paramTabIndex != null && paramTabIndex != "") {
+      self.tabs.selectById(paramTabIndex);
+    } else {
+      self.tabs.selectTab(self.tabOpts.Requests);
     }
-  });
+
+    if (paramRequestNum != null && paramRequestNum != "") {
+      if (paramTabIndex == self.tabOpts.Responses.id)
+        // self.filterRequestTabRequestID(paramRequestNum);
+        document
+          .getElementById("tblStatusReportResponses")
+          .filterByColIndex(0, paramRequestNum);
+      //if (paramTabIndex == self.tabOpts.RequestDetail.id)
+      else self.filterRequestInfoTabRequestName(paramRequestNum);
+    }
+    /**Note: on the jsrender of the request/response tables, I set the rows to display none; the filters below show the rows I want **/
+    // self.filterRequestTabRequestStatus(m_sRequestStatusToFilterOn);
+
+    if (
+      paramResNum != null &&
+      paramResNum != "" &&
+      paramTabIndex == self.tabOpts.Responses.id
+    ) {
+      // self.filterResponseTabResponseName(paramResNum);
+      document
+        .getElementById("tblStatusReportResponses")
+        .filterByColIndex(2, paramResNum);
+    }
+    //dont filter here because IA has received a link to the response and we don't want the status to be filtered
+    else
+      document
+        .getElementById("tblStatusReportResponses")
+        .filterByColIndex(4, m_sResponseStatusToFilterOn);
+  };
 
   var requestUnloadEventHandler = function (oRequest) {
     return function (event) {
@@ -973,7 +514,8 @@ function ViewModel() {
       oRequest.activeViewers.removeCurrentuser();
     };
   };
-  var currentEventHandler;
+
+  var currentRequestUnloadEventHandler;
   /* 3rd tab */
   // Before Change
   self.filterRequestInfoTabRequestName.subscribe(
@@ -981,7 +523,10 @@ function ViewModel() {
       var oRequest = m_bigMap["request-" + oldValue];
       if (oRequest && oRequest.activeViewers) {
         oRequest.activeViewers.removeCurrentuser();
-        window.removeEventListener("beforeunload", currentEventHandler);
+        window.removeEventListener(
+          "beforeunload",
+          currentRequestUnloadEventHandler
+        );
       }
     },
     null,
@@ -1009,8 +554,11 @@ function ViewModel() {
     if (oRequest) {
       if (oRequest.activeViewers) {
         oRequest.activeViewers.pushCurrentUser();
-        currentEventHandler = requestUnloadEventHandler(oRequest);
-        window.addEventListener("beforeunload", currentEventHandler);
+        currentRequestUnloadEventHandler = requestUnloadEventHandler(oRequest);
+        window.addEventListener(
+          "beforeunload",
+          currentRequestUnloadEventHandler
+        );
       }
       m_fnRequeryRequest(oRequest.ID);
     } else {
@@ -1026,50 +574,6 @@ function ViewModel() {
   self.currentRequest.subscribe((request) => {
     if (request) setUrlParam(requestParam, request.number);
   });
-
-  /**Other**/
-  self.GetDDVals = function (oObjectProperties) {
-    var arr = self.arrRequests();
-    if (oObjectProperties.type == 1) arr = self.arrResponses();
-
-    var fieldName = oObjectProperties.field;
-    var types = ko.utils.arrayMap(arr, function (item) {
-      if (oObjectProperties.isArr) {
-        var fieldArr = item[fieldName];
-
-        var arrToReturn = new Array();
-        //var arrToReturn = "";
-        for (var x = 0; x < fieldArr.length; x++) {
-          arrToReturn.push(fieldArr[x].ao);
-          //	arrToReturn += fieldArr[x].ao  + ","
-        }
-        return arrToReturn;
-      } else if (oObjectProperties.isDate) return item[fieldName].split(" ")[0];
-      else {
-        if (item[fieldName] == null) return "";
-        else return item[fieldName].toString();
-      }
-    });
-
-    var ddArr = null;
-    if (oObjectProperties.isArr) {
-      var tempArr = new Array();
-      for (var x = 0; x < types.length; x++) {
-        if (types[x].length > 0) {
-          for (var y = 0; y < types[x].length; y++) {
-            tempArr.push(types[x][y]);
-          }
-        }
-      }
-      ddArr = ko.utils.arrayGetDistinctValues(tempArr).sort();
-    } else ddArr = ko.utils.arrayGetDistinctValues(types).sort();
-    if (oObjectProperties.sort)
-      ddArr.sort(Audit.Common.Utilities.SortResponseTitles);
-
-    if (ddArr[0] == "") ddArr.shift();
-
-    return ddArr;
-  };
 }
 
 function LoadInfo() {
@@ -1088,7 +592,7 @@ function LoadInfo() {
   //currCtx.load( m_requestItems, 'Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))');
   currCtx.load(
     m_requestItems,
-    "Include(ID, Title, ReqSubject, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
+    "Include(ID, Title, ReqType, ReqSubject, ReqStatus, RequestingOffice, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
   );
 
   var requestInternalList = web
@@ -1134,7 +638,7 @@ function LoadInfo() {
     "Include(ID, Title, ReqNum, ResID, DocumentStatus, RejectReason, ReceiptDate, FileLeafRef, FileDirRef, File_x0020_Size, CheckoutUser, Modified, Editor, Created)"
   );
 
-  m_groupColl = web.get_siteGroups();
+  const m_groupColl = web.get_siteGroups();
   currCtx.load(m_groupColl);
 
   var aoList = web
@@ -1144,7 +648,7 @@ function LoadInfo() {
   aoQuery.set_viewXml(
     '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
   );
-  m_aoItems = aoList.getItems(aoQuery);
+  const m_aoItems = aoList.getItems(aoQuery);
   currCtx.load(m_aoItems, "Include(ID, Title, UserGroup)");
 
   var ob = new SP.BasePermissions();
@@ -1164,7 +668,7 @@ function LoadInfo() {
       var pagesLib = web.get_lists().getByTitle("Pages");
       var pagesQuery = new SP.CamlQuery();
       pagesQuery.set_viewXml(
-        '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><Eq><FieldRef Name="FileLeafRef"/><Value Type="Text">AO_DB.aspx</Value></Eq></Where></Query></View>'
+        '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><Or><Eq><FieldRef Name="FileLeafRef"/><Value Type="Text">AO_DB.aspx</Value></Eq><Eq><FieldRef Name="FileLeafRef"/><Value Type="Text">RO_DB.aspx</Value></Eq></Or></Where></Query></View>'
       );
       m_PageItems = pagesLib.getItems(pagesQuery);
       currCtx.load(
@@ -1185,19 +689,24 @@ function LoadInfo() {
       function OnSuccessLoadPages(sender, args) {
         $("#divIA").show();
         //if they can iterate the pages and the permissions on the pages, we'll consider them a site owner
-        m_fnLoadData(
+
+        m_fnLoadInitialData(
+          m_aoItems,
+          m_groupColl,
           m_requestItems,
           m_requestInternalItems,
           m_responseItems,
           m_ResponseDocsItems
         );
-        m_fnResetAODBPerms(m_PageItems);
-
-        m_fnCheckForEAEmailFolder(emailListFolderItemsEA);
+        // m_fnResetAODBPerms(m_PageItems);
+        ensureROEmailFolder();
+        // m_fnCheckForEAEmailFolder(emailListFolderItemsEA);
       }
       function OnFailureLoadPages(sender, args) {
         $("#divIA").show();
-        m_fnLoadData(
+        m_fnLoadInitialData(
+          m_aoItems,
+          m_groupColl,
           m_requestItems,
           m_requestInternalItems,
           m_responseItems,
@@ -1208,7 +717,9 @@ function LoadInfo() {
     } else {
       $("#divIA").show();
       m_bIsSiteOwner = false;
-      m_fnLoadData(
+      m_fnLoadInitialData(
+        m_aoItems,
+        m_groupColl,
         m_requestItems,
         m_requestInternalItems,
         m_responseItems,
@@ -1234,7 +745,30 @@ function m_fnRefresh(requestNumber) {
   window.location.reload();
 }
 
-function m_fnLoadData(
+// function m_fnLoadInit(
+//   m_requestItems,
+//   m_requestInternalItems,
+//   m_responseItems,
+//   m_ResponseDocsItems
+// ) {
+//   Audit.Common.Utilities.LoadSiteGroups(m_groupColl);
+//   Audit.Common.Utilities.LoadActionOffices(m_aoItems);
+
+//   LoadRequests(m_requestItems);
+//   LoadRequestsInternal(m_requestInternalItems);
+//   LoadResponses(m_responseItems);
+//   LoadResponseDocs(m_ResponseDocsItems);
+//   LoadResponseCounts();
+
+//   DisplayRequestsThatShouldClose();
+
+//   LoadTabStatusReport1();
+//   LoadTabStatusReport2();
+// }
+
+function m_fnLoadInitialData(
+  m_aoItems,
+  m_groupColl,
   m_requestItems,
   m_requestInternalItems,
   m_responseItems,
@@ -1243,6 +777,20 @@ function m_fnLoadData(
   Audit.Common.Utilities.LoadSiteGroups(m_groupColl);
   Audit.Common.Utilities.LoadActionOffices(m_aoItems);
 
+  m_fnLoadData(
+    m_requestItems,
+    m_requestInternalItems,
+    m_responseItems,
+    m_ResponseDocsItems
+  );
+}
+
+function m_fnLoadData(
+  m_requestItems,
+  m_requestInternalItems,
+  m_responseItems,
+  m_ResponseDocsItems
+) {
   LoadRequests(m_requestItems);
   LoadRequestsInternal(m_requestInternalItems);
   LoadResponses(m_responseItems);
@@ -1259,6 +807,82 @@ export async function m_fnRefreshData(requestId = null) {
   if (!requestId) requestId = _myViewModel.currentRequest()?.ID;
   await m_fnRequeryRequest(requestId);
 
+  return;
+  // TODO: reload data without blocking entire page.
+  var currCtx = new SP.ClientContext.get_current();
+  var web = currCtx.get_web();
+
+  var requestList = web
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetListTitleRequests());
+  var requestQuery = new SP.CamlQuery();
+  requestQuery.set_viewXml(
+    '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
+  );
+  const m_requestItems = requestList.getItems(requestQuery);
+  //need to check permissions because of displaying special perms and granting special perms
+  //currCtx.load( m_requestItems, 'Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))');
+  currCtx.load(
+    m_requestItems,
+    "Include(ID, Title, ReqType, ReqSubject, ReqStatus, RequestingOffice, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
+  );
+
+  var requestInternalList = web
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetListTitleRequestsInternal());
+  var requestInternalQuery = new SP.CamlQuery();
+  requestInternalQuery.set_viewXml(
+    '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
+  );
+  const m_requestInternalItems =
+    requestInternalList.getItems(requestInternalQuery);
+  currCtx.load(
+    m_requestInternalItems,
+    "Include(ID, Title, ReqNum, InternalStatus, ActiveViewers)"
+  );
+
+  var responseList = web
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetListTitleResponses());
+  var responseQuery = new SP.CamlQuery();
+  responseQuery.set_viewXml(
+    '<View><Query><OrderBy><FieldRef Name="ReqNum"/></OrderBy></Query></View>'
+  );
+  const m_responseItems = responseList.getItems(responseQuery);
+  //need to check permissions because of granting/removing special perms
+  //currCtx.load( m_responseItems, 'Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, Comments, Modified, ClosedDate, ClosedBy, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))' );
+  currCtx.load(
+    m_responseItems,
+    "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, ActiveViewers, Comments, Modified, ClosedDate, ClosedBy, POC, POCCC)"
+  );
+
+  //make sure to only pull documents (fsobjtype = 0)
+  var responseDocsLib = web
+    .get_lists()
+    .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
+  var responseDocsQuery = new SP.CamlQuery();
+  responseDocsQuery.set_viewXml(
+    '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="ReqNum"/><FieldRef Name="ResID"/></OrderBy><Where><Eq><FieldRef Name="ContentType"/><Value Type="Text">Document</Value></Eq></Where></Query></View>'
+  );
+  const m_ResponseDocsItems = responseDocsLib.getItems(responseDocsQuery);
+  currCtx.load(
+    m_ResponseDocsItems,
+    "Include(ID, Title, ReqNum, ResID, DocumentStatus, RejectReason, ReceiptDate, FileLeafRef, FileDirRef, File_x0020_Size, CheckoutUser, Modified, Editor, Created)"
+  );
+
+  await executeQuery(currCtx).catch(({ sender, args }) => {
+    const statusId = SP.UI.Status.addStatus(
+      "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
+    );
+    SP.UI.Status.setStatusPriColor(statusId, "red");
+  });
+
+  m_fnLoadData(
+    m_requestItems,
+    m_requestInternalItems,
+    m_responseItems,
+    m_ResponseDocsItems
+  );
   // TODO: Update status reports and other data.
   // LoadTabStatusReport1();
   // LoadTabStatusReport2();
@@ -1282,12 +906,12 @@ export async function m_fnRequeryRequest(requestId = null) {
     $(".response-permissions").hide(); //resets this in case it was toggled to show
     currCtx.load(
       m_aRequestItem,
-      "Include(ID, Title, ReqSubject, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+      "Include(ID, Title, ReqType, ReqSubject, RequestingOffice, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
     );
   } else {
     currCtx.load(
       m_aRequestItem,
-      "Include(ID, Title, ReqSubject, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
+      "Include(ID, Title, ReqType, ReqSubject, RequestingOffice, ReqStatus, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
     );
   }
 
@@ -1473,6 +1097,21 @@ function m_fnLoadRemainder() {
     SP.UI.Status.setStatusPriColor(statusId, "red");
   }
   currCtx.executeQueryAsync(OnSuccess, OnFailure);
+}
+
+function m_fnResetAllDBPerms(pageItems) {
+  var listItemEnumerator = pageItems.getEnumerator();
+  while (listItemEnumerator.moveNext()) {
+    var oListItem = listItemEnumerator.get_current();
+
+    if (oListItem.get_item("FileLeafRef") == "AO_DB.aspx") {
+      var arrOffices = Audit.Common.Utilities.GetActionOffices();
+      m_fnResetPageDBPerms(oListItem, arrOffices);
+    } else if (oListItem.get_item("FileLeafRef") == "RO_DB.aspx") {
+      var arrOffices = Audit.Common.Utilities.GetRequestingOffices();
+      m_fnResetPageDBPerms(oListItem, arrOffices);
+    }
+  }
 }
 
 //always check ao permissions and reset them
@@ -1740,12 +1379,18 @@ function LoadRequests(m_requestItems) {
       var id = oListItem.get_item("ID");
       var number = oListItem.get_item("Title");
       var status = oListItem.get_item("ReqStatus");
+      const reqType = oListItem.get_item("ReqType");
 
       var subject = oListItem.get_item("ReqSubject");
       if (subject == null) subject = "";
 
       var sensitivity = oListItem.get_item("Sensitivity");
       if (sensitivity == null) sensitivity = "None";
+
+      var requestingOffice = oListItem.get_item("RequestingOffice");
+      if (requestingOffice != null)
+        requestingOffice = requestingOffice.get_lookupValue();
+      else requestingOffice = "";
 
       var fiscalYear = oListItem.get_item("FiscalYear");
       var sample = oListItem.get_item("IsSample");
@@ -1755,16 +1400,16 @@ function LoadRequests(m_requestItems) {
       var closedDate = oListItem.get_item("ClosedDate");
 
       dueDate != null
-        ? (dueDate = dueDate.format("MM/dd/yyyy"))
+        ? (dueDate = dueDate.format("yyyy-MM-dd"))
         : (dueDate = "");
       internalDueDate != null
-        ? (internalDueDate = internalDueDate.format("MM/dd/yyyy"))
+        ? (internalDueDate = internalDueDate.format("yyyy-MM-dd"))
         : (internalDueDate = "");
       receiptDate != null
-        ? (receiptDate = receiptDate.format("MM/dd/yyyy"))
+        ? (receiptDate = receiptDate.format("yyyy-MM-dd"))
         : (receiptDate = "");
       closedDate != null
-        ? (closedDate = closedDate.format("MM/dd/yyyy"))
+        ? (closedDate = closedDate.format("yyyy-MM-dd"))
         : (closedDate = "");
 
       var arrAOs = new Array();
@@ -1812,9 +1457,11 @@ function LoadRequests(m_requestItems) {
       // We may be reloading data from another query, don't break any references
       var requestObject = m_bigMap["request-" + number] ?? {};
       requestObject["ID"] = id;
+      requestObject["reqType"] = reqType;
       requestObject["number"] = number;
       requestObject["subject"] = subject;
       requestObject["sensitivity"] = sensitivity;
+      requestObject["requestingOffice"] = requestingOffice;
       requestObject["fiscalYear"] = fiscalYear;
       requestObject["dueDate"] = dueDate;
       requestObject["status"] = status;
@@ -1926,12 +1573,12 @@ function LoadResponses(responseItemsColl) {
 
         var modified = oListItem
           .get_item("Modified")
-          .format("MM/dd/yyyy hh:mm tt");
+          .format("yyyy-MM-dd hh:mm tt");
         responseObject["modified"] = modified;
 
         var closedDate = oListItem.get_item("ClosedDate");
         closedDate != null
-          ? (closedDate = closedDate.format("MM/dd/yyyy"))
+          ? (closedDate = closedDate.format("yyyy-MM-dd"))
           : (closedDate = "");
         responseObject["closedDate"] = closedDate;
 
@@ -2064,7 +1711,7 @@ function m_fnMapResponseDocs(responseDocItemsColl, m_bigMap) {
         oListItem.get_item("ReceiptDate") != null &&
         oListItem.get_item("ReceiptDate") != ""
       )
-        receiptDate = oListItem.get_item("ReceiptDate").format("MM/dd/yyyy");
+        receiptDate = oListItem.get_item("ReceiptDate").format("yyyy-MM-dd");
       responseDocObject["receiptDate"] = receiptDate;
 
       var modifiedDate = "";
@@ -2074,7 +1721,7 @@ function m_fnMapResponseDocs(responseDocItemsColl, m_bigMap) {
       )
         modifiedDate = oListItem
           .get_item("Modified")
-          .format("MM/dd/yyyy hh:mm tt");
+          .format("yyyy-MM-dd hh:mm tt");
       responseDocObject["modifiedDate"] = modifiedDate;
 
       responseDocObject["modifiedBy"] =
@@ -2715,73 +2362,8 @@ async function LoadTabRequestInfoResponseDocs(oRequest) {
     SP.UI.Status.setStatusPriColor(statusId, "red");
   });
 
-  var sReponseDocs = "";
-  var cnt = 0;
-
   oRequest.responses.sort(Audit.Common.Utilities.SortResponseObjects);
 
-  var onc =
-    "onclick=\"return DispEx(this,event,'TRUE','FALSE','FALSE','SharePoint.OpenDocuments.3','1','SharePoint.OpenDocuments','','','','2','0','0','0x7fffffffffffffff','','')\"";
-
-  var arrResponseSummaries = new Array();
-  for (var y = 0; y < oRequest.responses.length; y++) {
-    continue;
-    var oResponse = oRequest.responses[y];
-
-    var showBulkApprove = false;
-
-    var arrResponseDocs = new Array();
-    for (var z = 0; z < oResponse.responseDocs.length; z++) {
-      var oResponseDoc = oResponse.responseDocs[z];
-
-      oResponseDoc.chkApproveResDoc = ko.observable(false);
-
-      if (oResponseDoc.documentStatus == "Marked for Deletion") continue;
-
-      oResponseDoc.docIcon = oResponseDoc.docIcon.get_value();
-      oResponseDoc.styleTag = Audit.Common.Utilities.GetResponseDocStyleTag2(
-        oResponseDoc.documentStatus
-      );
-      oResponseDoc.requestID = oRequest.ID; //needed for view document
-      oResponseDoc.responseID = oResponse.ID;
-      oResponseDoc.responseTitle = oResponse.title; //needed for view document
-      oResponseDoc.responseDocOpenInIELink =
-        "<a class='btn btn-link' target='_blank' title='Click to Open the document' onmousedown=\"return VerifyHref(this,event,'1','SharePoint.OpenDocuments','')\" " +
-        onc +
-        ' href="' +
-        oResponseDoc.folder +
-        "/" +
-        oResponseDoc.fileName +
-        '">' +
-        oResponseDoc.fileName +
-        "</a>";
-      arrResponseDocs.push(oResponseDoc);
-      cnt++;
-
-      if (
-        oResponse.resStatus == "2-Submitted" &&
-        oResponseDoc.documentStatus == "Submitted"
-      ) {
-        showBulkApprove = true;
-      }
-    }
-    const responseSummary = {
-      responseId: oResponse.ID,
-      responseTitle: oResponse.title,
-      responseDocs: arrResponseDocs,
-      responseStatus: oResponse.resStatus,
-      requestStatus: oRequest.status,
-      collapsed: ko.observable(false),
-      showBulkApprove,
-    };
-    arrResponseSummaries.push(responseSummary);
-  }
-
-  // ko.utils.arrayPushAll(
-  //   _myViewModel.arrCurrentRequestResponseDocs,
-  //   arrResponseSummaries
-  // );
-  // _myViewModel.cntResponseDocs(cnt);
   RequestFinishedLoading();
 }
 
@@ -2823,7 +2405,7 @@ function DisplayRequestsThatShouldClose() {
 
             //used in ko databinding
             if (lastClosedDate != null && lastClosedDate != "")
-              sLastClosedDate = lastClosedDate.format("MM/dd/yyyy hh:mm tt");
+              sLastClosedDate = lastClosedDate.format("yyyy-MM-dd hh:mm tt");
           }
         }
 
@@ -2943,6 +2525,7 @@ function LoadTabStatusReport1() {
       reqNumber: oRequest.number,
       subject: oRequest.subject,
       sensitivity: oRequest.sensitivity,
+      requestingOffice: oRequest.requestingOffice,
       status: oRequest.status,
       internalDueDate: oRequest.internalDueDate,
       dueDate: oRequest.dueDate,
@@ -3009,11 +2592,26 @@ function LoadTabStatusReport2() {
 
   var arrSubmittedResponsesByAO = new Array();
   var arrUnsubmittedResponseDocs = [];
+  const arrResponsesReadyToClose = [];
 
   //var bLoadTest = GetUrlKeyValue("LoadTest");
   var responseArr = new Array();
 
   var requestLength = arr.length;
+
+  function responseReadyToClose(response) {
+    if (response.resStatus == AuditResponseStates.Closed) return false;
+    return (
+      response.responseDocs.length &&
+      !response.responseDocs.find((responseDoc) =>
+        [
+          AuditResponseDocStates.Open,
+          AuditResponseDocStates.Submitted,
+        ].includes(responseDoc.documentStatus)
+      )
+    );
+  }
+
   for (var x = 0; x < requestLength; x++) {
     var oRequest = arr[x];
 
@@ -3055,6 +2653,12 @@ function LoadTabStatusReport2() {
       };
       responseArr.push(aResponse);
 
+      if (
+        oRequest.reqType == AUDITREQUESTTYPES.TASKER &&
+        responseReadyToClose(oResponse)
+      ) {
+        arrResponsesReadyToClose.push(oResponse);
+      }
       /*if( bLoadTest )
 				{
 					for( var z = 0; z < 99; z++ )
@@ -3084,15 +2688,8 @@ function LoadTabStatusReport2() {
 
   if (responseArr.length > 0) {
     ko.utils.arrayPushAll(_myViewModel.arrResponses, responseArr);
-    _myViewModel.arrResponses.valueHasMutated(); //not doing this because we're using jsrender
-
-    //do this after push all because this takes some time
-    // var responseOutput = $("#responseTemplate").render(responseArr);
-    // $("#" + fbody)
-    //   .html(responseOutput)
-    //   .show();
+    _myViewModel.arrResponses.valueHasMutated();
   }
-  _myViewModel.doSort(true);
 
   ko.utils.arrayPushAll(
     _myViewModel.arrResponsesSubmittedByAO(),
@@ -3101,9 +2698,17 @@ function LoadTabStatusReport2() {
   _myViewModel.arrResponsesSubmittedByAO.valueHasMutated();
 
   ko.utils.arrayPushAll(
+    _myViewModel.arrResponsesReadyToClose,
+    arrResponsesReadyToClose
+  );
+
+  ko.utils.arrayPushAll(
     _myViewModel.arrResponsesWithUnsubmittedResponseDocs,
     arrUnsubmittedResponseDocs
   );
+
+  _myViewModel.filterStatusTables(true);
+  _myViewModel.showQuickInfo(_myViewModel.alertQuickInfo());
 }
 
 function m_fnViewLateRequests() {
@@ -3203,16 +2808,24 @@ function m_fnBulkAddRequest() {
     return;
   }
 
-  m_bIsTransactionExecuting = true;
+  const bulkAddRequestForm = new BulkAddRequestForm();
+  const options = {
+    title: "Bulk Add Request",
+    form: bulkAddRequestForm,
+    dialogReturnValueCallback: m_fnRefresh,
+  };
 
-  var options = SP.UI.$create_DialogOptions();
-  options.title = "Bulk Add Requests";
-  options.dialogReturnValueCallback = m_fnRefresh;
-  options.height = 800;
-  options.url =
-    Audit.Common.Utilities.GetSiteUrl() + "/pages/AuditBulkAddRequest.aspx";
+  ModalDialog.showModalDialog(options);
+  // m_bIsTransactionExecuting = true;
 
-  SP.UI.ModalDialog.showModalDialog(options);
+  // var options = SP.UI.$create_DialogOptions();
+  // options.title = "Bulk Add Requests";
+  // options.dialogReturnValueCallback = m_fnRefresh;
+  // options.height = 800;
+  // options.url =
+  //   Audit.Common.Utilities.GetSiteUrl() + "/pages/AuditBulkAddRequest.aspx";
+
+  // SP.UI.ModalDialog.showModalDialog(options);
 }
 
 async function m_fnViewRequest(id) {
@@ -4023,31 +3636,6 @@ async function m_fnCloseRequest() {
       break;
     }
   }
-}
-
-function m_fnDisplayHelpResponseDocs() {
-  var helpDlg =
-    "<div id='helpDlg' style='padding:20px; height:100px; width:700px'>" +
-    "<div style='padding:20px;'><fieldset><legend>Response Document Status</legend> <ul style='padding-top:10px;'>" +
-    "<li style='padding-top:5px;'><b>Open</b> - Uploaded by the Action Office but not yet submitted to the Internal Auditor</li>" +
-    "<li style='padding-top:5px;'><b>Submitted</b> - Submitted to the Internal Auditor by the Action Office</li>" +
-    "<li style='padding-top:5px;'><b>Sent to QA</b> - Submitted to the Quality Assurance team by the Internal Auditor</li>" +
-    "<li style='padding-top:5px;'><b>Approved</b> - Approved by the Quality Assurance team and submitted to the External Auditor</li>" +
-    "<li style='padding-top:5px;'><b>Rejected</b> - Rejected by the Quality Assurance team and returned to the Internal Auditor</li>" +
-    "<li style='padding-top:5px;'><b>Archived</b> - Previously Rejected by the Quality Assurance team and is now read-only for record keeping</li>" +
-    "</ul></fieldset></div>" +
-    "<table style='padding-top:10px; width:200px; float:right;'>" +
-    "<tr><td class='ms-separator'>&#160;</td><td><input id='btnCancel' type='button' class='ms-ButtonHeightWidth' value='Close' title='Close Help' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)'/></td></tr>" +
-    "</table></div>";
-
-  $("body").append(helpDlg);
-
-  var options = SP.UI.$create_DialogOptions();
-  options.title = "Response Documents Help";
-  options.height = 300;
-  options.dialogReturnValueCallback = OnCallbackForm;
-  options.html = document.getElementById("helpDlg");
-  SP.UI.ModalDialog.showModalDialog(options);
 }
 
 function m_fnGetRequestByNumber(requestNumber) {
@@ -6821,7 +6409,7 @@ function OnCallbackFormNewRequest(result, value) {
   //request status has internal name as response status in the request list
   currCtx.load(
     requestItems,
-    "Include(ID, Title, ActionOffice, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+    "Include(ID, Title, ReqType, ActionOffice, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
   );
 
   const emailList = web
@@ -7081,7 +6669,7 @@ async function OnCallbackFormEditRequest(result, value) {
   //request status has internal name as response status in the request list
   currCtx.load(
     requestItems,
-    "Include(ID, Title, ActionOffice, ReqStatus, Sensitivity, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+    "Include(ID, Title, ReqType, ActionOffice, ReqStatus, Sensitivity, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
   );
 
   var responseDocsLibFolderslist = currCtx
@@ -7955,256 +7543,4 @@ function m_fnGoToRequest(requestNumber, responseTitle) {
     //need to navigate to tab 2 for this to work
     m_fnHighlightResponse();
   }
-}
-
-function BindActionOfficeHandler() {
-  // Toggle 'View Action Offices' on requests table
-  $(".actionOfficeContainer").click(function () {
-    $(this)
-      .parent()
-      .find(".sr1-request-actionOffice-item")
-      .toggleClass("collapsed");
-  });
-}
-
-function BindHandlersOnLoad() {
-  $(".warning").click(function () {
-    $(this).parent().find("div").toggleClass("collapsed");
-    $(this).parent().toggleClass("colorRedLegend");
-  });
-  BindActionOfficeHandler();
-
-  // $("#linkSubmitNewReq").click(function () {
-  //   m_fnCreateRequest();
-  // });
-
-  $(".linkHelpResponseDocs").click(function () {
-    m_fnDisplayHelpResponseDocs();
-  });
-
-  BindPrintButton(
-    "#btnPrint1",
-    "#divStatusReportRequests",
-    "Request Status Report"
-  );
-  BindPrintButton(
-    "#btnPrint2",
-    "#divStatusReportRespones",
-    "Response Status Report"
-  );
-
-  //////////Note: for the export to work, make sure this is added to the html: <iframe id="CsvExpFrame" style="display: none"></iframe>
-  BindExportButton(
-    ".export1",
-    "RequestStatusReport_",
-    "tblStatusReportRequests"
-  );
-  BindExportButton(
-    ".export2",
-    "ResponseStatusReport_",
-    "tblStatusReportResponses"
-  );
-}
-
-function BindPrintButton(btnPrint, divTbl, pageTitle) {
-  $(btnPrint).on("click", function () {
-    PrintPage(pageTitle, divTbl);
-  });
-}
-
-function BindExportButton(btnExport, fileNamePrefix, tbl) {
-  $(btnExport).on("click", function (event) {
-    var curDate = new Date().format("yyyyMMdd_hhmmtt");
-    ExportToCsv(fileNamePrefix + curDate, tbl);
-  });
-}
-
-function PrintPage(pageTitle, divTbl) {
-  var curDate = new Date();
-  var siteUrl = Audit.Common.Utilities.GetSiteUrl();
-  var cssLink1 =
-    siteUrl +
-    "/siteassets/css/tablesorter/style.css?v=" +
-    curDate.format("MM_dd_yyyy");
-  var cssLink2 =
-    siteUrl +
-    "/siteAssets/css/audit_styles.css?v=" +
-    curDate.format("MM_dd_yyyy");
-
-  var divOutput = $(divTbl).html();
-
-  //remove hyperlinks pointing to the job codes
-  var updatedDivOutput = $("<div>").append(divOutput);
-  updatedDivOutput.find(".sr1-request-requestNum a").each(function () {
-    $(this).removeAttr("onclick");
-    $(this).removeAttr("href");
-  });
-
-  updatedDivOutput.find(".sr2-response-requestNum a").each(function () {
-    $(this).removeAttr("onclick");
-    $(this).removeAttr("href");
-  });
-
-  divOutput = updatedDivOutput.html();
-
-  var printDateString = curDate.format("MM/dd/yyyy hh:mm tt");
-  printDateString =
-    "<div style='padding-bottom:10px;'>" +
-    printDateString +
-    " - " +
-    pageTitle +
-    "</div>";
-
-  divOutput = printDateString + divOutput;
-
-  var cssFile1 = $("<div></div>");
-  var cssFile2 = $("<div></div>");
-
-  var def1 = $.Deferred();
-  var def2 = $.Deferred();
-
-  var cssFileText = "";
-  cssFile1.load(cssLink1, function () {
-    cssFileText += "<style>" + cssFile1.html() + "</style>";
-    def1.resolve();
-  });
-  cssFile2.load(cssLink2, function () {
-    cssFileText += "<style>" + cssFile2.html() + "</style>";
-    def2.resolve();
-  });
-
-  //gets called asynchronously after the css files have been loaded
-  $.when(def1, def2).done(function () {
-    var html =
-      "<HTML>\n" +
-      "<HEAD>\n\n" +
-      "<Title>" +
-      pageTitle +
-      "</Title>\n" +
-      cssFileText +
-      "\n" +
-      "<style>" +
-      ".hideOnPrint, .rowFilters, .actionOfficeContainer {display:none}" +
-      "</style>\n" +
-      "</HEAD>\n" +
-      "<BODY>\n" +
-      divOutput +
-      "\n" +
-      "</BODY>\n" +
-      "</HTML>";
-
-    var printWP = window.open("", "printWebPart");
-    if (!printWP) {
-      alert("No printWebPart!");
-      return;
-    }
-    printWP.document.open();
-    //insert content
-    printWP.document.write(html);
-
-    printWP.document.close();
-    //open print dialog
-    printWP.print();
-  });
-}
-//make sure iframe with id csvexprframe is added to page up top
-//http://stackoverflow.com/questions/18185660/javascript-jquery-exporting-data-in-csv-not-working-in-ie
-function ExportToCsv(fileName, tableName, removeHeader) {
-  var data = GetCellValues(tableName);
-
-  if (!data) {
-    alert("No data!");
-    return;
-  }
-
-  if (removeHeader == true) data = data.slice(1);
-
-  var csv = ConvertToCsv(data);
-  //	console.log( csv );
-  if (navigator.userAgent.search("Trident") >= 0) {
-    window.CsvExpFrame.document.open("text/html", "replace");
-    //		window.CsvExpFrame.document.open("application/csv", "replace");
-    //		window.CsvExpFrame.document.charset = "utf-8";
-    //		window.CsvExpFrame.document.open("application/ms-excel", "replace");
-    window.CsvExpFrame.document.write(csv);
-    window.CsvExpFrame.document.close();
-    window.CsvExpFrame.focus();
-    window.CsvExpFrame.document.execCommand("SaveAs", true, fileName + ".csv");
-  } else {
-    var uri = "data:text/csv;charset=utf-8," + escape(csv);
-    var downloadLink = document.createElement("a");
-    downloadLink.href = uri;
-    downloadLink.download = fileName + ".csv";
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-  }
-}
-
-function GetCellValues(tableName) {
-  var table = document.getElementById(tableName);
-
-  if (!table) return;
-  //remove headers and footers
-  if (table.innerHTML.indexOf("rowFilters") >= 0) {
-    var deets = $("<div>").append(table.outerHTML);
-    deets.find(".rowFilters").each(function () {
-      $(this).remove();
-    });
-    table = deets.find("table")[0];
-  }
-  if (table.innerHTML.indexOf("footer") >= 0) {
-    var deets = $("<div>").append(table.outerHTML);
-    deets.find(".footer").each(function () {
-      $(this).remove();
-    });
-    table = deets.find("table")[0];
-  }
-
-  if (table.innerHTML.indexOf("actionOfficeContainer") >= 0) {
-    var deets = $("<div>").append(table.outerHTML);
-    deets.find(".actionOfficeContainer").each(function () {
-      $(this).remove();
-    });
-
-    deets.find(".sr1-request-actionOffice-item").each(function () {
-      var curText = $(this).text() + ", ";
-
-      $(this).text(curText);
-    });
-
-    table = deets.find("table")[0];
-  }
-
-  var tableArray = [];
-  for (var r = 0, n = table.rows.length; r < n; r++) {
-    tableArray[r] = [];
-    for (var c = 0, m = table.rows[r].cells.length; c < m; c++) {
-      var text =
-        table.rows[r].cells[c].textContent || table.rows[r].cells[c].innerText;
-      tableArray[r][c] = text.trim();
-    }
-  }
-  return tableArray;
-}
-
-function ConvertToCsv(objArray) {
-  var array = typeof objArray != "object" ? JSON.parse(objArray) : objArray;
-  var str = "sep=,\r\n";
-  var line = "";
-  var index;
-  var value;
-  for (var i = 0; i < array.length; i++) {
-    line = "";
-    var array1 = array[i];
-    for (index in array1) {
-      if (array1.hasOwnProperty(index)) {
-        value = array1[index] + "";
-        line += '"' + value.replace(/"/g, '""') + '",';
-      }
-    }
-    line = line.slice(0, -1);
-    str += line + "\r\n";
-  }
-  return str;
 }

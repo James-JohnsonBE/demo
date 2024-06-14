@@ -1,1 +1,1 @@
-export { EntitySet, CachedEntitySet } from "./orm.js";
+export { EntitySet, CachedEntitySet, DbContext } from "./orm.js";

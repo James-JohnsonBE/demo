@@ -46,8 +46,11 @@ export default class NewRequestFormModule extends BaseForm {
 
     if (!request) return;
 
-    const fy = configurationsStore["CurrentFY"];
+    const fy = configurationsStore["current-fy"];
     request.FiscalYear.Value(fy);
+
+    const reqType = configurationsStore["default-req-type"];
+    request.ReqType.Value(reqType);
 
     request.Reminders.Value(request.Reminders.Options());
     request.ReqStatus.Value(AUDITREQUESTSTATES.OPEN);

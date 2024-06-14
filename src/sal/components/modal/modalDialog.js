@@ -8,8 +8,7 @@ export function showModalDialog(dialogOptions) {
   const newDialog = new ModalDialog(dialogOptions);
   currentDialog(newDialog);
   resizeDialog(dlgElement);
-  dlgElement.showModal();
-  dlgElement.classList.add("active");
+  newDialog.showModal();
 }
 
 class ModalDialog {
@@ -26,8 +25,18 @@ class ModalDialog {
     this.form.onComplete = this.close.bind(this);
   }
 
+  showModal = () => {
+    dlgElement.showModal();
+    dlgElement.classList.add("active");
+  };
+
   clickClose = () => {
     this.close(false);
+  };
+
+  hide = () => {
+    dlgElement.close();
+    dlgElement.classList.remove("active");
   };
 
   close(result) {
@@ -35,6 +44,19 @@ class ModalDialog {
     dlgElement.classList.remove("active");
     if (this.dialogReturnValueCallback) this.dialogReturnValueCallback(result);
   }
+}
+
+export function toggle(show = null) {
+  const modal = ko.unwrap(currentDialog);
+
+  if (!modal) {
+    console.warn("Attempting to hide non-existant modal.");
+    return;
+  }
+
+  if (show == null) show = !modal.hasAttribute("open");
+
+  show ? modal.showModal() : modal.hide();
 }
 
 function resizeDialog(elmnt) {

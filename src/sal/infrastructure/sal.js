@@ -462,9 +462,10 @@ sal.NewUtilities = function () {
       copyFiles(sourceFolder, destFolder, resolve, reject);
     });
   }
+
   var publicMembers = {
     copyFiles: copyFiles,
-    copyFilesAsync: copyFilesAsync,
+    copyFilesAsync,
     createSiteGroup: createSiteGroup,
     getUserGroups: getUserGroups,
     getUsersWithGroup: getUsersWithGroup,
@@ -472,6 +473,14 @@ sal.NewUtilities = function () {
 
   return publicMembers;
 };
+
+export async function copyFileAsync(sourceFilePath, destFilePath) {
+  const uri = `/web/getfilebyserverrelativeurl('${sourceFilePath}')/copyto('${destFilePath}')`;
+
+  const result = await fetchSharePointData(uri, "POST");
+
+  return result;
+}
 
 // Used in Authorization
 async function getCurrentUserPropertiesAsync() {
@@ -588,20 +597,47 @@ export class ItemPermissions {
       ? true
       : false;
   }
-}
 
-class Role {
-  constructor({ principal }) {
-    this.principal = principal;
+  getValuePairs() {
+    // For backwards compatibility
+    return this.roles.flatMap((role) =>
+      role.roleDefs.map((roleDef) => [role.principal.Title, roleDef.name])
+    );
   }
 
-  principal;
+  static fromRestResult(result) {
+    const roles = result.RoleAssignments.results.map(
+      Role.fromRestRoleAssignment
+    );
+
+    return new ItemPermissions({
+      hasUniqueRoleAssignments: result.HasUniqueRoleAssignments,
+      roles,
+    });
+  }
+}
+
+export class Role {
+  constructor({ principal, roleDefs = [] }) {
+    this.principal = principal;
+    this.roleDefs = roleDefs;
+  }
+
+  principal; // People Entity
   roleDefs = [];
 
   addRoleDef(roleDef) {
     this.roleDefs.push(roleDef);
   }
 
+  static fromRestRoleAssignment(role) {
+    return new Role({
+      principal: { ...role.Member, ID: role.Member.Id },
+      roleDefs: role.RoleDefinitionBindings.results.map(
+        RoleDef.fromRestRoleDef
+      ),
+    });
+  }
   static fromJsomRole(role) {
     const newRole = new Role({
       principal: principalToPeople(role.get_member()),
@@ -619,12 +655,22 @@ class Role {
   }
 }
 
-class RoleDef {
-  constructor({ name }) {
+export class RoleDef {
+  constructor({ name, basePermissions = null }) {
     this.name = name;
+    this.basePermissions = basePermissions;
   }
   name;
   basePermissions;
+
+  static fromRestRoleDef(roleDef) {
+    const newRoleDef = new RoleDef({
+      name: roleDef.Name,
+      basePermissions: roleDef.BasePermissions,
+    });
+    Object.assign(newRoleDef, roleDef);
+    return newRoleDef;
+  }
 
   static fromJsomRoleDef(roleDef) {
     const newRoleDef = new RoleDef({ name: roleDef.get_name() });
@@ -673,10 +719,17 @@ export function SPList(listDef) {
                                 Common Public Methods       
     ******************************************************************/
 
-  function setListPermissionsAsync(valuePairs, reset) {
-    return new Promise((resolve, reject) => {
-      setListPermissions(valuePairs, resolve, reset);
-    });
+  async function setListPermissionsAsync(itemPermissions, reset) {
+    const currCtx = new SP.ClientContext.get_current();
+    const web = currCtx.get_web();
+    const oList = web.get_lists().getByTitle(self.config.def.title);
+
+    // await executeQuery(currCtx).catch((sender, args) => {
+    //   console.warn("Unable to get list: ", sender);
+    //   return;
+    // });
+
+    return setResourcePermissionsAsync(oList, itemPermissions, reset);
   }
 
   function setListPermissions(valuePairs, callback, reset) {
@@ -734,12 +787,12 @@ export function SPList(listDef) {
 
       var data = { oList: oList, callback: callback };
 
-      function onSetItemPermissionsSuccess() {
+      function onSetListPermissionsSuccess() {
         console.log("Successfully set permissions");
         callback(oList);
       }
 
-      function onSetItemPermissionsFailure(sender, args) {
+      function onSetListPermissionsFailure(sender, args) {
         console.error(
           "Failed to update permissions on List: " +
             this.oList.get_title() +
@@ -751,8 +804,8 @@ export function SPList(listDef) {
 
       currCtx.load(oList);
       currCtx.executeQueryAsync(
-        Function.createDelegate(data, onSetItemPermissionsSuccess),
-        Function.createDelegate(data, onSetItemPermissionsFailure)
+        Function.createDelegate(data, onSetListPermissionsSuccess),
+        Function.createDelegate(data, onSetListPermissionsFailure)
       );
     }
 
@@ -1046,13 +1099,13 @@ export function SPList(listDef) {
   async function findByColumnValueAsync(
     columnFilters,
     { orderByColumn = null, sortAsc },
-    { count = null, includePermissions = false },
-    fields,
-    includeFolders
+    { count = null, includePermissions = false, includeFolders = false },
+    fields
   ) {
     const [queryFields, expandFields] = await getQueryFields(fields);
     if (includePermissions) {
       queryFields.push("RoleAssignments");
+      queryFields.push("HasUniqueRoleAssignments");
       expandFields.push("RoleAssignments");
     }
     const orderBy = orderByColumn
@@ -1253,6 +1306,14 @@ export function SPList(listDef) {
 
     const oListItem = await getoListItemByIdAsync(id);
 
+    return setResourcePermissionsAsync(oListItem, itemPermissions, reset);
+  }
+
+  async function setResourcePermissionsAsync(
+    oListItem,
+    itemPermissions,
+    reset
+  ) {
     if (reset) {
       oListItem.resetRoleInheritance();
       oListItem.breakRoleInheritance(false, false);
@@ -1308,6 +1369,8 @@ export function SPList(listDef) {
     }
 
     if (reset) {
+      const currCtx = new SP.ClientContext.get_current();
+
       oListItem
         .get_roleAssignments()
         .getByPrincipal(sal.globalConfig.currentUser)
@@ -1422,6 +1485,22 @@ export function SPList(listDef) {
         Function.createDelegate(data, onQueryFailed)
       );
     });
+  }
+
+  async function getListPermissions() {
+    const url =
+      `/web/lists/getByTitle('${self.config.def.name}')` +
+      `?$select=HasUniqueRoleAssignments,RoleAssignments` +
+      `&$expand=RoleAssignments/Member,RoleAssignments/RoleDefinitionBindings`;
+
+    const headers = {
+      "Cache-Control": "no-cache",
+    };
+    const result = await fetchSharePointData(url, "GET", headers);
+
+    if (!result) return;
+
+    return ItemPermissions.fromRestResult(result.d);
   }
 
   /*****************************************************************
@@ -2459,6 +2538,8 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
     deleteListItemAsync,
     setItemPermissionsAsync,
     getItemPermissionsAsync,
+    getListPermissions,
+    setListPermissionsAsync,
     getFolderContentsAsync,
     upsertFolderPathAsync,
     getServerRelativeFolderPath,

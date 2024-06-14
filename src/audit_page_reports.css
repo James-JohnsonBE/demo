@@ -6,6 +6,7 @@
 
 #s4-bodyContainer {
   padding-bottom: 0;
+  min-width: min-content;
 }
 
 div.welcome.blank-wp {
@@ -101,36 +102,83 @@ div.cell-margin {
 .audit-body {
   display: flex;
   justify-content: start;
-  gap: 1rem;
 }
 
 #divLoading {
   color: lightgray;
   padding: 0.2rem 0;
 }
-.audit-body .quick-info {
-  height: calc(100vh - 85px);
-  position: sticky;
-  top: 0;
-  overflow-y: auto;
-  min-width: 275px;
-  flex: 0;
-  background-color: var(--bg-dark-color);
+
+.audit-body .quick-info-container {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  align-items: stretch;
+  height: calc(100vh - 96px);
+  position: sticky;
+  top: 0;
+  width: 4rem;
+  transition: width 0.6s ease-in-out;
   color: white;
+}
+
+.audit-body .quick-info-container.active {
+  min-width: 356px;
+  width: 356px;
+  max-width: 356px;
+}
+
+.audit-body .quick-info-container .quick-info-toolbar {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-dark-secondary-color);
+  align-items: stretch;
+}
+
+.audit-body .quick-info-container.active .quick-info-toolbar button {
+  text-align: start;
+  direction: rtl;
+  padding: 0 1.5rem;
+}
+
+.audit-body .quick-info {
+  background-color: var(--bg-dark-color);
+  display: none;
+  flex-direction: column;
+  align-items: stretch;
+  flex-grow: 1;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  gap: 0.75rem;
+  padding: 0 0.5rem 0 0.5rem;
+}
+
+.audit-body .quick-info-container.active .quick-info {
+  display: flex;
 }
 
 .audit-body .quick-info .status-set-container {
   color: white;
   background-color: #2a3c48;
+  border-radius: 6px;
+  /* border-color: var(--primary-color);  */
+  padding: 0.5rem;
 }
 
-.audit-body .quick-info fieldset legend a {
+.audit-body .quick-info details summary {
   /* text-decoration: none; */
   color: white;
   font-weight: bold;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.audit-body .quick-info details summary:hover {
+  /* text-decoration: none; */
+  text-decoration: underline;
 }
 
 .audit-body .quick-info a {
@@ -140,7 +188,7 @@ div.cell-margin {
 
 .audit-body .reports-container {
   min-width: 1200px;
-  padding: 1rem 0;
+  padding: 1rem;
 }
 
 .audit-body .quick-links {
@@ -282,7 +330,8 @@ div.cell-margin {
 }
 
 .audit-form dl {
-  min-width: 200px;
+  flex: 1 0;
+  padding: 0 1.5rem 0 0;
 }
 
 .audit-form dt {
@@ -298,18 +347,23 @@ div.cell-margin {
   padding-block-end: 0.75rem;
 }
 
-.audit-form .emphasized-section {
+.audit .emphasized-section {
   /* background-color: var(--bg-dark-secondary-color); */
   background-color: #d7f0f0;
   color: var(--primary-color);
+  box-sizing: border-box;
   width: 100%;
   border-radius: 6px;
   border-color: var(--primary-color);
   padding: 0.5rem;
 }
 
-.audit-form .emphasized-section .btn-link {
-  color: var(--secondary-color);
+.audit .bg-dark .emphasized-section {
+  background-color: var(--bg-dark-secondary-color);
+}
+
+.audit .emphasized-section .btn-link {
+  /* color: var(--secondary-color); */
 }
 
 .form-field-component .form-control {
@@ -513,6 +567,7 @@ legend {
   padding: 0.5rem;
   vertical-align: middle;
 }
+
 .tablesorter thead th:nth-of-type(even) {
   background-color: #2a3c48;
 }
@@ -520,26 +575,109 @@ legend {
 .tablesorter thead .rowFilters th {
   color: white;
   background-color: var(--primary-muted-color);
+  align-content: end;
 }
 .tablesorter thead .rowFilters th.filter {
   background-color: var(--primary-color);
+}
+
+table.tablesorter thead th.sorter-true {
+  position: relative;
+  cursor: pointer;
+  padding-right: 1.5rem;
+}
+
+.tablesorter th.sorter-true i[class*="fa-sort"] {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translate(-100%, -50%);
+}
+
+.sorter-true.asc,
+.sorter-true.desc {
+  border-bottom: var(--primary-color) 2px solid;
 }
 
 table.tablesorter tbody td:hover {
   /* works background-color: blue !important; */
 }
 
+table .rowFilters .filter-date-range .filter-inputs.active {
+  display: flex;
+}
+
+table .rowFilters .filter-date-range .filter-inputs {
+  display: none;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+table .rowFilters .filter-date-range {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  font-weight: normal;
+  color: var(--text-primary);
+}
+
+table .rowFilters .filter-date-range label {
+  display: flex;
+  justify-content: end;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+}
+
+table .rowFilters .filter-date-range button {
+  align-self: end;
+}
+
 #tblRequests tbody tr:hover {
   background-color: lemonchiffon !important;
 }
 
-#divRequestInfo {
+.request-detail-view {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap-reverse;
+  align-items: start;
+}
+
+#divRequestInfoContainer {
+  position: sticky;
+  top: 0;
+}
+
+.request-info-form {
   max-width: 600px;
   border: 2px solid var(--primary-color);
   border-radius: 6px;
 }
 
 .request-detail-view .request-detail-documents {
+  min-width: 860px;
+  background-color: white;
+}
+
+.response-detail-view {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap-reverse;
+}
+
+.response-detail-view .response-info-form {
+  max-width: 600px;
+  border: 2px solid var(--primary-color);
+  border-radius: 6px;
+}
+
+.response-detail-view .response-info-form {
+  max-width: 600px;
+  border: 2px solid var(--primary-color);
+  border-radius: 6px;
+}
+
+.response-detail-view .response-detail-documents {
   min-width: 860px;
   background-color: white;
 }
@@ -664,12 +802,6 @@ table.tablesorter thead tr .header {
 .sr1-request-item .past-due {
   background-color: salmon;
   font-weight: bold;
-}
-
-.request-detail-view {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap-reverse;
 }
 
 label.file-upload-field .dropzone {

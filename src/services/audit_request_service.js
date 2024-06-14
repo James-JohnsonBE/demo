@@ -1,5 +1,9 @@
 import { appContext } from "../infrastructure/application_db_context.js";
-import { getPeopleByUsername, getSiteGroups } from "./people_manager.js";
+import {
+  getPeopleByUsername,
+  getQAGroup,
+  getSiteGroups,
+} from "./people_manager.js";
 import { roleNames } from "./permission_manager.js";
 import { ItemPermissions } from "../sal/infrastructure/index.js";
 import {
@@ -10,6 +14,7 @@ import {
 import { People } from "../sal/entities/index.js";
 import { addTask, finishTask, taskDefs } from "./tasks.js";
 import { deleteRequestCoversheet } from "./coversheet_manager.js";
+import { auditOrganizationStore } from "../infrastructure/store.js";
 
 export async function getRequestById(id) {
   return await appContext.AuditRequests.FindById(id);
@@ -108,6 +113,57 @@ export async function deleteRequest(requestId) {
   // Finally, delete the request
   await appContext.AuditRequests.RemoveEntityById(requestId);
   return true;
+}
+
+export async function ensureRequestAuditResponseDocsROFolder(
+  reqNum,
+  requestingOfficeId
+) {
+  const roFolderResults =
+    await appContext.AuditResponseDocsRO.FindByColumnValue(
+      [{ column: "FileLeafRef", value: reqNum }],
+      {},
+      { count: 1, includeFolders: true }
+    );
+
+  const roFolder = roFolderResults.results[0] ?? null;
+
+  if (roFolder) return roFolder.FileRef;
+
+  const requestingOffice = auditOrganizationStore().find(
+    (ao) => ao.ID == requestingOfficeId
+  );
+
+  const newRoFolderId = await appContext.AuditResponseDocsRO.UpsertFolderPath(
+    reqNum
+  );
+  const { owners, members, visitors } = getSiteGroups();
+  const qaGroup = await getQAGroup();
+  const newPermissions = new ItemPermissions({
+    hasUniqueRoleAssignments: true,
+    roles: [],
+  });
+
+  newPermissions.addPrincipalRole(owners, roleNames.FullControl);
+  newPermissions.addPrincipalRole(members, roleNames.Contribute);
+  newPermissions.addPrincipalRole(visitors, roleNames.RestrictedRead);
+  newPermissions.addPrincipalRole(qaGroup, roleNames.RestrictedContribute);
+  newPermissions.addPrincipalRole(
+    requestingOffice.UserGroup,
+    roleNames.RestrictedRead
+  );
+
+  await appContext.AuditResponseDocsRO.SetItemPermissions(
+    { ID: newRoFolderId },
+    newPermissions,
+    true
+  );
+
+  const newFolderEntity = await appContext.AuditResponseDocsRO.FindById(
+    newRoFolderId
+  );
+
+  return newFolderEntity.FileRef;
 }
 
 /* Begin Unreferenced Service Rewrites */
@@ -311,9 +367,8 @@ export async function getRequestResponseDocsFolders(responseTitle) {
   const responsesResult = await appContext.AuditResponseDocs.FindByColumnValue(
     [{ column: "Title", value: responseTitle }],
     {},
-    {},
-    ["ID", "Title"],
-    true
+    { includeFolders: true },
+    ["ID", "Title"]
   );
 
   return responsesResult.results;

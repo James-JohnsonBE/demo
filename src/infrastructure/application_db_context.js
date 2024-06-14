@@ -5,18 +5,25 @@ import {
   AuditEmail,
   AuditRequestsInternal,
   AuditResponse,
+  AuditBulkResponse,
   AuditResponseDoc,
   AuditCoversheet,
   AuditConfiguration,
+  AuditResponseDocRO,
+  AuditROEmailLog,
 } from "../entities/index.js";
-import { EntitySet } from "../sal/index.js";
+import { EntitySet, DbContext } from "../sal/index.js";
 
 const DEBUG = false;
 
-export class ApplicationDbContext {
-  constructor() {}
+export class ApplicationDbContext extends DbContext {
+  constructor() {
+    super();
+  }
 
   AuditBulkRequests = new EntitySet(AuditBulkRequest);
+
+  AuditBulkResponses = new EntitySet(AuditBulkResponse);
 
   AuditConfigurations = new EntitySet(AuditConfiguration);
 
@@ -30,28 +37,13 @@ export class ApplicationDbContext {
 
   AuditResponseDocs = new EntitySet(AuditResponseDoc);
 
+  AuditResponseDocsRO = new EntitySet(AuditResponseDocRO);
+
   AuditRequests = new EntitySet(AuditRequest);
 
   AuditRequestsInternals = new EntitySet(AuditRequestsInternal);
 
-  virtualSets = new Map();
-
-  Set = (entityType) => {
-    const key = entityType.ListDef.name;
-
-    // If we have a defined entityset, return that
-    const set = Object.values(this)
-      .filter((val) => val.constructor.name == EntitySet.name)
-      .find((set) => set.ListDef?.name == key);
-    if (set) return set;
-
-    if (!this.virtualSets.has(key)) {
-      const newSet = new EntitySet(listDef);
-      this.virtualSets.set(key, newSet);
-      return newSet;
-    }
-    return this.virtualSets.get(key);
-  };
+  AuditROEmailsLog = new EntitySet(AuditROEmailLog);
 }
 
 export const appContext = new ApplicationDbContext();

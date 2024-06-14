@@ -1,6 +1,35 @@
-import { SPList } from "./infrastructure/index.js";
+import { Page } from "./entities/index.js";
+import { SPList, copyFileAsync } from "./infrastructure/index.js";
 
 const DEBUG = false;
+
+export class DbContext {
+  constructor() {}
+
+  Pages = new EntitySet(Page);
+
+  utilities = {
+    copyFileAsync,
+  };
+  virtualSets = new Map();
+
+  Set = (entityType) => {
+    const key = entityType.ListDef.name;
+
+    // If we have a defined entityset, return that
+    const set = Object.values(this)
+      .filter((val) => val.constructor.name == EntitySet.name)
+      .find((set) => set.ListDef?.name == key);
+    if (set) return set;
+
+    if (!this.virtualSets.has(key)) {
+      const newSet = new EntitySet(listDef);
+      this.virtualSets.set(key, newSet);
+      return newSet;
+    }
+    return this.virtualSets.get(key);
+  };
+}
 
 export class CachedEntitySet {
   constructor(entityType) {
@@ -76,9 +105,8 @@ export class EntitySet {
   FindByColumnValue = async (
     columnFilters,
     { orderByColumn, sortAsc },
-    { count = null, includePermissions = false },
-    fields = this.AllDeclaredFields,
-    includeFolders = false
+    { count = null, includePermissions = false, includeFolders = false },
+    fields = this.AllDeclaredFields
   ) => {
     // if we pass in a count, we are expecting a cursor result
     const returnCursor = count != null;
@@ -88,9 +116,8 @@ export class EntitySet {
     const results = await this.ListRef.findByColumnValueAsync(
       columnFilters,
       { orderByColumn, sortAsc },
-      { count, includePermissions },
-      fields,
-      includeFolders
+      { count, includePermissions, includeFolders },
+      fields
     );
 
     let cursor = {
@@ -163,7 +190,7 @@ export class EntitySet {
   // Mutators
   AddEntity = async function (entity, folderPath) {
     const creationfunc = mapEntityToObject.bind(this);
-    const writeableEntity = creationfunc(entity);
+    const writeableEntity = creationfunc(entity, this.AllDeclaredFields);
 
     if (DEBUG) console.log(writeableEntity);
     const newId = await this.ListRef.createListItemAsync(
@@ -193,6 +220,9 @@ export class EntitySet {
   };
 
   // Permissions
+  GetItemPermissions = function (entity) {
+    return this.ListRef.getItemPermissionsAsync(entity.ID);
+  };
 
   SetItemPermissions = async function (entity, valuePairs, reset = false) {
     // const salValuePairs = valuePairs
@@ -201,8 +231,13 @@ export class EntitySet {
     return this.ListRef.setItemPermissionsAsync(entity.ID, valuePairs, reset);
   };
 
-  GetItemPermissions = function (entity) {
-    return this.ListRef.getItemPermissionsAsync(entity.ID);
+  GetRootPermissions = function () {
+    return this.ListRef.getListPermissions();
+  };
+
+  SetRootPermissions = async function (itemPermissions, reset) {
+    // const valuePairs = itemPermissions.getValuePairs();
+    await this.ListRef.setListPermissionsAsync(itemPermissions, reset);
   };
 
   // Folder Methods
@@ -409,6 +444,9 @@ export function mapEntityToObject(input, selectedFields = null) {
   const allWriteableFieldsSet = new Set([]);
   if (this?.ListDef?.fields) {
     this.ListDef.fields.forEach((field) => allWriteableFieldsSet.add(field));
+  }
+  if (this?.AllDeclaredFields) {
+    this.AllDeclaredFields.map((field) => allWriteableFieldsSet.add(field));
   }
   if (input.FieldMap) {
     Object.keys(input.FieldMap).forEach((field) =>

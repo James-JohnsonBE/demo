@@ -1,5 +1,5 @@
 <div class="request-detail-view" data-bind="visible: currentRequest">
-  <div>
+  <div id="divRequestInfoContainer">
     <div
       id="divRequestClose"
       style="width: 300px"
@@ -20,9 +20,55 @@
       </fieldset>
     </div>
 
+    <div data-bind="if: currentRequestResponsesReadyToClose().length">
+      <fieldset class="emphasized-section">
+        <legend>Responses Ready to Close</legend>
+        <table class="tablesorter">
+          <thead>
+            <tr>
+              <th>Response</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach: currentRequestResponsesReadyToClose">
+            <tr>
+              <td
+                class="response-title"
+                data-bind="attr: {'id': 'response-item-title-' + title}"
+              >
+                <span
+                  title="View Response Docs"
+                  class="btn btn-link"
+                  data-bind="text: title, click: $parent.viewResponseDocs"
+                ></span>
+              </td>
+              <td>
+                <button
+                  type="button"
+                  class="btn btn-link"
+                  title="Close Response"
+                  data-bind="click: clickCloseResponse"
+                >
+                  <span class="fa-solid fa-circle-check"></span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <button
+          type="button"
+          class="btn btn-link"
+          title="Close all Responses"
+          data-bind="click: clickCloseReadyResponses"
+        >
+          <span class="fa-solid fa-check-double"></span> Close All Responses
+        </button>
+      </fieldset>
+    </div>
+
     <div
       id="divRequestInfo"
-      class="audit-form"
+      class="audit-form request-info-form"
       data-bind="with: currentRequest"
     >
       <div class="form-header">
@@ -74,6 +120,8 @@
           <dd data-bind="text: number"></dd>
           <dt>Subject</dt>
           <dd data-bind="text: subject"></dd>
+          <dt>Requesting Office</dt>
+          <dd data-bind="text: requestingOffice"></dd>
           <dt>Sensitivity</dt>
           <dd data-bind="text: sensitivity"></dd>
           <dt>Internal Due Date</dt>
@@ -82,6 +130,8 @@
           <dd data-bind="text: dueDate"></dd>
         </dl>
         <dl>
+          <dt>Type</dt>
+          <dd data-bind="text: reqType"></dd>
           <dt>Status</dt>
           <dd>
             <span
@@ -707,7 +757,14 @@
               ></span
               >&nbsp;by&nbsp;<span data-bind="text: closedBy"></span
             ></span>
-
+              <!-- ko if: isReadyToClose($data) -->
+              <button type="button"
+                class="btn btn-link"
+                title="All response docs sent to RO. Click to Close."
+                data-bind="click: clickCloseResponse">
+                Ready to Close <span class="fa-solid fa-circle-check"></span>
+              </button>
+              <!-- /ko -->
             <div
               style="padding-top: 5px; padding-left: 20px"
               data-bind="visible: resStatus == '7-Closed'"
@@ -941,7 +998,7 @@
             type="button"
             class="btn btn-link"
                 title="View Help"
-
+                data-bind="click: clickHelpResponseDocs"
                 style="color: #0072bc"
                 ><i class="fa-solid fa-question"></i></a
             ></span>
@@ -1016,7 +1073,7 @@
           <td class="requestInfo-response-doc-title">
             <input
               type="checkbox"
-              data-bind="attr: { id: ID }, visible: $parents[1].responseDocCanBeApproved(responseDocSummary, $data), checked: chkApproveResDoc"
+              data-bind="attr: { id: ID }, visible: $parent.responseDocCanBeApproved($data), checked: chkApproveResDoc"
             />
 
             <a
@@ -1083,7 +1140,7 @@
           ></td>
           <td nowrap>
             <span
-              data-bind="visible: $parent.responseStatus == '2-Submitted' && documentStatus == 'Submitted'"
+              data-bind="visible: $parent.responseDocCanBeApproved($data)"
             >
               <button
                 type="button"

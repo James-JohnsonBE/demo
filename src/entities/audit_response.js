@@ -18,6 +18,7 @@ import { ActiveViewer } from "../value_objects/active_viewer.js";
 import { ActiveViewersComponent } from "../components/active_viewers/active_viewers_module.js";
 
 import { auditOrganizationStore } from "../infrastructure/store.js";
+import { currentUser } from "../services/people_manager.js";
 
 // import { appContext } from "../infrastructure/ServiceContainer.js";
 
@@ -133,6 +134,12 @@ export class AuditResponse extends ConstrainedEntity {
     );
   }
 
+  markClosed() {
+    this.ResStatus.Value(AuditResponseStates.Closed);
+    this.ClosedDate.set(new Date());
+    this.ClosedBy.set(currentUser());
+  }
+
   static Views = {
     All: [
       "ID",
@@ -174,6 +181,7 @@ export class AuditResponse extends ConstrainedEntity {
       "POC",
       "POCCC",
     ],
+    IAUpdateClosed: ["ResStatus", "ClosedDate", "ClosedBy"],
   };
 
   static ListDef = {

@@ -7,8 +7,12 @@ import {
   deleteRequestCoversheetById,
   uploadRequestCoversheetFile,
 } from "../../services/coversheet_manager.js";
-import { getRequestByTitle } from "../../services/audit_request_service.js";
 import {
+  getRequestById,
+  getRequestByTitle,
+} from "../../services/audit_request_service.js";
+import {
+  closeResponseById,
   deleteResponseAndFolder,
   uploadResponseDocFile,
 } from "../../services/audit_response_service.js";
@@ -19,6 +23,7 @@ import {
   AUDITREQUESTSTATES,
   AuditResponseStates,
   AuditResponseDocStates,
+  AUDITREQUESTTYPES,
 } from "../../entities/index.js";
 
 import { m_fnRefreshData } from "../../pages/ia_db/ia_db_services.js";
@@ -53,31 +58,6 @@ export class RequestDetailView {
 
     this.ModalDialog = ModalDialog;
 
-    /*
-    ROOT FUNCTIONS 
-    ClickViewCoversheet
-    ClickEditCoversheet
-    ClickUploadCoverSheet
-
-    ClickAddResponse
-    ClickBulkAddResponse
-    ClickBulkEditResponse
-    ClickReOpenResponse
-
-    ClickViewResponse
-    ClickEditResponse
-    ClickReviewingResponse
-    ClickViewResponseDocFolder
-    ClickUploadToResponseDocFolder
-
-
-    ClickDeleteResponseDoc
-    ClickCheckInResponseDocument
-    ClickResendRejectedResponseDocToQA
-    ClickViewResponseDoc
-    ClickEditResponseDoc
-    ApproveCheckedResponseDocs
-    */
     this.showCollapsed.subscribe(this.showCollapseToggledHandler);
     this.coverSheetFiles.subscribeAdded(this.onCoverSheetFileAttachedHandler);
 
@@ -87,7 +67,18 @@ export class RequestDetailView {
     );
 
     this.setInitialTab();
+    this.currentRequest.subscribe(this.onRequestChangeHandler);
   }
+
+  request = ko.observable();
+
+  onRequestChangeHandler = async (newRequest) => {
+    if (!newRequest || !newRequest.ID) return;
+    if (newRequest.ID == ko.unwrap(this.request)?.ID) return;
+
+    const request = await getRequestById(newRequest.ID);
+    this.request(request);
+  };
 
   // Fields
   componentName = componentName;
@@ -116,8 +107,16 @@ export class RequestDetailView {
   currentRequestResponseItems = ko.pureComputed(() => {
     const request = ko.unwrap(this.currentRequest);
     return (
-      request?.responses.map((response) => new ResponseItem(response, this)) ??
-      []
+      request?.responses.map(
+        (response) => new ResponseItem(request, response, this)
+      ) ?? []
+    );
+  });
+
+  currentRequestResponsesReadyToClose = ko.pureComputed(() => {
+    if (this.currentRequest()?.reqType != AUDITREQUESTTYPES.TASKER) return [];
+    return this.currentRequestResponseItems().filter((response) =>
+      response.isReadyToClose()
     );
   });
 
@@ -192,9 +191,8 @@ export class RequestDetailView {
 
   // collapseResponseDocs = (collapse) =>
 
-  refreshRequest() {
-    m_fnRefreshData();
-  }
+  // Need to wrap this this m_fnRefreshData optionally takes a requestId param
+  refreshRequest = () => m_fnRefreshData();
 
   // Coversheets
   onCoverSheetFileAttachedHandler = async (newFiles) => {
@@ -217,6 +215,16 @@ export class RequestDetailView {
     }
   };
   // Responses
+  clickCloseReadyResponses = async () => {
+    await Promise.all(
+      this.currentRequestResponsesReadyToClose().map((response) =>
+        response.closeResponse()
+      )
+    );
+
+    this.refreshRequest();
+  };
+
   viewResponseDocs = (response) => {
     this.tabs.selectTab(this.tabOpts.ResponseDocs);
     // Manually invoke the handler so we don't have to wait for the sub
@@ -242,6 +250,31 @@ export class RequestDetailView {
   };
 
   // ResponseDocs
+  clickHelpResponseDocs = () => {
+    var helpDlg =
+      "<div id='helpDlg' style='padding:20px; height:100px; width:700px'>" +
+      "<div style='padding:20px;'><fieldset><legend>Response Document Status</legend> <ul style='padding-top:10px;'>" +
+      "<li style='padding-top:5px;'><b>Open</b> - Uploaded by the Action Office but not yet submitted to the Internal Auditor</li>" +
+      "<li style='padding-top:5px;'><b>Submitted</b> - Submitted to the Internal Auditor by the Action Office</li>" +
+      "<li style='padding-top:5px;'><b>Sent to QA</b> - Submitted to the Quality Assurance team by the Internal Auditor</li>" +
+      "<li style='padding-top:5px;'><b>Approved</b> - Approved by the Quality Assurance team and submitted to the External Auditor</li>" +
+      "<li style='padding-top:5px;'><b>Rejected</b> - Rejected by the Quality Assurance team and returned to the Internal Auditor</li>" +
+      "<li style='padding-top:5px;'><b>Archived</b> - Previously Rejected by the Quality Assurance team and is now read-only for record keeping</li>" +
+      "</ul></fieldset></div>" +
+      "<table style='padding-top:10px; width:200px; float:right;'>" +
+      "<tr><td class='ms-separator'>&#160;</td><td><input id='btnCancel' type='button' class='ms-ButtonHeightWidth' value='Close' title='Close Help' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)'/></td></tr>" +
+      "</table></div>";
+
+    $("body").append(helpDlg);
+
+    var options = SP.UI.$create_DialogOptions();
+    options.title = "Response Documents Help";
+    options.height = 300;
+    // options.dialogReturnValueCallback = OnCallbackForm;
+    options.html = document.getElementById("helpDlg");
+    SP.UI.ModalDialog.showModalDialog(options);
+  };
+
   ClickBulkApprove = (responseDocSummary) => {
     const oResponseDocsForApproval = responseDocSummary.responseDocs.filter(
       (responseDoc) =>
@@ -337,7 +370,7 @@ export class RequestDetailView {
   async OnCallBackApproveResponseDoc(result) {
     if (result) {
       // Update is handled in the form, just need to refresh page/data
-      this.refreshRequest();
+      await this.refreshRequest();
     }
   }
 
@@ -382,8 +415,11 @@ registerComponent({
 });
 
 class ResponseItem {
-  constructor(response, report) {
+  constructor(request, response, report) {
     Object.assign(this, response);
+    this.request = request;
+
+    this.refreshData = report.refreshRequest;
 
     this.responseCoversheetFiles.subscribeAdded(
       this.onCoversheetFilesAttachedHandler
@@ -399,6 +435,25 @@ class ResponseItem {
   responseCoversheetFiles = ko.observableArray();
   responseDocFiles = ko.observableArray();
 
+  isReadyToClose = () =>
+    this.request.reqType == AUDITREQUESTTYPES.TASKER &&
+    this.resStatus != AuditResponseStates.Closed &&
+    this.responseDocs.length &&
+    !this.responseDocs.find((responseDoc) =>
+      [AuditResponseDocStates.Open, AuditResponseDocStates.Submitted].includes(
+        responseDoc.documentStatus
+      )
+    );
+
+  clickCloseResponse = async () => {
+    await this.closeResponse();
+    this.refreshData();
+  };
+
+  closeResponse = () => {
+    return closeResponseById(this.ID);
+  };
+
   ClickViewResponseHistory = () => {
     appContext.AuditResponses.ListRef.showVersionHistoryModal(this.ID);
   };
@@ -407,7 +462,7 @@ class ResponseItem {
     if (confirm("Delete Response: " + this.title)) {
       const response = await appContext.AuditResponses.FindById(this.ID);
       await deleteResponseAndFolder(response);
-      m_fnRefreshData();
+      this.refreshData();
     }
   };
 
@@ -439,7 +494,7 @@ class ResponseItem {
     await Promise.all(promises);
     // TODO: need to requery coversheets
     this.responseCoversheetFiles.removeAll();
-    m_fnRefreshData();
+    this.refreshData();
   };
 
   onResponseDocFilesAttachedHandler = async (files) => {
@@ -461,7 +516,7 @@ class ResponseItem {
     await Promise.all(promises);
     // TODO: need to requery responsedocs
     this.responseDocFiles.removeAll();
-    m_fnRefreshData();
+    this.refreshData();
   };
 
   highlightResponse = () => {
@@ -508,12 +563,25 @@ class ResponseDocSummary {
         oResponseDoc.fileName +
         "</a>";
 
+      // oResponseDoc.responseDocCanBeApproved = (oResponseDoc) => {
+      //   if (oResponseDoc.documentStatus != AuditResponseDocStates.Submitted)
+      //     return false;
+      //   return (
+      //     (this.responseStatus == AuditResponseStates.Submitted ||
+      //       this.responseStatus == AuditResponseStates.ApprovedForQA) &&
+      //     (this.requestStatus == AUDITREQUESTSTATES.OPEN ||
+      //       this.requestStatus == AUDITREQUESTSTATES.REOPENED)
+      //   );
+      // };
       arrResponseDocs.push(oResponseDoc);
       // cnt++;
 
       if (
-        oResponse.resStatus == "2-Submitted" &&
-        oResponseDoc.documentStatus == "Submitted"
+        [
+          AuditResponseStates.Submitted,
+          AuditResponseStates.ApprovedForQA,
+        ].includes(oResponse.resStatus) &&
+        oResponseDoc.documentStatus == AuditResponseDocStates.Submitted
       ) {
         showBulkApprove = true;
       }
@@ -543,6 +611,17 @@ class ResponseDocSummary {
   ClickViewResponseDocHistory = (responseDoc) => {
     appContext.AuditResponseDocs.ListRef.showVersionHistoryModal(
       responseDoc.ID
+    );
+  };
+
+  responseDocCanBeApproved = (oResponseDoc) => {
+    if (oResponseDoc.documentStatus != AuditResponseDocStates.Submitted)
+      return false;
+    return (
+      (this.responseStatus == AuditResponseStates.Submitted ||
+        this.responseStatus == AuditResponseStates.ApprovedForQA) &&
+      (this.requestStatus == AUDITREQUESTSTATES.OPEN ||
+        this.requestStatus == AUDITREQUESTSTATES.REOPENED)
     );
   };
 }

@@ -1,4 +1,4 @@
-import { AuditOrganization } from "./audit_organization.js";
+import { AuditOrganization, ORGTYPES } from "./audit_organization.js";
 import {
   LookupField,
   PeopleField,
@@ -12,7 +12,11 @@ import {
 import { ConstrainedEntity } from "../sal/primitives/index.js";
 
 import { ValidationError } from "../sal/primitives/validation_error.js";
-import { auditOrganizationStore } from "../infrastructure/store.js";
+import {
+  allActionOfficesFilter,
+  allRequestingOfficesFilter,
+  auditOrganizationStore,
+} from "../infrastructure/store.js";
 import { appContext } from "../infrastructure/application_db_context.js";
 
 export const AUDITREQUESTSTATES = {
@@ -20,6 +24,12 @@ export const AUDITREQUESTSTATES = {
   CANCELLED: "Canceled",
   CLOSED: "Closed",
   REOPENED: "ReOpened",
+};
+
+export const AUDITREQUESTTYPES = {
+  TASKER: "Tasker",
+  REQUEST: "Request",
+  NOTIFICATION: "Notification",
 };
 
 export class AuditRequest extends ConstrainedEntity {
@@ -38,6 +48,23 @@ export class AuditRequest extends ConstrainedEntity {
     });
   }
 
+  ReqType = new SelectField({
+    displayName: "Request Type",
+    options: Object.values(AUDITREQUESTTYPES),
+    isRequired: true,
+    instructions: ko.pureComputed(() => {
+      switch (this.ReqType.Value()) {
+        case AUDITREQUESTTYPES.TASKER:
+          return "A request that doesn't require QA Approval.";
+        case AUDITREQUESTTYPES.REQUEST:
+          return "A request requiring QA Approval";
+        case AUDITREQUESTTYPES.NOTIFICATION:
+          return "A request that is closed after the email is sent";
+        default:
+      }
+    }),
+  });
+
   ReqNum = new TextField({
     displayName: "Request Number",
     systemName: "Title",
@@ -46,6 +73,16 @@ export class AuditRequest extends ConstrainedEntity {
 
   ReqSubject = new TextField({
     displayName: "Request Subject",
+    isRequired: true,
+  });
+
+  RequestingOffice = new LookupField({
+    displayName: "Requesting Office",
+    type: AuditOrganization,
+    options: auditOrganizationStore,
+    optionsFilter: allRequestingOfficesFilter,
+    lookupCol: "Title",
+    entitySet: appContext.AuditOrganizations,
     isRequired: true,
   });
 
@@ -123,6 +160,7 @@ export class AuditRequest extends ConstrainedEntity {
     displayName: "Action Offices",
     type: AuditOrganization,
     options: auditOrganizationStore,
+    optionsFilter: allActionOfficesFilter,
     lookupCol: "Title",
     multiple: true,
     entitySet: appContext.AuditOrganizations,
@@ -132,6 +170,7 @@ export class AuditRequest extends ConstrainedEntity {
     displayName: "Email Action Offices",
     type: AuditOrganization,
     options: auditOrganizationStore,
+    optionsFilter: allActionOfficesFilter,
     lookupCol: "Title",
     multiple: true,
     entitySet: appContext.AuditOrganizations,
@@ -151,6 +190,7 @@ export class AuditRequest extends ConstrainedEntity {
     All: [
       "ID",
       "Title",
+      "ReqType",
       "ReqSubject",
       "FiscalYear",
       "InternalDueDate",
@@ -166,13 +206,15 @@ export class AuditRequest extends ConstrainedEntity {
       "Sensitivity",
       "ActionOffice",
       "EmailActionOffice",
-      "EmailActionOffice",
+      "RequestingOffice",
       "ClosedDate",
       "ClosedBy",
     ],
     New: [
       "Title",
+      "ReqType",
       "ReqSubject",
+      "RequestingOffice",
       "FiscalYear",
       "InternalDueDate",
       "ReqDueDate",
@@ -187,8 +229,10 @@ export class AuditRequest extends ConstrainedEntity {
       "ActionOffice",
     ],
     IACanUpdate: [
+      "ReqType",
       "ReqSubject",
       "FiscalYear",
+      "RequestingOffice",
       "InternalDueDate",
       "ReqDueDate",
       "ReqStatus",
