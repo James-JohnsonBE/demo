@@ -1,7 +1,7 @@
 ﻿import { TabsModule, Tab } from "../../components/tabs/tabs_module.js";
-import { setUrlParam } from "../../common/router.js";
+import { setUrlParam } from "../../common/index.js";
 import { appContext } from "../../infrastructure/application_db_context.js";
-import { uploadResponseDocFile } from "../../services/audit_response_service.js";
+import { uploadResponseDocFile } from "../../services/index.js";
 
 import {
   addTask,
