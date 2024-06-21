@@ -1,8 +1,10 @@
-import { updateRequest } from "../../../../services/audit_request_service.js";
+import { updateRequest } from "../../../../services/index.js";
 import { BaseForm } from "../../../../sal/components/forms/index.js";
-import { registerComponent } from "../../../../sal/infrastructure/index.js";
+import { editRequestFormTemplate } from "./EditRequestFormTemplate.js";
+import { directRegisterComponent } from "../../../../sal/infrastructure/index.js";
 
 const componentName = "custom-edit-request-form";
+
 export class EditRequestForm extends BaseForm {
   constructor({ entity }) {
     super({ entity });
@@ -44,8 +46,6 @@ export class EditRequestForm extends BaseForm {
   componentName = componentName;
 }
 
-registerComponent({
-  name: componentName,
-  folder: "forms/request/edit_form",
-  template: "EditRequestFormTemplate",
+directRegisterComponent(componentName, {
+  template: editRequestFormTemplate,
 });
