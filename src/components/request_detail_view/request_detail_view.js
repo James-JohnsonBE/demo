@@ -1,5 +1,8 @@
 import { appContext } from "../../infrastructure/application_db_context.js";
-import { registerComponent } from "../../sal/infrastructure/index.js";
+import {
+  directRegisterComponent,
+  registerComponent,
+} from "../../sal/infrastructure/index.js";
 
 import * as ModalDialog from "../../sal/components/modal/index.js";
 
@@ -30,6 +33,11 @@ import { m_fnRefreshData } from "../../pages/ia_db/ia_db_services.js";
 import { ConfirmApproveResponseDocForm } from "../forms/response_doc/confirm_approve/confirm_approve_response_doc_form.js";
 import { ConfirmRejectResponseDocForm } from "../forms/response_doc/confirm_reject/confirm_reject_response_doc_form.js";
 import { ConfirmDeleteRequestForm } from "../forms/request/confirm_delete/confirm_delete_request_form.js";
+
+import { requestDetailViewTemplate } from "./RequestDetailViewTemplate.js";
+import { requestDetailCoversheetsTabTemplate } from "./RequestDetailCoversheetsTabTemplate.js";
+import { requestDetailResponsesTabTemplate } from "./RequestDetailResponsesTabTemplate.js";
+import { requestDetailResponseDocsTabTemplate } from "./RequestDetailResponseDocsTabTemplate.js";
 
 const componentName = "component-request-detail-view";
 
@@ -414,11 +422,27 @@ export class RequestDetailView {
   };
 }
 
-registerComponent({
-  name: componentName,
-  folder: "request_detail_view",
-  template: "RequestDetailViewTemplate",
+directRegisterComponent(componentName, {
+  template: requestDetailViewTemplate,
 });
+
+directRegisterComponent("requestDetailCoversheetsTabTemplate", {
+  template: requestDetailCoversheetsTabTemplate,
+});
+
+directRegisterComponent("requestDetailResponsesTabTemplate", {
+  template: requestDetailResponsesTabTemplate,
+});
+
+directRegisterComponent("requestDetailResponseDocsTabTemplate", {
+  template: requestDetailResponseDocsTabTemplate,
+});
+
+// registerComponentByPath({
+//   name: componentName,
+//   folder: "request_detail_view",
+//   template: "RequestDetailViewTemplate",
+// });
 
 class ResponseItem {
   constructor(request, response, report) {
