@@ -192,7 +192,13 @@ export class RequestDetailView {
   // collapseResponseDocs = (collapse) =>
 
   // Need to wrap this this m_fnRefreshData optionally takes a requestId param
-  refreshRequest = () => m_fnRefreshData();
+  refreshRequest = async () => {
+    m_fnRefreshData();
+    const reqId = ko.unwrap(this.request)?.ID;
+    if (!reqId) return;
+    const request = await getRequestById(reqId);
+    this.request(request);
+  };
 
   // Coversheets
   onCoverSheetFileAttachedHandler = async (newFiles) => {

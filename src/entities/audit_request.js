@@ -129,10 +129,16 @@ export class AuditRequest extends ConstrainedEntity {
   ActionItems = new TextAreaField({
     displayName: "Action Items",
     instructions: "Items that have been requested by the Auditor",
+    isRichText: true,
+    isMinimalEditor: true,
+    classList: ["min-w-full"],
   });
 
   Comments = new TextAreaField({
     displayName: "Comments",
+    isRichText: true,
+    isMinimalEditor: true,
+    classList: ["min-w-full"],
   });
 
   Reminders = new SelectField({
