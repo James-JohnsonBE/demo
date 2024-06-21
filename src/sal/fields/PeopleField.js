@@ -1,4 +1,4 @@
-import { sortByTitle } from "../common/EntityUtilities.js";
+import { sortByTitle } from "../infrastructure/index.js";
 import { PeopleModule } from "../components/fields/PeopleModule.js";
 import { People } from "../entities/People.js";
 import { getUsersByGroupName } from "../infrastructure/index.js";
