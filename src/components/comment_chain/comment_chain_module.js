@@ -1,6 +1,10 @@
 import { appContext } from "../../infrastructure/application_db_context.js";
-import { registerComponent } from "../../sal/infrastructure/index.js";
+import {
+  registerComponent,
+  directRegisterComponent,
+} from "../../sal/infrastructure/index.js";
 import { Comment } from "../../value_objects/comment.js";
+import { commentChainTemplate } from "./CommentChainTemplate.js";
 
 const commentChainComponentName = "commentChain";
 
@@ -63,11 +67,9 @@ class CommentChainModule {
   }
 }
 
-registerComponent({
-  name: commentChainComponentName,
-  folder: "comment_chain",
-  module: CommentChainModule,
-  template: "CommentChainTemplate",
+directRegisterComponent(commentChainComponentName, {
+  template: commentChainTemplate,
+  viewModel: CommentChainModule,
 });
 
 export class CommentChainModuleLegacy {
