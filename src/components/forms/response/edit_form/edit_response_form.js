@@ -1,12 +1,12 @@
-import { updateResponse } from "../../../../services/audit_response_service.js";
+import { updateResponse, currentUser } from "../../../../services/index.js";
 import {
   AuditResponse,
   AuditResponseStates,
 } from "../../../../entities/index.js";
-import { currentUser } from "../../../../services/people_manager.js";
 
 import { BaseForm } from "../../../../sal/components/forms/index.js";
-import { registerComponent } from "../../../../sal/infrastructure/index.js";
+import { directRegisterComponent } from "../../../../sal/infrastructure/index.js";
+import { editResponseFormTemplate } from "./EditResponseFormTemplate.js";
 
 const componentName = "custome-edit-response-form";
 
@@ -64,8 +64,6 @@ export class EditResponseForm extends BaseForm {
   componentName = componentName;
 }
 
-registerComponent({
-  name: componentName,
-  folder: "forms/response/edit_form",
-  template: "EditResponseFormTemplate",
+directRegisterComponent(componentName, {
+  template: editResponseFormTemplate,
 });
