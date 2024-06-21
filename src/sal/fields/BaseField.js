@@ -3,16 +3,20 @@ import { ValidationError } from "../primitives/validation_error.js";
 export class BaseField {
   constructor({
     displayName,
+    systemName,
     instructions = null,
     isRequired = false,
     width,
+    classList = [],
     Visible = ko.pureComputed(() => true),
   }) {
     this.displayName = displayName;
+    this.systemName = systemName;
     this.instructions = instructions;
     this.isRequired = isRequired;
     this.Visible = Visible;
     this.width = width ? "col-md-" + width : "col-md-6";
+    this.classList = classList;
 
     this.addFieldRequirement(isRequiredValidationRequirement(this));
   }
@@ -21,6 +25,10 @@ export class BaseField {
 
   get = () => this.Value();
   set = (val) => this.Value(val);
+  clear = () => {
+    if (ko.isObservableArray(this.Value)) this.Value([]);
+    else this.Value(null);
+  };
 
   toString = ko.pureComputed(() => this.Value());
 

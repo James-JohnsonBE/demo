@@ -13,6 +13,7 @@ const editTemplate = html`
     <input class="form-control" data-bind="" />
     <!-- /ko -->
     <!-- ko ifnot: isSearch -->
+    <!-- ko if: Options().length -->
     <!-- ko if: multiple -->
     <select
       class="form-select"
@@ -20,12 +21,16 @@ const editTemplate = html`
       id=""
       multiple="true"
       data-bind="options: Options, 
-  optionsCaption: 'Select...', 
   selectedOptions: Value,
   optionsText: optionsText,
   class: ValidationClass"
     ></select>
-    <div class="fst-italic fw-light">Hold ctrl to select multiple.</div>
+    <div class="fw-light flex justify-between">
+      <p class="fst-italic">Hold ctrl to select multiple</p>
+      <button type="button" class="btn btn-link h-1" data-bind="click: clear">
+        CLEAR
+      </button>
+    </div>
     <!-- /ko -->
     <!-- ko ifnot: multiple -->
     <select
@@ -38,6 +43,7 @@ const editTemplate = html`
     optionsText: optionsText,
     class: ValidationClass"
     ></select>
+    <!-- /ko -->
     <!-- /ko -->
     <!-- /ko -->
     <!-- ko if: instructions -->
@@ -55,9 +61,30 @@ const editTemplate = html`
 `;
 
 export class LookupModule extends BaseFieldModule {
-  constructor(params) {
-    super(params);
+  constructor(field) {
+    super(field);
+    this.onSearchInput = field.onSearchInput;
+    this.multiple = field.multiple ?? false;
   }
+
+  // selectedOptions = ko.pureComputed({
+  //   read: () => {
+  //     if (this.multiple) return this.Value();
+  //     return ko.unwrap(this.Value) ? [ko.unwrap(this.Value)] : [];
+  //   },
+  //   write: (val) => {
+  //     if (this.multiple) {
+  //       this.Value(val);
+  //       return;
+  //     }
+
+  //     if (val.length) {
+  //       this.Value(val[0]);
+  //       return;
+  //     }
+  //     this.Value(null);
+  //   },
+  // });
 
   static editTemplate = editTemplate;
 

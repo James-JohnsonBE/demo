@@ -1,4 +1,8 @@
-import { LookupModule } from "../components/fields/index.js";
+import {
+  LookupModule,
+  SearchSelectModule,
+  SelectModule,
+} from "../components/fields/index.js";
 import { BaseField } from "./index.js";
 
 export class LookupField extends BaseField {
@@ -32,6 +36,8 @@ export class LookupField extends BaseField {
     this.lookupCol = lookupCol ?? "Title";
     this.optionsText = optionsText ?? ((item) => item[this.lookupCol]);
     if (optionsFilter) this.optionsFilter = optionsFilter;
+
+    this.components = multiple ? SearchSelectModule : LookupModule;
   }
 
   isSearch = false;
@@ -163,8 +169,6 @@ export class LookupField extends BaseField {
 
     return newEntity;
   };
-
-  components = LookupModule;
 }
 
 // Should fully constrain all entities, this is ridiculous

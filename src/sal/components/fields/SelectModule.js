@@ -16,6 +16,7 @@ const editTemplate = html`
       multiple="true"
       data-bind="options: Options, 
         optionsCaption: 'Select...', 
+        optionsText: optionsText,
         selectedOptions: Value,
         class: ValidationClass"
     ></select>
@@ -27,9 +28,10 @@ const editTemplate = html`
       name=""
       id=""
       data-bind="options: Options, 
-    optionsCaption: 'Select...', 
-    value: Value,
-    class: ValidationClass"
+        optionsCaption: 'Select...', 
+        optionsText: optionsText,
+        value: Value,
+        class: ValidationClass"
     ></select>
     <!-- /ko -->
     <!-- ko if: instructions -->
