@@ -1,6 +1,9 @@
-import { registerComponent } from "../../../../sal/infrastructure/index.js";
+import { directRegisterComponent } from "../../../../sal/infrastructure/index.js";
 import { m_fnRejectResponseDoc } from "../../../../pages/ia_db/ia_db_services.js";
+import { confirmRejectResponseDocFormTemplate } from "./ConfirmRejectResponseDocFormTemplate.js";
+
 const componentName = "confirm-reject-response-doc";
+
 export class ConfirmRejectResponseDocForm {
   constructor(request, response, responseDocs) {
     this.request = request;
@@ -35,8 +38,11 @@ export class ConfirmRejectResponseDocForm {
   params = this;
 }
 
-registerComponent({
-  name: componentName,
-  folder: "forms/response_doc/confirm_reject",
-  template: "ConfirmRejectResponseDocFormTemplate",
+directRegisterComponent(componentName, {
+  template: confirmRejectResponseDocFormTemplate,
 });
+// registerComponent({
+//   name: componentName,
+//   folder: "forms/response_doc/confirm_reject",
+//   template: "ConfirmRejectResponseDocFormTemplate",
+// });
