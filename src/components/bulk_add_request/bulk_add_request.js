@@ -2,7 +2,8 @@ import { appContext } from "../../infrastructure/application_db_context.js";
 import { onAddNewRequest, addNewRequest } from "../../services/index.js";
 import { toggle } from "../../sal/components/modal/modalDialog.js";
 
-import { registerComponent } from "../../sal/infrastructure/index.js";
+import { directRegisterComponent } from "../../sal/infrastructure/index.js";
+import { bulkAddRequestTemplate } from "./BulkAddRequestTemplate.js";
 
 const componentName = "bulk-add-request-form";
 export class BulkAddRequestForm {
@@ -88,8 +89,6 @@ export class BulkAddRequestForm {
   params = this;
 }
 
-registerComponent({
-  name: componentName,
-  folder: "bulk_add_request",
-  template: "BulkAddRequestTemplate",
+directRegisterComponent(componentName, {
+  template: bulkAddRequestTemplate,
 });
