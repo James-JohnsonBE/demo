@@ -1,33 +1,5 @@
-//import { appContext } from "../infrastructure/application_db_context.js";
-import { registerFieldComponent } from "../infrastructure/index.js";
+import { LookupModule } from "../components/fields/index.js";
 import { BaseField } from "./index.js";
-import { BaseFieldModule } from "../components/fields/index.js";
-import { SearchSelectModule } from "../components/fields/index.js";
-
-const components = {
-  view: "lookup-view",
-  edit: "lookup-edit",
-  new: "lookup-edit",
-};
-
-registerFieldComponent({
-  name: "lookup",
-  components,
-  viewModel: BaseFieldModule,
-});
-
-const searchSelectComponents = {
-  view: "search-select-view",
-  edit: "search-select-edit",
-  new: "search-select-edit",
-};
-
-registerFieldComponent({
-  name: "searchselect",
-  components: searchSelectComponents,
-  viewModel: SearchSelectModule,
-  folder: "searchselect",
-});
 
 export class LookupField extends BaseField {
   constructor({
@@ -40,10 +12,9 @@ export class LookupField extends BaseField {
     optionsFilter = null,
     optionsText = null,
     multiple = false,
-    lookupCol = "Title",
+    lookupCol = null,
   }) {
     super({ Visible, displayName, isRequired });
-    this.entitySet = entitySet; // ?? appContext.Set(entityType);
     // Support passing in options
     // if options are not passed, assume this is a search input
     if (!options) {
@@ -57,10 +28,10 @@ export class LookupField extends BaseField {
     this.Value = multiple ? ko.observableArray() : ko.observable();
 
     this.entityType = entityType;
-    this.lookupCol = lookupCol;
+    this.entitySet = entitySet;
+    this.lookupCol = lookupCol ?? "Title";
     this.optionsText = optionsText ?? ((item) => item[this.lookupCol]);
     if (optionsFilter) this.optionsFilter = optionsFilter;
-    this.components = this.multiple ? searchSelectComponents : components;
   }
 
   isSearch = false;
@@ -84,7 +55,7 @@ export class LookupField extends BaseField {
   // }
 
   refresh = async () => {
-    if (!this.Value()) {
+    if (!!!this.Value()) {
       return;
     }
     this.IsLoading(true);
@@ -150,25 +121,19 @@ export class LookupField extends BaseField {
     };
   };
 
-  set = async (val) => {
+  set = (val) => {
     if (!val) {
       this.Value(val);
       return;
     }
     if (this.multiple) {
       const valArr = Array.isArray(val) ? val : val.results ?? val.split("#;");
-      // const values = await Promise.all(
-      //   valArr.map(async (value) => await this.findOrCreateNewEntity(value))
-      // );
-      const values = valArr.map((value) => this.findOrCreateNewEntity(value));
 
-      this.Value(values);
-      // this.ensure();
-    } else {
-      const resolvedEntity = this.findOrCreateNewEntity(val);
-      this.Value(resolvedEntity);
+      this.Value(valArr.map((value) => this.findOrCreateNewEntity(value)));
+      return;
     }
 
+    this.Value(this.findOrCreateNewEntity(val));
     if (val && !this.toString()) {
       // this.ensure();
     }
@@ -187,8 +152,9 @@ export class LookupField extends BaseField {
     const optionEntity = this.allOpts().find((entity) => entity.ID == val.ID);
     if (optionEntity) return optionEntity;
 
-    // const cachedEntity = this.entitySet.FindInStore(val.ID);
-    // if (cachedEntity) return cachedEntity;
+    if (this.entityType.Create) {
+      return this.entityType.Create(val);
+    }
 
     const newEntity = new this.entityType();
     newEntity.ID = val.ID;
@@ -198,12 +164,7 @@ export class LookupField extends BaseField {
     return newEntity;
   };
 
-  // Text input event fired by search-select web component
-  onSearchInput = (searchVal) => {
-    console.log(searchVal);
-  };
-
-  components = components;
+  components = LookupModule;
 }
 
 // Should fully constrain all entities, this is ridiculous

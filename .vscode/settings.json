@@ -21,6 +21,16 @@
         "deployOnSave": ["Audits Style Library"],
         "removeOnChange": ["Audits Style Library"],
         "syncWhenOpen": true
+      },
+      {
+        "name": "sal",
+        "description": "Only Files in src folder",
+        "files": ["src/sal/**"],
+        "exclude": ["**.md", "**.json"],
+
+        "deployOnSave": ["Audits Style Library"],
+        "removeOnChange": ["Audits Style Library"],
+        "syncWhenOpen": true
       }
     ],
     "targets": [

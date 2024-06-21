@@ -1,23 +1,10 @@
-import { registerFieldComponent } from "../infrastructure/index.js";
+import { DateModule } from "../components/fields/index.js";
 import { BaseField } from "./index.js";
-import { BaseFieldModule } from "../components/fields/index.js";
 
 export const dateFieldTypes = {
   date: "date",
   datetime: "datetime-local",
 };
-
-const components = {
-  view: "date-view",
-  edit: "date-edit",
-  new: "date-edit",
-};
-
-registerFieldComponent({
-  name: "date",
-  components,
-  viewModel: BaseFieldModule,
-});
 
 /**
  * This field needs to convert between locale and UTC Dates stored on the server;
@@ -89,19 +76,9 @@ export class DateField extends BaseField {
     write: (val) => {
       if (!val) return;
       //writes in format
-      const d = new Date(val);
-      if (this.type == dateFieldTypes.datetime) {
-        this.Value(d);
-        return;
-      }
-      d.setHours(0);
-
-      if (d.getTimezoneOffset() > 0) {
-        d.setDate(d.getDate() + 1);
-      }
-      this.Value(d);
+      this.Value(new Date(val));
     },
   });
 
-  components = components;
+  components = DateModule;
 }

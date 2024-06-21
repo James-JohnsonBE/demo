@@ -1,3 +1,5 @@
+export const html = String.raw;
+
 export function registerComponent({
   name,
   folder,

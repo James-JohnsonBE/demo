@@ -1,24 +1,18 @@
-import { ValidationError } from "../primitives/index.js";
+import { ValidationError } from "../primitives/validation_error.js";
 
 export class BaseField {
   constructor({
     displayName,
-    systemName,
     instructions = null,
     isRequired = false,
     width,
-    classList = [],
     Visible = ko.pureComputed(() => true),
   }) {
-    // The name that will be displayed on components etc.
     this.displayName = displayName;
-    // The column name this should be mapped to when persisting
-    this.systemName = systemName;
     this.instructions = instructions;
     this.isRequired = isRequired;
     this.Visible = Visible;
-    this.width = width ? width : "col-md-6";
-    this.classList = classList;
+    this.width = width ? "col-md-" + width : "col-md-6";
 
     this.addFieldRequirement(isRequiredValidationRequirement(this));
   }
@@ -27,10 +21,6 @@ export class BaseField {
 
   get = () => this.Value();
   set = (val) => this.Value(val);
-  clear = () => {
-    if (ko.isObservableArray(this.Value)) this.Value([]);
-    else this.Value(null);
-  };
 
   toString = ko.pureComputed(() => this.Value());
 
@@ -42,6 +32,8 @@ export class BaseField {
     return this.Errors();
   };
 
+  _fieldValidationRequirements = ko.observableArray();
+
   Errors = ko.pureComputed(() => {
     if (!this.Visible()) return [];
     const errors = this._fieldValidationRequirements()
@@ -51,8 +43,6 @@ export class BaseField {
     return errors;
   });
 
-  _fieldValidationRequirements = ko.observableArray();
-
   addFieldRequirement = (requirement) =>
     this._fieldValidationRequirements.push(requirement);
 
@@ -60,7 +50,6 @@ export class BaseField {
 
   ShowErrors = ko.observable(false);
 
-  // TODO: this should go in the field component base class since it's purely UI.
   ValidationClass = ko.pureComputed(() => {
     if (!this.ShowErrors()) return;
     return this.Errors().length ? "is-invalid" : "is-valid";
@@ -71,9 +60,11 @@ function isRequiredValidationRequirement(field) {
   return {
     requirement: ko.pureComputed(() => {
       // Return true if field fails validation
-      const isRequired = ko.utils.unwrapObservable(field.isRequired);
+      const isRequired = ko.unwrap(field.isRequired);
+      if (!isRequired) return false;
+
       const value = ko.unwrap(field.Value);
-      if (!isRequired || value) return false;
+      if (value?.constructor == Array) return !value.length;
       return value === null || value === undefined;
     }),
     error: new ValidationError(
