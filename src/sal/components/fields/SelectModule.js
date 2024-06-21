@@ -15,9 +15,9 @@ const editTemplate = html`
       id=""
       multiple="true"
       data-bind="options: Options, 
-  optionsCaption: 'Select...', 
-  selectedOptions: Value,
-  class: ValidationClass"
+        optionsCaption: 'Select...', 
+        selectedOptions: Value,
+        class: ValidationClass"
     ></select>
     <div class="fst-italic fw-light">Hold ctrl to select multiple.</div>
     <!-- /ko -->
