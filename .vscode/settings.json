@@ -31,6 +31,16 @@
         "deployOnSave": ["Audits Style Library"],
         "removeOnChange": ["Audits Style Library"],
         "syncWhenOpen": true
+      },
+      {
+        "name": "dist",
+        "description": "Only Files in dist folder",
+        "files": ["dist/**"],
+        "exclude": ["**.md", "**.json"],
+
+        "deployOnSave": ["Audits Style Library"],
+        "removeOnChange": ["Audits Style Library"],
+        "syncWhenOpen": true
       }
     ],
     "targets": [
