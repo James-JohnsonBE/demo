@@ -1,5 +1,5 @@
 import { directRegisterComponent } from "../../../../sal/infrastructure/index.js";
-import { m_fnApproveResponseDocsForQA } from "../../../../pages/ia_db/ia_db_services.js";
+import { m_fnApproveResponseDocsForQA } from "../../../../pages/ia_db/ia_db.js";
 import { approveResponseDocsForRO } from "../../../../services/index.js";
 import { AUDITREQUESTTYPES } from "../../../../entities/index.js";
 import { confirmApproveResponseDocFormTemplate } from "./ConfirmApproveResponseDocFormTemplate.js";
