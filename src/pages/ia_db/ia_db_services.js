@@ -245,7 +245,7 @@ function ViewModel() {
   self.showUpload = ko.observable(false);
   self.showSubmit = ko.observable(false);
 
-  self.currentDialog = ModalDialog.currentDialog;
+  self.currentDialogs = ModalDialog.currentDialogs;
 
   self.tabOpts = {
     Requests: new Tab("request-report", "Request Status Report", {
@@ -2812,7 +2812,7 @@ function m_fnBulkAddRequest() {
   const options = {
     title: "Bulk Add Request",
     form: bulkAddRequestForm,
-    dialogReturnValueCallback: m_fnRefresh,
+    dialogReturnValueCallback: OnCallbackFormReload,
   };
 
   ModalDialog.showModalDialog(options);
@@ -6381,6 +6381,13 @@ function OnCallbackForm(result, value) {
   if (result === SP.UI.DialogResult.OK) {
     //alert( value );
     m_fnRefreshData();
+  } else m_bIsTransactionExecuting = false;
+}
+
+function OnCallbackFormReload(result, value) {
+  if (result === SP.UI.DialogResult.OK) {
+    //alert( value );
+    m_fnRefresh();
   } else m_bIsTransactionExecuting = false;
 }
 

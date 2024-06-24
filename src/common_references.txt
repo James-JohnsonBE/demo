@@ -133,10 +133,8 @@
 ></script>
 
 <div class="audit">
-  <!-- ko if: 'currentDialog' in $root && currentDialog() -->
-  <div
-    data-bind="component: { name: 'modal-dialog-component', params: currentDialog }"
-  ></div>
+  <!-- ko if: 'currentDialogs' in $root -->
+
   <!-- /ko -->
 
   <!-- ko if: 'blockingTasks' in $root -->

@@ -4,6 +4,11 @@
   not in use anymore. do not delete, this is used by the request edit list form
 </div>
 <div class="audit">
+  <!-- ko foreach: currentDialogs -->
+  <div
+    data-bind="component: { name: 'modal-dialog-component', params: $data }"
+  ></div>
+  <!-- /ko -->
   <div
     id="divCounter"
     style="display: none"

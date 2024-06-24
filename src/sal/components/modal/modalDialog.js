@@ -3,16 +3,17 @@ import { modalDialogTemplate } from "./ModalDialogTemplate.js";
 
 const componentName = "modal-dialog-component";
 
-export const currentDialog = ko.observable();
+export const currentDialogs = ko.observableArray();
 
 export let toggle;
 
 export function showModalDialog(dialogOptions) {
-  currentDialog(dialogOptions);
+  currentDialogs.push(dialogOptions);
 }
 
 class ModalDialogModule {
   constructor(dialogOpts) {
+    this.dialogOpts = dialogOpts;
     this.title = dialogOpts.title;
     this.dialogReturnValueCallback = dialogOpts.dialogReturnValueCallback;
 
@@ -51,6 +52,7 @@ class ModalDialogModule {
     this.dlgElement.close();
     this.dlgElement.classList.remove("active");
     if (this.dialogReturnValueCallback) this.dialogReturnValueCallback(result);
+    currentDialogs.remove(this.dialogOpts);
   }
 
   _id;
