@@ -31,17 +31,6 @@
   type="text/css"
   href="/sites/CGFS/Style Library/apps/audit/src/audit_styles.css"
 />
-<link
-  rel="stylesheet"
-  type="text/css"
-  href="/sites/CGFS/Style Library/apps/audit/src/audit_page_reports.css"
-/>
-
-<link
-  rel="stylesheet"
-  type="text/css"
-  href="/sites/CGFS/Style Library/apps/audit/src/audit_styles_hide_ribbon.css"
-/>
 
 <div id="app"></div>
 
