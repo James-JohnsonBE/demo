@@ -1,4 +1,17 @@
-﻿<iframe id="CsvExpFrame" style="display: none"></iframe>
+﻿<style>
+  .o365cs-nav-leftAlign {
+    display: revert !important;
+  }
+
+  #suiteBarDelta {
+    display: revert !important;
+  }
+
+  #s4-ribbonrow {
+    display: revert !important;
+  }
+</style>
+<iframe id="CsvExpFrame" style="display: none"></iframe>
 
 <div id="divRequestID" style="display: none">
   not in use anymore. do not delete, this is used by the request edit list form
