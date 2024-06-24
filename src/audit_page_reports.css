@@ -498,9 +498,10 @@ div.cell-margin {
   color: var(--warn-hover-color);
 }
 
-#dlgModalDialog {
+.modal-dialog {
   display: none;
-  z-index: 5;
+  position: absolute;
+  z-index: 15;
   width: 615px;
   min-width: 400px;
   max-height: 85vh;
@@ -510,7 +511,7 @@ div.cell-margin {
   resize: both;
 }
 
-#dlgModalDialog.active {
+.modal-dialog.active {
   display: flex;
 }
 

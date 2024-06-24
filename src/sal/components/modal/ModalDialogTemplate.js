@@ -1,19 +1,19 @@
-import { html } from "../../infrastructure";
+import { html } from "../../infrastructure/index.js";
 
 export const modalDialogTemplate = html`
-  <dialog id="dlgModalDialog" class="card bg-dark draggable" data-bind="">
+  <dialog
+    id=""
+    class="card bg-dark draggable modal-dialog"
+    data-bind="attr: {id: getUniqueId() }"
+  >
     <!-- Can't use 'with: currentDialog' since we need to register our 
       javascript event listeners for grabbing and resizing -->
     <div class="card-header bg-dark grabber">
-      <h2 class="card-title" data-bind="text: currentDialog()?.title"></h2>
+      <h2 class="card-title" data-bind="text: title"></h2>
       <h2 class="card-title">
-        <i
-          class="fa-solid fa-xmark pointer"
-          data-bind="click: currentDialog()?.close"
-        ></i>
+        <i class="fa-solid fa-xmark pointer" data-bind="click: clickClose"></i>
       </h2>
     </div>
-    <!-- ko with: currentDialog -->
     <div class="dimmer" data-bind="css: {'active': form.saving }">
       <span class="loader"></span>
       <ul class="" data-bind="foreach: $root.blockingTasks">
@@ -34,6 +34,5 @@ export const modalDialogTemplate = html`
         Cancel
       </button>
     </div>
-    <!-- /ko -->
   </dialog>
 `;
