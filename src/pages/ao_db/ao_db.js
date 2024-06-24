@@ -1,4 +1,11 @@
-﻿import { TabsModule, Tab } from "../../components/tabs/tabs_module.js";
+﻿import "../../../lib/jquery-3.7.1.min.js";
+import "../../../lib/jquery-ui-1.13.2/jquery-ui.min.js";
+import "../../../lib/tablesorter-2.31.3/js/jquery.tablesorter.min.js";
+import "../../../lib/knockout-3.5.1.js";
+import "../../common/utilities.js";
+
+import { aoDbTemplate } from "./AO_DB_Template.js";
+import { TabsModule, Tab } from "../../components/tabs/tabs_module.js";
 import { setUrlParam } from "../../common/index.js";
 import { appContext } from "../../infrastructure/application_db_context.js";
 import { uploadResponseDocFile } from "../../services/index.js";
@@ -1402,6 +1409,7 @@ if (document.readyState === "ready" || document.readyState === "complete") {
 }
 
 function InitReport() {
+  document.getElementById("app").innerHTML = aoDbTemplate;
   Audit.AOReport.Report = new Audit.AOReport.NewReportPage();
   Audit.AOReport.Init();
 }

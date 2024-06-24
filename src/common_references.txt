@@ -133,10 +133,6 @@
 ></script>
 
 <div class="audit">
-  <!-- ko if: 'currentDialogs' in $root -->
-
-  <!-- /ko -->
-
   <!-- ko if: 'blockingTasks' in $root -->
   <!-- ko with: blockingTasks -->
   <div class="tasks blocking dimmer" data-bind="css: {'active': $data.length}">
