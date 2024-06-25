@@ -1,5 +1,10 @@
-﻿var Audit = window.Audit || {};
+﻿import { permissionsTemplate } from "./Permissions_Template.js";
+import "../../common/utilities.js";
+
+window.Audit = window.Audit || {};
 Audit.Permissions = Audit.Permissions || {};
+
+document.getElementById("app").innerHTML = permissionsTemplate;
 
 if (document.readyState === "ready" || document.readyState === "complete") {
   InitPermissions();
@@ -32,6 +37,8 @@ Audit.Permissions.Load = function () {
   var m_memberGroupName = null;
   var m_visitorGroupName = null;
 
+  var notifyId;
+  var m_waitDialog;
   var m_txtOutgoingEmailText = null;
 
   var m_emailFolderName = "AOVerifications";
@@ -73,12 +80,12 @@ Audit.Permissions.Load = function () {
     aoQuery.set_viewXml(
       '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
     );
-    m_aoItems = aoList.getItems(aoQuery);
+    var m_aoItems = aoList.getItems(aoQuery);
     currCtx.load(m_aoItems, "Include(ID, Title, UserGroup)");
 
-    this.ownerGroup = web.get_associatedOwnerGroup();
-    this.memberGroup = web.get_associatedMemberGroup();
-    this.visitorGroup = web.get_associatedVisitorGroup();
+    var ownerGroup = web.get_associatedOwnerGroup();
+    var memberGroup = web.get_associatedMemberGroup();
+    var visitorGroup = web.get_associatedVisitorGroup();
     currCtx.load(ownerGroup);
     currCtx.load(memberGroup);
     currCtx.load(visitorGroup);
@@ -867,9 +874,9 @@ Audit.Permissions.Load = function () {
       var listEnumerator = m_collGroup.getEnumerator();
       while (listEnumerator.moveNext()) {
         var item = listEnumerator.get_current();
-        groupName = item.get_title();
+        var groupName = item.get_title();
         groupName = $.trim(groupName);
-        groupID = item.get_id();
+        var groupID = item.get_id();
 
         var oGroup = new Object();
         oGroup["Title"] = groupName;
@@ -1015,7 +1022,7 @@ Audit.Permissions.Load = function () {
       else $("#linkGetVerification").prop("disabled", true);
     });
 
-    cntGroupsToLoad = 0;
+    var cntGroupsToLoad = 0;
     for (var x = 0; x < aos.length; x++) {
       var actionOfficeName = aos[x].title;
       if (actionOfficeName.indexOf("Select Action") > 0) continue;
@@ -1038,7 +1045,7 @@ Audit.Permissions.Load = function () {
         var collGroup = web.get_siteGroups();
 
         var oGroup = collGroup.getById(groupId);
-        collUser = oGroup.get_users();
+        var collUser = oGroup.get_users();
         currCtx.load(collUser);
 
         var data = { x: x, groupName: groupName, collUser: collUser };
@@ -1116,7 +1123,7 @@ Audit.Permissions.Load = function () {
 
     $("#fbodySPGroups").html(output);
 
-    cntSPGroupsToLoad = 0;
+    var cntSPGroupsToLoad = 0;
     for (var x = 0; x < arrSPGroups.length; x++) {
       var groupName = arrSPGroups[x];
       var groupId = null;
@@ -1136,7 +1143,7 @@ Audit.Permissions.Load = function () {
         var collGroup = web.get_siteGroups();
 
         var oGroup = collGroup.getById(groupId);
-        collUser = oGroup.get_users();
+        var collUser = oGroup.get_users();
         currCtx.load(collUser);
 
         var data = { x: x, collUser: collUser };
@@ -1254,7 +1261,7 @@ Audit.Permissions.Load = function () {
     emailListQuery.set_viewXml(
       '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
     );
-    emailListFolderItems = emailList.getItems(emailListQuery);
+    var emailListFolderItems = emailList.getItems(emailListQuery);
     currCtx.load(
       emailListFolderItems,
       "Include(ID, FSObjType, Title, DisplayName)"
@@ -1302,7 +1309,7 @@ Audit.Permissions.Load = function () {
         //var users = $.trim( $(this).find(".groupPerms").html() );
 
         if (cb && cb.is(":checked") && group != null && group != "") {
-          users = m_oAOGroupUsers[group];
+          var users = m_oAOGroupUsers[group];
           users = m_fnGetFriendlyUsers(users); //for some reason, doing this instead of getting .groupperms above outputs correctly in email without extra lines
 
           var emailSubject =
@@ -1323,7 +1330,7 @@ Audit.Permissions.Load = function () {
               "/" +
               m_emailFolderName
           );
-          oListItemEmail = emailList.addItem(itemCreateInfo);
+          var oListItemEmail = emailList.addItem(itemCreateInfo);
           oListItemEmail.set_item("Title", emailSubject);
           oListItemEmail.set_item("Body", emailText);
           oListItemEmail.set_item("To", group);
@@ -1846,7 +1853,7 @@ Audit.Permissions.Load = function () {
 		SP.UI.ModalDialog.showModalDialog(options);*/
 
     //doing it this way instead because on add new user, it keeps redirecting to permissions page
-    vPermGroup = window.open(
+    var vPermGroup = window.open(
       location.protocol +
         "//" +
         location.host +
