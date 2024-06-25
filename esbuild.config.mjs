@@ -10,8 +10,9 @@ await esbuild.build({
     "./src/pages/qa_db/qa_db.js",
     "./src/pages/ro_db/ro_db.js",
     "./src/pages/sp_db/sp_db.js",
+    "./src/pages/update_site_groups/update_site_groups.js",
   ],
   bundle: true,
-  minify: false,
+  minify: true,
   outdir: "dist",
 });
