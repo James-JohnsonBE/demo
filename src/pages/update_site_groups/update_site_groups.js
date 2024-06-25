@@ -1,5 +1,43 @@
-﻿var Audit = window.Audit || {};
+﻿import "../../common/utilities.js";
+
+window.Audit = window.Audit || {};
 Audit.BulkUpdateUsers = Audit.BulkUpdateUsers || {};
+
+const html = String.raw;
+
+document.getElementById("app").innerHTML = html`
+  <div class="audit">
+    <div id="divLoadSettings" style="display: none">
+      <fieldset>
+        <legend>Update SharePoint Group Users</legend>
+        <div style="padding-top: 10px">
+          <a href="javascript:void" id="btnUploadUsers"
+            ><span class="ui-icon ui-icon-gear"></span>Click Here to Upload
+            Users</a
+          >
+        </div>
+        <div style="padding-top: 10px">
+          <a href="javascript:void" id="btnLoadUsers" style="display: none"
+            >Click Here to Display Uploaded Users</a
+          >
+        </div>
+      </fieldset>
+    </div>
+    <div id="tblUnfoundUsers" style="padding-top: 15px; color: red"></div>
+    <div id="divLoadBulkUsersOutput" style="padding-top: 15px"></div>
+    <div style="padding-top: 15px">
+      <a
+        href="javascript:void"
+        id="btnCreateUsers"
+        style="display: none"
+        title="Click here to Update Site Groups"
+        ><span class="ui-icon ui-icon-disk"></span>Click Here to Create
+        SharePoint Groups or Update the SharePoint Groups with the Users
+        Listed</a
+      >
+    </div>
+  </div>
+`;
 
 if (document.readyState === "ready" || document.readyState === "complete") {
   InitReport();
@@ -28,6 +66,11 @@ Audit.BulkUpdateUsers.Load = function () {
   var m_memberGroupName = null;
   var m_visitorGroupName = null;
 
+  var m_arrBulkUsers;
+  var collGroup;
+
+  var notifyId;
+
   LoadInfo();
 
   function LoadInfo() {
@@ -40,11 +83,11 @@ Audit.BulkUpdateUsers.Load = function () {
     currCtx.load(collGroup);
     currCtx.load(collGroup, "Include(Users)");
 
-    m_bulkPermissionsList = currCtx
+    var m_bulkPermissionsList = currCtx
       .get_web()
       .get_lists()
       .getByTitle(Audit.Common.Utilities.GetListNameBulkPermissions());
-    m_view = m_bulkPermissionsList.get_views().getByTitle("All Items");
+    var m_view = m_bulkPermissionsList.get_views().getByTitle("All Items");
     currCtx.load(m_view);
 
     currCtx.executeQueryAsync(OnSuccess, OnFailure);
@@ -76,9 +119,9 @@ Audit.BulkUpdateUsers.Load = function () {
     var listEnumerator = collGroup.getEnumerator();
     while (listEnumerator.moveNext()) {
       var item = listEnumerator.get_current();
-      groupName = item.get_title();
+      var groupName = item.get_title();
       groupName = $.trim(groupName);
-      groupID = item.get_id();
+      var groupID = item.get_id();
 
       var arrPerms = new Array();
       var listEnumerator1 = item.get_users().getEnumerator();
@@ -149,7 +192,8 @@ Audit.BulkUpdateUsers.Load = function () {
     bulkPermissionsQuery.set_viewXml(
       '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
     );
-    bulkPermissionsItems = bulkPermissionsList.getItems(bulkPermissionsQuery);
+    var bulkPermissionsItems =
+      bulkPermissionsList.getItems(bulkPermissionsQuery);
     currCtx.load(bulkPermissionsItems, "Include(ID, Title, UserNames)");
 
     function OnSuccess(sender, args) {
@@ -424,7 +468,7 @@ Audit.BulkUpdateUsers.Load = function () {
           var currCtx = new SP.ClientContext.get_current();
           var web = currCtx.get_web();
 
-          collGroup = currCtx.get_web().get_siteGroups();
+          var collGroup = currCtx.get_web().get_siteGroups();
 
           var newGRP = new SP.GroupCreationInformation();
           newGRP.set_title(oBulkItem.groupName);
@@ -598,7 +642,7 @@ Audit.BulkUpdateUsers.Load = function () {
               .get_web()
               .get_lists()
               .getByTitle(Audit.Common.Utilities.GetListNameBulkPermissions());
-            targetListItem = targetList.getItemById(itemId);
+            var targetListItem = targetList.getItemById(itemId);
             targetListItem.deleteObject();
 
             currCtx2.executeQueryAsync(
