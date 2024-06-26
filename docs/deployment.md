@@ -62,49 +62,51 @@ restricted readers
 quality assurance
 
 (every page execpt default/home page)
-/sites/CGFS/Style Library/apps/tasker/src/Common_References.txt
+/sites/CGFS/Style Library/apps/audit/src/Common_References.txt
 
 AO_DB
-/sites/CGFS/Style Library/apps/tasker/src/Pages/AO_DB/AO_DB_References.txt
+https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-pub@main/dist/Pages/AO_DB/AO_DB_References.txt
 
 <!--
 No longer needed
 AuditBulkAddRequest
-/sites/CGFS/Style Library/apps/tasker/src/pages/BulkAddRequest/BulkAddRequest_References.txt
+https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-pub@main/dist/pages/BulkAddRequest/BulkAddRequest_References.txt
 -->
 
 AuditBulkAddResponse
-/sites/CGFS/Style Library/apps/tasker/src/pages/bulk_add_response/BulkAddResponse_References.txt
+https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-pub@main/dist/pages/bulk_add_response/BulkAddResponse.txt
 
 AuditBulkEditResponse
-/sites/CGFS/Style Library/apps/tasker/src/pages/bulk_edit_response/BulkEditResponse_References.txt
+https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-pub@main/dist/pages/bulk_edit_response/BulkEditResponse_References.txt
 
 AuditPermissions
-/sites/CGFS/Style Library/apps/tasker/src/pages/permissions/Permissions_References.txt
+https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-pub@main/dist/pages/permissions/Permissions.txt
 
 AuditReport_RequestsStatus
-/sites/CGFS/Style Library/apps/tasker/src/pages/report_request_status/Report_RequestStatus_References.txt
+/sites/CGFS/Style Library/apps/audit/src/report_request_status/Report_RequestStatus_References.txt
 
 AuditReturnedResponses
-/sites/CGFS/Style Library/apps/tasker/src/pages/response_docs_returned_today/ResponseDocsReturnedToday_References.txt
+/sites/CGFS/Style Library/apps/audit/src/pages/response_docs_returned_today/ResponseDocsReturnedToday_References.txt
 
 AuditUnSubmittedResponseDocuments
-/sites/CGFS/Style Library/apps/tasker/src/pages/response_docs_submitted_today/ResponseDocsSubmittedToday_References.txt
+/sites/CGFS/Style Library/apps/audit/src/pages/response_docs_submitted_today/ResponseDocsSubmittedToday_References.txt
 
 AuditUpdateSiteGroups
-/sites/CGFS/Style Library/apps/tasker/src/pages/update_site_groups/UpdateSiteGroups_References.txt
+https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-pub@main/dist/pages/update_site_groups/UpdateSiteGroups.txt
 
 default
-/sites/CGFS/Style Library/apps/tasker/src/pages/home/Home_References.txt
+https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-pub@main/dist/pages/home/Home_References.txt
 
 RO_DB
-/sites/CGFS/Style Library/apps/tasker/src/Pages/ro_db/RO_DB_References.txt
+https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-pub@main/dist/Pages/ro_db/RO_DB_References.txt
 
 IA_DB
-/sites/CGFS/Style Library/apps/tasker/src/Pages/ia_db/IA_DB_References.txt
+https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-pub@main/dist/Pages/ia_db/IA_DB_References.txt
 
 QA_DB
-/sites/CGFS/Style Library/apps/tasker/src/Pages/qa_db/QA_DB_References.txt
+https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-pub@main/dist/Pages/qa_db/QA_DB_References.txt
 
 SP_DB
-/sites/CGFS/Style Library/apps/tasker/src/Pages/sp_db/SP_DB_References.txt
+https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-pub@main/dist/Pages/sp_db/SP_DB_References.txt
+
+/sites/CGFS/Style Library/apps/audit/src

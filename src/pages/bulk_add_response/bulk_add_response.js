@@ -27,7 +27,7 @@ Audit.BulkAddResponse.Load = function () {
   var m_reqNum = GetUrlKeyValue("ReqNum");
 
   if (m_reqNum == null || m_reqNum == "" || m_reqNum == undefined) {
-    statusId = SP.UI.Status.addStatus(
+    var statusId = SP.UI.Status.addStatus(
       "Error: Request Number was not specified. Please verify the URL Parameters or Launch from the IA Dashboard"
     );
     SP.UI.Status.setStatusPriColor(statusId, "red");
