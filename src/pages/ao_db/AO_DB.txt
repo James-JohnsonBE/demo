@@ -50,7 +50,7 @@
 <link
   rel="stylesheet"
   type="text/css"
-  href="https://cdn.jsdelivr.net/gh/peterfbacklund/cgfs@main/audit/dist/audit_styles.css"
+  href="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-pub@main/dist/audit_styles.css"
 />
 
 <div id="app"></div>
@@ -58,5 +58,5 @@
 <script
   defer
   type="module"
-  src="https://cdn.jsdelivr.net/gh/peterfbacklund/cgfs@main/audit/dist/pages/ao_db/ao_db.js"
+  src="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-pub@main/dist/pages/ao_db/ao_db.js"
 ></script>
