@@ -50,12 +50,12 @@
 <link
   rel="stylesheet"
   type="text/css"
-  href="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-pub@main/dist/audit_styles.css"
+  href="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-pub@latest/dist/audit_styles.css"
 />
 
 <div id="app"></div>
 
 <script
   type="module"
-  src="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-pub@main/dist/pages/sp_db/sp_db.js"
+  src="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-pub@latest/dist/pages/sp_db/sp_db.js"
 ></script>
