@@ -2,6 +2,14 @@ import * as esbuild from "esbuild";
 import * as fs from "fs";
 import * as path from "path";
 
+let sourcemap = true;
+console.log(process.argv);
+if (process.argv.includes("-p")) {
+  // If we're in production, don't publish source maps
+  console.log("Production Build");
+  sourcemap = false;
+}
+
 await esbuild.build({
   entryPoints: [
     "./src/audit_styles.css",
@@ -16,6 +24,7 @@ await esbuild.build({
   ],
   bundle: true,
   minify: true,
+  sourcemap,
   outdir: "dist",
 });
 
