@@ -17,8 +17,9 @@ export class LookupField extends BaseField {
     optionsText = null,
     multiple = false,
     lookupCol = null,
+    instructions,
   }) {
-    super({ Visible, displayName, isRequired });
+    super({ Visible, displayName, isRequired, instructions });
     // Support passing in options
     // if options are not passed, assume this is a search input
     if (!options) {

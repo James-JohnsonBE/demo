@@ -12,8 +12,9 @@ export class SelectField extends BaseField {
     options,
     multiple = false,
     optionsText,
+    instructions,
   }) {
-    super({ Visible, displayName, isRequired });
+    super({ Visible, displayName, isRequired, instructions });
     this.Options(options);
     this.multiple = multiple;
     this.Value = multiple ? ko.observableArray() : ko.observable();
