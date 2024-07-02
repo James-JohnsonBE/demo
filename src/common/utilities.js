@@ -569,7 +569,8 @@ Audit.Common.NewUtilities = function () {
   function m_fnSortResponseObjectNoCase(a, b) {
     var aTitle = a.title;
     var bTitle = b.title;
-
+    var newA;
+    var newB;
     if (aTitle == null) aTitle = "";
     if (bTitle == null) bTitle = "";
 

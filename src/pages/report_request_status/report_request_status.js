@@ -1,4 +1,5 @@
 import "../../sal/infrastructure/knockout_extensions.js";
+import "../../common/utilities.js";
 
 var Audit = window.Audit || {};
 Audit.IAReport = Audit.IAReport || {};
