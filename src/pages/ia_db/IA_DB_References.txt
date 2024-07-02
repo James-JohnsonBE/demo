@@ -56,7 +56,7 @@
 <link
   rel="stylesheet"
   type="text/css"
-  href="/sites/CGFS/Style Library/apps/audit/dist/audit_styles.css"
+  href="/sites/CGFS/Style Library/apps/audit/src/audit_styles.css"
 />
 
 <div id="app"></div>
