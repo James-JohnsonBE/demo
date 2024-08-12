@@ -56,7 +56,7 @@
 <link
   rel="stylesheet"
   type="text/css"
-  href="https://github.com/usdos-cgfs/audit-tool/raw/ftr-deployment/src/audit_styles.css"
+  href="https://raw.githubusercontent.com/usdos-cgfs/audit-tool/ftr-deployment/src/audit_styles.css"
 />
 
 <div id="app"></div>
@@ -64,5 +64,5 @@
 <script
   type="module"
   defer
-  src="https://github.com/usdos-cgfs/audit-tool/raw/development/src/pages/ia_db/ia_db.js"
+  src="https://raw.githubusercontent.com/usdos-cgfs/audit-tool/development/src/pages/ia_db/ia_db.js"
 ></script>
