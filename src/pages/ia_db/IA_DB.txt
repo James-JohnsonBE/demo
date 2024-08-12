@@ -68,5 +68,5 @@
 ></script> -->
 
 <script type="module">
-  import("../ia_db.js");
+  import "../ia_db.js";
 </script>
