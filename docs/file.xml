@@ -1,0 +1,240 @@
+<Request xmlns="http://schemas.microsoft.com/sharepoint/clientquery/2009" SchemaVersion="15.0.0.0"
+    LibraryVersion="16.0.0.0" ApplicationName="Javascript Library">
+    <Actions>
+        <ObjectPath Id="867" ObjectPathId="866" />
+        <ObjectIdentityQuery Id="868" ObjectPathId="866" />
+        <ObjectPath Id="870" ObjectPathId="869" />
+        <Query Id="871" ObjectPathId="869">
+            <Query SelectAllProperties="false">
+                <Properties />
+            </Query>
+            <ChildItemQuery SelectAllProperties="false">
+                <Properties>
+                    <Property Name="ID" SelectAll="true" />
+                    <Property Name="Title" SelectAll="true" />
+                    <Property Name="ReqType" SelectAll="true" />
+                    <Property Name="ReqSubject" SelectAll="true" />
+                    <Property Name="ReqStatus" SelectAll="true" />
+                    <Property Name="RequestingOffice" SelectAll="true" />
+                    <Property Name="FiscalYear" SelectAll="true" />
+                    <Property Name="IsSample" SelectAll="true" />
+                    <Property Name="ReqDueDate" SelectAll="true" />
+                    <Property Name="InternalDueDate" SelectAll="true" />
+                    <Property Name="ActionOffice" SelectAll="true" />
+                    <Property Name="EmailActionOffice" SelectAll="true" />
+                    <Property Name="Reviewer" SelectAll="true" />
+                    <Property Name="Owner" SelectAll="true" />
+                    <Property Name="ReceiptDate" SelectAll="true" />
+                    <Property Name="RelatedAudit" SelectAll="true" />
+                    <Property Name="ActionItems" SelectAll="true" />
+                    <Property Name="Comments" SelectAll="true" />
+                    <Property Name="EmailSent" SelectAll="true" />
+                    <Property Name="ClosedDate" SelectAll="true" />
+                    <Property Name="ClosedBy" SelectAll="true" />
+                    <Property Name="Modified" SelectAll="true" />
+                    <Property Name="Sensitivity" SelectAll="true" />
+                </Properties>
+            </ChildItemQuery>
+        </Query>
+        <ObjectPath Id="874" ObjectPathId="873" />
+        <ObjectIdentityQuery Id="875" ObjectPathId="873" />
+        <ObjectPath Id="877" ObjectPathId="876" />
+        <Query Id="878" ObjectPathId="876">
+            <Query SelectAllProperties="false">
+                <Properties />
+            </Query>
+            <ChildItemQuery SelectAllProperties="false">
+                <Properties>
+                    <Property Name="ID" SelectAll="true" />
+                    <Property Name="Title" SelectAll="true" />
+                    <Property Name="ReqNum" SelectAll="true" />
+                    <Property Name="InternalStatus" SelectAll="true" />
+                    <Property Name="ActiveViewers" SelectAll="true" />
+                </Properties>
+            </ChildItemQuery>
+        </Query>
+        <ObjectPath Id="881" ObjectPathId="880" />
+        <ObjectIdentityQuery Id="882" ObjectPathId="880" />
+        <ObjectPath Id="884" ObjectPathId="883" />
+        <Query Id="885" ObjectPathId="883">
+            <Query SelectAllProperties="false">
+                <Properties />
+            </Query>
+            <ChildItemQuery SelectAllProperties="false">
+                <Properties>
+                    <Property Name="ID" SelectAll="true" />
+                    <Property Name="Title" SelectAll="true" />
+                    <Property Name="ReqNum" SelectAll="true" />
+                    <Property Name="ActionOffice" SelectAll="true" />
+                    <Property Name="ReturnReason" SelectAll="true" />
+                    <Property Name="SampleNumber" SelectAll="true" />
+                    <Property Name="ResStatus" SelectAll="true" />
+                    <Property Name="ActiveViewers" SelectAll="true" />
+                    <Property Name="Comments" SelectAll="true" />
+                    <Property Name="Modified" SelectAll="true" />
+                    <Property Name="ClosedDate" SelectAll="true" />
+                    <Property Name="ClosedBy" SelectAll="true" />
+                    <Property Name="POC" SelectAll="true" />
+                    <Property Name="POCCC" SelectAll="true" />
+                </Properties>
+            </ChildItemQuery>
+        </Query>
+        <ObjectPath Id="888" ObjectPathId="887" />
+        <ObjectIdentityQuery Id="889" ObjectPathId="887" />
+        <ObjectPath Id="891" ObjectPathId="890" />
+        <Query Id="892" ObjectPathId="890">
+            <Query SelectAllProperties="false">
+                <Properties />
+            </Query>
+            <ChildItemQuery SelectAllProperties="false">
+                <Properties>
+                    <Property Name="ID" SelectAll="true" />
+                    <Property Name="Title" SelectAll="true" />
+                    <Property Name="ReqNum" SelectAll="true" />
+                    <Property Name="ResID" SelectAll="true" />
+                    <Property Name="DocumentStatus" SelectAll="true" />
+                    <Property Name="RejectReason" SelectAll="true" />
+                    <Property Name="ReceiptDate" SelectAll="true" />
+                    <Property Name="FileLeafRef" SelectAll="true" />
+                    <Property Name="FileDirRef" SelectAll="true" />
+                    <Property Name="File_x0020_Size" SelectAll="true" />
+                    <Property Name="CheckoutUser" SelectAll="true" />
+                    <Property Name="Modified" SelectAll="true" />
+                    <Property Name="Editor" SelectAll="true" />
+                    <Property Name="Created" SelectAll="true" />
+                </Properties>
+            </ChildItemQuery>
+        </Query>
+        <Query Id="894" ObjectPathId="16">
+            <Query SelectAllProperties="true">
+                <Properties />
+            </Query>
+            <ChildItemQuery SelectAllProperties="true">
+                <Properties />
+            </ChildItemQuery>
+        </Query>
+        <ObjectPath Id="897" ObjectPathId="896" />
+        <Query Id="898" ObjectPathId="896">
+            <Query SelectAllProperties="false">
+                <Properties />
+            </Query>
+            <ChildItemQuery SelectAllProperties="false">
+                <Properties>
+                    <Property Name="ID" SelectAll="true" />
+                    <Property Name="Title" SelectAll="true" />
+                    <Property Name="UserGroup" SelectAll="true" />
+                </Properties>
+            </ChildItemQuery>
+        </Query>
+        <Method Name="DoesUserHavePermissions" Id="900" ObjectPathId="2">
+            <Parameters>
+                <Parameter TypeId="{db780e5a-6bc6-41ad-8e64-9dfa761afb6d}">
+                    <Property Name="High" Type="Number">0</Property>
+                    <Property Name="Low" Type="Number">8</Property>
+                </Parameter>
+            </Parameters>
+        </Method>
+    </Actions>
+    <ObjectPaths>
+        <Property Id="2" ParentId="0" Name="Web" />
+        <Property Id="16" ParentId="2" Name="SiteGroups" />
+        <Method Id="866" ParentId="525" Name="GetByTitle">
+            <Parameters>
+                <Parameter Type="String">AuditRequests</Parameter>
+            </Parameters>
+        </Method>
+        <Method Id="869" ParentId="866" Name="GetItems">
+            <Parameters>
+                <Parameter TypeId="{3d248d7b-fc86-40a3-aa97-02a75d69fb8a}">
+                    <Property Name="AllowIncrementalResults" Type="Boolean">false</Property>
+                    <Property Name="DatesInUtc" Type="Boolean">true</Property>
+                    <Property Name="FolderServerRelativePath" Type="Null" />
+                    <Property Name="FolderServerRelativeUrl" Type="Null" />
+                    <Property Name="ListItemCollectionPosition" Type="Null" />
+                    <Property Name="ViewXml" Type="String">&lt;View&gt;&lt;Query&gt;&lt;OrderBy&gt;&lt;FieldRef
+                        Name="Title"/&gt;&lt;/OrderBy&gt;&lt;/Query&gt;&lt;/View&gt;</Property>
+                </Parameter>
+            </Parameters>
+        </Method>
+        <Method Id="873" ParentId="525" Name="GetByTitle">
+            <Parameters>
+                <Parameter Type="String">AuditRequestsInternal</Parameter>
+            </Parameters>
+        </Method>
+        <Method Id="876" ParentId="873" Name="GetItems">
+            <Parameters>
+                <Parameter TypeId="{3d248d7b-fc86-40a3-aa97-02a75d69fb8a}">
+                    <Property Name="AllowIncrementalResults" Type="Boolean">false</Property>
+                    <Property Name="DatesInUtc" Type="Boolean">true</Property>
+                    <Property Name="FolderServerRelativePath" Type="Null" />
+                    <Property Name="FolderServerRelativeUrl" Type="Null" />
+                    <Property Name="ListItemCollectionPosition" Type="Null" />
+                    <Property Name="ViewXml" Type="String">&lt;View&gt;&lt;Query&gt;&lt;OrderBy&gt;&lt;FieldRef
+                        Name="Title"/&gt;&lt;/OrderBy&gt;&lt;/Query&gt;&lt;/View&gt;</Property>
+                </Parameter>
+            </Parameters>
+        </Method>
+        <Method Id="880" ParentId="525" Name="GetByTitle">
+            <Parameters>
+                <Parameter Type="String">AuditResponses</Parameter>
+            </Parameters>
+        </Method>
+        <Method Id="883" ParentId="880" Name="GetItems">
+            <Parameters>
+                <Parameter TypeId="{3d248d7b-fc86-40a3-aa97-02a75d69fb8a}">
+                    <Property Name="AllowIncrementalResults" Type="Boolean">false</Property>
+                    <Property Name="DatesInUtc" Type="Boolean">true</Property>
+                    <Property Name="FolderServerRelativePath" Type="Null" />
+                    <Property Name="FolderServerRelativeUrl" Type="Null" />
+                    <Property Name="ListItemCollectionPosition" Type="Null" />
+                    <Property Name="ViewXml" Type="String">&lt;View&gt;&lt;Query&gt;&lt;Where&gt;&lt;Neq&gt;&lt;FieldRef
+                        Name="ResStatus"/&gt;&lt;Value
+                        Type="Text"&gt;7-Closed&lt;/Value&gt;&lt;/Neq&gt;&lt;/Where&gt;&lt;OrderBy&gt;&lt;FieldRef
+                        Name="ReqNum"/&gt;&lt;/OrderBy&gt;&lt;/Query&gt;&lt;/View&gt;</Property>
+                </Parameter>
+            </Parameters>
+        </Method>
+        <Method Id="887" ParentId="525" Name="GetByTitle">
+            <Parameters>
+                <Parameter Type="String">AuditResponseDocs</Parameter>
+            </Parameters>
+        </Method>
+        <Method Id="890" ParentId="887" Name="GetItems">
+            <Parameters>
+                <Parameter TypeId="{3d248d7b-fc86-40a3-aa97-02a75d69fb8a}">
+                    <Property Name="AllowIncrementalResults" Type="Boolean">false</Property>
+                    <Property Name="DatesInUtc" Type="Boolean">true</Property>
+                    <Property Name="FolderServerRelativePath" Type="Null" />
+                    <Property Name="FolderServerRelativeUrl" Type="Null" />
+                    <Property Name="ListItemCollectionPosition" Type="Null" />
+                    <Property Name="ViewXml" Type="String">
+                        &lt;View
+                        Scope="RecursiveAll"&gt;&lt;Query&gt;&lt;Where&gt;&lt;Neq&gt;&lt;FieldRef
+                        Name="DocumentStatus"/&gt;&lt;Value
+                        Type="Text"&gt;Approved&lt;/Value&gt;&lt;/Neq&gt;&lt;/Where&gt;&lt;OrderBy&gt;&lt;FieldRef
+                        Name="ReqNum"/&gt;&lt;FieldRef
+                        Name="ResID"/&gt;&lt;/OrderBy&gt;&lt;Where&gt;&lt;Eq&gt;&lt;FieldRef
+                        Name="ContentType"/&gt;&lt;Value
+                        Type="Text"&gt;Document&lt;/Value&gt;&lt;/Eq&gt;&lt;/Where&gt;&lt;/Query&gt;&lt;/View&gt;</Property>
+                </Parameter>
+            </Parameters>
+        </Method>
+        <Method Id="896" ParentId="534" Name="GetItems">
+            <Parameters>
+                <Parameter TypeId="{3d248d7b-fc86-40a3-aa97-02a75d69fb8a}">
+                    <Property Name="AllowIncrementalResults" Type="Boolean">false</Property>
+                    <Property Name="DatesInUtc" Type="Boolean">true</Property>
+                    <Property Name="FolderServerRelativePath" Type="Null" />
+                    <Property Name="FolderServerRelativeUrl" Type="Null" />
+                    <Property Name="ListItemCollectionPosition" Type="Null" />
+                    <Property Name="ViewXml" Type="String">&lt;View&gt;&lt;Query&gt;&lt;OrderBy&gt;&lt;FieldRef
+                        Name="Title"/&gt;&lt;/OrderBy&gt;&lt;/Query&gt;&lt;/View&gt;</Property>
+                </Parameter>
+            </Parameters>
+        </Method>
+        <StaticProperty Id="0" TypeId="{3747adcd-a3c3-41b9-bfab-4a64dd2f1e0a}" Name="Current" />
+        <Property Id="525" ParentId="2" Name="Lists" />
+        <Identity Id="534"
+            Name="52ac45a1-f0f6-6000-465b-7a82754f020d|740c6a0b-85e2-48a0-a494-e0f1759d4aa7:site:901d12b7-0294-4f55-b913-3775efe3f6b3:web:010133d0-1145-433b-8bca-aa37d87c90d4:list:a1489146-efa8-4c77-9a87-ab1e71f3af15" />
+    </ObjectPaths>
+</Request>

@@ -12967,9 +12967,13 @@
     var responseList = web.get_lists().getByTitle(Audit.Common.Utilities.GetListTitleResponses());
     var responseQuery = new SP.CamlQuery();
     responseQuery.set_viewXml(
-      '<View><Query><OrderBy><FieldRef Name="ReqNum"/></OrderBy></Query></View>'
+      '<View><Query><Where><Neq><FieldRef Name="ResStatus"/><Value Type="Text">7-Closed</Value></Neq></Where><OrderBy><FieldRef Name="ReqNum"/></OrderBy></Query></View>'
     );
     const m_responseItems = responseList.getItems(responseQuery);
+    currCtx.load(
+      m_responseItems,
+      "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, Comments, Modified, ClosedDate, ClosedBy, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+    );
     currCtx.load(
       m_responseItems,
       "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, ActiveViewers, Comments, Modified, ClosedDate, ClosedBy, POC, POCCC)"
@@ -12977,7 +12981,7 @@
     var responseDocsLib = web.get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
     var responseDocsQuery = new SP.CamlQuery();
     responseDocsQuery.set_viewXml(
-      '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="ReqNum"/><FieldRef Name="ResID"/></OrderBy><Where><Eq><FieldRef Name="ContentType"/><Value Type="Text">Document</Value></Eq></Where></Query></View>'
+      '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="ReqNum"/><FieldRef Name="ResID"/></OrderBy><Where><Neq><FieldRef Name="DocumentStatus"/><Value Type="Text">Approved</Value></Neq></Where></Query></View>'
     );
     const m_ResponseDocsItems = responseDocsLib.getItems(responseDocsQuery);
     currCtx.load(

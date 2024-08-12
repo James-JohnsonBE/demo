@@ -36,6 +36,7 @@ const referenceFiles = [
   "pages/ao_db/AO_DB.txt",
   "pages/bulk_add_response/BulkAddResponse.txt",
   "pages/ia_db/IA_DB.txt",
+  "pages/ia_db/IA_DB_stage.txt",
   "pages/home/Home.txt",
   "pages/permissions/Permissions.txt",
   "pages/qa_db/QA_DB.txt",
