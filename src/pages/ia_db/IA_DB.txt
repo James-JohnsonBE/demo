@@ -61,8 +61,12 @@
 
 <div id="app"></div>
 
-<script
+<!-- <script
   type="module"
   defer
   src="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-pub@latest/dist/pages/ia_db/ia_db.js"
-></script>
+></script> -->
+
+<script type="module">
+  import("../ia_db.js");
+</script>
