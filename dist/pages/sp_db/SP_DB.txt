@@ -27,12 +27,6 @@
 <!-- /SharePoint Cruft -->
 
 <!-- Other Cruft -->
-
-<script
-  type="text/javascript"
-  src="/sites/CGFS/Style Library/apps/audit/lib/quill@2.0.0-rc.2/dist/quill.js"
-></script>
-
 <script
   type="text/javascript"
   src="/sites/CGFS/Style Library/apps/audit/lib/jquery-3.7.1.min.js"
@@ -43,10 +37,10 @@
   src="/sites/CGFS/Style Library/apps/audit/lib/jquery-ui-1.13.2/jquery-ui.min.js"
 ></script>
 
-<!-- <script
+<script
   type="text/javascript"
   src="/sites/CGFS/Style Library/apps/audit/lib/tablesorter-2.31.3/js/jquery.tablesorter.min.js"
-></script> -->
+></script>
 <script
   type="text/javascript"
   src="/sites/CGFS/Style Library/apps/audit/lib/knockout-3.5.1.js"
@@ -63,6 +57,5 @@
 
 <script
   type="module"
-  defer
-  src="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-pub@latest/dist/pages/ia_db/ia_db.js"
+  src="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool-pub@latest/dist/pages/sp_db/sp_db.js"
 ></script>
