@@ -1,11 +1,41 @@
 {
   "editor.formatOnSave": true,
+  "emmet.includeLanguages": { "javascript": "javascriptreact" },
   "deploy.reloaded": {
     "packages": [
       {
-        "name": "App Files",
+        "name": "All Files",
         "description": "Application Source Files",
         "files": ["lib/**", "src/**"],
+        "exclude": ["**.md", "**.json"],
+        "deployOnSave": ["Audits Style Library"],
+        "removeOnChange": ["Audits Style Library"],
+        "syncWhenOpen": true
+      },
+      {
+        "name": "Source Only",
+        "description": "Only Files in src folder",
+        "files": ["src/**"],
+        "exclude": ["**.md", "**.json"],
+
+        "deployOnSave": ["Audits Style Library"],
+        "removeOnChange": ["Audits Style Library"],
+        "syncWhenOpen": true
+      },
+      {
+        "name": "sal",
+        "description": "Only Files in src folder",
+        "files": ["src/sal/**"],
+        "exclude": ["**.md", "**.json"],
+
+        "deployOnSave": ["Audits Style Library"],
+        "removeOnChange": ["Audits Style Library"],
+        "syncWhenOpen": true
+      },
+      {
+        "name": "dist",
+        "description": "Only Files in dist folder",
+        "files": ["dist/**"],
         "exclude": ["**.md", "**.json"],
 
         "deployOnSave": ["Audits Style Library"],

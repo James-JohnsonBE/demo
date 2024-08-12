@@ -1,3 +1,7 @@
+.search-group {
+  --font-sm: 0.75rem;
+}
+
 /* Testing Style HTML Elements */
 .elements-container {
   display: flex;
@@ -19,16 +23,21 @@ div.search-group {
   display: flex;
   align-items: center;
   background-color: white;
-  border: 1px solid lightgray;
-  box-sizing: content-box;
-  height: 1rem;
-  padding: 1px 0px;
+  /* border: 1px solid lightgray; */
+  border: none;
+  border-radius: 4px;
+  box-sizing: border-box;
+  padding: 0;
 }
 
 .search-input-group input {
   border: none;
+  border-radius: 4px;
   width: 100%;
-  height: 1rem;
+  color: black;
+  padding: 0.1rem 0.3rem;
+  font-size: var(--font-sm);
+  font-family: "Segoe UI";
 }
 
 /* .caret {
@@ -98,7 +107,7 @@ div.search-group {
   width: fit-content;
   color: #212529;
   font-weight: normal;
-  font-size: 0.875rem;
+  font-size: var(--font-sm);
   background-color: #f8f9fa;
   border-radius: 0.25rem;
   border: 1px solid #dee2e6;
@@ -119,7 +128,7 @@ div.search-group {
   align-items: center;
   justify-content: center;
   height: 100%;
-  width: 1.5rem;
+  width: 1rem;
   color: rgb(108, 117, 125);
   aspect-ratio: 1/1;
 }
@@ -158,6 +167,7 @@ div.search-group {
 }
 
 .filtered-items {
+  color: black;
   list-style: none;
   padding-left: 0;
   margin-top: 3px;
