@@ -1,7 +1,216 @@
-(()=>{var Gs=Object.freeze,Bs=Object.defineProperty;var O=(t,e)=>()=>(t&&(e=t(t=0)),e);var en=(t,e)=>{for(var s in e)Bs(t,s,{get:e[s],enumerable:!0})};var Ms=(t,e)=>Gs(Bs(t,"raw",{value:Gs(e||t.slice())}));var Be,ws,js,ot=O(()=>{Ee();Be=ko.observableArray(),ws=t=>ts.ACTIONOFFICE==t.Role,js=t=>ts.REQUESTINGOFFICE==t.Role});var rt,ss=O(()=>{rt=class{constructor(e,s,o){this.source=e,this.type=s,this.description=o}}});var at,Ws=O(()=>{at=class{constructor(e){e?.ID&&(this.ID=e.ID),e?.Title&&(this.Title=e.Title)}ObservableID=ko.observable();ObservableTitle=ko.observable();get id(){return this.ObservableID()}set id(e){this.ObservableID(e)}get Title(){return this.ObservableTitle()}set Title(e){this.ObservableTitle(e)}}});var Oe=O(()=>{ss();Ws();lt()});function on(t){return{requirement:ko.pureComputed(()=>{if(!ko.unwrap(t.isRequired))return!1;let s=ko.unwrap(t.Value);return s?.constructor==Array?!s.length:s==null}),error:new rt("text-field","required-field",`${ko.utils.unwrapObservable(t.displayName)} is required!`)}}var me,Js=O(()=>{ss();me=class{constructor({displayName:e,systemName:s,instructions:o=null,isRequired:u=!1,width:h,classList:w=[],Visible:N=ko.pureComputed(()=>!0)}){this.displayName=e,this.systemName=s,this.instructions=o,this.isRequired=u,this.Visible=N,this.width=h?"col-md-"+h:"col-md-6",this.classList=w,this.addFieldRequirement(on(this))}Value=ko.observable();get=()=>this.Value();set=e=>this.Value(e);clear=()=>{ko.isObservableArray(this.Value)?this.Value([]):this.Value(null)};toString=ko.pureComputed(()=>this.Value());toJSON=()=>this.Value();fromJSON=e=>this.Value(e);validate=(e=!0)=>(this.ShowErrors(e),this.Errors());_fieldValidationRequirements=ko.observableArray();Errors=ko.pureComputed(()=>this.Visible()?this._fieldValidationRequirements().filter(s=>s.requirement()).map(s=>s.error):[]);addFieldRequirement=e=>this._fieldValidationRequirements.push(e);IsValid=ko.pureComputed(()=>!this.Errors().length);ShowErrors=ko.observable(!1);ValidationClass=ko.pureComputed(()=>{if(this.ShowErrors())return this.Errors().length?"is-invalid":"is-valid"})}});function Re(t){ko.components.register(t.edit,{template:t.editTemplate,viewModel:t}),ko.components.register(t.view,{template:t.viewTemplate,viewModel:t})}var se,fe,Ue=O(()=>{se=String.raw;fe=class{constructor(e){Object.assign(this,e)}_id;getUniqueId=()=>(this._id||(this._id="field-"+Math.floor(Math.random()*1e4)),this._id);Errors=ko.pureComputed(()=>this.ShowErrors()?this.isRequired?this.Value()?[]:[new ValidationError("text-field","required-field",this.displayName+" is required!")]:[]:[]);ShowErrors=ko.observable(!1);ValidationClass=ko.pureComputed(()=>{if(this.ShowErrors())return this.Errors().length?"is-invalid":"is-valid"});static viewTemplate=se`
+(() => {
+  var __freeze = Object.freeze;
+  var __defProp = Object.defineProperty;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __esm = (fn, res) => function __init() {
+    return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+  };
+  var __export = (target, all) => {
+    for (var name in all)
+      __defProp(target, name, { get: all[name], enumerable: true });
+  };
+  var __template = (cooked, raw) => __freeze(__defProp(cooked, "raw", { value: __freeze(raw || cooked.slice()) }));
+
+  // src/infrastructure/store.js
+  var auditOrganizationStore, allActionOfficesFilter, allRequestingOfficesFilter;
+  var init_store = __esm({
+    "src/infrastructure/store.js"() {
+      init_entities2();
+      auditOrganizationStore = ko.observableArray();
+      allActionOfficesFilter = (org) => ORGROLES.ACTIONOFFICE == org.Role;
+      allRequestingOfficesFilter = (org) => ORGROLES.REQUESTINGOFFICE == org.Role;
+    }
+  });
+
+  // src/sal/primitives/validation_error.js
+  var ValidationError2;
+  var init_validation_error = __esm({
+    "src/sal/primitives/validation_error.js"() {
+      ValidationError2 = class {
+        constructor(source, type, description) {
+          this.source = source;
+          this.type = type;
+          this.description = description;
+        }
+      };
+    }
+  });
+
+  // src/sal/primitives/entity.js
+  var Entity;
+  var init_entity = __esm({
+    "src/sal/primitives/entity.js"() {
+      Entity = class {
+        constructor(params) {
+          if (params?.ID)
+            this.ID = params.ID;
+          if (params?.Title)
+            this.Title = params.Title;
+        }
+        ObservableID = ko.observable();
+        ObservableTitle = ko.observable();
+        get id() {
+          return this.ObservableID();
+        }
+        set id(val) {
+          this.ObservableID(val);
+        }
+        get Title() {
+          return this.ObservableTitle();
+        }
+        set Title(val) {
+          this.ObservableTitle(val);
+        }
+      };
+    }
+  });
+
+  // src/sal/primitives/index.js
+  var init_primitives = __esm({
+    "src/sal/primitives/index.js"() {
+      init_validation_error();
+      init_entity();
+      init_constrained_entity();
+    }
+  });
+
+  // src/sal/fields/BaseField.js
+  function isRequiredValidationRequirement(field) {
+    return {
+      requirement: ko.pureComputed(() => {
+        const isRequired = ko.unwrap(field.isRequired);
+        if (!isRequired)
+          return false;
+        const value = ko.unwrap(field.Value);
+        if (value?.constructor == Array)
+          return !value.length;
+        return value === null || value === void 0;
+      }),
+      error: new ValidationError2(
+        "text-field",
+        "required-field",
+        `${ko.utils.unwrapObservable(field.displayName)} is required!`
+      )
+    };
+  }
+  var BaseField;
+  var init_BaseField = __esm({
+    "src/sal/fields/BaseField.js"() {
+      init_validation_error();
+      BaseField = class {
+        constructor({
+          displayName,
+          systemName,
+          instructions = null,
+          isRequired = false,
+          width,
+          classList = [],
+          Visible = ko.pureComputed(() => true)
+        }) {
+          this.displayName = displayName;
+          this.systemName = systemName;
+          this.instructions = instructions;
+          this.isRequired = isRequired;
+          this.Visible = Visible;
+          this.width = width ? "col-md-" + width : "col-md-6";
+          this.classList = classList;
+          this.addFieldRequirement(isRequiredValidationRequirement(this));
+        }
+        Value = ko.observable();
+        get = () => this.Value();
+        set = (val) => this.Value(val);
+        clear = () => {
+          if (ko.isObservableArray(this.Value))
+            this.Value([]);
+          else
+            this.Value(null);
+        };
+        toString = ko.pureComputed(() => this.Value());
+        toJSON = () => this.Value();
+        fromJSON = (val) => this.Value(val);
+        validate = (showErrors = true) => {
+          this.ShowErrors(showErrors);
+          return this.Errors();
+        };
+        _fieldValidationRequirements = ko.observableArray();
+        Errors = ko.pureComputed(() => {
+          if (!this.Visible())
+            return [];
+          const errors = this._fieldValidationRequirements().filter((req) => req.requirement()).map((req) => req.error);
+          return errors;
+        });
+        addFieldRequirement = (requirement) => this._fieldValidationRequirements.push(requirement);
+        IsValid = ko.pureComputed(() => !this.Errors().length);
+        ShowErrors = ko.observable(false);
+        ValidationClass = ko.pureComputed(() => {
+          if (!this.ShowErrors())
+            return;
+          return this.Errors().length ? "is-invalid" : "is-valid";
+        });
+      };
+    }
+  });
+
+  // src/sal/components/fields/BaseFieldModule.js
+  function registerFieldComponents(constructor) {
+    ko.components.register(constructor.edit, {
+      template: constructor.editTemplate,
+      viewModel: constructor
+    });
+    ko.components.register(constructor.view, {
+      template: constructor.viewTemplate,
+      viewModel: constructor
+    });
+  }
+  var html2, BaseFieldModule;
+  var init_BaseFieldModule = __esm({
+    "src/sal/components/fields/BaseFieldModule.js"() {
+      html2 = String.raw;
+      BaseFieldModule = class {
+        constructor(params) {
+          Object.assign(this, params);
+        }
+        _id;
+        getUniqueId = () => {
+          if (!this._id) {
+            this._id = "field-" + Math.floor(Math.random() * 1e4);
+          }
+          return this._id;
+        };
+        Errors = ko.pureComputed(() => {
+          if (!this.ShowErrors())
+            return [];
+          if (!this.isRequired)
+            return [];
+          return this.Value() ? [] : [
+            new ValidationError(
+              "text-field",
+              "required-field",
+              this.displayName + ` is required!`
+            )
+          ];
+        });
+        ShowErrors = ko.observable(false);
+        ValidationClass = ko.pureComputed(() => {
+          if (!this.ShowErrors())
+            return;
+          return this.Errors().length ? "is-invalid" : "is-valid";
+        });
+        static viewTemplate = html2`
     <div class="fw-semibold" data-bind="text: displayName"></div>
     <div data-bind="text: toString()"></div>
-  `;static editTemplate=se`<div>Uh oh!</div>`}});var rn,an,Pt,Ks=O(()=>{Ue();rn=se`
+  `;
+        static editTemplate = html2`<div>Uh oh!</div>`;
+      };
+    }
+  });
+
+  // src/sal/components/fields/BlobModule.js
+  var editTemplate, viewTemplate, BlobModule;
+  var init_BlobModule = __esm({
+    "src/sal/components/fields/BlobModule.js"() {
+      init_BaseFieldModule();
+      editTemplate = html2`
   <h5>
     <span data-bind="text: displayName"></span
     ><span data-bind="if: isRequired" class="fw-bold text-danger">*</span>:
@@ -63,7 +272,8 @@
   </table>
   <!-- /ko -->
   <!-- /ko -->
-`,an=se`
+`;
+      viewTemplate = html2`
   <h5>
     <span data-bind="text: displayName"></span
     ><span data-bind="if: isRequired" class="fw-bold text-danger">*</span>:
@@ -100,7 +310,27 @@
   </table>
   <!-- /ko -->
   <!-- /ko -->
-`,Pt=class extends fe{constructor(e){super(e)}static viewTemplate=an;static editTemplate=rn;static view="blob-view";static edit="blob-edit";static new="blob-edit"};Re(Pt)});var ln,un,_t,zs=O(()=>{Ue();ln=se`
+`;
+      BlobModule = class extends BaseFieldModule {
+        constructor(params) {
+          super(params);
+        }
+        static viewTemplate = viewTemplate;
+        static editTemplate = editTemplate;
+        static view = "blob-view";
+        static edit = "blob-edit";
+        static new = "blob-edit";
+      };
+      registerFieldComponents(BlobModule);
+    }
+  });
+
+  // src/sal/components/fields/CheckboxModule.js
+  var editTemplate2, viewTemplate2, CheckboxModule;
+  var init_CheckboxModule = __esm({
+    "src/sal/components/fields/CheckboxModule.js"() {
+      init_BaseFieldModule();
+      editTemplate2 = html2`
   <div class="form-check form-switch">
     <label class="form-check-label"
       ><span class="fw-semibold" data-bind="text: displayName"></span>
@@ -118,7 +348,8 @@
       <!-- /ko -->
     </label>
   </div>
-`,un=se`
+`;
+      viewTemplate2 = html2`
   <div class="form-check form-switch">
     <label class="form-check-label"
       ><span class="fw-semibold" data-bind="text: displayName"></span>
@@ -131,7 +362,27 @@
       />
     </label>
   </div>
-`,_t=class extends fe{constructor(e){super(e)}static viewTemplate=un;static editTemplate=ln;static view="checkbox-view";static edit="checkbox-edit";static new="checkbox-edit"};Re(_t)});var cn,Nt,Ys=O(()=>{Ue();cn=se`
+`;
+      CheckboxModule = class extends BaseFieldModule {
+        constructor(params) {
+          super(params);
+        }
+        static viewTemplate = viewTemplate2;
+        static editTemplate = editTemplate2;
+        static view = "checkbox-view";
+        static edit = "checkbox-edit";
+        static new = "checkbox-edit";
+      };
+      registerFieldComponents(CheckboxModule);
+    }
+  });
+
+  // src/sal/components/fields/DateModule.js
+  var editTemplate3, DateModule;
+  var init_DateModule = __esm({
+    "src/sal/components/fields/DateModule.js"() {
+      init_BaseFieldModule();
+      editTemplate3 = html2`
   <label class="fw-semibold"
     ><span data-bind="text: displayName"></span
     ><span data-bind="if: isRequired" class="fw-bold text-danger">*</span>:
@@ -151,7 +402,26 @@
   <div class="fw-semibold text-danger" data-bind="text: description"></div>
   <!-- /ko -->
   <!-- /ko -->
-`,Nt=class extends fe{constructor(e){super(e)}static editTemplate=cn;static view="date-view";static edit="date-edit";static new="date-edit"};Re(Nt)});var dn,Et,Xs=O(()=>{Ue();dn=se`
+`;
+      DateModule = class extends BaseFieldModule {
+        constructor(params) {
+          super(params);
+        }
+        static editTemplate = editTemplate3;
+        static view = "date-view";
+        static edit = "date-edit";
+        static new = "date-edit";
+      };
+      registerFieldComponents(DateModule);
+    }
+  });
+
+  // src/sal/components/fields/LookupModule.js
+  var editTemplate4, LookupModule;
+  var init_LookupModule = __esm({
+    "src/sal/components/fields/LookupModule.js"() {
+      init_BaseFieldModule();
+      editTemplate4 = html2`
   <label class="fw-semibold"
     ><span data-bind="text: displayName"></span
     ><span data-bind="if: isRequired" class="fw-bold text-danger">*</span>:
@@ -205,7 +475,45 @@
   <div class="fw-semibold text-danger" data-bind="text: description"></div>
   <!-- /ko -->
   <!-- /ko -->
-`,Et=class extends fe{constructor(e){super(e),this.onSearchInput=e.onSearchInput,this.multiple=e.multiple??!1}static editTemplate=dn;static view="lookup-view";static edit="lookup-edit";static new="lookup-edit"};Re(Et)});var pn,mn,Ot,bs=O(()=>{Ue();pn=se`
+`;
+      LookupModule = class extends BaseFieldModule {
+        constructor(field) {
+          super(field);
+          this.onSearchInput = field.onSearchInput;
+          this.multiple = field.multiple ?? false;
+        }
+        // selectedOptions = ko.pureComputed({
+        //   read: () => {
+        //     if (this.multiple) return this.Value();
+        //     return ko.unwrap(this.Value) ? [ko.unwrap(this.Value)] : [];
+        //   },
+        //   write: (val) => {
+        //     if (this.multiple) {
+        //       this.Value(val);
+        //       return;
+        //     }
+        //     if (val.length) {
+        //       this.Value(val[0]);
+        //       return;
+        //     }
+        //     this.Value(null);
+        //   },
+        // });
+        static editTemplate = editTemplate4;
+        static view = "lookup-view";
+        static edit = "lookup-edit";
+        static new = "lookup-edit";
+      };
+      registerFieldComponents(LookupModule);
+    }
+  });
+
+  // src/sal/components/fields/PeopleModule.js
+  var editTemplate5, viewTemplate3, PeopleModule;
+  var init_PeopleModule = __esm({
+    "src/sal/components/fields/PeopleModule.js"() {
+      init_BaseFieldModule();
+      editTemplate5 = html2`
   <label class="fw-semibold w-100"
     ><span data-bind="text: displayName"></span
     ><span data-bind="if: isRequired" class="fw-bold text-danger">*</span>:
@@ -241,7 +549,8 @@
   <div class="fw-semibold text-danger" data-bind="text: description"></div>
   <!-- /ko -->
   <!-- /ko -->
-`,mn=se`
+`;
+      viewTemplate3 = html2`
   <div class="fw-semibold" data-bind="text: displayName"></div>
   <!-- ko if: toString -->
   <!-- ko ifnot: multiple -->
@@ -259,7 +568,48 @@
   <!-- ko ifnot: toString -->
   <div class="fst-italic">Not provided.</div>
   <!-- /ko -->
-`,Ot=class extends fe{constructor(e){super(e)}ValueFunc=ko.pureComputed({read:()=>this.Value()?ko.unwrap(this.userOpts).find(s=>s.ID==this.Value().ID):void 0,write:e=>{ko.unwrap(this.userOpts)&&this.Value(e)}});ShowUserSelect=ko.pureComputed(()=>this.spGroupName?ko.unwrap(this.userOpts).length:!1);static viewTemplate=mn;static editTemplate=pn;static view="people-view";static edit="people-edit";static new="people-edit"};Re(Ot)});var fn,Xe,Zs=O(()=>{Ue();fn=se`
+`;
+      PeopleModule = class extends BaseFieldModule {
+        constructor(params) {
+          super(params);
+        }
+        ValueFunc = ko.pureComputed({
+          read: () => {
+            if (!this.Value())
+              return;
+            const userOpts = ko.unwrap(this.userOpts);
+            return userOpts.find((opt) => opt.ID == this.Value().ID);
+          },
+          write: (opt) => {
+            const userOpts = ko.unwrap(this.userOpts);
+            if (!userOpts)
+              return;
+            this.Value(opt);
+          }
+        });
+        ShowUserSelect = ko.pureComputed(() => {
+          const groupName = this.spGroupName;
+          if (!groupName)
+            return false;
+          const options = ko.unwrap(this.userOpts);
+          return options.length;
+        });
+        static viewTemplate = viewTemplate3;
+        static editTemplate = editTemplate5;
+        static view = "people-view";
+        static edit = "people-edit";
+        static new = "people-edit";
+      };
+      registerFieldComponents(PeopleModule);
+    }
+  });
+
+  // src/sal/components/fields/SearchSelectModule.js
+  var editTemplate6, SearchSelectModule;
+  var init_SearchSelectModule = __esm({
+    "src/sal/components/fields/SearchSelectModule.js"() {
+      init_BaseFieldModule();
+      editTemplate6 = html2`
   <label class="fw-semibold"
     ><span data-bind="text: displayName"></span
     ><span data-bind="if: isRequired" class="fw-bold text-danger">*</span>:
@@ -291,7 +641,72 @@
   <div class="fw-semibold text-danger" data-bind="text: description"></div>
   <!-- /ko -->
   <!-- /ko -->
-`,Xe=class extends fe{constructor(e){super(e),this.Options=e.Options,this.Value=e.Value,this.optionsText=e.optionsText??(s=>s),this.multiple=e.multiple,this.OptionsCaption=e.OptionsCaption??"Select...",this.onSearchInput=e.onSearchInput}GetSelectedOptions=ko.pureComputed(()=>this.multiple?this.Value():this.Value()?[this.Value()]:[]);InputGroupFocused=ko.observable();setFocus=()=>this.InputGroupFocused(!0);FilterText=ko.observable();FilteredOptions=ko.pureComputed(()=>this.Options().filter(e=>this.GetSelectedOptions().indexOf(e)>=0?!1:this.FilterText()?this.optionsText(e).toLowerCase().includes(this.FilterText().toLowerCase()):!0));addSelection=(e,s)=>{console.log("selected",e),s.target.nextElementSibling&&s.target.nextElementSibling.focus(),this.multiple?this.Value.push(e):this.Value(e)};removeSelection=e=>this.multiple?this.Value.remove(e):this.Value(null);setInputGroupFocus=()=>{this.InputGroupFocused(!0),clearTimeout(this.focusOutTimeout)};removeInputGroupFocus=(e,s)=>{this.focusOutTimeout=window.setTimeout(()=>{this.InputGroupFocused(!1)},0)};static editTemplate=fn;static view="search-select-view";static edit="search-select-edit";static new="search-select-new"};Re(Xe)});var gn,Ut,ei=O(()=>{Ue();gn=se`
+`;
+      SearchSelectModule = class extends BaseFieldModule {
+        constructor(field) {
+          super(field);
+          this.Options = field.Options;
+          this.Value = field.Value;
+          this.optionsText = field.optionsText ?? ((val) => {
+            return val;
+          });
+          this.multiple = field.multiple;
+          this.OptionsCaption = field.OptionsCaption ?? "Select...";
+          this.onSearchInput = field.onSearchInput;
+        }
+        GetSelectedOptions = ko.pureComputed(() => {
+          if (this.multiple)
+            return this.Value();
+          return this.Value() ? [this.Value()] : [];
+        });
+        InputGroupFocused = ko.observable();
+        setFocus = () => this.InputGroupFocused(true);
+        FilterText = ko.observable();
+        FilteredOptions = ko.pureComputed(
+          () => this.Options().filter((option) => {
+            if (this.GetSelectedOptions().indexOf(option) >= 0)
+              return false;
+            if (this.FilterText())
+              return this.optionsText(option).toLowerCase().includes(this.FilterText().toLowerCase());
+            return true;
+          })
+        );
+        addSelection = (option, e) => {
+          console.log("selected", option);
+          if (e.target.nextElementSibling) {
+            e.target.nextElementSibling.focus();
+          }
+          if (this.multiple) {
+            this.Value.push(option);
+          } else {
+            this.Value(option);
+          }
+        };
+        removeSelection = (option) => this.multiple ? this.Value.remove(option) : this.Value(null);
+        setInputGroupFocus = () => {
+          this.InputGroupFocused(true);
+          clearTimeout(this.focusOutTimeout);
+        };
+        removeInputGroupFocus = (data2, e) => {
+          this.focusOutTimeout = window.setTimeout(() => {
+            this.InputGroupFocused(false);
+          }, 0);
+        };
+        static editTemplate = editTemplate6;
+        static view = "search-select-view";
+        static edit = "search-select-edit";
+        static new = "search-select-new";
+      };
+      registerFieldComponents(SearchSelectModule);
+    }
+  });
+
+  // src/sal/components/fields/SelectModule.js
+  var editTemplate7, SelectModule;
+  var init_SelectModule = __esm({
+    "src/sal/components/fields/SelectModule.js"() {
+      init_BaseFieldModule();
+      editTemplate7 = html2`
   <label class="fw-semibold"
     ><span data-bind="text: displayName"></span
     ><span data-bind="if: isRequired" class="fw-bold text-danger">*</span>:
@@ -333,7 +748,26 @@
   <div class="fw-semibold text-danger" data-bind="text: description"></div>
   <!-- /ko -->
   <!-- /ko -->
-`,Ut=class extends fe{constructor(e){super(e)}static editTemplate=gn;static view="select-view";static edit="select-edit";static new="select-edit"};Re(Ut)});var hn,Rn,qt,ti=O(()=>{Ue();hn=se`
+`;
+      SelectModule = class extends BaseFieldModule {
+        constructor(params) {
+          super(params);
+        }
+        static editTemplate = editTemplate7;
+        static view = "select-view";
+        static edit = "select-edit";
+        static new = "select-edit";
+      };
+      registerFieldComponents(SelectModule);
+    }
+  });
+
+  // src/sal/components/fields/TextAreaModule.js
+  var editTemplate8, viewTemplate4, TextAreaModule;
+  var init_TextAreaModule = __esm({
+    "src/sal/components/fields/TextAreaModule.js"() {
+      init_BaseFieldModule();
+      editTemplate8 = html2`
   <div class="component field">
     <!-- ko if: isRichText -->
     <label class="fw-semibold"
@@ -387,7 +821,8 @@
     <!-- /ko -->
     <!-- /ko -->
   </div>
-`,Rn=se`
+`;
+      viewTemplate4 = html2`
   <div class="fw-semibold" data-bind="text: displayName"></div>
   <!-- ko if: Value -->
   <!-- ko if: isRichText -->
@@ -400,7 +835,70 @@
   <!-- ko ifnot: Value -->
   <div class="fst-italic">Not provided.</div>
   <!-- /ko -->
-`,qt=class extends fe{constructor(e){super(e)}childrenHaveLoaded=e=>{this.initializeEditor()};getToolbarId=()=>"toolbar-"+this.getUniqueId();initializeEditor(){let e=[["bold","italic","underline","strike"],["link"],["blockquote","code-block"],[{header:1},{header:2}],[{list:"ordered"},{list:"bullet"}],[{script:"sub"},{script:"super"}],[{indent:"-1"},{indent:"+1"}],[{direction:"rtl"}],[{size:["small",!1,"large","huge"]}],[{header:[1,2,3,4,5,6,!1]}],[{color:[]},{background:[]}],[{font:[]}],[{align:[]}],["clean"]];var s=new Quill("#"+this.getUniqueId(),{modules:{toolbar:e},theme:"snow"});let o=this.Value;o.subscribe(u=>{u==""&&s.setText("")}),s.on("text-change",function(u,h,w){o(s.root.textContent?s.root.innerHTML:"")})}static viewTemplate=Rn;static editTemplate=hn;static view="text-area-view";static edit="text-area-edit";static new="text-area-edit"};Re(qt)});var vn,Lt,si=O(()=>{Ue();vn=se`
+`;
+      TextAreaModule = class extends BaseFieldModule {
+        constructor(params) {
+          super(params);
+        }
+        childrenHaveLoaded = (nodes) => {
+          this.initializeEditor();
+        };
+        getToolbarId = () => "toolbar-" + this.getUniqueId();
+        initializeEditor() {
+          const toolbarOptions = [
+            ["bold", "italic", "underline", "strike"],
+            // toggled buttons
+            ["link"],
+            ["blockquote", "code-block"],
+            [{ header: 1 }, { header: 2 }],
+            // custom button values
+            [{ list: "ordered" }, { list: "bullet" }],
+            [{ script: "sub" }, { script: "super" }],
+            // superscript/subscript
+            [{ indent: "-1" }, { indent: "+1" }],
+            // outdent/indent
+            [{ direction: "rtl" }],
+            // text direction
+            [{ size: ["small", false, "large", "huge"] }],
+            // custom dropdown
+            [{ header: [1, 2, 3, 4, 5, 6, false] }],
+            [{ color: [] }, { background: [] }],
+            // dropdown with defaults from theme
+            [{ font: [] }],
+            [{ align: [] }],
+            ["clean"]
+            // remove formatting button
+          ];
+          var editor = new Quill("#" + this.getUniqueId(), {
+            modules: { toolbar: toolbarOptions },
+            theme: "snow"
+          });
+          const Value = this.Value;
+          Value.subscribe((val) => {
+            if (val == "") {
+              editor.setText("");
+            }
+          });
+          editor.on("text-change", function(delta, oldDelta, source) {
+            Value(editor.root.textContent ? editor.root.innerHTML : "");
+          });
+        }
+        static viewTemplate = viewTemplate4;
+        static editTemplate = editTemplate8;
+        static view = "text-area-view";
+        static edit = "text-area-edit";
+        static new = "text-area-edit";
+      };
+      registerFieldComponents(TextAreaModule);
+    }
+  });
+
+  // src/sal/components/fields/TextModule.js
+  var editTemplate9, TextModule;
+  var init_TextModule = __esm({
+    "src/sal/components/fields/TextModule.js"() {
+      init_BaseFieldModule();
+      editTemplate9 = html2`
   <label class="fw-semibold"
     ><span data-bind="text: displayName"></span
     ><span data-bind="if: isRequired" class="fw-bold text-danger">*</span>:
@@ -420,22 +918,3383 @@
   <div class="fw-semibold text-danger" data-bind="text: description"></div>
   <!-- /ko -->
   <!-- /ko -->
-`,Lt=class extends fe{constructor(e){super(e)}static editTemplate=vn;static view="text-view";static edit="text-edit";static new="text-edit"};Re(Lt)});var je=O(()=>{Ue();Ks();zs();Ys();Xs();bs();Zs();ei();ti();si()});var Ze,ii=O(()=>{ye();je();Ze=class t extends me{constructor(e){super(e),this.entityType=e.entityType,this.multiple=e.multiple,this.multiple&&(this.Value=ko.observableArray()),ko.isObservable(this.entityType)&&this.entityType.subscribe(this.updateEntityTypeHandler),this.updateEntityTypeHandler(ko.unwrap(this.entityType))}toString=ko.pureComputed(()=>`${this.Value()?.length??"0"} items`);toJSON=ko.pureComputed(()=>this.multiple?this.Value().map(e=>e.toJSON()):this.Value()?.toJSON());fromJSON=e=>{if(e){if(!this.multiple){this.Value()?.fromJSON(e);return}this.Value.removeAll(),e.map(s=>{let o=new this.entityConstructor;o.fromJSON(s),this.Value.push(o)})}};get=()=>JSON.stringify(this.toJSON());blob;set=e=>{window.DEBUG&&console.log(e),this.blob=e,e?.constructor!=t&&this.fromJSON(JSON.parse(e))};get entityConstructor(){return ko.utils.unwrapObservable(this.entityType)}Cols=ko.pureComputed(()=>ko.unwrap(this.entityType)?new this.entityConstructor().FormFields():[]);NewItem=ko.observable();submit=()=>{(this.NewItem()?.validate()).length||(this.Value.push(this.NewItem()),this.NewItem(new this.entityConstructor))};add=e=>this.Value.push(e);remove=e=>this.Value.remove(e);updateEntityTypeHandler=e=>{e&&(this.multiple?this.NewItem(new this.entityConstructor):this.Value(new this.entityConstructor),this.blob&&this.fromJSON(JSON.parse(this.blob)))};applyValueToTypedValues=()=>{};components=Pt}});var Vt,ni=O(()=>{ye();je();Vt=class extends me{constructor(e){super(e)}components=_t}});var we,Ae,oi=O(()=>{je();ye();we={date:"date",datetime:"datetime-local"},Ae=class extends me{constructor(e){super(e),this.type=e.type??we.date}toString=ko.pureComputed(()=>{switch(this.type){case we.date:return this.toLocaleDateString();case we.datetime:return this.toLocaleString();default:return""}});toSortableDateString=()=>this.Value()?.format("yyyy-MM-dd");toLocaleDateString=()=>this.Value()?.toLocaleDateString();toLocaleString=()=>this.Value()?.toLocaleString();toInputDateString=()=>{let e=this.Value();return[e.getUTCFullYear().toString().padStart(4,"0"),(e.getUTCMonth()+1).toString().padStart(2,"0"),e.getUTCDate().toString().padStart(2,"0")].join("-")};toInputDateTimeString=()=>this.Value().format("yyyy-MM-ddThh:mm");get=ko.pureComputed(()=>!this.Value()||isNaN(this.Value().valueOf())?null:this.Value().toISOString());set=e=>{if(!e)return null;e.constructor.getName()!="Date"&&(e=new Date(e)),e.getTimezoneOffset(),this.Value(e)};inputBinding=ko.pureComputed({read:()=>{if(!this.Value())return null;switch(this.type){case we.date:return this.toInputDateString();case we.datetime:return this.toInputDateTimeString();default:return null}},write:e=>{e&&this.Value(new Date(e))}});components=Nt}});function ri(t,e){if(t.FieldMap&&t.FieldMap[e]){let s=t.FieldMap[e];return typeof s=="function"?s():s.toString&&typeof s.toString=="function"?s.toString():s.get&&typeof s.get=="function"?s.get():s.obs?s.obs():s}return t[e]??""}var be,ai=O(()=>{je();ye();be=class extends me{constructor({displayName:e,type:s,isRequired:o=!1,Visible:u,entitySet:h,options:w=ko.observableArray(),optionsFilter:N=null,optionsText:P=null,multiple:U=!1,lookupCol:B=null,instructions:j}){super({Visible:u,displayName:e,isRequired:o,instructions:j}),w?(this.isSearch=!1,this.allOpts=w):this.isSearch=!0,this.isSearch=!w,this.multiple=U,this.Value=U?ko.observableArray():ko.observable(),this.entityType=s,this.entitySet=h,this.lookupCol=B??"Title",this.optionsText=P??(ee=>ee[this.lookupCol]),N&&(this.optionsFilter=N),this.components=U?Xe:Et}isSearch=!1;allOpts;optionsFilter=e=>e;Options=ko.pureComputed(()=>{let e=ko.unwrap(this.optionsFilter);return ko.unwrap(this.allOpts).filter(e)});IsLoading=ko.observable(!1);HasLoaded=ko.observable(!1);refresh=async()=>{if(this.Value()){if(this.IsLoading(!0),!this.multiple){await this.entitySet.LoadEntity(this.Value()),this.IsLoading(!1),this.HasLoaded(!0);return}await Promise.all(this.Value().map(async e=>await this.entitySet.LoadEntity(e))),this.IsLoading(!1),this.HasLoaded(!0)}};ensure=async()=>{if(!this.HasLoaded()){if(this.IsLoading())return new Promise((e,s)=>{let o=this.IsLoading.subscribe(u=>{u||(o.dispose(),e())})});await this.refresh()}};toString=ko.pureComputed(()=>this.Value()?this.multiple?this.Value().map(e=>ri(e,this.lookupCol)).join(", "):ri(this.Value(),this.lookupCol):"");get=()=>{if(!this.Value())return;if(this.multiple)return this.Value().map(s=>({ID:s.ID,LookupValue:s.LookupValue,Title:s.Title}));let e=this.Value();return{ID:e.ID,LookupValue:e.LookupValue,Title:e.Title}};set=e=>{if(!e){this.Value(e);return}if(this.multiple){let s=Array.isArray(e)?e:e.results??e.split("#;");this.Value(s.map(o=>this.findOrCreateNewEntity(o)));return}this.Value(this.findOrCreateNewEntity(e)),e&&this.toString()};findOrCreateNewEntity=e=>{if(this.entityType.FindInStore){let u=this.entityType.FindInStore(e);if(u)return u;console.warn(`Could not find entity in store: ${this.entityType.name}`,e)}let s=this.allOpts().find(u=>u.ID==e.ID);if(s)return s;if(this.entityType.Create)return this.entityType.Create(e);let o=new this.entityType;return o.ID=e.ID,this.entitySet.LoadEntity(o),o}}});var li,ui=O(()=>{li=(t,e)=>t.Title>e.Title?1:t.Title<e.Title?-1:0});var Pe,Ss=O(()=>{Pe=class t{constructor({ID:e,Title:s,LoginName:o=null,IsGroup:u=null,IsEnsured:h=!1}){this.ID=e,this.Title=s,this.LookupValue=s,this.LoginName=o!=""?o:null,this.IsGroup=u,this.IsEnsured=h}ID=null;Title=null;LoginName=null;LookupValue=null;getKey=()=>this.LoginName??this.Title;static Create=function(e){return!e||!e.ID&&!(e.Title||e.LookupValue)?null:new t({...e,Title:e.Title??e.LookupValue})}}});var is,ci=O(()=>{Oe();is=class extends at{constructor(e){super(e)}static Views={All:["ID","Title","Created","Author","Modified","Editor"]};static ListDef={name:"Pages",title:"Pages"}}});var et=O(()=>{Ss();ci()});var ns,di=O(()=>{ns="/sites/CGFS/Style Library/apps/audit/src"});var yn,wn,Cs=O(()=>{et();Ie();di();ko.subscribable.fn.subscribeChanged=function(t){var e;this.subscribe(function(s){e=s},this,"beforeChange"),this.subscribe(function(s){t(s,e)})};ko.observableArray.fn.subscribeAdded=function(t){this.subscribe(function(e){let s=e.filter(o=>o.status=="added").map(o=>o.value);t(s)},this,"arrayChange")};ko.bindingHandlers.searchSelect={init:function(t,e,s){let{options:o,selectedOptions:u,optionsText:h,onSearchInput:w}=e();function N(){let U=ko.unwrap(o).map(B=>{let j=document.createElement("option");return ko.selectExtensions.writeValue(j,ko.unwrap(B)),j.innerText=h(B),ko.unwrap(u)?.find(ee=>ee.ID==B.ID)&&j.setAttribute("selected",""),j});t.append(...U)}N(),ko.isObservable(o)&&o.subscribe(()=>N(),this),ko.utils.registerEventHandler(t,"change",P=>{u(t.selectedOptions.map(U=>ko.selectExtensions.readValue(U)))}),w&&ko.utils.registerEventHandler(t,"input",P=>{w(P.originalEvent.target.searchInputElement.value)})},update:function(t,e,s,o,u){let{selectedOptions:h}=e(),w=ko.unwrap(h);for(var N=0;N<t.options.length;N++){let P=t.options[N];P.toggleAttribute("selected",w.includes(ko.selectExtensions.readValue(P)))}}};ko.bindingHandlers.people={init:function(t,e,s){var o={};o.PrincipalAccountType="User",o.SearchPrincipalSource=15,o.ShowUserPresence=!0,o.ResolvePrincipalSource=15,o.AllowEmailAddresses=!0,o.AllowMultipleValues=!1,o.MaximumEntitySuggestions=50,o.OnUserResolvedClientScript=async function(u,h){var w=SPClientPeoplePicker.SPClientPeoplePickerDict[u],N=e(),P=w.GetControlValueAsJSObject()[0];if(!P){N(null);return}if(P.IsResolved){if(P.Key==N()?.LoginName)return;var U=await ut(P.Key),B=new Pe(U);N(B)}},SPClientPeoplePicker_InitStandaloneControlWrapper(t.id,null,o)},update:function(t,e,s,o,u){var h=SPClientPeoplePicker.SPClientPeoplePickerDict[t.id+"_TopSpan"],w=ko.utils.unwrapObservable(e());if(!w){h?.DeleteProcessedUser();return}w&&!h.GetAllUserInfo().find(N=>N.DisplayText==w.LookupValue)&&h.AddUserKeys(w.LoginName??w.LookupValue??w.Title)}};ko.bindingHandlers.dateField={init:function(t,e,s){},update:function(t,e,s,o,u){}};ko.bindingHandlers.downloadLink={update:function(t,e,s,o,u){var h=e(),w=h.replace(/:([A-Za-z_]+)/g,function(N,P){return ko.unwrap(o[P])});t.href=w}};ko.bindingHandlers.files={init:function(t,e){function s(u){var h=e();if(!u.length){h.removeAll();return}let w=ko.unwrap(h),N=[];for(let P of u)w.find(U=>U.name==P.name)||N.push(P);ko.utils.arrayPushAll(h,N)}ko.utils.registerEventHandler(t,"change",function(){s(t.files)});let o=t.closest("label");o&&(ko.utils.registerEventHandler(o,"dragover",function(u){u.preventDefault(),u.stopPropagation()}),ko.utils.registerEventHandler(o,"dragenter",function(u){u.preventDefault(),u.stopPropagation(),o.classList.add("dragging")}),ko.utils.registerEventHandler(o,"dragleave",function(u){u.preventDefault(),u.stopPropagation(),o.classList.remove("dragging")}),ko.utils.registerEventHandler(o,"drop",function(u){u.preventDefault(),u.stopPropagation();let w=u.originalEvent.dataTransfer.files;s(w)}))},update:function(t,e,s,o,u){if(!e()().length&&t.files.length){t.value=null;return}}};ko.bindingHandlers.toggleClick={init:function(t,e,s){var o=e();ko.utils.registerEventHandler(t,"click",function(){var u=s.get("toggleClass"),h=s.get("classContainer"),w=s.get("containerType");if(w&&w=="sibling")$(t).nextUntil(h).each(function(){$(this).toggleClass(u)});else if(w&&w=="doc"){var N=$(t).attr("src");N=="/_layouts/images/minus.gif"?$(t).attr("src","/_layouts/images/plus.gif"):$(t).attr("src","/_layouts/images/minus.gif"),$(t).parent()&&$(t).parent().parent()&&$(t).parent().parent().nextUntil(h).each(function(){$(this).toggleClass(u)})}else w&&w=="any"?$("."+u).is(":visible")?$("."+u).hide():$("."+u).show():$(t).find(h).toggleClass(u)})}};ko.bindingHandlers.toggles={init:function(t,e){var s=e();ko.utils.registerEventHandler(t,"click",function(){s(!s())})}};yn={loadTemplate:function(t,e,s){e.fromPath?fetch(ns+e.fromPath).then(o=>{if(!o.ok)throw new Error(`Error Fetching HTML Template - ${o.statusText}`);return o.text()}).catch(o=>{e.fallback&&(console.warn("Primary template not found, attempting fallback",e),fetch(ns+e.fallback).then(u=>{if(!u.ok)throw new Error(`Error Fetching fallback HTML Template - ${u.statusText}`);return u.text()}).then(u=>ko.components.defaultLoader.loadTemplate(t,u,s)))}).then(o=>o?ko.components.defaultLoader.loadTemplate(t,o,s):null):s(null)}};ko.components.loaders.unshift(yn);wn={loadViewModel:function(t,e,s){if(e.viaLoader){let o=import(ns+e.viaLoader).then(u=>{let h=u.default;ko.components.defaultLoader.loadViewModel(t,h,s)})}else s(null)}};ko.components.loaders.unshift(wn)});function rs(t,{template:e,viewModel:s=null}){ko.components.register(t,{template:e,viewModel:s})}var os,pi=O(()=>{os=String.raw});function fi(t){return new Promise((e,s)=>t.executeQueryAsync(e,(o,u)=>{s({sender:o,args:u})}))}function Gt(t,e=null){return{ID:t.get_id(),Title:t.get_title(),LoginName:t.get_loginName(),IsEnsured:!0,IsGroup:e??t.constructor.getName()=="SP.Group",oPrincipal:t}}function hi(){let t=X.globalConfig.defaultGroups,e={};return Object.keys(t).forEach(s=>{e[s]=Gt(t[s],!0)}),e}async function Ri(t){if(As[t]?.Users?.constructor==Array)return As[t].Users;let e=`/web/sitegroups/GetByName('${t}')?$expand=Users`,o=(await ve(e)).d;return o.Users=o.Users?.results,As[t]=o,o.Users}async function vi(t=_spPageContextInfo.userId){let e="/sp.userprofiles.peoplemanager/getmyproperties",s=`/Web/GetUserById(${t})/?$expand=Groups`,o=(await ve(s)).d,u=(await ve(e))?.d.UserProfileProperties.results;function h(w,N){return w.find(P=>P.Key==N)?.Value}return{ID:t,Title:o.Title,LoginName:o.LoginName,WorkPhone:h(u,"WorkPhone"),EMail:h(u,"WorkEmail"),IsEnsured:!0,IsGroup:!1,Groups:o.Groups?.results?.map(w=>({...w,ID:w.Id,IsGroup:!0,IsEnsured:!0}))}}async function yi(t,e){let s=`/web/getfilebyserverrelativeurl('${t}')/copyto('${e}')`;return await ve(s,"POST")}async function ut(t){return new Promise((e,s)=>{var o=X.globalConfig.siteGroups.find(function(U){return U.LoginName==t});if(o){e(o);return}var u=new SP.ClientContext.get_current,h=u.get_web().ensureUser(t);function w(U,B){let j=Gt(h);e(j)}function N(U,B){console.error("Failed to ensure user :"+B.get_message()+`
-`+B.get_stackTrace()),s(B)}let P={oUser:h,resolve:e,reject:s};u.load(h),u.executeQueryAsync(Function.createDelegate(P,w),Function.createDelegate(P,N))})}function gi(t){var e=null;return this.globalConfig.siteGroups!=null&&(e=this.globalConfig.siteGroups.find(function(s){return s.Title==t})),e}function wi(t){var e=this;e.config={def:t};async function s(){if(!e.config.fieldSchema){let a=`/web/lists/GetByTitle('${e.config.def.title}')?$expand=Fields`,c=await ve(a);e.config.guid=c.d.Id,e.config.fieldSchema=c.d.Fields.results}}s();async function o(a,c){let v=new SP.ClientContext.get_current().get_web().get_lists().getByTitle(e.config.def.title);return st(v,a,c)}function u(a,c,p){p=p===void 0?!1:p;var m=new Array,v=new Array,b=new SP.ClientContext.get_current,C=b.get_web(),g=C.get_lists().getByTitle(e.config.def.title);a.forEach(function(A){var k=gi(A[0]);k?v.push([k,A[1]]):m.push([b.get_web().ensureUser(A[0]),A[1]])});function F(){console.log("Successfully found item");var A=new SP.ClientContext.get_current,k=A.get_web();p?(g.resetRoleInheritance(),g.breakRoleInheritance(!1,!1),g.get_roleAssignments().getByPrincipal(X.globalConfig.currentUser).deleteObject()):g.breakRoleInheritance(!1,!1),this.resolvedGroups.forEach(function(y){var D=SP.RoleDefinitionBindingCollection.newObject(A);D.add(k.get_roleDefinitions().getByName(y[1])),g.get_roleAssignments().add(y[0],D)}),this.users.forEach(function(y){var D=SP.RoleDefinitionBindingCollection.newObject(A);D.add(k.get_roleDefinitions().getByName(y[1])),g.get_roleAssignments().add(y[0],D)});var n={oList:g,callback:c};function r(){console.log("Successfully set permissions"),c(g)}function d(y,D){console.error("Failed to update permissions on List: "+this.oList.get_title()+D.get_message()+`
-`,D.get_stackTrace())}A.load(g),A.executeQueryAsync(Function.createDelegate(n,r),Function.createDelegate(n,d))}function T(A,k){console.error("Failed to find List: "+this.oList.get_title+k.get_message(),k.get_stackTrace())}var S={oList:g,users:m,resolvedGroups:v,callback:c};b.load(g),m.map(function(A){b.load(A[0])}),b.executeQueryAsync(Function.createDelegate(S,F),Function.createDelegate(S,T))}function h(a){return a&&(Array.isArray(a)?a.map(c=>w(c)).join(";#"):w(a))}function w(a){return a.ID?`${a.ID};#${a.LookupValue??""}`:a.LookupValue?a.LookupValue:a.constructor.getName()=="Date"?a.toISOString():a}function N(a,c=null){return new Promise((p,m)=>{let v=new SP.ClientContext.get_current,C=v.get_web().get_lists().getByTitle(e.config.def.title),g=new SP.ListItemCreationInformation;if(c){var F=X.globalConfig.siteUrl+"/Lists/"+e.config.def.name+"/"+c;g.set_folderUrl(F)}let T=C.addItem(g),S=["ID","Author","Created","Editor","Modified"];Object.keys(a).filter(r=>!S.includes(r)).forEach(r=>{T.set_item(r,h(a[r]))}),T.update();function A(){p(T.get_id())}function k(r,d){console.error("Create Item Failed - List: "+e.config.def.name),console.error("ValuePairs",a),console.error(r,d),m(r)}let n={entity:a,oListItem:T,resolve:p,reject:m};v.load(T),v.executeQueryAsync(Function.createDelegate(n,A),Function.createDelegate(n,k))})}function P(a){if(!a)return a;let c={};switch(a.constructor.getName()){case"SP.FieldUserValue":c.LoginName=a.get_email();case"SP.FieldLookupValue":c.ID=a.get_lookupId(),c.LookupValue=a.get_lookupValue(),c.Title=a.get_lookupValue();break;default:c=a}return c}function U(a,c,p){var m=new SP.CamlQuery.createAllItemsQuery;m.set_viewXml(a);var v=new SP.ClientContext.get_current,b=v.get_web(),C=b.get_lists().getByTitle(e.config.def.title),g=C.getItems(m);function F(){var A=this,k=A.collListItem.getEnumerator();let n=[];for(;k.moveNext();){var r=k.get_current(),d={};c.forEach(y=>{var D=r.get_item(y);d[y]=Array.isArray(D)?D.map(E=>P(E)):P(D)}),n.push(d)}p(n)}function T(A,k){console.log("unsuccessful read",A),alert("Request on list "+e.config.def.name+` failed, producing the following error: 
- `+k.get_message()+`
-StackTrack: 
- `+k.get_stackTrace())}var S={collListItem:g,callback:p,fields:c,camlQuery:m};v.load(g,`Include(${c.join(", ")})`),v.executeQueryAsync(Function.createDelegate(S,F),Function.createDelegate(S,T))}function B({fields:a=null,caml:c=null}){if(!c)var c='<View Scope="RecursiveAll"><Query><Where><Eq><FieldRef Name="FSObjType"/><Value Type="int">0</Value></Eq></Where></Query></View>';return new Promise((p,m)=>{U(c,a,p)})}function j(a,c){return new Promise((p,m)=>{try{de(a,c,p)}catch(v){m(v)}})}async function ee(a,c){let[p,m]=await ie(c),v=`/web/lists/GetByTitle('${e.config.def.title}')/items(${a})?$Select=${p}&$expand=${m}`;return(await ve(v)).d}async function ae(){if(!e.config.fieldSchema){let a=`/web/lists/GetByTitle('${e.config.def.title}')/Fields`,c=await ve(a);e.config.fieldSchema=c.d.results}return e.config.fieldSchema}async function ie(a){let c=[],p=[],m=await ae();return a.map(v=>{if(v=="FileRef"){c.push(v);return}if(v.includes("/")){c.push(v),p.push(v.split("/")[0]);return}let b=m.find(F=>F.StaticName==v);if(!b){alert(`Field '${v}' not found on list ${e.config.def.name}`);return}let C=v+"/ID",g=v+"/Title";switch(b.TypeAsString){case"LookupMulti":case"Lookup":g=v+"/"+b.LookupField;case"User":c.push(C),c.push(g),p.push(v);break;case"Choice":default:c.push(v)}}),[c,p]}async function le(a,{orderByColumn:c=null,sortAsc:p},{count:m=null,includePermissions:v=!1,includeFolders:b=!1},C){let[g,F]=await ie(C);v&&(g.push("RoleAssignments"),g.push("HasUniqueRoleAssignments"),F.push("RoleAssignments"));let T=c?`$orderby=${c} ${p?"asc":"desc"}`:"",S=[];a.forEach(E=>S.push(`${E.column} ${E.op??"eq"} '${E.value}'`)),b||S.push("FSObjType eq '0'");let A="$filter=("+S.join(") and (")+")",k="$select="+g,n="$expand="+F,r=m?`$top=${m}`:"",d=`/web/lists/GetByTitle('${e.config.def.title}')/items?${k}&${n}&${T}&${A}&${r}`,y=await ve(d);return{results:y?.d?.results,_next:y?.d?.__next}}async function ue(a){let c=await ve(a._next);return{results:c?.d?.results,_next:c?.d?.__next}}function de(a,c,p){var m=new SP.ClientContext.get_current,v=m.get_web(),b=v.get_lists().getByTitle(e.config.def.title),C=b.getItemById(a);function g(){let S={};c.forEach(A=>{var k=C.get_item(A);S[A]=Array.isArray(k)?k.map(n=>P(n)):P(k)}),p(S)}function F(S,A){console.error("SAL: findById - List: "+e.config.def.name),console.error("Fields",this),console.error(S,A)}var T={oListItem:C,callback:p,fields:c};m.load(C),m.executeQueryAsync(Function.createDelegate(T,g),Function.createDelegate(T,F))}function ne(a){return a?.ID?new Promise((c,p)=>{let m=new SP.ClientContext.get_current,C=m.get_web().get_lists().getByTitle(e.config.def.title).getItemById(a.ID),g=["ID","Author","Created","Editor","Modified"];Object.keys(a).filter(A=>!g.includes(A)).forEach(A=>{C.set_item(A,h(a[A]))}),C.update();function F(){console.log("Successfully updated "+this.oListItem.get_item("Title")),c()}function T(A,k){console.error("Update Failed - List: "+e.config.def.name),console.error("Item Id",this.oListItem.get_id()??"N/A"),console.error(a),console.error(A,k),p(k)}let S={oListItem:C,entity:a,resolve:c,reject:p};m.load(C),m.executeQueryAsync(Function.createDelegate(S,F),Function.createDelegate(S,T))}):!1}function Te(a,c){var p=new SP.ClientContext.get_current,m=p.get_web(),v=m.get_lists().getByTitle(e.config.def.title),b={callback:c};v.getItemById(a).deleteObject();function g(T,S){c()}function F(T,S){console.error("sal.SPList.deleteListItem: Request on list "+e.config.def.name+` failed, producing the following error: 
- `+S.get_message()+`
-StackTrack: 
- `+S.get_stackTrace())}p.executeQueryAsync(Function.createDelegate(b,g),Function.createDelegate(b,F))}async function ht(a){let c=`/web/lists/GetByTitle('${e.config.def.title}')/items(${a})`;return await ve(c,"DELETE",{"If-Match":"*"})}async function Y(a,c,p){let v=new SP.ClientContext.get_current().get_web(),b=await Rt(a);return st(b,c,p)}async function st(a,c,p){p&&(a.resetRoleInheritance(),a.breakRoleInheritance(!1,!1));for(let m of c.roles){let v=await ut(m.principal.Title);if(!v)return;let b=new SP.ClientContext.get_current,C=b.get_web(),g=v.oPrincipal;b.load(g),m.roleDefs.map(T=>{let S=SP.RoleDefinitionBindingCollection.newObject(b);S.add(C.get_roleDefinitions().getByName(T.name)),a.get_roleAssignments().add(g,S)});let F={};await fi(b).catch(({sender:T,args:S})=>{console.error(`Failed to set role permissions on item id ${id} for principal ${m.principal.Title} `+S.get_message(),S)})}if(p){let m=new SP.ClientContext.get_current;a.get_roleAssignments().getByPrincipal(X.globalConfig.currentUser).deleteObject(),await fi(m).catch(({sender:v,args:b})=>{console.error(`Failed to remove role permissions on item id ${id} for Current User `+b.get_message(),b)})}}function Rt(a){return new Promise((c,p)=>{let m=new SP.ClientContext.get_current,C=m.get_web().get_lists().getByTitle(e.config.def.title).getItemById(a);m.executeQueryAsync(()=>{c(C)},(g,F)=>{console.error("Failed to find item: "+a+F.get_message(),F),p()})})}function vt(a){return new Promise((c,p)=>{var m=new SP.ClientContext.get_current,v=m.get_web(),b=v.get_lists().getByTitle(e.config.def.title),C=new SP.CamlQuery;C.set_viewXml('<View><Query><Where><Eq><FieldRef Name="ID"/><Value Type="Text">'+a+"</Value></Eq></Where></Query></View>");var g=b.getItems(C);m.load(g,"Include(ID, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))");function F(){for(var A=g.getEnumerator();A.moveNext();){for(var k=A.get_current(),n=new We({hasUniqueRoleAssignments:k.get_hasUniqueRoleAssignments(),roles:[]}),r=k.get_roleAssignments().getEnumerator();r.moveNext();){var d=r.get_current();let y=ct.fromJsomRole(d);n.roles.push(y)}c(n);break}}function T(A,k){p(k.get_message())}let S={oListItems:g,resolve:c,reject:p};m.executeQueryAsync(Function.createDelegate(S,F),Function.createDelegate(S,T))})}async function yt(){let a=`/web/lists/getByTitle('${e.config.def.name}')?$select=HasUniqueRoleAssignments,RoleAssignments&$expand=RoleAssignments/Member,RoleAssignments/RoleDefinitionBindings`,p=await ve(a,"GET",{"Cache-Control":"no-cache"});if(p)return We.fromRestResult(p.d)}function ke(a){let c=X.globalConfig.siteUrl;return c+=e.config.def.isLib?"/"+e.config.def.name:"/Lists/"+e.config.def.name,a&&(c+="/"+a),c}function it(a){return e.config.def.isLib?new Promise((c,p)=>Dt(a,c)):new Promise((c,p)=>Ct(a,c))}async function Ve(a){try{let p=(await bt(a)).map(m=>[m.LoginName,X.config.siteRoles.roles.RestrictedRead]);await Ye(a,p,!0)}catch(c){console.warn(c)}}async function Ge(a,c){let p=ke(a),m=X.globalConfig.siteUrl+`/_api/web/GetFolderByServerRelativeUrl('${p}')/ListItemAllFields/RoleAssignments?$expand=Member,Member/Users,RoleDefinitionBindings`,v=await fetch(m,{method:"GET",headers:{Accept:"application/json; odata=verbose"}});if(!v.ok){if(v.status==404)return;console.error(v)}let b=await v.json(),C=b?.d?.results;if(!C){console.warn("No results found",b);return}let g=c.filter(F=>{let T=F[0],S=F[1];return!C.find(k=>k.Member.LoginName!=T&&!k.Member.Users?.results.find(n=>n.LoginName==T)?!1:!!k.RoleDefinitionBindings.results?.find(n=>X.config.siteRoles.fulfillsRole(n.Name,S)))});console.log("Adding missing permissions",g),g.length&&await Ye(a,g,!1)}function wt(a,c){return new Promise((p,m)=>{let v=new SP.ClientContext.get_current,C=v.get_web().get_lists().getByTitle(e.config.def.title),g=ke(a),F=SP.CamlQuery.createAllItemsQuery();F.set_folderServerRelativeUrl(g);let T=C.getItems(F);v.load(T,`Include(${c.join(", ")})`),v.executeQueryAsync(function(){let S=[];for(var A=T.getEnumerator();A.moveNext();){var k=A.get_current(),n={};c.forEach(r=>{var d=k.get_item(r);n[r]=Array.isArray(d)?d.map(y=>P(y)):P(d)}),n.oListItem=k,S.push(n)}p(S)},function(S,A){console.warn("Unable load list folder contents:"),console.error(S),console.error(A),m(A)})})}async function bt(a){return new Promise(async(c,p)=>{let m=await St(a);if(!m){p("Folder item does not exist");return}let v=m.get_roleAssignments(),b=new SP.ClientContext.get_current;b.load(m),b.load(v),b.executeQueryAsync(function(){let C=new SP.ClientContext.get_current;console.log(m);let g=[],F=[],T=v.getEnumerator();for(;T.moveNext();){let S=T.get_current(),A=S.get_member(),k=S.get_roleDefinitionBindings();C.load(k),C.load(A),g.push({principal:A,bindings:k})}C.executeQueryAsync(function(S,A){let k=g.map(function({principal:n,bindings:r}){let d=[],y=r.getEnumerator();for(;y.moveNext();){let D=y.get_current();d.push(D.get_name())}return{ID:n.get_id(),Title:n.get_title(),LoginName:n.get_loginName(),Roles:d}});c(k)},function(S,A){console.warn("Unable load folder principals permissions:"),console.error(S),console.error(A),p(A)})},function(C,g){console.warn("Unable load folder permissions:"),console.error(C),console.error(g),p(g)})})}async function St(a){return new Promise((c,p)=>{let m=new SP.ClientContext.get_current,b=m.get_web().get_lists().getByTitle(e.config.def.title),C=SP.CamlQuery.createAllItemsQuery();var F='<View Scope="RecursiveAll"><Query><Where><And><Eq><FieldRef Name="FSObjType"/><Value Type="int">1</Value></Eq><Eq><FieldRef Name="FileRef"/><Value Type="Text">'+ke(a)+"</Value></Eq></And></Where></Query><RowLimit>1</RowLimit></View>";C.set_viewXml(F);let T=b.getItems(C);async function S(){let n=[];for(var r=T.getEnumerator();r.moveNext();){let y=r.get_current();n.push(y)}n||(console.warn("folder not found"),c(n)),n.length>1&&(console.warn("Multiple folders found!"),c(n));let d=n[0];c(d)}function A(n,r){console.warn("Unable load list folder contents:"),console.error(n),console.error(r),p(r)}let k={allFolders:T,resolve:c,reject:p};m.load(T),m.executeQueryAsync(Function.createDelegate(k,S),Function.createDelegate(k,A))})}function Ct(a,c){var p=a.split("/"),m=0,v=function(b,C,g,F){var T=C[g];g++;var S=C.slice(0,g).join("/");At(S,function(A){g>=C.length?F(A.get_id()):v(S,C,g,F)},function(){e.createListFolder(T,function(A){g>=C.length?F(A):v(S,C,g,F)},b)})};v("",p,m,c)}e.createListFolder=function(a,c,p){p=p===void 0?"":p;let m=new SP.ClientContext.get_current,b=m.get_web().get_lists().getByTitle(e.config.def.title),C="",g=new SP.ListItemCreationInformation;g.set_underlyingObjectType(SP.FileSystemObjectType.folder),g.set_leafName(a),p&&(C=X.globalConfig.siteUrl+"/Lists/"+e.config.def.name+"/"+p,g.set_folderUrl(C));let F=b.addItem(g);F.set_item("Title",a),F.update();function T(k,n){c(this.newItem.get_id())}function S(k,n){alert("Request on list "+e.config.def.name+` failed, producing the following error: 
-`+n.get_message()+`
-StackTrack: 
-`+n.get_stackTrace())}let A={folderName:a,callback:c,newItem:F};m.load(F),m.executeQueryAsync(Function.createDelegate(A,T),Function.createDelegate(A,S))};function At(a,c,p){var m=X.globalConfig.siteUrl+"/Lists/"+e.config.def.name+"/"+a,v=SP.ClientContext.get_current(),b=v.get_web().getFolderByServerRelativeUrl(m);b.get_listItemAllFields();var C={folder:b,path:a,onExists:c,onNonExists:p};v.load(b,"Exists","Name");function g(){if(b.get_exists()){let A=function(){c(S)},k=function(n,r){console.error("Failed to find folder at "+a,r)};console.log("Folder "+b.get_name()+" exists in "+e.config.def.name);var T=new SP.ClientContext.get_current,S=b.get_listItemAllFields();C={folderItem:S,path:a,onExists:c},T.load(S),T.executeQueryAsync(Function.createDelegate(C,A),Function.createDelegate(C,k))}else console.warn("Folder exists but is hidden (security-trimmed) for us.")}function F(T,S){S.get_errorTypeName()==="System.IO.FileNotFoundException"?(console.log("SAL.SPList.ensureListFolder:           Folder "+a+" does not exist in "+e.config.def.name),p()):console.error("Error: "+S.get_message())}v.executeQueryAsync(Function.createDelegate(C,g),Function.createDelegate(C,F))}function Dt(a,c){let v=new SP.ClientContext.get_current().get_web().get_lists().getByTitle(e.config.def.title);var b=function(C,g,F){var T=C.get_context(),S=g.split("/"),A=S[0],k=C.get_folders().add(A);T.load(k),T.executeQueryAsync(function(){if(S.length>1){var n=S.slice(1,S.length).join("/");b(k,n,F)}else F(k)},function(n,r){console.error("error creating new folder"),console.error(n),console.error(error)})};b(v.get_rootFolder(),a,c)}function Ye(a,c,p){return new Promise((m,v)=>{xt(a,c,m,p)})}function xt(a,c,p,m){m=m===void 0?!1:m;var v=[],b=[];let C=ke(a),g=new SP.ClientContext.get_current,T=g.get_web().getFolderByServerRelativeUrl(C);c.forEach(function(n){var r=gi(n[0]);r?.oGroup?b.push([r.oGroup,n[1]]):v.push([g.get_web().ensureUser(n[0]),n[1]])});function S(){var n=new SP.ClientContext.get_current,r=n.get_web(),d=this.folder.get_listItemAllFields();m?(d.resetRoleInheritance(),d.breakRoleInheritance(!1,!1),d.get_roleAssignments().getByPrincipal(X.globalConfig.currentUser).deleteObject()):d.breakRoleInheritance(!1,!1),this.resolvedGroups.forEach(function(_){var Q=SP.RoleDefinitionBindingCollection.newObject(n);Q.add(r.get_roleDefinitions().getByName(_[1])),d.get_roleAssignments().add(_[0],Q)}),this.users.forEach(function(_){var Q=SP.RoleDefinitionBindingCollection.newObject(n);Q.add(r.get_roleDefinitions().getByName(_[1])),d.get_roleAssignments().add(_[0],Q)});var y={folderItem:d,callback:p};function D(){console.log("Successfully set permissions"),this.callback(d)}function E(_,Q){console.error("Failed to update permissions on item: "+this.folderItem.get_lookupValue()+Q.get_message()+`
-`+Q.get_stackTrace(),!1)}n.load(d),n.executeQueryAsync(Function.createDelegate(y,D),Function.createDelegate(y,E))}function A(n,r){console.error("Something went wrong setting perms on library folder",r)}var k={folder:T,users:v,callback:p,resolvedGroups:b,valuePairs:c,reset:m};v.map(function(n){g.load(n[0])}),g.load(T),g.executeQueryAsync(Function.createDelegate(k,S),Function.createDelegate(k,A))}function It(a,c,p,m){var v="";p.id&&(v=p.id);let b=SP.UI.$create_DialogOptions();var C=e.config.def.isLib?"/"+e.config.def.name+"/":"/Lists/"+e.config.def.name+"/",g="";p.rootFolder&&(g=X.globalConfig.siteUrl+C+p.rootFolder);var F=e.config.def.isLib?"/"+e.config.def.name+"/forms/":"/Lists/"+e.config.def.name+"/";Object.assign(b,{title:c,dialogReturnValueCallback:m,args:JSON.stringify(p),height:800,url:X.globalConfig.siteUrl+F+a+"?ID="+v+"&Source="+location.pathname+"&RootFolder="+g}),SP.UI.ModalDialog.showModalDialog(b)}function Tt(a,c){var p=SP.UI.$create_DialogOptions();p.title="Check in Document",p.height="600",p.dialogReturnValueCallback=c,p.url=X.globalConfig.siteUrl+"/_layouts/checkin.aspx?List={"+e.config.guid+"}&FileName="+a,SP.UI.ModalDialog.showModalDialog(p)}function kt(a,c){let p=`/web/GetFileByServerRelativeUrl('${a}')/CheckIn(comment='${c}',checkintype=0)`;return ve(p,"POST")}function l(a){return new Promise(c=>{var p=SP.UI.$create_DialogOptions();p.title="Version History",p.height="600",p.dialogReturnValueCallback=c,p.url=f(a),SP.UI.ModalDialog.showModalDialog(p)})}function f(a){return X.globalConfig.siteUrl+"/_layouts/15/versions.aspx?List={"+e.config.guid+"}&ID="+a}function R(a,c,p){return new Promise((m,v)=>{let b=new SP.ClientContext.get_current,g=b.get_web().get_lists().getByTitle(e.config.def.title);b.load(g),b.executeQueryAsync(function(){var F=X.globalConfig.siteUrl=="/"?"":X.globalConfig.siteUrl;let T=SP.UI.$create_DialogOptions();Object.assign(T,{title:c,dialogReturnValueCallback:m,args:JSON.stringify(p),url:F+"/_layouts/Upload.aspx?List="+g.get_id().toString()+"&RootFolder="+F+"/"+e.config.def.name+"/"+encodeURI(a)+"&Source="+location.pathname+"&args="+encodeURI(JSON.stringify(p))}),SP.UI.ModalDialog.showModalDialog(T)},function(F,T){console.error("Error showing file modal: "),console.error(F),console.error(T)})})}let I=10485760,x={start:"startupload",continue:"continueupload",finish:"finishupload"};async function M(a,c,p,m){let v=a,b=I,C=a.size,g=parseInt((C/b).toString(),10)+(C%b===0?1:0),F=c+"/"+p,T=bn(),S;for(m({currentBlock:0,totalBlocks:g}),S=await G(T,a.slice(0,b),F,c),i=2;i<g;i++)m({currentBlock:i,totalBlocks:g}),S=await q(T,a.slice(S,S+b),S,F);m({currentBlock:g-1,totalBlocks:g});let A=await L(T,a.slice(S),S,F);return m({currentBlock:g,totalBlocks:g}),A}async function G(a,c,p,m){let v=`/web/getFolderByServerRelativeUrl(@folder)/files/getByUrlOrAddStub(@file)/StartUpload(guid'${a}')?&@folder='${m}'&@file='${p}'`,g=await ve(v,"POST",{"Content-Type":"application/octet-stream"},{body:c});if(!g){console.error("Error starting upload!");return}return parseFloat(g.d.StartUpload)}async function q(a,c,p,m){let v=`/web/getFileByServerRelativeUrl(@file)/ContinueUpload(uploadId=guid'${a}',fileOffset=${p})?&@file='${m}'`,g=await ve(v,"POST",{"Content-Type":"application/octet-stream"},{body:c});if(!g){console.error("Error starting upload!");return}return parseFloat(g.d.ContinueUpload)}async function L(a,c,p,m){let v=`/web/getFileByServerRelativeUrl(@file)/FinishUpload(uploadId=guid'${a}',fileOffset=${p})?&@file='${m}'`,g=await ve(v,"POST",{"Content-Type":"application/octet-stream"},{body:c});if(!g){console.error("Error starting upload!");return}return g}async function W(a,c,p){return await fetch(_spPageContextInfo.webServerRelativeUrl+`/_api/web/GetFolderByServerRelativeUrl('${c}')/Files/add(url='${p}',overwrite=true)`,{method:"POST",credentials:"same-origin",body:a,headers:{Accept:"application/json; odata=verbose","Content-Type":"application/json;odata=nometadata","X-RequestDigest":document.getElementById("__REQUESTDIGEST").value}}).then(m=>{if(!m.ok){console.error("Error Uploading File",m);return}return m.json()})}async function H(a,c,p,m,v=null){v||(v=()=>{});let b=ke(p),C=null;if(a.size>I){let T=()=>M(a,b,c,v);C=await Sn.addJob(T)}else v({currentBlock:0,totalBlocks:1}),C=await W(a,b,c),v({currentBlock:1,totalBlocks:1});await pe(C.d,m),await kt(b+"/"+c,"");let g=C.d.ListItemAllFields.__deferred.uri+"?$select=ID";return(await ve(g)).d.ID}async function pe(a,c){var p=await fetch(a.ListItemAllFields.__deferred.uri,{method:"POST",credentials:"same-origin",body:JSON.stringify(c),headers:{Accept:"application/json; odata=nometadata","Content-Type":"application/json;odata=nometadata","X-RequestDigest":document.getElementById("__REQUESTDIGEST").value,"X-HTTP-Method":"MERGE","If-Match":"*"}}).then(m=>{if(!m.ok){console.error("Error Updating File",m);return}return m});return p}function oe(a,c,p,m){let v=ke(a),b=ke(c);var C=new SP.ClientContext.get_current,g=C.get_web(),F=g.getFolderByServerRelativeUrl(v);C.load(F,"Files"),C.executeQueryAsync(function(){for(var T=F.get_files(),S=T.getEnumerator(),A=[];S.moveNext();){var k=S.get_current(),n=b+"/"+k.get_name();A.push(n),k.copyTo(n,!0)}console.log(A),C.executeQueryAsync(function(){console.log("Files moved successfully!"),p()},function(r,d){console.log("error: ")+d.get_message()})},function(T,S){console.error("Unable to copy files: ",S.get_message()),console.error(T),console.error(S),reject(S)})}function J(a,c){return new Promise((p,m)=>{oe(a,c,p,m)})}async function te(){let a=await ve(`/web/lists/GetByTitle('${e.config.def.title}')`)}return{findByIdAsync:j,getById:ee,findByColumnValueAsync:le,loadNextPage:ue,getListItemsAsync:B,createListItemAsync:N,updateListItemAsync:ne,deleteListItemAsync:ht,setItemPermissionsAsync:Y,getItemPermissionsAsync:vt,getListPermissions:yt,setListPermissionsAsync:o,getFolderContentsAsync:wt,upsertFolderPathAsync:it,getServerRelativeFolderPath:ke,setFolderReadonlyAsync:Ve,setFolderPermissionsAsync:Ye,ensureFolderPermissionsAsync:Ge,uploadFileToFolderAndUpdateMetadata:H,uploadNewDocumentAsync:R,copyFilesAsync:J,showModal:It,showCheckinModal:Tt,showVersionHistoryModal:l,getVersionHistoryUrl:f}}async function ve(t,e="GET",s={},o={}){let u=t.startsWith("http")?t:X.globalConfig.siteUrl+"/_api"+t,h=await fetch(u,{method:e,headers:{Accept:"application/json; odata=verbose","X-RequestDigest":document.getElementById("__REQUESTDIGEST").value,...s},...o});if(!h.ok){if(h.status==404)return;console.error(h)}try{return await h.json()}catch{return}}function bn(){if(crypto.randomUUID)return crypto.randomUUID();let t=Date.now();return"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,function(e){let s=(t+Math.random()*16)%16|0;return t=Math.floor(t/16),(e==="x"?s:s&3|8).toString(16)})}var X,mi,As,lr,We,ct,dt,Ds,Sn,as=O(()=>{window.console=window.console||{log:function(){}};window.sal=window.sal??{};X=window.sal,mi=_spPageContextInfo.webServerRelativeUrl=="/"?"":_spPageContextInfo.webServerRelativeUrl;X.globalConfig=X.globalConfig||{siteGroups:[],siteUrl:mi,listServices:mi+"/_vti_bin/ListData.svc/",defaultGroups:{}};X.site=X.site||{};window.DEBUG=!0;As={};lr=_spPageContextInfo.webAbsoluteUrl=="/"?"":_spPageContextInfo.webAbsoluteUrl;X.NewAppConfig=function(){var t={};t.roles={FullControl:"Full Control",Design:"Design",Edit:"Edit",Contribute:"Contribute",RestrictedContribute:"Restricted Contribute",InitialCreate:"Initial Create",Read:"Read",RestrictedRead:"Restricted Read",LimitedAccess:"Limited Access"},t.fulfillsRole=function(o,u){let h=Object.values(t.roles);return!h.includes(o)||!h.includes(u)?!1:h.indexOf(o)<=h.indexOf(u)},t.validate=function(){Object.keys(t.roles).forEach(function(o){var u=t.roles[o];X.globalConfig.roles.includes(u)?console.log(u):console.error(u+" is not in the global roles list")})};var e={groups:{Owners:"workorder Owners",Members:"workorder Members",Visitors:"workorder Visitors",RestrictedReaders:"Restricted Readers"}},s={siteRoles:t,siteGroups:e};return s};X.NewUtilities=function(){function t(w,N,P){P=P===void 0?null:P;var U=new SP.ClientContext.get_current,B=U.get_web(),j=new SP.GroupCreationInformation;j.set_title(w),this.oGroup=oWebsite.get_siteGroups().add(j),oGroup.set_owner(oWebsite.get_associatedOwnerGroup()),oGroup.update();var ee=SP.RoleDefinitionBindingCollection.newObject(clientContext);this.oRoleDefinitions=[],N.forEach(function(de){var ne=oWebsite.get_roleDefinitions().getByName(de);this.oRoleDefinitions.push(ne),ee.add(ne)});var ae=oWebsite.get_roleAssignments();ae.add(oGroup,ee);function ie(){var de=oGroup.get_title()+" created and assigned to "+oRoleDefinitions.forEach(function(ne){ne+""});P&&P(oGroup.get_id()),console.log(de)}function le(de,ne){alert(groupnName+" - Create group failed. "+ne.get_message()+`
-`+ne.get_stackTrace())}clientContext.load(oGroup,"Title");var ue={groupName:w,oGroup,oRoleDefinition,callback:P};clientContext.executeQueryAsync(Function.createDelegate(ue,ie),Function.createDelegate(ue,le))}function e(w,N){var P=new SP.ClientContext.get_current,U=P.get_web(),B=U.ensureUser(w),j=B.get_groups();function ee(){for(var ie=new Array,le=new String,ue=j.getEnumerator();ue.moveNext();){var de=ue.get_current(),ne=Gt(de);le+=`
-Group ID: `+de.get_id()+", Title : "+de.get_title(),ie.push(ne)}console.log(le.toString()),N(ie)}function ae(ie,le){console.error(" Everyone - Query Everyone group failed. "+le.get_message()+`
-`+le.get_stackTrace())}P.load(B),P.load(j),data={everyone:B,oGroups:j,callback:N},P.executeQueryAsync(Function.createDelegate(data,ee),Function.createDelegate(data,ae))}function s(w,N){var P=new SP.ClientContext.get_current,U=w.get_users();function B(){for(var ae=[],ie=U.getEnumerator();ie.moveNext();){var le=ie.get_current(),ue=Gt(le);ae.push(ue)}N(ae)}function j(ae,ie){}var ee={oUsers:U,callback:N};P.load(U),P.executeQueryAsync(Function.createDelegate(ee,B),Function.createDelegate(ee,j))}function o(w,N,P,U){var B=new SP.ClientContext.get_current,j=B.get_web(),ee=j.getFolderByServerRelativeUrl(w);B.load(ee,"Files"),B.executeQueryAsync(function(){console.log("Got the source folder right here!");for(var ae=ee.get_files(),ie=ae.getEnumerator(),le=[];ie.moveNext();){var ue=ie.get_current(),de=N+"/"+ue.get_name();le.push(de),ue.copyTo(de,!0)}console.log(le),B.executeQueryAsync(function(){console.log("Files moved successfully!"),P()},function(ne,Te){console.log("error: ")+Te.get_message()})},function(ae,ie){console.log("Sorry, something messed up: "+ie.get_message())})}function u(w,N){return new Promise((P,U)=>{o(w,N,P,U)})}var h={copyFiles:o,copyFilesAsync:u,createSiteGroup:t,getUserGroups:e,getUsersWithGroup:s};return h};We=class t{constructor({hasUniqueRoleAssignments:e,roles:s}){this.hasUniqueRoleAssignments=e,this.roles=s}hasUniqueRoleAssignments;roles=[];addPrincipalRole(e,s){let o=new dt({name:s}),u=this.getPrincipalRole(e);if(u){u.addRoleDef(o);return}let h=new ct({principal:e});h.addRoleDef(o),this.roles.push(h)}getPrincipalRole(e){return this.roles.find(s=>s.principal.ID==e.ID)}principalHasPermissionKind(e,s){return!!this.getPrincipalRole(e)?.roleDefs.find(u=>u.basePermissions?.has(s))}getValuePairs(){return this.roles.flatMap(e=>e.roleDefs.map(s=>[e.principal.Title,s.name]))}static fromRestResult(e){let s=e.RoleAssignments.results.map(ct.fromRestRoleAssignment);return new t({hasUniqueRoleAssignments:e.HasUniqueRoleAssignments,roles:s})}},ct=class t{constructor({principal:e,roleDefs:s=[]}){this.principal=e,this.roleDefs=s}principal;roleDefs=[];addRoleDef(e){this.roleDefs.push(e)}static fromRestRoleAssignment(e){return new t({principal:{...e.Member,ID:e.Member.Id},roleDefs:e.RoleDefinitionBindings.results.map(dt.fromRestRoleDef)})}static fromJsomRole(e){let s=new t({principal:Gt(e.get_member())});var o=e.get_roleDefinitionBindings();if(o!=null)for(var u=o.getEnumerator();u.moveNext();){var h=u.get_current();s.roleDefs.push(dt.fromJsomRoleDef(h))}return s}},dt=class t{constructor({name:e,basePermissions:s=null}){this.name=e,this.basePermissions=s}name;basePermissions;static fromRestRoleDef(e){let s=new t({name:e.Name,basePermissions:e.BasePermissions});return Object.assign(s,e),s}static fromJsomRoleDef(e){let s=new t({name:e.get_name()});return s.basePermissions=e.get_basePermissions(),s}};window.fetchSharePointData=ve;Ds=class{constructor(e){this.maxConcurrency=e,this.runningJobs=0,this.queue=[]}addJob(e){return new Promise((s,o)=>{let u=async()=>{try{let h=await e();s(h)}catch(h){o(h)}finally{this.runningJobs--,this.processQueue()}};this.queue.push(u),this.processQueue()})}processQueue(){for(;this.runningJobs<this.maxConcurrency&&this.queue.length>0;){let e=this.queue.shift();this.runningJobs++,e()}}},Sn=new Ds(5)});async function bi(t){let e=await Ri(t);return e?e.map(s=>new People(s)):[]}var Si=O(()=>{as()});var Ie=O(()=>{ui();Cs();pi();as();Si()});var qe,Ci=O(()=>{Ie();bs();Ss();Ie();as();ye();qe=class extends me{constructor(e){super(e),this.spGroupName=e.spGroupName??null,this.multiple=e.multiple??!1,this.Value=this.multiple?ko.observableArray():ko.observable(),ko.isObservable(this.spGroupName)&&this.spGroupName.subscribe(this.spGroupNameChangedHandler),ko.unwrap(this.spGroupName)&&this.spGroupNameChangedHandler(ko.unwrap(this.spGroupName))}spGroupId=ko.observable();userOpts=ko.observableArray();expandUsers=ko.observable(!1);spGroupNameChangedHandler=async e=>{e||(this.userOpts.removeAll(),this.spGroupId(null));let s=await ut(e);this.spGroupId(s.ID);let o=await bi(e);this.userOpts(o.sort(li))};pickerOptions=ko.pureComputed(()=>{let e=ko.unwrap(this.spGroupId),s={AllowMultipleValues:this.multiple};return e&&(s.SharePointGroupID=e),s});toString=ko.pureComputed(()=>this.multiple?this.Value()?.map(e=>e.Title):this.Value()?.Title);set=e=>{if(!this.multiple){this.Value(Pe.Create(e));return}if(!e){this.Value.removeAll();return}let s=e.results??e;if(!s.length){this.Value.removeAll();return}this.Value(s.map(o=>Pe.Create(o)))};components=Ot}});var Le,Ai=O(()=>{je();ye();Le=class extends me{constructor({displayName:e,isRequired:s=!1,Visible:o,options:u,multiple:h=!1,optionsText:w,instructions:N}){super({Visible:o,displayName:e,isRequired:s,instructions:N}),this.Options(u),this.multiple=h,this.Value=h?ko.observableArray():ko.observable(),this.optionsText=w,this.components=this.multiple?Xe:Ut}toString=ko.pureComputed(()=>this.multiple?this.Value().join(", "):this.Value());get=()=>this.Value();set=e=>{if(e&&this.multiple){Array.isArray(e)?this.Value(e):this.Value(e.results??e.split(";#"));return}this.Value(e)};Options=ko.observableArray()}});var $e,Di=O(()=>{je();ye();$e=class extends me{constructor(e){super(e),this.isRichText=e.isRichText,this.attr=e.attr??{}}components=qt}});var K,xi=O(()=>{je();ye();K=class extends me{constructor(e){super(e),this.attr=e.attr??{},this.options=e.options??null}components=Lt}});var ye=O(()=>{Js();ii();ni();oi();ai();Ci();Ai();Di();xi()});var Z,lt=O(()=>{Oe();ye();Z=class extends at{constructor(e){super(e)}toJSON=()=>{let e={};return Object.keys(this.FieldMap).map(s=>e[s]=this.FieldMap[s]?.get()),e};fromJSON(e){window.DEBUG&&console.log("Setting constrained entity from JSON",e),Object.keys(e).map(s=>this.FieldMap[s]?.set(e[s]))}get FieldMap(){let e={};return Object.entries(this).filter(([s,o])=>o instanceof me).map(([s,o])=>{s=o.systemName??s,e[s]=o}),e}FormFields=()=>Object.values(this.FieldMap);validate=(e=!0)=>(Object.values(this.FieldMap).map(s=>s?.validate&&s.validate(e)),this.Errors());Errors=ko.pureComputed(()=>Object.values(this.FieldMap).filter(e=>e?.Errors&&e.Errors()).flatMap(e=>e.Errors()));IsValid=ko.pureComputed(()=>!this.Errors().length)}});var Bt,Ii=O(()=>{Ee();ot();lt();ye();Ce();Bt=class extends Z{constructor(e){super(e)}Title=new K({displayName:"Title",required:!0});FileName=new K({displayName:"Name",systemName:"FileLeafRef",required:!0});FileRef=new K({displayName:"File Link",systemName:"FileRef"});ReqNum=new be({displayName:"Request Number",type:Se,lookupCol:"Title",required:!0,entitySet:z.AuditRequests});ActionOffice=new be({displayName:"Action Offices",type:_e,options:Be,optionsFilter:ko.pureComputed(()=>{let e=ko.unwrap(this.ReqNum.Value);if(!e)return o=>o;let s=ko.unwrap(e.ActionOffice.Value);return o=>s.includes(o)}),lookupCol:"Title",multiple:!0,entitySet:z.AuditOrganizations});static Views={All:["ID","Title","FileLeafRef","FileRef","ReqNum","ActionOffice"],AOCanUpdate:["Title","FileLeafRef","ActionOffice"]};static ListDef={title:"AuditCoversheets",name:"AuditCoversheets",isLib:!0}}});var ls,Ti=O(()=>{lt();ls=class extends Z{constructor(e){super(e)}static Views={All:["ID","Title","To","Body","NotificationType","ReqNum","ResID"]};static ListDef={name:"AuditEmails",title:"AuditEmails"}}});var ts,_e,xs=O(()=>{lt();ts={ACTIONOFFICE:"Action Office",REQUESTINGOFFICE:"Requesting Office",QUALITYASSURANCE:"Quality Assurance",SPECIALPERMISSIONS:"Special Permissions",RESTRICTEDREADERS:"Restricted Readers"},_e=class extends Z{constructor(e){super(e)}static Views={All:["ID","Title","Country","Organization_x0020_Description","EmailGroup","Org_Type","Post_x0020_Code","UserGroup","Role"]};static ListDef={name:"AuditOrganizations",title:"AuditOrganizations"}}});var Cn,us,Se,Mt=O(()=>{xs();ye();Oe();ss();ot();Ce();Cn={OPEN:"Open",CANCELLED:"Canceled",CLOSED:"Closed",REOPENED:"ReOpened"},us={TASKER:"Tasker",REQUEST:"Request",NOTIFICATION:"Notification"},Se=class extends Z{constructor(e){super(e),this.InternalDueDate.addFieldRequirement({requirement:ko.pureComputed(()=>this.InternalDueDate.Value()>this.ReqDueDate.Value()),error:new rt("text-field","required-field","The Internal Due Date must be before the Request Due Date!")})}ReqType=new Le({displayName:"Request Type",options:Object.values(us),isRequired:!0,instructions:ko.pureComputed(()=>{switch(this.ReqType.Value()){case us.TASKER:return"A request that doesn't require QA Approval.";case us.REQUEST:return"A request requiring QA Approval";case us.NOTIFICATION:return"A request that is closed after the email is sent";default:}})});ReqNum=new K({displayName:"Request Number",systemName:"Title",isRequired:!0});ReqSubject=new K({displayName:"Request Subject",isRequired:!0});RequestingOffice=new be({displayName:"Requesting Office",type:_e,options:Be,optionsFilter:js,lookupCol:"Title",entitySet:z.AuditOrganizations,isRequired:!0});FiscalYear=new K({displayName:"Fiscal Year",isRequired:!0});InternalDueDate=new Ae({displayName:"Internal Due Date",type:we.date,isRequired:!0});ReqDueDate=new Ae({displayName:"Request Due Date",type:we.date,isRequired:!0});ReqStatus=new Le({displayName:"Request Status",options:Object.values(Cn),isRequired:!0});IsSample=new Vt({displayName:"Is Sample?"});ReceiptDate=new Ae({displayName:"Receipt Date",type:we.date,isRequired:!1});RelatedAudit=new K({displayName:"Related Audit",isRequired:!1,instructions:"The Audit Request number of the similar audit performed in the previous FY"});ActionItems=new $e({displayName:"Action Items",instructions:"Items that have been requested by the Auditor",isRichText:!0,isMinimalEditor:!0,classList:["min-w-full"]});Comments=new $e({displayName:"Comments",isRichText:!0,isMinimalEditor:!0,classList:["min-w-full"]});Reminders=new Le({displayName:"Reminders",options:["3 Days Before Due","1 Day Before Due","1 Day Past Due","3 Days Past Due","7 Days Past Due"],multiple:!0});EmailSent=new Vt({displayName:"Email has been sent"});Sensitivity=new Le({displayName:"Sensitivity",options:["None","Official","SBU","PII_SBU"]});ActionOffice=new be({displayName:"Action Offices",type:_e,options:Be,optionsFilter:ws,lookupCol:"Title",multiple:!0,entitySet:z.AuditOrganizations});EmailActionOffice=new be({displayName:"Email Action Offices",type:_e,options:Be,optionsFilter:ws,lookupCol:"Title",multiple:!0,entitySet:z.AuditOrganizations});ClosedDate=new Ae({displayName:"Closed Date",isRequired:!1});ClosedBy=new qe({displayName:"Closed By",isRequired:!1});static Views={All:["ID","Title","ReqType","ReqSubject","FiscalYear","InternalDueDate","ReqDueDate","ReqStatus","IsSample","ReceiptDate","RelatedAudit","ActionItems","Comments","Reminders","EmailSent","Sensitivity","ActionOffice","EmailActionOffice","RequestingOffice","ClosedDate","ClosedBy"],New:["Title","ReqType","ReqSubject","RequestingOffice","FiscalYear","InternalDueDate","ReqDueDate","ReqStatus","IsSample","ReceiptDate","RelatedAudit","ActionItems","Comments","Reminders","Sensitivity","ActionOffice"],IACanUpdate:["ReqType","ReqSubject","FiscalYear","RequestingOffice","InternalDueDate","ReqDueDate","ReqStatus","IsSample","ReceiptDate","RelatedAudit","ActionItems","Comments","Reminders","Sensitivity","ActionOffice","EmailActionOffice","ClosedBy","ClosedDate"]};static ListDef={name:"AuditRequests",title:"AuditRequests"}}});var cs,ki=O(()=>{Mt();cs=class extends Se{constructor(e){super(e)}toRequest(){let e=new Se(this);return e.fromJSON(this.toJSON()),e}static Views={All:["ID","Title","ReqSubject","FiscalYear","InternalDueDate","ReqDueDate","ReqStatus","IsSample","ReceiptDate","RelatedAudit","ActionItems","Comments","Reminders","EmailSent","Sensitivity","ActionOffice","EmailActionOffice","EmailActionOffice","ClosedDate","ClosedBy"],New:["Title","ReqSubject","FiscalYear","InternalDueDate","ReqDueDate","ReqStatus","IsSample","ReceiptDate","RelatedAudit","ActionItems","Comments","Reminders","Sensitivity","ActionOffice"]};static ListDef={name:"AuditBulkRequests",title:"AuditBulkRequests"}}});var pt,Is=O(()=>{Oe();ye();pt=class t extends Z{constructor(e){super(e)}id=new K({displayName:"ID"});text=new K({displayName:"Comment"});author=new K({displayName:"author"});timestamp=new K({displayName:"timestamp"});FieldMap={id:this.id,text:this.text,author:this.author,timestamp:this.timestamp};static Create({id:e,text:s,author:o,timestamp:u}){let h=new t;return h.id.Value(e),h.text.Value(s),h.author.Value(o),h.timestamp.Value(u),h}static Views={All:["id","text","author","timestamp"]}}});var Je,ds=O(()=>{Oe();ye();Je=class extends Z{id=new K({displayName:"ID"});viewer=new K({displayName:"Viewer"});timestamp=new Ae({displayName:"Timestamp",type:we.datetime});FieldMap={id:this.id,viewer:this.viewer,timestamp:this.timestamp};static Views={All:["id","viewer","timestamp"]}}});var mt,Ts=O(()=>{ds();Ce();mt=class{constructor({entity:e,fieldName:s}){this.entity=e,this.blobField=e[s],this.fieldName=s,this.viewers=this.blobField.TypedValues}entity;blobField;fieldName;pushCurrentUser(){this.pushUser(_spPageContextInfo.userLoginName)}pushUser(e){var s=this.viewers().filter(function(u){return u.viewer!=e});this.viewers(s);var o=new Je;o.fromJSON({id:Math.ceil(Math.random()*1e6).toString(16),viewer:e,timestamp:new Date().toLocaleString()}),this.viewers.push(o),this.commitChanges()}removeUser(e){this.viewers.remove(e),this.commitChanges()}removeCurrentuser(){this.removeUserByLogin(_spPageContextInfo.userLoginName)}removeUserByLogin(e){var s=this.viewers().find(function(o){return o.viewer==e});s&&this.removeUser(s)}onRemove=e=>{confirm("Are you sure you want to delete this item?")&&this.removeUser(e)};async commitChanges(){let e=z.Set(this.entity.constructor);if(!e){alert("Cannot find entity set",this.entity);return}await e.UpdateEntity(this.entity,[this.fieldName])}}});var Fi,Pi=O(()=>{Ie();Fi=os`
+`;
+      TextModule = class extends BaseFieldModule {
+        constructor(params) {
+          super(params);
+        }
+        static editTemplate = editTemplate9;
+        static view = "text-view";
+        static edit = "text-edit";
+        static new = "text-edit";
+      };
+      registerFieldComponents(TextModule);
+    }
+  });
+
+  // src/sal/components/fields/index.js
+  var init_fields = __esm({
+    "src/sal/components/fields/index.js"() {
+      init_BaseFieldModule();
+      init_BlobModule();
+      init_CheckboxModule();
+      init_DateModule();
+      init_LookupModule();
+      init_PeopleModule();
+      init_SearchSelectModule();
+      init_SelectModule();
+      init_TextAreaModule();
+      init_TextModule();
+    }
+  });
+
+  // src/sal/fields/BlobField.js
+  var BlobField;
+  var init_BlobField = __esm({
+    "src/sal/fields/BlobField.js"() {
+      init_fields2();
+      init_fields();
+      BlobField = class _BlobField extends BaseField {
+        constructor(params) {
+          super(params);
+          this.entityType = params.entityType;
+          this.multiple = params.multiple;
+          if (this.multiple) {
+            this.Value = ko.observableArray();
+          }
+          if (ko.isObservable(this.entityType)) {
+            this.entityType.subscribe(this.updateEntityTypeHandler);
+          }
+          this.updateEntityTypeHandler(ko.unwrap(this.entityType));
+        }
+        toString = ko.pureComputed(() => `${this.Value()?.length ?? "0"} items`);
+        toJSON = ko.pureComputed(() => {
+          if (!this.multiple)
+            return this.Value()?.toJSON();
+          return this.Value().map((value) => value.toJSON());
+        });
+        fromJSON = (input) => {
+          if (!input)
+            return;
+          if (!this.multiple) {
+            this.Value()?.fromJSON(input);
+            return;
+          }
+          this.Value.removeAll();
+          input.map((obj) => {
+            const newEntity = new this.entityConstructor();
+            newEntity.fromJSON(obj);
+            this.Value.push(newEntity);
+          });
+        };
+        // TypedValues = ko.observableArray();
+        // TypedValue = ko.observable();
+        // Value = ko.pureComputed(() =>
+        //   this.multiple ? this.TypedValues() : this.TypedValue()
+        // );
+        get = () => {
+          return JSON.stringify(this.toJSON());
+        };
+        blob;
+        set = (val) => {
+          if (window.DEBUG)
+            console.log(val);
+          this.blob = val;
+          if (val?.constructor == _BlobField) {
+            return;
+          }
+          this.fromJSON(JSON.parse(val));
+        };
+        get entityConstructor() {
+          return ko.utils.unwrapObservable(this.entityType);
+        }
+        // use purecomputed for memoization, fields shouldn't change
+        Cols = ko.pureComputed(() => {
+          const entityType = ko.unwrap(this.entityType);
+          if (!entityType)
+            return [];
+          const newEntity = new this.entityConstructor();
+          return newEntity.FormFields();
+        });
+        // ColKeys = ko.pureComputed(() =>
+        //   new this.entityConstructor()?.FormFieldKeys()
+        // );
+        // Support multiple items
+        NewItem = ko.observable();
+        submit = () => {
+          const errors = this.NewItem()?.validate();
+          if (errors.length)
+            return;
+          this.Value.push(this.NewItem());
+          this.NewItem(new this.entityConstructor());
+        };
+        add = (item) => this.Value.push(item);
+        remove = (item) => this.Value.remove(item);
+        updateEntityTypeHandler = (newType) => {
+          if (!newType)
+            return;
+          if (!this.multiple) {
+            this.Value(new this.entityConstructor());
+          } else {
+            this.NewItem(new this.entityConstructor());
+          }
+          if (this.blob)
+            this.fromJSON(JSON.parse(this.blob));
+        };
+        applyValueToTypedValues = () => {
+        };
+        // Errors = ko.pureComputed(() => {
+        //   if (!this.Visible()) return [];
+        //   // const isRequired = ko.unwrap(this.isRequired);
+        //   const isRequired =
+        //     typeof this.isRequired == "function"
+        //       ? this.isRequired()
+        //       : this.isRequired;
+        //   if (!isRequired) return [];
+        //   const currentValue = this.multiple ? this.TypedValues() : this.TypedValue();
+        //   return currentValue
+        //     ? []
+        //     : [
+        //         new ValidationError(
+        //           "text-field",
+        //           "required-field",
+        //           (typeof this.displayName == "function"
+        //             ? this.displayName()
+        //             : this.displayName) + ` is required!`
+        //         ),
+        //       ];
+        // });
+        components = BlobModule;
+      };
+    }
+  });
+
+  // src/sal/fields/CheckboxField.js
+  var CheckboxField;
+  var init_CheckboxField = __esm({
+    "src/sal/fields/CheckboxField.js"() {
+      init_fields2();
+      init_fields();
+      CheckboxField = class extends BaseField {
+        constructor(params) {
+          super(params);
+        }
+        components = CheckboxModule;
+      };
+    }
+  });
+
+  // src/sal/fields/DateField.js
+  var dateFieldTypes, DateField;
+  var init_DateField = __esm({
+    "src/sal/fields/DateField.js"() {
+      init_fields();
+      init_fields2();
+      dateFieldTypes = {
+        date: "date",
+        datetime: "datetime-local"
+      };
+      DateField = class extends BaseField {
+        constructor(params) {
+          super(params);
+          this.type = params.type ?? dateFieldTypes.date;
+        }
+        toString = ko.pureComputed(() => {
+          switch (this.type) {
+            case dateFieldTypes.date:
+              return this.toLocaleDateString();
+            case dateFieldTypes.datetime:
+              return this.toLocaleString();
+            default:
+              return "";
+          }
+        });
+        toSortableDateString = () => this.Value()?.format("yyyy-MM-dd");
+        toLocaleDateString = () => this.Value()?.toLocaleDateString();
+        toLocaleString = () => this.Value()?.toLocaleString();
+        toInputDateString = () => {
+          const d = this.Value();
+          return [
+            d.getUTCFullYear().toString().padStart(4, "0"),
+            (d.getUTCMonth() + 1).toString().padStart(2, "0"),
+            d.getUTCDate().toString().padStart(2, "0")
+          ].join("-");
+        };
+        toInputDateTimeString = () => this.Value().format("yyyy-MM-ddThh:mm");
+        get = ko.pureComputed(() => {
+          if (!this.Value() || isNaN(this.Value().valueOf())) {
+            return null;
+          }
+          return this.Value().toISOString();
+        });
+        set = (newDate) => {
+          if (!newDate)
+            return null;
+          if (newDate.constructor.getName() != "Date") {
+            newDate = new Date(newDate);
+          }
+          if (newDate.getTimezoneOffset()) {
+          }
+          this.Value(newDate);
+        };
+        inputBinding = ko.pureComputed({
+          read: () => {
+            if (!this.Value())
+              return null;
+            switch (this.type) {
+              case dateFieldTypes.date:
+                return this.toInputDateString();
+              case dateFieldTypes.datetime:
+                return this.toInputDateTimeString();
+              default:
+                return null;
+            }
+          },
+          write: (val) => {
+            if (!val)
+              return;
+            this.Value(new Date(val));
+          }
+        });
+        components = DateModule;
+      };
+    }
+  });
+
+  // src/sal/fields/LookupField.js
+  function getEntityPropertyAsString(entity, column) {
+    if (entity.FieldMap && entity.FieldMap[column]) {
+      const field = entity.FieldMap[column];
+      if (typeof field == "function") {
+        return field();
+      }
+      if (field.toString && typeof field.toString == "function") {
+        return field.toString();
+      }
+      if (field.get && typeof field.get == "function") {
+        return field.get();
+      }
+      if (field.obs) {
+        return field.obs();
+      }
+      return field;
+    }
+    return entity[column] ?? "";
+  }
+  var LookupField;
+  var init_LookupField = __esm({
+    "src/sal/fields/LookupField.js"() {
+      init_fields();
+      init_fields2();
+      LookupField = class extends BaseField {
+        constructor({
+          displayName,
+          type: entityType,
+          isRequired = false,
+          Visible,
+          entitySet,
+          options = ko.observableArray(),
+          optionsFilter = null,
+          optionsText = null,
+          multiple = false,
+          lookupCol = null,
+          instructions
+        }) {
+          super({ Visible, displayName, isRequired, instructions });
+          if (!options) {
+            this.isSearch = true;
+          } else {
+            this.isSearch = false;
+            this.allOpts = options;
+          }
+          this.isSearch = !options;
+          this.multiple = multiple;
+          this.Value = multiple ? ko.observableArray() : ko.observable();
+          this.entityType = entityType;
+          this.entitySet = entitySet;
+          this.lookupCol = lookupCol ?? "Title";
+          this.optionsText = optionsText ?? ((item) => item[this.lookupCol]);
+          if (optionsFilter)
+            this.optionsFilter = optionsFilter;
+          this.components = multiple ? SearchSelectModule : LookupModule;
+        }
+        isSearch = false;
+        allOpts;
+        optionsFilter = (val) => val;
+        Options = ko.pureComputed(() => {
+          const optsFilter = ko.unwrap(this.optionsFilter);
+          const allOpts = ko.unwrap(this.allOpts);
+          return allOpts.filter(optsFilter);
+        });
+        IsLoading = ko.observable(false);
+        HasLoaded = ko.observable(false);
+        // TODO: Started this, should really go in the entity base class if we're doing active record
+        // create = async () => {
+        //   const newItems = this.multiple ? this.Value() : [this.Value()]
+        //   newItems.map(item => this.entitySet.AddEntity(newItems))
+        // }
+        refresh = async () => {
+          if (!!!this.Value()) {
+            return;
+          }
+          this.IsLoading(true);
+          if (!this.multiple) {
+            await this.entitySet.LoadEntity(this.Value());
+            this.IsLoading(false);
+            this.HasLoaded(true);
+            return;
+          }
+          await Promise.all(
+            this.Value().map(
+              async (entity) => await this.entitySet.LoadEntity(entity)
+            )
+          );
+          this.IsLoading(false);
+          this.HasLoaded(true);
+        };
+        ensure = async () => {
+          if (this.HasLoaded())
+            return;
+          if (this.IsLoading()) {
+            return new Promise((resolve, reject2) => {
+              const isLoadingSubscription = this.IsLoading.subscribe((isLoading) => {
+                if (!isLoading) {
+                  isLoadingSubscription.dispose();
+                  resolve();
+                }
+              });
+            });
+          }
+          await this.refresh();
+        };
+        toString = ko.pureComputed(() => {
+          if (!!!this.Value()) {
+            return "";
+          }
+          if (this.multiple) {
+            return this.Value().map((val) => getEntityPropertyAsString(val, this.lookupCol)).join(", ");
+          }
+          return getEntityPropertyAsString(this.Value(), this.lookupCol);
+        });
+        get = () => {
+          if (!this.Value())
+            return;
+          if (this.multiple) {
+            return this.Value().map((entity2) => {
+              return {
+                ID: entity2.ID,
+                LookupValue: entity2.LookupValue,
+                Title: entity2.Title
+              };
+            });
+          }
+          const entity = this.Value();
+          return {
+            ID: entity.ID,
+            LookupValue: entity.LookupValue,
+            Title: entity.Title
+          };
+        };
+        set = (val) => {
+          if (!val) {
+            this.Value(val);
+            return;
+          }
+          if (this.multiple) {
+            const valArr = Array.isArray(val) ? val : val.results ?? val.split("#;");
+            this.Value(valArr.map((value) => this.findOrCreateNewEntity(value)));
+            return;
+          }
+          this.Value(this.findOrCreateNewEntity(val));
+          if (val && !this.toString()) {
+          }
+        };
+        findOrCreateNewEntity = (val) => {
+          if (this.entityType.FindInStore) {
+            const foundEntity = this.entityType.FindInStore(val);
+            if (foundEntity)
+              return foundEntity;
+            console.warn(
+              `Could not find entity in store: ${this.entityType.name}`,
+              val
+            );
+          }
+          const optionEntity = this.allOpts().find((entity) => entity.ID == val.ID);
+          if (optionEntity)
+            return optionEntity;
+          if (this.entityType.Create) {
+            return this.entityType.Create(val);
+          }
+          const newEntity = new this.entityType();
+          newEntity.ID = val.ID;
+          this.entitySet.LoadEntity(newEntity);
+          return newEntity;
+        };
+      };
+    }
+  });
+
+  // src/sal/infrastructure/entity_utilities.js
+  var sortByTitle;
+  var init_entity_utilities = __esm({
+    "src/sal/infrastructure/entity_utilities.js"() {
+      sortByTitle = (a, b) => {
+        if (a.Title > b.Title) {
+          return 1;
+        }
+        if (a.Title < b.Title) {
+          return -1;
+        }
+        return 0;
+      };
+    }
+  });
+
+  // src/sal/entities/People.js
+  var People2;
+  var init_People = __esm({
+    "src/sal/entities/People.js"() {
+      People2 = class _People {
+        constructor({
+          ID,
+          Title,
+          LoginName = null,
+          IsGroup = null,
+          IsEnsured = false
+        }) {
+          this.ID = ID;
+          this.Title = Title;
+          this.LookupValue = Title;
+          this.LoginName = LoginName != "" ? LoginName : null;
+          this.IsGroup = IsGroup;
+          this.IsEnsured = IsEnsured;
+        }
+        ID = null;
+        Title = null;
+        LoginName = null;
+        LookupValue = null;
+        getKey = () => this.LoginName ?? this.Title;
+        static Create = function(props) {
+          if (!props || !props.ID && !(props.Title || props.LookupValue))
+            return null;
+          return new _People({
+            ...props,
+            Title: props.Title ?? props.LookupValue
+          });
+        };
+      };
+    }
+  });
+
+  // src/sal/entities/Page.js
+  var Page;
+  var init_Page = __esm({
+    "src/sal/entities/Page.js"() {
+      init_primitives();
+      Page = class extends Entity {
+        constructor(params) {
+          super(params);
+        }
+        static Views = {
+          All: ["ID", "Title", "Created", "Author", "Modified", "Editor"]
+        };
+        static ListDef = {
+          name: "Pages",
+          title: "Pages"
+        };
+      };
+    }
+  });
+
+  // src/sal/entities/index.js
+  var init_entities = __esm({
+    "src/sal/entities/index.js"() {
+      init_People();
+      init_Page();
+    }
+  });
+
+  // src/env.js
+  var assetsPath;
+  var init_env = __esm({
+    "src/env.js"() {
+      assetsPath = "/sites/CGFS/Style Library/apps/audit/src";
+    }
+  });
+
+  // src/sal/infrastructure/knockout_extensions.js
+  var fromPathTemplateLoader, fromPathViewModelLoader;
+  var init_knockout_extensions = __esm({
+    "src/sal/infrastructure/knockout_extensions.js"() {
+      init_entities();
+      init_infrastructure();
+      init_env();
+      ko.subscribable.fn.subscribeChanged = function(callback) {
+        var oldValue;
+        this.subscribe(
+          function(_oldValue) {
+            oldValue = _oldValue;
+          },
+          this,
+          "beforeChange"
+        );
+        this.subscribe(function(newValue) {
+          callback(newValue, oldValue);
+        });
+      };
+      ko.observableArray.fn.subscribeAdded = function(callback) {
+        this.subscribe(
+          function(arrayChanges) {
+            const addedValues = arrayChanges.filter((value) => value.status == "added").map((value) => value.value);
+            callback(addedValues);
+          },
+          this,
+          "arrayChange"
+        );
+      };
+      ko.bindingHandlers.searchSelect = {
+        init: function(element, valueAccessor, allBindingsAccessor) {
+          const { options, selectedOptions, optionsText, onSearchInput } = valueAccessor();
+          function populateOpts() {
+            const optionItems = ko.unwrap(options);
+            const optionElements = optionItems.map((option) => {
+              const optionElement = document.createElement("option");
+              ko.selectExtensions.writeValue(optionElement, ko.unwrap(option));
+              optionElement.innerText = optionsText(option);
+              if (ko.unwrap(selectedOptions)?.find((selectedOption) => selectedOption.ID == option.ID)) {
+                optionElement.setAttribute("selected", "");
+              }
+              return optionElement;
+            });
+            element.append(...optionElements);
+          }
+          populateOpts();
+          if (ko.isObservable(options)) {
+            options.subscribe(() => populateOpts(), this);
+          }
+          ko.utils.registerEventHandler(element, "change", (e) => {
+            selectedOptions(
+              element.selectedOptions.map((opt) => ko.selectExtensions.readValue(opt))
+            );
+          });
+          if (onSearchInput) {
+            ko.utils.registerEventHandler(element, "input", (e) => {
+              onSearchInput(e.originalEvent.target.searchInputElement.value);
+            });
+          }
+        },
+        update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+          const { selectedOptions } = valueAccessor();
+          const selectedUnwrapped = ko.unwrap(selectedOptions);
+          for (var i2 = 0; i2 < element.options.length; i2++) {
+            const o = element.options[i2];
+            o.toggleAttribute(
+              "selected",
+              selectedUnwrapped.includes(ko.selectExtensions.readValue(o))
+            );
+          }
+        }
+      };
+      ko.bindingHandlers.people = {
+        init: function(element, valueAccessor, allBindingsAccessor) {
+          var schema = {};
+          schema["PrincipalAccountType"] = "User";
+          schema["SearchPrincipalSource"] = 15;
+          schema["ShowUserPresence"] = true;
+          schema["ResolvePrincipalSource"] = 15;
+          schema["AllowEmailAddresses"] = true;
+          schema["AllowMultipleValues"] = false;
+          schema["MaximumEntitySuggestions"] = 50;
+          schema["OnUserResolvedClientScript"] = async function(elemId, userKeys) {
+            var pickerControl = SPClientPeoplePicker.SPClientPeoplePickerDict[elemId];
+            var observable = valueAccessor();
+            var userJSObject = pickerControl.GetControlValueAsJSObject()[0];
+            if (!userJSObject) {
+              observable(null);
+              return;
+            }
+            if (userJSObject.IsResolved) {
+              if (userJSObject.Key == observable()?.LoginName)
+                return;
+              var user = await ensureUserByKeyAsync(userJSObject.Key);
+              var person = new People2(user);
+              observable(person);
+            }
+          };
+          SPClientPeoplePicker_InitStandaloneControlWrapper(element.id, null, schema);
+        },
+        update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+          var pickerControl = SPClientPeoplePicker.SPClientPeoplePickerDict[element.id + "_TopSpan"];
+          var userValue = ko.utils.unwrapObservable(valueAccessor());
+          if (!userValue) {
+            pickerControl?.DeleteProcessedUser();
+            return;
+          }
+          if (userValue && !pickerControl.GetAllUserInfo().find((pickerUser) => pickerUser.DisplayText == userValue.LookupValue)) {
+            pickerControl.AddUserKeys(
+              userValue.LoginName ?? userValue.LookupValue ?? userValue.Title
+            );
+          }
+        }
+      };
+      ko.bindingHandlers.dateField = {
+        init: function(element, valueAccessor, allBindingsAccessor) {
+        },
+        update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+        }
+      };
+      ko.bindingHandlers.downloadLink = {
+        update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+          var path = valueAccessor();
+          var replaced = path.replace(/:([A-Za-z_]+)/g, function(_, token) {
+            return ko.unwrap(viewModel[token]);
+          });
+          element.href = replaced;
+        }
+      };
+      ko.bindingHandlers.files = {
+        init: function(element, valueAccessor) {
+          function addFiles(fileList) {
+            var value = valueAccessor();
+            if (!fileList.length) {
+              value.removeAll();
+              return;
+            }
+            const existingFiles = ko.unwrap(value);
+            const newFileList = [];
+            for (let file of fileList) {
+              if (!existingFiles.find((exFile) => exFile.name == file.name))
+                newFileList.push(file);
+            }
+            ko.utils.arrayPushAll(value, newFileList);
+            return;
+          }
+          ko.utils.registerEventHandler(element, "change", function() {
+            addFiles(element.files);
+          });
+          const label = element.closest("label");
+          if (!label)
+            return;
+          ko.utils.registerEventHandler(label, "dragover", function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+          });
+          ko.utils.registerEventHandler(label, "dragenter", function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            label.classList.add("dragging");
+          });
+          ko.utils.registerEventHandler(label, "dragleave", function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            label.classList.remove("dragging");
+          });
+          ko.utils.registerEventHandler(label, "drop", function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            let dt = event.originalEvent.dataTransfer;
+            let files = dt.files;
+            addFiles(files);
+          });
+        },
+        update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+          const value = valueAccessor();
+          if (!value().length && element.files.length) {
+            element.value = null;
+            return;
+          }
+          return;
+        }
+      };
+      ko.bindingHandlers.toggleClick = {
+        init: function(element, valueAccessor, allBindings) {
+          var value = valueAccessor();
+          ko.utils.registerEventHandler(element, "click", function() {
+            var classToToggle = allBindings.get("toggleClass");
+            var classContainer = allBindings.get("classContainer");
+            var containerType = allBindings.get("containerType");
+            if (containerType && containerType == "sibling") {
+              $(element).nextUntil(classContainer).each(function() {
+                $(this).toggleClass(classToToggle);
+              });
+            } else if (containerType && containerType == "doc") {
+              var curIcon = $(element).attr("src");
+              if (curIcon == "/_layouts/images/minus.gif")
+                $(element).attr("src", "/_layouts/images/plus.gif");
+              else
+                $(element).attr("src", "/_layouts/images/minus.gif");
+              if ($(element).parent() && $(element).parent().parent()) {
+                $(element).parent().parent().nextUntil(classContainer).each(function() {
+                  $(this).toggleClass(classToToggle);
+                });
+              }
+            } else if (containerType && containerType == "any") {
+              if ($("." + classToToggle).is(":visible"))
+                $("." + classToToggle).hide();
+              else
+                $("." + classToToggle).show();
+            } else
+              $(element).find(classContainer).toggleClass(classToToggle);
+          });
+        }
+      };
+      ko.bindingHandlers.toggles = {
+        init: function(element, valueAccessor) {
+          var value = valueAccessor();
+          ko.utils.registerEventHandler(element, "click", function() {
+            value(!value());
+          });
+        }
+      };
+      fromPathTemplateLoader = {
+        loadTemplate: function(name, templateConfig, callback) {
+          if (templateConfig.fromPath) {
+            fetch(assetsPath + templateConfig.fromPath).then((response) => {
+              if (!response.ok) {
+                throw new Error(
+                  `Error Fetching HTML Template - ${response.statusText}`
+                );
+              }
+              return response.text();
+            }).catch((error2) => {
+              if (!templateConfig.fallback)
+                return;
+              console.warn(
+                "Primary template not found, attempting fallback",
+                templateConfig
+              );
+              fetch(assetsPath + templateConfig.fallback).then((response) => {
+                if (!response.ok) {
+                  throw new Error(
+                    `Error Fetching fallback HTML Template - ${response.statusText}`
+                  );
+                }
+                return response.text();
+              }).then(
+                (text) => ko.components.defaultLoader.loadTemplate(name, text, callback)
+              );
+            }).then(
+              (text) => text ? ko.components.defaultLoader.loadTemplate(name, text, callback) : null
+            );
+          } else {
+            callback(null);
+          }
+        }
+      };
+      ko.components.loaders.unshift(fromPathTemplateLoader);
+      fromPathViewModelLoader = {
+        loadViewModel: function(name, viewModelConfig, callback) {
+          if (viewModelConfig.viaLoader) {
+            const module = import(assetsPath + viewModelConfig.viaLoader).then(
+              (module2) => {
+                const viewModelConstructor = module2.default;
+                ko.components.defaultLoader.loadViewModel(
+                  name,
+                  viewModelConstructor,
+                  callback
+                );
+              }
+            );
+          } else {
+            callback(null);
+          }
+        }
+      };
+      ko.components.loaders.unshift(fromPathViewModelLoader);
+    }
+  });
+
+  // src/sal/infrastructure/register_components.js
+  function directRegisterComponent(name, { template, viewModel = null }) {
+    ko.components.register(name, {
+      template,
+      viewModel
+    });
+  }
+  var html3;
+  var init_register_components = __esm({
+    "src/sal/infrastructure/register_components.js"() {
+      html3 = String.raw;
+    }
+  });
+
+  // src/sal/infrastructure/sal.js
+  function executeQuery(currCtx) {
+    return new Promise(
+      (resolve, reject2) => currCtx.executeQueryAsync(resolve, (sender, args) => {
+        reject2({ sender, args });
+      })
+    );
+  }
+  function principalToPeople(oPrincipal, isGroup = null) {
+    return {
+      ID: oPrincipal.get_id(),
+      Title: oPrincipal.get_title(),
+      LoginName: oPrincipal.get_loginName(),
+      IsEnsured: true,
+      IsGroup: isGroup != null ? isGroup : oPrincipal.constructor.getName() == "SP.Group",
+      oPrincipal
+    };
+  }
+  function getDefaultGroups() {
+    const defaultGroups = sal.globalConfig.defaultGroups;
+    const result = {};
+    Object.keys(defaultGroups).forEach((key) => {
+      result[key] = principalToPeople(defaultGroups[key], true);
+    });
+    return result;
+  }
+  async function getGroupUsers(groupName) {
+    if (siteGroups[groupName]?.Users?.constructor == Array) {
+      return siteGroups[groupName].Users;
+    }
+    const url = `/web/sitegroups/GetByName('${groupName}')?$expand=Users`;
+    const groupResult = await fetchSharePointData(url);
+    const group = groupResult.d;
+    group.Users = group.Users?.results;
+    siteGroups[groupName] = group;
+    return group.Users;
+  }
+  async function getUserPropsAsync(userId = _spPageContextInfo.userId) {
+    const userPropsUrl = `/sp.userprofiles.peoplemanager/getmyproperties`;
+    const userInfoUrl = `/Web/GetUserById(${userId})/?$expand=Groups`;
+    const userInfo = (await fetchSharePointData(userInfoUrl)).d;
+    const userProps = (await fetchSharePointData(userPropsUrl))?.d.UserProfileProperties.results;
+    function findPropValue(props, key) {
+      return props.find((prop) => prop.Key == key)?.Value;
+    }
+    return {
+      ID: userId,
+      Title: userInfo.Title,
+      LoginName: userInfo.LoginName,
+      WorkPhone: findPropValue(userProps, "WorkPhone"),
+      EMail: findPropValue(userProps, "WorkEmail"),
+      // TODO: Do we still need this spelling?
+      IsEnsured: true,
+      IsGroup: false,
+      Groups: userInfo.Groups?.results?.map((group) => {
+        return {
+          ...group,
+          ID: group.Id,
+          IsGroup: true,
+          IsEnsured: true
+        };
+      })
+    };
+  }
+  async function copyFileAsync(sourceFilePath, destFilePath) {
+    const uri = `/web/getfilebyserverrelativeurl('${sourceFilePath}')/copyto('${destFilePath}')`;
+    const result = await fetchSharePointData(uri, "POST");
+    return result;
+  }
+  async function ensureUserByKeyAsync(userName) {
+    return new Promise((resolve, reject2) => {
+      var group = sal.globalConfig.siteGroups.find(function(group2) {
+        return group2.LoginName == userName;
+      });
+      if (group) {
+        resolve(group);
+        return;
+      }
+      var context = new SP.ClientContext.get_current();
+      var oUser = context.get_web().ensureUser(userName);
+      function onEnsureUserSucceeded(sender, args) {
+        const user = principalToPeople(oUser);
+        resolve(user);
+      }
+      function onEnsureUserFailed(sender, args) {
+        console.error(
+          "Failed to ensure user :" + args.get_message() + "\n" + args.get_stackTrace()
+        );
+        reject2(args);
+      }
+      const data2 = { oUser, resolve, reject: reject2 };
+      context.load(oUser);
+      context.executeQueryAsync(
+        Function.createDelegate(data2, onEnsureUserSucceeded),
+        Function.createDelegate(data2, onEnsureUserFailed)
+      );
+    });
+  }
+  function getSPSiteGroupByName(groupName) {
+    var userGroup = null;
+    if (this.globalConfig.siteGroups != null) {
+      userGroup = this.globalConfig.siteGroups.find(function(group) {
+        return group.Title == groupName;
+      });
+    }
+    return userGroup;
+  }
+  function SPList(listDef) {
+    var self = this;
+    self.config = {
+      def: listDef
+    };
+    async function init() {
+      if (!self.config.fieldSchema) {
+        const listEndpoint = `/web/lists/GetByTitle('${self.config.def.title}')?$expand=Fields`;
+        const list = await fetchSharePointData(listEndpoint);
+        self.config.guid = list.d.Id;
+        self.config.fieldSchema = list.d.Fields.results;
+      }
+    }
+    init();
+    async function setListPermissionsAsync(itemPermissions, reset) {
+      const currCtx = new SP.ClientContext.get_current();
+      const web = currCtx.get_web();
+      const oList = web.get_lists().getByTitle(self.config.def.title);
+      return setResourcePermissionsAsync(oList, itemPermissions, reset);
+    }
+    function setListPermissions(valuePairs, callback, reset) {
+      reset = reset === void 0 ? false : reset;
+      var users = new Array();
+      var resolvedGroups = new Array();
+      var currCtx = new SP.ClientContext.get_current();
+      var web = currCtx.get_web();
+      var oList = web.get_lists().getByTitle(self.config.def.title);
+      valuePairs.forEach(function(vp) {
+        var resolvedGroup = getSPSiteGroupByName(vp[0]);
+        if (resolvedGroup) {
+          resolvedGroups.push([resolvedGroup, vp[1]]);
+        } else {
+          users.push([currCtx.get_web().ensureUser(vp[0]), vp[1]]);
+        }
+      });
+      function onFindItemSucceeded() {
+        console.log("Successfully found item");
+        var currCtx2 = new SP.ClientContext.get_current();
+        var web2 = currCtx2.get_web();
+        if (reset) {
+          oList.resetRoleInheritance();
+          oList.breakRoleInheritance(false, false);
+          oList.get_roleAssignments().getByPrincipal(sal.globalConfig.currentUser).deleteObject();
+        } else {
+          oList.breakRoleInheritance(false, false);
+        }
+        this.resolvedGroups.forEach(function(groupPairs) {
+          var roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(currCtx2);
+          roleDefBindingColl.add(
+            web2.get_roleDefinitions().getByName(groupPairs[1])
+          );
+          oList.get_roleAssignments().add(groupPairs[0], roleDefBindingColl);
+        });
+        this.users.forEach(function(userPairs) {
+          var roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(currCtx2);
+          roleDefBindingColl.add(
+            web2.get_roleDefinitions().getByName(userPairs[1])
+          );
+          oList.get_roleAssignments().add(userPairs[0], roleDefBindingColl);
+        });
+        var data3 = { oList, callback };
+        function onSetListPermissionsSuccess() {
+          console.log("Successfully set permissions");
+          callback(oList);
+        }
+        function onSetListPermissionsFailure(sender, args) {
+          console.error(
+            "Failed to update permissions on List: " + this.oList.get_title() + args.get_message() + "\n",
+            args.get_stackTrace()
+          );
+        }
+        currCtx2.load(oList);
+        currCtx2.executeQueryAsync(
+          Function.createDelegate(data3, onSetListPermissionsSuccess),
+          Function.createDelegate(data3, onSetListPermissionsFailure)
+        );
+      }
+      function onFindItemFailed(sender, args) {
+        console.error(
+          "Failed to find List: " + this.oList.get_title + args.get_message(),
+          args.get_stackTrace()
+        );
+      }
+      var data2 = {
+        oList,
+        users,
+        resolvedGroups,
+        callback
+      };
+      currCtx.load(oList);
+      users.map(function(user) {
+        currCtx.load(user[0]);
+      });
+      currCtx.executeQueryAsync(
+        Function.createDelegate(data2, onFindItemSucceeded),
+        Function.createDelegate(data2, onFindItemFailed)
+      );
+    }
+    function mapObjectToListItem(val) {
+      if (!val) {
+        return val;
+      }
+      if (!Array.isArray(val)) {
+        return mapItemToListItem(val);
+      }
+      return val.map((item) => {
+        return mapItemToListItem(item);
+      }).join(";#");
+    }
+    function mapItemToListItem(item) {
+      if (item.ID) {
+        return `${item.ID};#${item.LookupValue ?? ""}`;
+      }
+      if (item.LookupValue) {
+        return item.LookupValue;
+      }
+      if (item.constructor.getName() == "Date") {
+        return item.toISOString();
+      }
+      return item;
+    }
+    function createListItemAsync(entity, folderPath = null) {
+      return new Promise((resolve, reject2) => {
+        const currCtx = new SP.ClientContext.get_current();
+        const web = currCtx.get_web();
+        const oList = web.get_lists().getByTitle(self.config.def.title);
+        const itemCreateInfo = new SP.ListItemCreationInformation();
+        if (folderPath) {
+          var folderUrl = sal.globalConfig.siteUrl + "/Lists/" + self.config.def.name + "/" + folderPath;
+          itemCreateInfo.set_folderUrl(folderUrl);
+        }
+        const oListItem = oList.addItem(itemCreateInfo);
+        const restrictedFields = [
+          "ID",
+          "Author",
+          "Created",
+          "Editor",
+          "Modified"
+        ];
+        Object.keys(entity).filter((key) => !restrictedFields.includes(key)).forEach((key) => {
+          oListItem.set_item(key, mapObjectToListItem(entity[key]));
+        });
+        oListItem.update();
+        function onCreateListItemSucceeded() {
+          resolve(oListItem.get_id());
+        }
+        function onCreateListItemFailed(sender, args) {
+          console.error("Create Item Failed - List: " + self.config.def.name);
+          console.error("ValuePairs", entity);
+          console.error(sender, args);
+          reject2(sender);
+        }
+        const data2 = { entity, oListItem, resolve, reject: reject2 };
+        currCtx.load(oListItem);
+        currCtx.executeQueryAsync(
+          Function.createDelegate(data2, onCreateListItemSucceeded),
+          Function.createDelegate(data2, onCreateListItemFailed)
+        );
+      });
+    }
+    function mapListItemToObject(val) {
+      if (!val) {
+        return val;
+      }
+      let out = {};
+      switch (val.constructor.getName()) {
+        case "SP.FieldUserValue":
+          out.LoginName = val.get_email();
+        case "SP.FieldLookupValue":
+          out.ID = val.get_lookupId();
+          out.LookupValue = val.get_lookupValue();
+          out.Title = val.get_lookupValue();
+          break;
+        default:
+          out = val;
+      }
+      return out;
+    }
+    function getListItems(caml, fields, callback) {
+      var camlQuery = new SP.CamlQuery.createAllItemsQuery();
+      camlQuery.set_viewXml(caml);
+      var currCtx = new SP.ClientContext.get_current();
+      var web = currCtx.get_web();
+      var oList = web.get_lists().getByTitle(self.config.def.title);
+      var collListItem = oList.getItems(camlQuery);
+      function onGetListItemsSucceeded() {
+        var self2 = this;
+        var listItemEnumerator = self2.collListItem.getEnumerator();
+        const foundObjects = [];
+        while (listItemEnumerator.moveNext()) {
+          var oListItem = listItemEnumerator.get_current();
+          var listObj = {};
+          fields.forEach((field) => {
+            var colVal = oListItem.get_item(field);
+            listObj[field] = Array.isArray(colVal) ? colVal.map((val) => mapListItemToObject(val)) : mapListItemToObject(colVal);
+          });
+          foundObjects.push(listObj);
+        }
+        callback(foundObjects);
+      }
+      function onGetListItemsFailed(sender, args) {
+        console.log("unsuccessful read", sender);
+        alert(
+          "Request on list " + self.config.def.name + " failed, producing the following error: \n " + args.get_message() + "\nStackTrack: \n " + args.get_stackTrace()
+        );
+      }
+      var data2 = {
+        collListItem,
+        callback,
+        fields,
+        camlQuery
+      };
+      currCtx.load(collListItem, `Include(${fields.join(", ")})`);
+      currCtx.executeQueryAsync(
+        Function.createDelegate(data2, onGetListItemsSucceeded),
+        Function.createDelegate(data2, onGetListItemsFailed)
+      );
+    }
+    function getListItemsAsync({ fields = null, caml = null }) {
+      if (!caml) {
+        var caml = '<View Scope="RecursiveAll"><Query><Where><Eq><FieldRef Name="FSObjType"/><Value Type="int">0</Value></Eq></Where></Query></View>';
+      }
+      return new Promise((resolve, reject2) => {
+        getListItems(caml, fields, resolve);
+      });
+    }
+    function findByIdAsync(id2, fields) {
+      return new Promise((resolve, reject2) => {
+        try {
+          findById(id2, fields, resolve);
+        } catch (e) {
+          reject2(e);
+        }
+      });
+    }
+    async function getById(id2, fields) {
+      const [queryFields, expandFields] = await getQueryFields(fields);
+      const apiEndpoint = `/web/lists/GetByTitle('${self.config.def.title}')/items(${id2})?$Select=${queryFields}&$expand=${expandFields}`;
+      const result = await fetchSharePointData(apiEndpoint);
+      return result.d;
+    }
+    async function getListFields() {
+      if (!self.config.fieldSchema) {
+        const apiEndpoint = `/web/lists/GetByTitle('${self.config.def.title}')/Fields`;
+        const fields = await fetchSharePointData(apiEndpoint);
+        self.config.fieldSchema = fields.d.results;
+      }
+      return self.config.fieldSchema;
+    }
+    async function getQueryFields(fields) {
+      const queryFields = [];
+      const expandFields = [];
+      const listFields = await getListFields();
+      fields.map((f) => {
+        if (f == "FileRef") {
+          queryFields.push(f);
+          return;
+        }
+        if (f.includes("/")) {
+          queryFields.push(f);
+          expandFields.push(f.split("/")[0]);
+          return;
+        }
+        const fieldSchema = listFields.find((lf) => lf.StaticName == f);
+        if (!fieldSchema) {
+          alert(`Field '${f}' not found on list ${self.config.def.name}`);
+          return;
+        }
+        const idString = f + "/ID";
+        let titleString = f + "/Title";
+        switch (fieldSchema.TypeAsString) {
+          case "LookupMulti":
+          case "Lookup":
+            titleString = f + "/" + fieldSchema.LookupField;
+          case "User":
+            queryFields.push(idString);
+            queryFields.push(titleString);
+            expandFields.push(f);
+            break;
+          case "Choice":
+          default:
+            queryFields.push(f);
+        }
+      });
+      return [queryFields, expandFields];
+    }
+    async function findByColumnValueAsync(columnFilters, { orderByColumn = null, sortAsc }, { count = null, includePermissions = false, includeFolders = false }, fields) {
+      const [queryFields, expandFields] = await getQueryFields(fields);
+      if (includePermissions) {
+        queryFields.push("RoleAssignments");
+        queryFields.push("HasUniqueRoleAssignments");
+        expandFields.push("RoleAssignments");
+      }
+      const orderBy = orderByColumn ? `$orderby=${orderByColumn} ${sortAsc ? "asc" : "desc"}` : "";
+      const colFilterArr = [];
+      columnFilters.forEach(
+        (colFilter) => colFilterArr.push(
+          `${colFilter.column} ${colFilter.op ?? "eq"} '${colFilter.value}'`
+        )
+      );
+      if (!includeFolders)
+        colFilterArr.push(`FSObjType eq '0'`);
+      const filter = "$filter=(" + colFilterArr.join(`) and (`) + ")";
+      const include = "$select=" + queryFields;
+      const expand = `$expand=` + expandFields;
+      const page = count ? `$top=${count}` : "";
+      const apiEndpoint = `/web/lists/GetByTitle('${self.config.def.title}')/items?${include}&${expand}&${orderBy}&${filter}&${page}`;
+      const result = await fetchSharePointData(apiEndpoint);
+      const cursor = {
+        results: result?.d?.results,
+        _next: result?.d?.__next
+      };
+      return cursor;
+    }
+    async function loadNextPage(cursor) {
+      const result = await fetchSharePointData(cursor._next);
+      return {
+        results: result?.d?.results,
+        _next: result?.d?.__next
+      };
+    }
+    function findById(id2, fields, callback) {
+      var currCtx = new SP.ClientContext.get_current();
+      var web = currCtx.get_web();
+      var oList = web.get_lists().getByTitle(self.config.def.title);
+      var oListItem = oList.getItemById(id2);
+      function onGetListItemSucceeded() {
+        const listObj = {};
+        fields.forEach((field) => {
+          var colVal = oListItem.get_item(field);
+          listObj[field] = Array.isArray(colVal) ? colVal.map((val) => mapListItemToObject(val)) : mapListItemToObject(colVal);
+        });
+        callback(listObj);
+      }
+      function onGetListItemFailed(sender, args) {
+        console.error("SAL: findById - List: " + self.config.def.name);
+        console.error("Fields", this);
+        console.error(sender, args);
+      }
+      var data2 = {
+        oListItem,
+        callback,
+        fields
+      };
+      currCtx.load(oListItem);
+      currCtx.executeQueryAsync(
+        Function.createDelegate(data2, onGetListItemSucceeded),
+        Function.createDelegate(data2, onGetListItemFailed)
+      );
+    }
+    function updateListItemAsync(entity) {
+      if (!entity?.ID) {
+        return false;
+      }
+      return new Promise((resolve, reject2) => {
+        const currCtx = new SP.ClientContext.get_current();
+        const web = currCtx.get_web();
+        const oList = web.get_lists().getByTitle(self.config.def.title);
+        const oListItem = oList.getItemById(entity.ID);
+        const restrictedFields = [
+          "ID",
+          "Author",
+          "Created",
+          "Editor",
+          "Modified"
+        ];
+        Object.keys(entity).filter((key) => !restrictedFields.includes(key)).forEach((key) => {
+          oListItem.set_item(key, mapObjectToListItem(entity[key]));
+        });
+        oListItem.update();
+        function onUpdateListItemsSucceeded() {
+          console.log("Successfully updated " + this.oListItem.get_item("Title"));
+          resolve();
+        }
+        function onUpdateListItemFailed(sender, args) {
+          console.error("Update Failed - List: " + self.config.def.name);
+          console.error("Item Id", this.oListItem.get_id() ?? "N/A");
+          console.error(entity);
+          console.error(sender, args);
+          reject2(args);
+        }
+        const data2 = { oListItem, entity, resolve, reject: reject2 };
+        currCtx.load(oListItem);
+        currCtx.executeQueryAsync(
+          Function.createDelegate(data2, onUpdateListItemsSucceeded),
+          Function.createDelegate(data2, onUpdateListItemFailed)
+        );
+      });
+    }
+    function deleteListItem(id2, callback) {
+      var currCtx = new SP.ClientContext.get_current();
+      var web = currCtx.get_web();
+      var oList = web.get_lists().getByTitle(self.config.def.title);
+      var data2 = { callback };
+      const oListItem = oList.getItemById(id2);
+      oListItem.deleteObject();
+      function onDeleteListItemsSucceeded(sender, args) {
+        callback();
+      }
+      function onDeleteListItemsFailed(sender, args) {
+        console.error(
+          "sal.SPList.deleteListItem: Request on list " + self.config.def.name + " failed, producing the following error: \n " + args.get_message() + "\nStackTrack: \n " + args.get_stackTrace()
+        );
+      }
+      currCtx.executeQueryAsync(
+        Function.createDelegate(data2, onDeleteListItemsSucceeded),
+        Function.createDelegate(data2, onDeleteListItemsFailed)
+      );
+    }
+    async function deleteListItemAsync(id2) {
+      const apiEndpoint = `/web/lists/GetByTitle('${self.config.def.title}')/items(${id2})`;
+      return await fetchSharePointData(apiEndpoint, "DELETE", {
+        "If-Match": "*"
+      });
+    }
+    async function setItemPermissionsAsync(id2, itemPermissions, reset) {
+      const currCtx = new SP.ClientContext.get_current();
+      const web = currCtx.get_web();
+      const oListItem = await getoListItemByIdAsync(id2);
+      return setResourcePermissionsAsync(oListItem, itemPermissions, reset);
+    }
+    async function setResourcePermissionsAsync(oListItem, itemPermissions, reset) {
+      if (reset) {
+        oListItem.resetRoleInheritance();
+        oListItem.breakRoleInheritance(false, false);
+      }
+      for (const role of itemPermissions.roles) {
+        const ensuredPrincipalResult = await ensureUserByKeyAsync(
+          role.principal.Title
+        );
+        if (!ensuredPrincipalResult)
+          return;
+        const currCtx2 = new SP.ClientContext.get_current();
+        const web = currCtx2.get_web();
+        const oPrincipal = ensuredPrincipalResult.oPrincipal;
+        currCtx2.load(oPrincipal);
+        role.roleDefs.map((roleDef) => {
+          const roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(currCtx2);
+          roleDefBindingColl.add(
+            web.get_roleDefinitions().getByName(roleDef.name)
+          );
+          oListItem.get_roleAssignments().add(oPrincipal, roleDefBindingColl);
+        });
+        const data2 = {};
+        await executeQuery(currCtx2).catch(({ sender, args }) => {
+          console.error(
+            `Failed to set role permissions on item id ${id} for principal ${role.principal.Title} ` + args.get_message(),
+            args
+          );
+        });
+      }
+      if (reset) {
+        const currCtx = new SP.ClientContext.get_current();
+        oListItem.get_roleAssignments().getByPrincipal(sal.globalConfig.currentUser).deleteObject();
+        await executeQuery(currCtx).catch(({ sender, args }) => {
+          console.error(
+            `Failed to remove role permissions on item id ${id} for Current User ` + args.get_message(),
+            args
+          );
+        });
+      }
+    }
+    function getoListItemByIdAsync(id2) {
+      return new Promise((resolve, reject2) => {
+        const currCtx = new SP.ClientContext.get_current();
+        const web = currCtx.get_web();
+        const oList = web.get_lists().getByTitle(self.config.def.title);
+        const oListItem = oList.getItemById(id2);
+        currCtx.executeQueryAsync(
+          () => {
+            resolve(oListItem);
+          },
+          (sender, args) => {
+            console.error(
+              "Failed to find item: " + id2 + args.get_message(),
+              args
+            );
+            reject2();
+          }
+        );
+      });
+    }
+    function getItemPermissionsAsync(id2) {
+      return new Promise((resolve, reject2) => {
+        var currCtx = new SP.ClientContext.get_current();
+        var web = currCtx.get_web();
+        var oList = web.get_lists().getByTitle(self.config.def.title);
+        var camlQuery = new SP.CamlQuery();
+        camlQuery.set_viewXml(
+          '<View><Query><Where><Eq><FieldRef Name="ID"/><Value Type="Text">' + id2 + "</Value></Eq></Where></Query></View>"
+        );
+        var oListItems = oList.getItems(camlQuery);
+        currCtx.load(
+          oListItems,
+          "Include(ID, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+        );
+        function onQuerySuccess() {
+          var listItemEnumerator = oListItems.getEnumerator();
+          while (listItemEnumerator.moveNext()) {
+            var oListItem = listItemEnumerator.get_current();
+            var itemPermissions = new ItemPermissions({
+              hasUniqueRoleAssignments: oListItem.get_hasUniqueRoleAssignments(),
+              roles: []
+            });
+            var roleEnumerator = oListItem.get_roleAssignments().getEnumerator();
+            while (roleEnumerator.moveNext()) {
+              var roleColl = roleEnumerator.get_current();
+              const role = Role.fromJsomRole(roleColl);
+              itemPermissions.roles.push(role);
+            }
+            resolve(itemPermissions);
+            break;
+          }
+        }
+        function onQueryFailed(sender, args) {
+          reject2(args.get_message());
+        }
+        const data2 = {
+          oListItems,
+          resolve,
+          reject: reject2
+        };
+        currCtx.executeQueryAsync(
+          Function.createDelegate(data2, onQuerySuccess),
+          Function.createDelegate(data2, onQueryFailed)
+        );
+      });
+    }
+    async function getListPermissions() {
+      const url = `/web/lists/getByTitle('${self.config.def.name}')?$select=HasUniqueRoleAssignments,RoleAssignments&$expand=RoleAssignments/Member,RoleAssignments/RoleDefinitionBindings`;
+      const headers = {
+        "Cache-Control": "no-cache"
+      };
+      const result = await fetchSharePointData(url, "GET", headers);
+      if (!result)
+        return;
+      return ItemPermissions.fromRestResult(result.d);
+    }
+    function getServerRelativeFolderPath(relFolderPath) {
+      let builtPath = sal.globalConfig.siteUrl;
+      builtPath += self.config.def.isLib ? "/" + self.config.def.name : "/Lists/" + self.config.def.name;
+      if (relFolderPath) {
+        builtPath += "/" + relFolderPath;
+      }
+      return builtPath;
+    }
+    function upsertFolderPathAsync(folderPath) {
+      if (self.config.def.isLib) {
+        return new Promise(
+          (resolve, reject2) => upsertLibFolderByPath(folderPath, resolve)
+        );
+      }
+      return new Promise(
+        (resolve, reject2) => upsertListFolderByPath(folderPath, resolve)
+      );
+    }
+    async function setFolderReadonlyAsync(folderPath) {
+      try {
+        const currentPerms = await getFolderPermissionsAsync(folderPath);
+        const targetPerms = currentPerms.map((user) => {
+          return [user.LoginName, sal.config.siteRoles.roles.RestrictedRead];
+        });
+        await setFolderPermissionsAsync(folderPath, targetPerms, true);
+      } catch (e) {
+        console.warn(e);
+      }
+      return;
+    }
+    async function ensureFolderPermissionsAsync(relFolderPath, targetPerms) {
+      const serverRelFolderPath = getServerRelativeFolderPath(relFolderPath);
+      const apiEndpoint = sal.globalConfig.siteUrl + `/_api/web/GetFolderByServerRelativeUrl('${serverRelFolderPath}')/ListItemAllFields/RoleAssignments?$expand=Member,Member/Users,RoleDefinitionBindings`;
+      const response = await fetch(apiEndpoint, {
+        method: "GET",
+        headers: {
+          Accept: "application/json; odata=verbose"
+        }
+      });
+      if (!response.ok) {
+        if (response.status == 404) {
+          return;
+        }
+        console.error(response);
+      }
+      const result = await response.json();
+      const permissionResults = result?.d?.results;
+      if (!permissionResults) {
+        console.warn("No results found", result);
+        return;
+      }
+      const missingPerms = targetPerms.filter((targetPermPair) => {
+        const targetLoginName = targetPermPair[0];
+        const targetPerm = targetPermPair[1];
+        const permExists = permissionResults.find((curPerm) => {
+          if (curPerm.Member.LoginName != targetLoginName) {
+            if (!curPerm.Member.Users?.results.find(
+              (curUser) => curUser.LoginName == targetLoginName
+            )) {
+              return false;
+            }
+          }
+          if (curPerm.RoleDefinitionBindings.results?.find(
+            (curBinding) => sal.config.siteRoles.fulfillsRole(curBinding.Name, targetPerm)
+          )) {
+            return true;
+          }
+          return false;
+        });
+        return !permExists;
+      });
+      console.log("Adding missing permissions", missingPerms);
+      if (missingPerms.length)
+        await setFolderPermissionsAsync(relFolderPath, missingPerms, false);
+      return;
+    }
+    function getFolderContentsAsync(relFolderPath, fields) {
+      return new Promise((resolve, reject2) => {
+        const currCtx = new SP.ClientContext.get_current();
+        const web = currCtx.get_web();
+        const oList = web.get_lists().getByTitle(self.config.def.title);
+        const serverRelFolderPath = getServerRelativeFolderPath(relFolderPath);
+        const camlQuery = SP.CamlQuery.createAllItemsQuery();
+        camlQuery.set_folderServerRelativeUrl(serverRelFolderPath);
+        const allItems = oList.getItems(camlQuery);
+        currCtx.load(allItems, `Include(${fields.join(", ")})`);
+        currCtx.executeQueryAsync(
+          function() {
+            const foundObjects = [];
+            var listItemEnumerator = allItems.getEnumerator();
+            while (listItemEnumerator.moveNext()) {
+              var oListItem = listItemEnumerator.get_current();
+              var listObj = {};
+              fields.forEach((field) => {
+                var colVal = oListItem.get_item(field);
+                listObj[field] = Array.isArray(colVal) ? colVal.map((val) => mapListItemToObject(val)) : mapListItemToObject(colVal);
+              });
+              listObj.oListItem = oListItem;
+              foundObjects.push(listObj);
+            }
+            resolve(foundObjects);
+          },
+          function(sender, args) {
+            console.warn("Unable load list folder contents:");
+            console.error(sender);
+            console.error(args);
+            reject2(args);
+          }
+        );
+      });
+    }
+    async function getFolderPermissionsAsync(relFolderPath) {
+      return new Promise(async (resolve, reject2) => {
+        const oListItem = await getFolderItemByPath(relFolderPath);
+        if (!oListItem) {
+          reject2("Folder item does not exist");
+          return;
+        }
+        const roles = oListItem.get_roleAssignments();
+        const currCtx = new SP.ClientContext.get_current();
+        currCtx.load(oListItem);
+        currCtx.load(roles);
+        currCtx.executeQueryAsync(
+          function() {
+            const currCtx2 = new SP.ClientContext.get_current();
+            console.log(oListItem);
+            const principals = [];
+            const bindings = [];
+            const roleEnumerator = roles.getEnumerator();
+            while (roleEnumerator.moveNext()) {
+              const role = roleEnumerator.get_current();
+              const principal = role.get_member();
+              const bindings2 = role.get_roleDefinitionBindings();
+              currCtx2.load(bindings2);
+              currCtx2.load(principal);
+              principals.push({ principal, bindings: bindings2 });
+            }
+            currCtx2.executeQueryAsync(
+              // success
+              function(sender, args) {
+                const logins = principals.map(function({ principal, bindings: bindings2 }) {
+                  const principalRoles = [];
+                  const bindingEnumerator = bindings2.getEnumerator();
+                  while (bindingEnumerator.moveNext()) {
+                    const binding = bindingEnumerator.get_current();
+                    principalRoles.push(binding.get_name());
+                  }
+                  return {
+                    ID: principal.get_id(),
+                    Title: principal.get_title(),
+                    LoginName: principal.get_loginName(),
+                    Roles: principalRoles
+                  };
+                });
+                resolve(logins);
+              },
+              // failure
+              function(sender, args) {
+                console.warn("Unable load folder principals permissions:");
+                console.error(sender);
+                console.error(args);
+                reject2(args);
+              }
+            );
+          },
+          function(sender, args) {
+            console.warn("Unable load folder permissions:");
+            console.error(sender);
+            console.error(args);
+            reject2(args);
+          }
+        );
+      });
+    }
+    async function getFolderItemByPath(relFolderPath) {
+      return new Promise((resolve, reject2) => {
+        const currCtx = new SP.ClientContext.get_current();
+        const web = currCtx.get_web();
+        const oList = web.get_lists().getByTitle(self.config.def.title);
+        const camlQuery = SP.CamlQuery.createAllItemsQuery();
+        const serverRelFolderPath = getServerRelativeFolderPath(relFolderPath);
+        var camlq = '<View Scope="RecursiveAll"><Query><Where><And><Eq><FieldRef Name="FSObjType"/><Value Type="int">1</Value></Eq><Eq><FieldRef Name="FileRef"/><Value Type="Text">' + serverRelFolderPath + "</Value></Eq></And></Where></Query><RowLimit>1</RowLimit></View>";
+        camlQuery.set_viewXml(camlq);
+        const allFolders = oList.getItems(camlQuery);
+        async function onFindItemSucceeded() {
+          const foundObjects = [];
+          var listItemEnumerator = allFolders.getEnumerator();
+          while (listItemEnumerator.moveNext()) {
+            const oListItem2 = listItemEnumerator.get_current();
+            foundObjects.push(oListItem2);
+          }
+          if (!foundObjects) {
+            console.warn("folder not found");
+            resolve(foundObjects);
+          }
+          if (foundObjects.length > 1) {
+            console.warn("Multiple folders found!");
+            resolve(foundObjects);
+          }
+          const oListItem = foundObjects[0];
+          resolve(oListItem);
+        }
+        function onFindItemFailed(sender, args) {
+          console.warn("Unable load list folder contents:");
+          console.error(sender);
+          console.error(args);
+          reject2(args);
+        }
+        const data2 = {
+          allFolders,
+          resolve,
+          reject: reject2
+        };
+        currCtx.load(allFolders);
+        currCtx.executeQueryAsync(
+          Function.createDelegate(data2, onFindItemSucceeded),
+          Function.createDelegate(data2, onFindItemFailed)
+        );
+      });
+    }
+    function upsertListFolderByPath(folderPath, callback) {
+      var folderArr = folderPath.split("/");
+      var idx = 0;
+      var upsertListFolderInner = function(parentPath, folderArr2, idx2, success) {
+        var folderName = folderArr2[idx2];
+        idx2++;
+        var curPath = folderArr2.slice(0, idx2).join("/");
+        ensureListFolder(
+          curPath,
+          function(iFolder) {
+            if (idx2 >= folderArr2.length) {
+              success(iFolder.get_id());
+            } else {
+              upsertListFolderInner(curPath, folderArr2, idx2, success);
+            }
+          },
+          function() {
+            self.createListFolder(
+              folderName,
+              function(folderId) {
+                if (idx2 >= folderArr2.length) {
+                  success(folderId);
+                } else {
+                  upsertListFolderInner(curPath, folderArr2, idx2, success);
+                }
+              },
+              parentPath
+            );
+          }
+        );
+      };
+      upsertListFolderInner("", folderArr, idx, callback);
+    }
+    self.createListFolder = function(folderName, callback, path) {
+      path = path === void 0 ? "" : path;
+      const currCtx = new SP.ClientContext.get_current();
+      const web = currCtx.get_web();
+      const oList = web.get_lists().getByTitle(self.config.def.title);
+      let folderUrl = "";
+      const itemCreateInfo = new SP.ListItemCreationInformation();
+      itemCreateInfo.set_underlyingObjectType(SP.FileSystemObjectType.folder);
+      itemCreateInfo.set_leafName(folderName);
+      if (path) {
+        folderUrl = sal.globalConfig.siteUrl + "/Lists/" + self.config.def.name + "/" + path;
+        itemCreateInfo.set_folderUrl(folderUrl);
+      }
+      const newItem = oList.addItem(itemCreateInfo);
+      newItem.set_item("Title", folderName);
+      newItem.update();
+      function onCreateFolderSucceeded(sender, args) {
+        callback(this.newItem.get_id());
+      }
+      function onCreateFolderFailed(sender, args) {
+        alert(
+          "Request on list " + self.config.def.name + " failed, producing the following error: \n" + args.get_message() + "\nStackTrack: \n" + args.get_stackTrace()
+        );
+      }
+      const data2 = {
+        folderName,
+        callback,
+        newItem
+      };
+      currCtx.load(newItem);
+      currCtx.executeQueryAsync(
+        Function.createDelegate(data2, onCreateFolderSucceeded),
+        Function.createDelegate(data2, onCreateFolderFailed)
+      );
+    };
+    function ensureListFolder(path, onExists, onNonExists) {
+      var folderUrl = sal.globalConfig.siteUrl + "/Lists/" + self.config.def.name + "/" + path;
+      var ctx = SP.ClientContext.get_current();
+      var folder = ctx.get_web().getFolderByServerRelativeUrl(folderUrl);
+      folder.get_listItemAllFields();
+      var data2 = {
+        folder,
+        path,
+        onExists,
+        onNonExists
+      };
+      ctx.load(folder, "Exists", "Name");
+      function onQueryFolderSucceeded() {
+        if (folder.get_exists()) {
+          let onQueryFolderItemSuccess = function() {
+            onExists(folderItem);
+          }, onQueryFolderItemFailure = function(sender, args) {
+            console.error("Failed to find folder at " + path, args);
+          };
+          console.log(
+            "Folder " + folder.get_name() + " exists in " + self.config.def.name
+          );
+          var currCtx = new SP.ClientContext.get_current();
+          var folderItem = folder.get_listItemAllFields();
+          data2 = { folderItem, path, onExists };
+          currCtx.load(folderItem);
+          currCtx.executeQueryAsync(
+            Function.createDelegate(data2, onQueryFolderItemSuccess),
+            Function.createDelegate(data2, onQueryFolderItemFailure)
+          );
+        } else {
+          console.warn("Folder exists but is hidden (security-trimmed) for us.");
+        }
+      }
+      function onQueryFolderFailed(sender, args) {
+        if (args.get_errorTypeName() === "System.IO.FileNotFoundException") {
+          console.log(
+            "SAL.SPList.ensureListFolder:           Folder " + path + " does not exist in " + self.config.def.name
+          );
+          onNonExists();
+        } else {
+          console.error("Error: " + args.get_message());
+        }
+      }
+      ctx.executeQueryAsync(
+        Function.createDelegate(data2, onQueryFolderSucceeded),
+        Function.createDelegate(data2, onQueryFolderFailed)
+      );
+    }
+    function upsertLibFolderByPath(folderUrl, success) {
+      const currCtx = new SP.ClientContext.get_current();
+      const web = currCtx.get_web();
+      const oList = web.get_lists().getByTitle(self.config.def.title);
+      var createFolderInternal = function(parentFolder, folderUrl2, success2) {
+        var ctx = parentFolder.get_context();
+        var folderNames = folderUrl2.split("/");
+        var folderName = folderNames[0];
+        var curFolder = parentFolder.get_folders().add(folderName);
+        ctx.load(curFolder);
+        ctx.executeQueryAsync(
+          function() {
+            if (folderNames.length > 1) {
+              var subFolderUrl = folderNames.slice(1, folderNames.length).join("/");
+              createFolderInternal(curFolder, subFolderUrl, success2);
+            } else {
+              success2(curFolder);
+            }
+          },
+          function(sender, args) {
+            console.error("error creating new folder");
+            console.error(sender);
+            console.error(error);
+          }
+        );
+      };
+      createFolderInternal(oList.get_rootFolder(), folderUrl, success);
+    }
+    function setFolderPermissionsAsync(folderPath, valuePairs, reset) {
+      return new Promise((resolve, reject2) => {
+        setFolderPermissions(folderPath, valuePairs, resolve, reset);
+      });
+    }
+    function setFolderPermissions(relFolderPath, valuePairs, callback, reset) {
+      reset = reset === void 0 ? false : reset;
+      var users = [];
+      var resolvedGroups = [];
+      const serverRelFolderPath = getServerRelativeFolderPath(relFolderPath);
+      const currCtx = new SP.ClientContext.get_current();
+      const web = currCtx.get_web();
+      const folder = web.getFolderByServerRelativeUrl(serverRelFolderPath);
+      valuePairs.forEach(function(vp) {
+        var resolvedGroup = getSPSiteGroupByName(vp[0]);
+        if (resolvedGroup?.oGroup) {
+          resolvedGroups.push([resolvedGroup.oGroup, vp[1]]);
+        } else {
+          users.push([currCtx.get_web().ensureUser(vp[0]), vp[1]]);
+        }
+      });
+      function onFindFolderSuccess() {
+        var currCtx2 = new SP.ClientContext.get_current();
+        var web2 = currCtx2.get_web();
+        var folderItem = this.folder.get_listItemAllFields();
+        if (reset) {
+          folderItem.resetRoleInheritance();
+          folderItem.breakRoleInheritance(false, false);
+          folderItem.get_roleAssignments().getByPrincipal(sal.globalConfig.currentUser).deleteObject();
+        } else {
+          folderItem.breakRoleInheritance(false, false);
+        }
+        this.resolvedGroups.forEach(function(groupPairs) {
+          var roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(currCtx2);
+          roleDefBindingColl.add(
+            web2.get_roleDefinitions().getByName(groupPairs[1])
+          );
+          folderItem.get_roleAssignments().add(groupPairs[0], roleDefBindingColl);
+        });
+        this.users.forEach(function(userPairs) {
+          var roleDefBindingColl = SP.RoleDefinitionBindingCollection.newObject(currCtx2);
+          roleDefBindingColl.add(
+            web2.get_roleDefinitions().getByName(userPairs[1])
+          );
+          folderItem.get_roleAssignments().add(userPairs[0], roleDefBindingColl);
+        });
+        var data3 = { folderItem, callback };
+        function onSetFolderPermissionsSuccess() {
+          console.log("Successfully set permissions");
+          this.callback(folderItem);
+        }
+        function onSetFolderPermissionsFailure(sender, args) {
+          console.error(
+            "Failed to update permissions on item: " + this.folderItem.get_lookupValue() + args.get_message() + "\n" + args.get_stackTrace(),
+            false
+          );
+        }
+        currCtx2.load(folderItem);
+        currCtx2.executeQueryAsync(
+          Function.createDelegate(data3, onSetFolderPermissionsSuccess),
+          Function.createDelegate(data3, onSetFolderPermissionsFailure)
+        );
+      }
+      function onFindFolderFailure(sender, args) {
+        console.error(
+          "Something went wrong setting perms on library folder",
+          args
+        );
+      }
+      var data2 = {
+        folder,
+        users,
+        callback,
+        resolvedGroups,
+        valuePairs,
+        reset
+      };
+      users.map(function(user) {
+        currCtx.load(user[0]);
+      });
+      currCtx.load(folder);
+      currCtx.executeQueryAsync(
+        Function.createDelegate(data2, onFindFolderSuccess),
+        Function.createDelegate(data2, onFindFolderFailure)
+      );
+    }
+    function showModal2(formName, title, args, callback) {
+      var id2 = "";
+      if (args.id) {
+        id2 = args.id;
+      }
+      const options = SP.UI.$create_DialogOptions();
+      var listPath = self.config.def.isLib ? "/" + self.config.def.name + "/" : "/Lists/" + self.config.def.name + "/";
+      var rootFolder = "";
+      if (args.rootFolder) {
+        rootFolder = sal.globalConfig.siteUrl + listPath + args.rootFolder;
+      }
+      var formsPath = self.config.def.isLib ? "/" + self.config.def.name + "/forms/" : "/Lists/" + self.config.def.name + "/";
+      Object.assign(options, {
+        title,
+        dialogReturnValueCallback: callback,
+        args: JSON.stringify(args),
+        height: 800,
+        url: sal.globalConfig.siteUrl + formsPath + formName + "?ID=" + id2 + "&Source=" + location.pathname + "&RootFolder=" + rootFolder
+      });
+      SP.UI.ModalDialog.showModalDialog(options);
+    }
+    function showCheckinModal(fileRef, callback) {
+      var options = SP.UI.$create_DialogOptions();
+      options.title = "Check in Document";
+      options.height = "600";
+      options.dialogReturnValueCallback = callback;
+      options.url = sal.globalConfig.siteUrl + "/_layouts/checkin.aspx?List={" + self.config.guid + "}&FileName=" + fileRef;
+      SP.UI.ModalDialog.showModalDialog(options);
+    }
+    function checkinWithComment(fileRef, comment) {
+      const url = `/web/GetFileByServerRelativeUrl('${fileRef}')/CheckIn(comment='${comment}',checkintype=0)`;
+      return fetchSharePointData(url, "POST");
+    }
+    function showVersionHistoryModal(itemId) {
+      return new Promise((resolve) => {
+        var options = SP.UI.$create_DialogOptions();
+        options.title = "Version History";
+        options.height = "600";
+        options.dialogReturnValueCallback = resolve;
+        options.url = getVersionHistoryUrl(itemId);
+        SP.UI.ModalDialog.showModalDialog(options);
+      });
+    }
+    function getVersionHistoryUrl(itemId) {
+      return sal.globalConfig.siteUrl + "/_layouts/15/versions.aspx?List={" + self.config.guid + "}&ID=" + itemId;
+    }
+    function uploadNewDocumentAsync(folderPath, title, args) {
+      return new Promise((resolve, reject2) => {
+        const currCtx = new SP.ClientContext.get_current();
+        const web = currCtx.get_web();
+        const oList = web.get_lists().getByTitle(self.config.def.title);
+        currCtx.load(oList);
+        currCtx.executeQueryAsync(
+          function() {
+            var siteString = sal.globalConfig.siteUrl == "/" ? "" : sal.globalConfig.siteUrl;
+            const options = SP.UI.$create_DialogOptions();
+            Object.assign(options, {
+              title,
+              dialogReturnValueCallback: resolve,
+              args: JSON.stringify(args),
+              url: siteString + "/_layouts/Upload.aspx?List=" + oList.get_id().toString() + "&RootFolder=" + siteString + "/" + self.config.def.name + "/" + encodeURI(folderPath) + "&Source=" + location.pathname + "&args=" + encodeURI(JSON.stringify(args))
+            });
+            SP.UI.ModalDialog.showModalDialog(options);
+          },
+          function(sender, args2) {
+            console.error("Error showing file modal: ");
+            console.error(sender);
+            console.error(args2);
+          }
+        );
+      });
+    }
+    const UPLOADCHUNKSIZE = 10485760;
+    const uploadchunkActionTypes = {
+      start: "startupload",
+      continue: "continueupload",
+      finish: "finishupload"
+    };
+    async function uploadFileRestChunking(file, relFolderPath, fileName, progress) {
+      const blob = file;
+      const chunkSize = UPLOADCHUNKSIZE;
+      const fileSize = file.size;
+      const totalBlocks = parseInt((fileSize / chunkSize).toString(), 10) + (fileSize % chunkSize === 0 ? 1 : 0);
+      const fileRef = relFolderPath + "/" + fileName;
+      const jobGuid = getGUID();
+      let currentPointer;
+      progress({ currentBlock: 0, totalBlocks });
+      currentPointer = await startUpload(
+        jobGuid,
+        file.slice(0, chunkSize),
+        fileRef,
+        relFolderPath
+      );
+      for (i = 2; i < totalBlocks; i++) {
+        progress({ currentBlock: i, totalBlocks });
+        currentPointer = await continueUpload(
+          jobGuid,
+          file.slice(currentPointer, currentPointer + chunkSize),
+          currentPointer,
+          fileRef
+        );
+      }
+      progress({ currentBlock: totalBlocks - 1, totalBlocks });
+      const result = await finishUpload(
+        jobGuid,
+        file.slice(currentPointer),
+        currentPointer,
+        fileRef
+      );
+      progress({ currentBlock: totalBlocks, totalBlocks });
+      return result;
+    }
+    async function startUpload(uploadId, chunk, fileRef, relFolderPath) {
+      const url = `/web/getFolderByServerRelativeUrl(@folder)/files/getByUrlOrAddStub(@file)/StartUpload(guid'${uploadId}')?&@folder='${relFolderPath}'&@file='${fileRef}'`;
+      const headers = {
+        "Content-Type": "application/octet-stream"
+      };
+      const opts = {
+        body: chunk
+      };
+      const result = await fetchSharePointData(url, "POST", headers, opts);
+      if (!result) {
+        console.error("Error starting upload!");
+        return;
+      }
+      return parseFloat(result.d.StartUpload);
+    }
+    async function continueUpload(uploadId, chunk, fileOffset, fileRef) {
+      const url = `/web/getFileByServerRelativeUrl(@file)/ContinueUpload(uploadId=guid'${uploadId}',fileOffset=${fileOffset})?&@file='${fileRef}'`;
+      const headers = {
+        "Content-Type": "application/octet-stream"
+      };
+      const opts = {
+        body: chunk
+      };
+      const result = await fetchSharePointData(url, "POST", headers, opts);
+      if (!result) {
+        console.error("Error starting upload!");
+        return;
+      }
+      return parseFloat(result.d.ContinueUpload);
+    }
+    async function finishUpload(uploadId, chunk, fileOffset, fileRef) {
+      const url = `/web/getFileByServerRelativeUrl(@file)/FinishUpload(uploadId=guid'${uploadId}',fileOffset=${fileOffset})?&@file='${fileRef}'`;
+      const headers = {
+        "Content-Type": "application/octet-stream"
+      };
+      const opts = {
+        body: chunk
+      };
+      const result = await fetchSharePointData(url, "POST", headers, opts);
+      if (!result) {
+        console.error("Error starting upload!");
+        return;
+      }
+      return result;
+    }
+    async function uploadFileRest(file, relFolderPath, fileName) {
+      return await fetch(
+        _spPageContextInfo.webServerRelativeUrl + `/_api/web/GetFolderByServerRelativeUrl('${relFolderPath}')/Files/add(url='${fileName}',overwrite=true)`,
+        {
+          method: "POST",
+          credentials: "same-origin",
+          body: file,
+          headers: {
+            Accept: "application/json; odata=verbose",
+            "Content-Type": "application/json;odata=nometadata",
+            "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value
+          }
+        }
+      ).then((response) => {
+        if (!response.ok) {
+          console.error("Error Uploading File", response);
+          return;
+        }
+        return response.json();
+      });
+    }
+    async function uploadFileToFolderAndUpdateMetadata(file, fileName, relFolderPath, payload, progress = null) {
+      if (!progress) {
+        progress = () => {
+        };
+      }
+      const serverRelFolderPath = getServerRelativeFolderPath(relFolderPath);
+      let result = null;
+      if (file.size > UPLOADCHUNKSIZE) {
+        const job = () => uploadFileRestChunking(file, serverRelFolderPath, fileName, progress);
+        result = await uploadQueue.addJob(job);
+      } else {
+        progress({ currentBlock: 0, totalBlocks: 1 });
+        result = await uploadFileRest(file, serverRelFolderPath, fileName);
+        progress({ currentBlock: 1, totalBlocks: 1 });
+      }
+      await updateUploadedFileMetadata(result.d, payload);
+      await checkinWithComment(serverRelFolderPath + "/" + fileName, "");
+      let itemUri = result.d.ListItemAllFields.__deferred.uri + "?$select=ID";
+      const listItem = await fetchSharePointData(itemUri);
+      return listItem.d.ID;
+    }
+    async function updateUploadedFileMetadata(fileResult, payload) {
+      var result = await fetch(fileResult.ListItemAllFields.__deferred.uri, {
+        method: "POST",
+        credentials: "same-origin",
+        body: JSON.stringify(payload),
+        headers: {
+          Accept: "application/json; odata=nometadata",
+          "Content-Type": "application/json;odata=nometadata",
+          "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value,
+          "X-HTTP-Method": "MERGE",
+          "If-Match": "*"
+        }
+      }).then((response) => {
+        if (!response.ok) {
+          console.error("Error Updating File", response);
+          return;
+        }
+        return response;
+      });
+      return result;
+    }
+    function copyFiles(sourceFolderPath, destFolderPath, callback, onError) {
+      const sourcePath = getServerRelativeFolderPath(sourceFolderPath);
+      const destPath = getServerRelativeFolderPath(destFolderPath);
+      var context = new SP.ClientContext.get_current();
+      var web = context.get_web();
+      var folderSrc = web.getFolderByServerRelativeUrl(sourcePath);
+      context.load(folderSrc, "Files");
+      context.executeQueryAsync(
+        function() {
+          var files = folderSrc.get_files();
+          var e = files.getEnumerator();
+          var dest = [];
+          while (e.moveNext()) {
+            var file = e.get_current();
+            var destLibUrl = destPath + "/" + file.get_name();
+            dest.push(destLibUrl);
+            file.copyTo(destLibUrl, true);
+          }
+          console.log(dest);
+          context.executeQueryAsync(
+            function() {
+              console.log("Files moved successfully!");
+              callback();
+            },
+            function(sender, args) {
+              console.log("error: ") + args.get_message();
+              onError;
+            }
+          );
+        },
+        function(sender, args) {
+          console.error("Unable to copy files: ", args.get_message());
+          console.error(sender);
+          console.error(args);
+          reject(args);
+        }
+      );
+    }
+    function copyFilesAsync(sourceFolder, destFolder) {
+      return new Promise((resolve, reject2) => {
+        copyFiles(sourceFolder, destFolder, resolve, reject2);
+      });
+    }
+    async function ensureList() {
+      const listInfo = await fetchSharePointData(
+        `/web/lists/GetByTitle('${self.config.def.title}')`
+      );
+    }
+    const publicMembers = {
+      findByIdAsync,
+      getById,
+      findByColumnValueAsync,
+      loadNextPage,
+      getListItemsAsync,
+      createListItemAsync,
+      updateListItemAsync,
+      deleteListItemAsync,
+      setItemPermissionsAsync,
+      getItemPermissionsAsync,
+      getListPermissions,
+      setListPermissionsAsync,
+      getFolderContentsAsync,
+      upsertFolderPathAsync,
+      getServerRelativeFolderPath,
+      setFolderReadonlyAsync,
+      setFolderPermissionsAsync,
+      ensureFolderPermissionsAsync,
+      uploadFileToFolderAndUpdateMetadata,
+      uploadNewDocumentAsync,
+      copyFilesAsync,
+      showModal: showModal2,
+      showCheckinModal,
+      showVersionHistoryModal,
+      getVersionHistoryUrl
+    };
+    return publicMembers;
+  }
+  async function fetchSharePointData(uri, method = "GET", headers = {}, opts = {}) {
+    const siteEndpoint = uri.startsWith("http") ? uri : sal.globalConfig.siteUrl + "/_api" + uri;
+    const response = await fetch(siteEndpoint, {
+      method,
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value,
+        ...headers
+      },
+      ...opts
+    });
+    if (!response.ok) {
+      if (response.status == 404) {
+        return;
+      }
+      console.error(response);
+    }
+    try {
+      const result = await response.json();
+      return result;
+    } catch (e) {
+      return;
+    }
+  }
+  function getGUID() {
+    if (crypto.randomUUID)
+      return crypto.randomUUID();
+    let d = Date.now();
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
+      const r = (d + Math.random() * 16) % 16 | 0;
+      d = Math.floor(d / 16);
+      return (c === "x" ? r : r & 3 | 8).toString(16);
+    });
+  }
+  var sal, serverRelativeUrl, siteGroups, webRoot, ItemPermissions, Role, RoleDef, JobProcessor, uploadQueue;
+  var init_sal = __esm({
+    "src/sal/infrastructure/sal.js"() {
+      window.console = window.console || { log: function() {
+      } };
+      window.sal = window.sal ?? {};
+      sal = window.sal;
+      serverRelativeUrl = _spPageContextInfo.webServerRelativeUrl == "/" ? "" : _spPageContextInfo.webServerRelativeUrl;
+      sal.globalConfig = sal.globalConfig || {
+        siteGroups: [],
+        siteUrl: serverRelativeUrl,
+        listServices: serverRelativeUrl + "/_vti_bin/ListData.svc/",
+        defaultGroups: {}
+      };
+      sal.site = sal.site || {};
+      window.DEBUG = true;
+      siteGroups = {};
+      webRoot = _spPageContextInfo.webAbsoluteUrl == "/" ? "" : _spPageContextInfo.webAbsoluteUrl;
+      sal.NewAppConfig = function() {
+        var siteRoles = {};
+        siteRoles.roles = {
+          FullControl: "Full Control",
+          Design: "Design",
+          Edit: "Edit",
+          Contribute: "Contribute",
+          RestrictedContribute: "Restricted Contribute",
+          InitialCreate: "Initial Create",
+          Read: "Read",
+          RestrictedRead: "Restricted Read",
+          LimitedAccess: "Limited Access"
+        };
+        siteRoles.fulfillsRole = function(inputRole, targetRole) {
+          const roles = Object.values(siteRoles.roles);
+          if (!roles.includes(inputRole) || !roles.includes(targetRole))
+            return false;
+          return roles.indexOf(inputRole) <= roles.indexOf(targetRole);
+        };
+        siteRoles.validate = function() {
+          Object.keys(siteRoles.roles).forEach(function(role) {
+            var roleName = siteRoles.roles[role];
+            if (!sal.globalConfig.roles.includes(roleName)) {
+              console.error(roleName + " is not in the global roles list");
+            } else {
+              console.log(roleName);
+            }
+          });
+        };
+        var siteGroups2 = {
+          groups: {
+            Owners: "workorder Owners",
+            Members: "workorder Members",
+            Visitors: "workorder Visitors",
+            RestrictedReaders: "Restricted Readers"
+          }
+        };
+        var publicMembers = {
+          siteRoles,
+          siteGroups: siteGroups2
+        };
+        return publicMembers;
+      };
+      sal.NewUtilities = function() {
+        function createSiteGroup(groupName, permissions, callback) {
+          callback = callback === void 0 ? null : callback;
+          var currCtx = new SP.ClientContext.get_current();
+          var web = currCtx.get_web();
+          var groupCreationInfo = new SP.GroupCreationInformation();
+          groupCreationInfo.set_title(groupName);
+          this.oGroup = oWebsite.get_siteGroups().add(groupCreationInfo);
+          oGroup.set_owner(oWebsite.get_associatedOwnerGroup());
+          oGroup.update();
+          var collRoleDefinitionBinding = SP.RoleDefinitionBindingCollection.newObject(clientContext);
+          this.oRoleDefinitions = [];
+          permissions.forEach(function(perm) {
+            var oRoleDefinition2 = oWebsite.get_roleDefinitions().getByName(perm);
+            this.oRoleDefinitions.push(oRoleDefinition2);
+            collRoleDefinitionBinding.add(oRoleDefinition2);
+          });
+          var collRollAssignment = oWebsite.get_roleAssignments();
+          collRollAssignment.add(oGroup, collRoleDefinitionBinding);
+          function onCreateGroupSucceeded() {
+            var roleInfo = oGroup.get_title() + " created and assigned to " + oRoleDefinitions.forEach(function(rd) {
+              rd + ", ";
+            });
+            if (callback) {
+              callback(oGroup.get_id());
+            }
+            console.log(roleInfo);
+          }
+          function onCreateGroupFailed(sender, args) {
+            alert(
+              groupnName + " - Create group failed. " + args.get_message() + "\n" + args.get_stackTrace()
+            );
+          }
+          clientContext.load(oGroup, "Title");
+          var data2 = {
+            groupName,
+            oGroup,
+            oRoleDefinition,
+            callback
+          };
+          clientContext.executeQueryAsync(
+            Function.createDelegate(data2, onCreateGroupSucceeded),
+            Function.createDelegate(data2, onCreateGroupFailed)
+          );
+        }
+        function getUserGroups(user, callback) {
+          var currCtx = new SP.ClientContext.get_current();
+          var web = currCtx.get_web();
+          var everyone = web.ensureUser(user);
+          var oGroups = everyone.get_groups();
+          function onQueryGroupsSucceeded() {
+            var groups = new Array();
+            var groupsInfo = new String();
+            var groupsEnumerator = oGroups.getEnumerator();
+            while (groupsEnumerator.moveNext()) {
+              var oGroup2 = groupsEnumerator.get_current();
+              var group = principalToPeople(oGroup2);
+              groupsInfo += "\nGroup ID: " + oGroup2.get_id() + ", Title : " + oGroup2.get_title();
+              groups.push(group);
+            }
+            console.log(groupsInfo.toString());
+            callback(groups);
+          }
+          function onQueryGroupsFailed(sender, args) {
+            console.error(
+              " Everyone - Query Everyone group failed. " + args.get_message() + "\n" + args.get_stackTrace()
+            );
+          }
+          currCtx.load(everyone);
+          currCtx.load(oGroups);
+          data = { everyone, oGroups, callback };
+          currCtx.executeQueryAsync(
+            Function.createDelegate(data, onQueryGroupsSucceeded),
+            Function.createDelegate(data, onQueryGroupsFailed)
+          );
+        }
+        function getUsersWithGroup(oGroup2, callback) {
+          var context = new SP.ClientContext.get_current();
+          var oUsers = oGroup2.get_users();
+          function onGetUserSuccess() {
+            var userObjs = [];
+            var userEnumerator = oUsers.getEnumerator();
+            while (userEnumerator.moveNext()) {
+              var oUser = userEnumerator.get_current();
+              var userObj = principalToPeople(oUser);
+              userObjs.push(userObj);
+            }
+            callback(userObjs);
+          }
+          function onGetUserFailed(sender, args) {
+          }
+          var data2 = { oUsers, callback };
+          context.load(oUsers);
+          context.executeQueryAsync(
+            Function.createDelegate(data2, onGetUserSuccess),
+            Function.createDelegate(data2, onGetUserFailed)
+          );
+        }
+        function copyFiles(sourceLib, destLib, callback, onError) {
+          var context = new SP.ClientContext.get_current();
+          var web = context.get_web();
+          var folderSrc = web.getFolderByServerRelativeUrl(sourceLib);
+          context.load(folderSrc, "Files");
+          context.executeQueryAsync(
+            function() {
+              console.log("Got the source folder right here!");
+              var files = folderSrc.get_files();
+              var e = files.getEnumerator();
+              var dest = [];
+              while (e.moveNext()) {
+                var file = e.get_current();
+                var destLibUrl = destLib + "/" + file.get_name();
+                dest.push(destLibUrl);
+                file.copyTo(destLibUrl, true);
+              }
+              console.log(dest);
+              context.executeQueryAsync(
+                function() {
+                  console.log("Files moved successfully!");
+                  callback();
+                },
+                function(sender, args) {
+                  console.log("error: ") + args.get_message();
+                  onError;
+                }
+              );
+            },
+            function(sender, args) {
+              console.log("Sorry, something messed up: " + args.get_message());
+            }
+          );
+        }
+        function copyFilesAsync(sourceFolder, destFolder) {
+          return new Promise((resolve, reject2) => {
+            copyFiles(sourceFolder, destFolder, resolve, reject2);
+          });
+        }
+        var publicMembers = {
+          copyFiles,
+          copyFilesAsync,
+          createSiteGroup,
+          getUserGroups,
+          getUsersWithGroup
+        };
+        return publicMembers;
+      };
+      ItemPermissions = class _ItemPermissions {
+        constructor({ hasUniqueRoleAssignments, roles }) {
+          this.hasUniqueRoleAssignments = hasUniqueRoleAssignments;
+          this.roles = roles;
+        }
+        hasUniqueRoleAssignments;
+        roles = [];
+        addPrincipalRole(principal, roleName) {
+          const newRoleDef = new RoleDef({ name: roleName });
+          const principalRole = this.getPrincipalRole(principal);
+          if (principalRole) {
+            principalRole.addRoleDef(newRoleDef);
+            return;
+          }
+          const newRole = new Role({ principal });
+          newRole.addRoleDef(newRoleDef);
+          this.roles.push(newRole);
+        }
+        getPrincipalRole(principal) {
+          return this.roles.find((role) => role.principal.ID == principal.ID);
+        }
+        principalHasPermissionKind(principal, permission) {
+          const role = this.getPrincipalRole(principal);
+          return role?.roleDefs.find(
+            (roleDef) => roleDef.basePermissions?.has(permission)
+          ) ? true : false;
+        }
+        getValuePairs() {
+          return this.roles.flatMap(
+            (role) => role.roleDefs.map((roleDef) => [role.principal.Title, roleDef.name])
+          );
+        }
+        static fromRestResult(result) {
+          const roles = result.RoleAssignments.results.map(
+            Role.fromRestRoleAssignment
+          );
+          return new _ItemPermissions({
+            hasUniqueRoleAssignments: result.HasUniqueRoleAssignments,
+            roles
+          });
+        }
+      };
+      Role = class _Role {
+        constructor({ principal, roleDefs = [] }) {
+          this.principal = principal;
+          this.roleDefs = roleDefs;
+        }
+        principal;
+        // People Entity
+        roleDefs = [];
+        addRoleDef(roleDef) {
+          this.roleDefs.push(roleDef);
+        }
+        static fromRestRoleAssignment(role) {
+          return new _Role({
+            principal: { ...role.Member, ID: role.Member.Id },
+            roleDefs: role.RoleDefinitionBindings.results.map(
+              RoleDef.fromRestRoleDef
+            )
+          });
+        }
+        static fromJsomRole(role) {
+          const newRole = new _Role({
+            principal: principalToPeople(role.get_member())
+          });
+          var roleDefs = role.get_roleDefinitionBindings();
+          if (roleDefs != null) {
+            var roleDefsEnumerator = roleDefs.getEnumerator();
+            while (roleDefsEnumerator.moveNext()) {
+              var roleDef = roleDefsEnumerator.get_current();
+              newRole.roleDefs.push(RoleDef.fromJsomRoleDef(roleDef));
+            }
+          }
+          return newRole;
+        }
+      };
+      RoleDef = class _RoleDef {
+        constructor({ name, basePermissions = null }) {
+          this.name = name;
+          this.basePermissions = basePermissions;
+        }
+        name;
+        basePermissions;
+        static fromRestRoleDef(roleDef) {
+          const newRoleDef = new _RoleDef({
+            name: roleDef.Name,
+            basePermissions: roleDef.BasePermissions
+          });
+          Object.assign(newRoleDef, roleDef);
+          return newRoleDef;
+        }
+        static fromJsomRoleDef(roleDef) {
+          const newRoleDef = new _RoleDef({ name: roleDef.get_name() });
+          newRoleDef.basePermissions = roleDef.get_basePermissions();
+          return newRoleDef;
+        }
+      };
+      window.fetchSharePointData = fetchSharePointData;
+      JobProcessor = class {
+        constructor(maxConcurrency) {
+          this.maxConcurrency = maxConcurrency;
+          this.runningJobs = 0;
+          this.queue = [];
+        }
+        addJob(asyncFunction) {
+          return new Promise((resolve, reject2) => {
+            const job = async () => {
+              try {
+                const result = await asyncFunction();
+                resolve(result);
+              } catch (error2) {
+                reject2(error2);
+              } finally {
+                this.runningJobs--;
+                this.processQueue();
+              }
+            };
+            this.queue.push(job);
+            this.processQueue();
+          });
+        }
+        processQueue() {
+          while (this.runningJobs < this.maxConcurrency && this.queue.length > 0) {
+            const job = this.queue.shift();
+            this.runningJobs++;
+            job();
+          }
+        }
+      };
+      uploadQueue = new JobProcessor(5);
+    }
+  });
+
+  // src/sal/infrastructure/authorization.js
+  async function getUsersByGroupName(groupName) {
+    const users = await getGroupUsers(groupName);
+    if (!users)
+      return [];
+    return users.map((userProps) => new People(userProps));
+  }
+  var init_authorization = __esm({
+    "src/sal/infrastructure/authorization.js"() {
+      init_sal();
+    }
+  });
+
+  // src/sal/infrastructure/index.js
+  var init_infrastructure = __esm({
+    "src/sal/infrastructure/index.js"() {
+      init_entity_utilities();
+      init_knockout_extensions();
+      init_register_components();
+      init_sal();
+      init_authorization();
+    }
+  });
+
+  // src/sal/fields/PeopleField.js
+  var PeopleField;
+  var init_PeopleField = __esm({
+    "src/sal/fields/PeopleField.js"() {
+      init_infrastructure();
+      init_PeopleModule();
+      init_People();
+      init_infrastructure();
+      init_sal();
+      init_fields2();
+      PeopleField = class extends BaseField {
+        constructor(params) {
+          super(params);
+          this.spGroupName = params.spGroupName ?? null;
+          this.multiple = params.multiple ?? false;
+          this.Value = this.multiple ? ko.observableArray() : ko.observable();
+          if (ko.isObservable(this.spGroupName)) {
+            this.spGroupName.subscribe(this.spGroupNameChangedHandler);
+          }
+          if (ko.unwrap(this.spGroupName)) {
+            this.spGroupNameChangedHandler(ko.unwrap(this.spGroupName));
+          }
+        }
+        spGroupId = ko.observable();
+        userOpts = ko.observableArray();
+        expandUsers = ko.observable(false);
+        spGroupNameChangedHandler = async (groupName) => {
+          if (!groupName) {
+            this.userOpts.removeAll();
+            this.spGroupId(null);
+          }
+          const group = await ensureUserByKeyAsync(groupName);
+          this.spGroupId(group.ID);
+          const users = await getUsersByGroupName(groupName);
+          this.userOpts(users.sort(sortByTitle));
+        };
+        pickerOptions = ko.pureComputed(() => {
+          const groupId = ko.unwrap(this.spGroupId);
+          const opts = {
+            AllowMultipleValues: this.multiple
+          };
+          if (groupId)
+            opts.SharePointGroupID = groupId;
+          return opts;
+        });
+        toString = ko.pureComputed(() => {
+          if (!this.multiple)
+            return this.Value()?.Title;
+          return this.Value()?.map((user) => user.Title);
+        });
+        set = (val) => {
+          if (!this.multiple) {
+            this.Value(People2.Create(val));
+            return;
+          }
+          if (!val) {
+            this.Value.removeAll();
+            return;
+          }
+          const vals = val.results ?? val;
+          if (!vals.length) {
+            this.Value.removeAll();
+            return;
+          }
+          this.Value(vals.map((u) => People2.Create(u)));
+        };
+        components = PeopleModule;
+      };
+    }
+  });
+
+  // src/sal/fields/SelectField.js
+  var SelectField;
+  var init_SelectField = __esm({
+    "src/sal/fields/SelectField.js"() {
+      init_fields();
+      init_fields2();
+      SelectField = class extends BaseField {
+        constructor({
+          displayName,
+          isRequired = false,
+          Visible,
+          options,
+          multiple = false,
+          optionsText,
+          instructions
+        }) {
+          super({ Visible, displayName, isRequired, instructions });
+          this.Options(options);
+          this.multiple = multiple;
+          this.Value = multiple ? ko.observableArray() : ko.observable();
+          this.optionsText = optionsText;
+          this.components = this.multiple ? SearchSelectModule : SelectModule;
+        }
+        toString = ko.pureComputed(
+          () => this.multiple ? this.Value().join(", ") : this.Value()
+        );
+        get = () => this.Value();
+        set = (val) => {
+          if (val && this.multiple) {
+            if (Array.isArray(val)) {
+              this.Value(val);
+            } else {
+              this.Value(val.results ?? val.split(";#"));
+            }
+            return;
+          }
+          this.Value(val);
+        };
+        Options = ko.observableArray();
+      };
+    }
+  });
+
+  // src/sal/fields/TextAreaField.js
+  var TextAreaField;
+  var init_TextAreaField = __esm({
+    "src/sal/fields/TextAreaField.js"() {
+      init_fields();
+      init_fields2();
+      TextAreaField = class extends BaseField {
+        constructor(params) {
+          super(params);
+          this.isRichText = params.isRichText;
+          this.attr = params.attr ?? {};
+        }
+        components = TextAreaModule;
+      };
+    }
+  });
+
+  // src/sal/fields/TextField.js
+  var TextField;
+  var init_TextField = __esm({
+    "src/sal/fields/TextField.js"() {
+      init_fields();
+      init_fields2();
+      TextField = class extends BaseField {
+        constructor(params) {
+          super(params);
+          this.attr = params.attr ?? {};
+          this.options = params.options ?? null;
+        }
+        components = TextModule;
+      };
+    }
+  });
+
+  // src/sal/fields/index.js
+  var init_fields2 = __esm({
+    "src/sal/fields/index.js"() {
+      init_BaseField();
+      init_BlobField();
+      init_CheckboxField();
+      init_DateField();
+      init_LookupField();
+      init_PeopleField();
+      init_SelectField();
+      init_TextAreaField();
+      init_TextField();
+    }
+  });
+
+  // src/sal/primitives/constrained_entity.js
+  var ConstrainedEntity;
+  var init_constrained_entity = __esm({
+    "src/sal/primitives/constrained_entity.js"() {
+      init_primitives();
+      init_fields2();
+      ConstrainedEntity = class extends Entity {
+        constructor(params) {
+          super(params);
+        }
+        toJSON = () => {
+          const out = {};
+          Object.keys(this.FieldMap).map(
+            (key) => out[key] = this.FieldMap[key]?.get()
+          );
+          return out;
+        };
+        fromJSON(inputObj) {
+          if (window.DEBUG)
+            console.log("Setting constrained entity from JSON", inputObj);
+          Object.keys(inputObj).map((key) => this.FieldMap[key]?.set(inputObj[key]));
+        }
+        get FieldMap() {
+          const fieldMap = {};
+          Object.entries(this).filter(([key, val]) => val instanceof BaseField).map(([key, val]) => {
+            key = val.systemName ?? key;
+            fieldMap[key] = val;
+          });
+          return fieldMap;
+        }
+        FormFields = () => Object.values(this.FieldMap);
+        // Validate the entire entity
+        validate = (showErrors = true) => {
+          Object.values(this.FieldMap).map(
+            (field) => field?.validate && field.validate(showErrors)
+          );
+          return this.Errors();
+        };
+        Errors = ko.pureComputed(() => {
+          return Object.values(this.FieldMap).filter((field) => field?.Errors && field.Errors()).flatMap((field) => field.Errors());
+        });
+        IsValid = ko.pureComputed(() => !this.Errors().length);
+        /**
+         * Expose methods to generate default new, edit, and view forms
+         * for a constrained entity. Uses the constrained
+         * entity components.
+         *
+         * This could be broken into a separate service, but since it's
+         * tightly coupled leave it here?
+         */
+        // static components = {
+        //   new: (entity, view = null) =>
+        //     new ConstrainedEntityComponent({
+        //       entityView: new ConstrainedEntityView({ entity, view }),
+        //       displayMode: "edit",
+        //     }),
+        //   edit: (entity, view = null) =>
+        //     new ConstrainedEntityComponent({
+        //       entityView: new ConstrainedEntityView({ entity, view }),
+        //       displayMode: "edit",
+        //     }),
+        //   view: (entity, view = null) =>
+        //     new ConstrainedEntityComponent({
+        //       entityView: new ConstrainedEntityView({ entity, view }),
+        //       displayMode: "view",
+        //     }),
+        // };
+      };
+    }
+  });
+
+  // src/entities/audit_coversheet.js
+  var AuditCoversheet;
+  var init_audit_coversheet = __esm({
+    "src/entities/audit_coversheet.js"() {
+      init_entities2();
+      init_store();
+      init_constrained_entity();
+      init_fields2();
+      init_application_db_context();
+      AuditCoversheet = class extends ConstrainedEntity {
+        constructor(params) {
+          super(params);
+        }
+        Title = new TextField({
+          displayName: "Title",
+          required: true
+        });
+        FileName = new TextField({
+          displayName: "Name",
+          systemName: "FileLeafRef",
+          required: true
+        });
+        FileRef = new TextField({
+          displayName: "File Link",
+          systemName: "FileRef"
+        });
+        ReqNum = new LookupField({
+          displayName: "Request Number",
+          type: AuditRequest,
+          lookupCol: "Title",
+          required: true,
+          entitySet: appContext.AuditRequests
+        });
+        ActionOffice = new LookupField({
+          displayName: "Action Offices",
+          type: AuditOrganization,
+          options: auditOrganizationStore,
+          optionsFilter: ko.pureComputed(() => {
+            const request2 = ko.unwrap(this.ReqNum.Value);
+            if (!request2)
+              return (val) => val;
+            const requestActionOffices = ko.unwrap(request2.ActionOffice.Value);
+            return (opt) => requestActionOffices.includes(opt);
+          }),
+          lookupCol: "Title",
+          multiple: true,
+          entitySet: appContext.AuditOrganizations
+        });
+        static Views = {
+          All: ["ID", "Title", "FileLeafRef", "FileRef", "ReqNum", "ActionOffice"],
+          AOCanUpdate: ["Title", "FileLeafRef", "ActionOffice"]
+        };
+        static ListDef = {
+          title: "AuditCoversheets",
+          name: "AuditCoversheets",
+          isLib: true
+        };
+      };
+    }
+  });
+
+  // src/entities/audit_email.js
+  var AuditEmail;
+  var init_audit_email = __esm({
+    "src/entities/audit_email.js"() {
+      init_constrained_entity();
+      AuditEmail = class extends ConstrainedEntity {
+        constructor(params) {
+          super(params);
+        }
+        static Views = {
+          All: ["ID", "Title", "To", "Body", "NotificationType", "ReqNum", "ResID"]
+        };
+        static ListDef = {
+          name: "AuditEmails",
+          title: "AuditEmails"
+        };
+      };
+    }
+  });
+
+  // src/entities/audit_organization.js
+  var ORGROLES, AuditOrganization;
+  var init_audit_organization = __esm({
+    "src/entities/audit_organization.js"() {
+      init_constrained_entity();
+      ORGROLES = {
+        ACTIONOFFICE: "Action Office",
+        REQUESTINGOFFICE: "Requesting Office",
+        QUALITYASSURANCE: "Quality Assurance",
+        SPECIALPERMISSIONS: "Special Permissions",
+        RESTRICTEDREADERS: "Restricted Readers"
+      };
+      AuditOrganization = class extends ConstrainedEntity {
+        constructor(params) {
+          super(params);
+        }
+        static Views = {
+          All: [
+            "ID",
+            "Title",
+            "Country",
+            "Organization_x0020_Description",
+            "EmailGroup",
+            "Org_Type",
+            "Post_x0020_Code",
+            "UserGroup",
+            "Role"
+          ]
+        };
+        static ListDef = {
+          name: "AuditOrganizations",
+          title: "AuditOrganizations"
+        };
+      };
+    }
+  });
+
+  // src/entities/audit_request.js
+  var AUDITREQUESTSTATES, AUDITREQUESTTYPES, AuditRequest;
+  var init_audit_request = __esm({
+    "src/entities/audit_request.js"() {
+      init_audit_organization();
+      init_fields2();
+      init_primitives();
+      init_validation_error();
+      init_store();
+      init_application_db_context();
+      AUDITREQUESTSTATES = {
+        OPEN: "Open",
+        CANCELLED: "Canceled",
+        CLOSED: "Closed",
+        REOPENED: "ReOpened"
+      };
+      AUDITREQUESTTYPES = {
+        TASKER: "Tasker",
+        REQUEST: "Request",
+        NOTIFICATION: "Notification"
+      };
+      AuditRequest = class extends ConstrainedEntity {
+        constructor(params) {
+          super(params);
+          this.InternalDueDate.addFieldRequirement({
+            requirement: ko.pureComputed(() => {
+              return this.InternalDueDate.Value() > this.ReqDueDate.Value();
+            }),
+            error: new ValidationError2(
+              "text-field",
+              "required-field",
+              "The Internal Due Date must be before the Request Due Date!"
+            )
+          });
+        }
+        ReqType = new SelectField({
+          displayName: "Request Type",
+          options: Object.values(AUDITREQUESTTYPES),
+          isRequired: true,
+          instructions: ko.pureComputed(() => {
+            switch (this.ReqType.Value()) {
+              case AUDITREQUESTTYPES.TASKER:
+                return "A request that doesn't require QA Approval.";
+              case AUDITREQUESTTYPES.REQUEST:
+                return "A request requiring QA Approval";
+              case AUDITREQUESTTYPES.NOTIFICATION:
+                return "A request that is closed after the email is sent";
+              default:
+            }
+          })
+        });
+        ReqNum = new TextField({
+          displayName: "Request Number",
+          systemName: "Title",
+          isRequired: true
+        });
+        ReqSubject = new TextField({
+          displayName: "Request Subject",
+          isRequired: true
+        });
+        RequestingOffice = new LookupField({
+          displayName: "Requesting Office",
+          type: AuditOrganization,
+          options: auditOrganizationStore,
+          optionsFilter: allRequestingOfficesFilter,
+          lookupCol: "Title",
+          entitySet: appContext.AuditOrganizations,
+          isRequired: true
+        });
+        FiscalYear = new TextField({
+          displayName: "Fiscal Year",
+          isRequired: true
+        });
+        InternalDueDate = new DateField({
+          displayName: "Internal Due Date",
+          type: dateFieldTypes.date,
+          isRequired: true
+        });
+        ReqDueDate = new DateField({
+          displayName: "Request Due Date",
+          type: dateFieldTypes.date,
+          isRequired: true
+        });
+        ReqStatus = new SelectField({
+          displayName: "Request Status",
+          options: Object.values(AUDITREQUESTSTATES),
+          isRequired: true
+        });
+        IsSample = new CheckboxField({
+          displayName: "Is Sample?"
+        });
+        ReceiptDate = new DateField({
+          displayName: "Receipt Date",
+          type: dateFieldTypes.date,
+          isRequired: false
+        });
+        RelatedAudit = new TextField({
+          displayName: "Related Audit",
+          isRequired: false,
+          instructions: "The Audit Request number of the similar audit performed in the previous FY"
+        });
+        ActionItems = new TextAreaField({
+          displayName: "Action Items",
+          instructions: "Items that have been requested by the Auditor",
+          isRichText: true,
+          isMinimalEditor: true,
+          classList: ["min-w-full"]
+        });
+        Comments = new TextAreaField({
+          displayName: "Comments",
+          isRichText: true,
+          isMinimalEditor: true,
+          classList: ["min-w-full"]
+        });
+        Reminders = new SelectField({
+          displayName: "Reminders",
+          options: [
+            "3 Days Before Due",
+            "1 Day Before Due",
+            "1 Day Past Due",
+            "3 Days Past Due",
+            "7 Days Past Due"
+          ],
+          multiple: true
+        });
+        EmailSent = new CheckboxField({
+          displayName: "Email has been sent"
+        });
+        Sensitivity = new SelectField({
+          displayName: "Sensitivity",
+          options: ["None", "Official", "SBU", "PII_SBU"]
+        });
+        ActionOffice = new LookupField({
+          displayName: "Action Offices",
+          type: AuditOrganization,
+          options: auditOrganizationStore,
+          optionsFilter: allActionOfficesFilter,
+          lookupCol: "Title",
+          multiple: true,
+          entitySet: appContext.AuditOrganizations
+        });
+        EmailActionOffice = new LookupField({
+          displayName: "Email Action Offices",
+          type: AuditOrganization,
+          options: auditOrganizationStore,
+          optionsFilter: allActionOfficesFilter,
+          lookupCol: "Title",
+          multiple: true,
+          entitySet: appContext.AuditOrganizations
+        });
+        ClosedDate = new DateField({
+          displayName: "Closed Date",
+          isRequired: false
+        });
+        ClosedBy = new PeopleField({
+          displayName: "Closed By",
+          isRequired: false
+        });
+        static Views = {
+          All: [
+            "ID",
+            "Title",
+            "ReqType",
+            "ReqSubject",
+            "FiscalYear",
+            "InternalDueDate",
+            "ReqDueDate",
+            "ReqStatus",
+            "IsSample",
+            "ReceiptDate",
+            "RelatedAudit",
+            "ActionItems",
+            "Comments",
+            "Reminders",
+            "EmailSent",
+            "Sensitivity",
+            "ActionOffice",
+            "EmailActionOffice",
+            "RequestingOffice",
+            "ClosedDate",
+            "ClosedBy"
+          ],
+          New: [
+            "Title",
+            "ReqType",
+            "ReqSubject",
+            "RequestingOffice",
+            "FiscalYear",
+            "InternalDueDate",
+            "ReqDueDate",
+            "ReqStatus",
+            "IsSample",
+            "ReceiptDate",
+            "RelatedAudit",
+            "ActionItems",
+            "Comments",
+            "Reminders",
+            "Sensitivity",
+            "ActionOffice"
+          ],
+          IACanUpdate: [
+            "ReqType",
+            "ReqSubject",
+            "FiscalYear",
+            "RequestingOffice",
+            "InternalDueDate",
+            "ReqDueDate",
+            "ReqStatus",
+            "IsSample",
+            "ReceiptDate",
+            "RelatedAudit",
+            "ActionItems",
+            "Comments",
+            "Reminders",
+            "Sensitivity",
+            "ActionOffice",
+            "EmailActionOffice",
+            "ClosedBy",
+            "ClosedDate"
+          ]
+        };
+        static ListDef = {
+          name: "AuditRequests",
+          title: "AuditRequests"
+        };
+      };
+    }
+  });
+
+  // src/entities/audit_bulk_request.js
+  var AuditBulkRequest;
+  var init_audit_bulk_request = __esm({
+    "src/entities/audit_bulk_request.js"() {
+      init_audit_request();
+      AuditBulkRequest = class extends AuditRequest {
+        constructor(params) {
+          super(params);
+        }
+        toRequest() {
+          const newReq = new AuditRequest(this);
+          newReq.fromJSON(this.toJSON());
+          return newReq;
+        }
+        static Views = {
+          All: [
+            "ID",
+            "Title",
+            "ReqSubject",
+            "FiscalYear",
+            "InternalDueDate",
+            "ReqDueDate",
+            "ReqStatus",
+            "IsSample",
+            "ReceiptDate",
+            "RelatedAudit",
+            "ActionItems",
+            "Comments",
+            "Reminders",
+            "EmailSent",
+            "Sensitivity",
+            "ActionOffice",
+            "EmailActionOffice",
+            "EmailActionOffice",
+            "ClosedDate",
+            "ClosedBy"
+          ],
+          New: [
+            "Title",
+            "ReqSubject",
+            "FiscalYear",
+            "InternalDueDate",
+            "ReqDueDate",
+            "ReqStatus",
+            "IsSample",
+            "ReceiptDate",
+            "RelatedAudit",
+            "ActionItems",
+            "Comments",
+            "Reminders",
+            "Sensitivity",
+            "ActionOffice"
+          ]
+        };
+        static ListDef = {
+          name: "AuditBulkRequests",
+          title: "AuditBulkRequests"
+        };
+      };
+    }
+  });
+
+  // src/value_objects/comment.js
+  var Comment;
+  var init_comment = __esm({
+    "src/value_objects/comment.js"() {
+      init_primitives();
+      init_fields2();
+      Comment = class _Comment extends ConstrainedEntity {
+        constructor(params) {
+          super(params);
+        }
+        id = new TextField({
+          displayName: "ID"
+        });
+        text = new TextField({
+          displayName: "Comment"
+        });
+        author = new TextField({
+          displayName: "author"
+        });
+        timestamp = new TextField({
+          displayName: "timestamp"
+        });
+        FieldMap = {
+          id: this.id,
+          text: this.text,
+          author: this.author,
+          timestamp: this.timestamp
+        };
+        static Create({ id: id2, text, author, timestamp }) {
+          const newComment = new _Comment();
+          newComment.id.Value(id2);
+          newComment.text.Value(text);
+          newComment.author.Value(author);
+          newComment.timestamp.Value(timestamp);
+          return newComment;
+        }
+        static Views = {
+          All: ["id", "text", "author", "timestamp"]
+        };
+      };
+    }
+  });
+
+  // src/value_objects/active_viewer.js
+  var ActiveViewer;
+  var init_active_viewer = __esm({
+    "src/value_objects/active_viewer.js"() {
+      init_primitives();
+      init_fields2();
+      ActiveViewer = class extends ConstrainedEntity {
+        id = new TextField({
+          displayName: "ID"
+        });
+        viewer = new TextField({
+          displayName: "Viewer"
+        });
+        timestamp = new DateField({
+          displayName: "Timestamp",
+          type: dateFieldTypes.datetime
+        });
+        FieldMap = {
+          id: this.id,
+          viewer: this.viewer,
+          timestamp: this.timestamp
+        };
+        static Views = {
+          All: ["id", "viewer", "timestamp"]
+        };
+      };
+    }
+  });
+
+  // src/components/active_viewers/active_viewers_module.js
+  var ActiveViewersComponent;
+  var init_active_viewers_module = __esm({
+    "src/components/active_viewers/active_viewers_module.js"() {
+      init_active_viewer();
+      init_application_db_context();
+      ActiveViewersComponent = class {
+        constructor({ entity, fieldName }) {
+          this.entity = entity;
+          this.blobField = entity[fieldName];
+          this.fieldName = fieldName;
+          this.viewers = this.blobField.TypedValues;
+        }
+        entity;
+        blobField;
+        fieldName;
+        pushCurrentUser() {
+          this.pushUser(_spPageContextInfo.userLoginName);
+        }
+        pushUser(loginName) {
+          var filteredViewers = this.viewers().filter(function(viewer2) {
+            return viewer2.viewer != loginName;
+          });
+          this.viewers(filteredViewers);
+          var viewer = new ActiveViewer();
+          viewer.fromJSON({
+            id: Math.ceil(Math.random() * 1e6).toString(16),
+            viewer: loginName,
+            timestamp: (/* @__PURE__ */ new Date()).toLocaleString()
+          });
+          this.viewers.push(viewer);
+          this.commitChanges();
+        }
+        removeUser(viewerToRemove) {
+          this.viewers.remove(viewerToRemove);
+          this.commitChanges();
+        }
+        removeCurrentuser() {
+          this.removeUserByLogin(_spPageContextInfo.userLoginName);
+        }
+        removeUserByLogin(loginName) {
+          var viewerToRemove = this.viewers().find(function(viewer) {
+            return viewer.viewer == loginName;
+          });
+          if (viewerToRemove) {
+            this.removeUser(viewerToRemove);
+          }
+        }
+        onRemove = (viewerToRemove) => {
+          if (confirm("Are you sure you want to delete this item?")) {
+            this.removeUser(viewerToRemove);
+          }
+        };
+        async commitChanges() {
+          const set = appContext.Set(this.entity.constructor);
+          if (!set) {
+            alert("Cannot find entity set", this.entity);
+            return;
+          }
+          await set.UpdateEntity(this.entity, [this.fieldName]);
+        }
+      };
+    }
+  });
+
+  // src/components/comment_chain/CommentChainTemplate.js
+  var commentChainTemplate;
+  var init_CommentChainTemplate = __esm({
+    "src/components/comment_chain/CommentChainTemplate.js"() {
+      init_infrastructure();
+      commentChainTemplate = html3`
   <div>
     <!-- ko if: showHistoryBool -->
     <!-- ko foreach: comments -->
@@ -475,20 +4334,1952 @@ Group ID: `+de.get_id()+", Title : "+de.get_title(),ie.push(ne)}console.log(le.t
       <button type="button" data-bind="click: onSubmit">Submit</button>
     </div>
   </div>
-`});var _i,ps,ks,Ni=O(()=>{Ce();Ie();Is();Pi();_i="commentChain",ps=class{constructor({entity:e,fieldName:s}){this.entity=e,this.blobField=e[s],this.fieldName=s}entity;blobField;fieldName;componentName=_i},ks=class{constructor({entity:e,fieldName:s,blobField:o}){this.entity=e,this.fieldName=s,this.blobField=o,this.comments=o.TypedValues}newCommentText=ko.observable();showHistoryBool=ko.observable(!1);toggleShowHistory=function(){this.showHistoryBool(!this.showHistoryBool())};async onSubmit(){var e=pt.Create({id:Math.ceil(Math.random()*1e6).toString(16),text:this.newCommentText(),author:_spPageContextInfo.userLoginName,timestamp:new Date().toLocaleString()});this.blobField.add(e),await this.commitChanges(),this.newCommentText("")}onRemove=e=>{confirm("Are you sure you want to delete this item?")&&(this.blobField.remove(e),this.commitChanges())};async commitChanges(){let e=z.Set(this.entity.constructor);if(!e){alert("Cannot find entity set",this.entity);return}await e.UpdateEntity(this.entity,[this.fieldName])}};rs(_i,{template:Fi,viewModel:ks})});var $t,Ei=O(()=>{ye();lt();Mt();Is();ds();Ts();Ni();Ce();$t=class extends Z{constructor(e){super(e)}ActiveViewers=new Ze({displayName:"Active Viewers",entityType:Je,multiple:!0});InternalStatus=new Ze({displayName:"Internal Status",entityType:pt,multiple:!0});ReqNum=new be({displayName:"Request",type:Se,lookupCol:"Title",entitySet:z.AuditRequests});commentChainComponent=new ps({entity:this,fieldName:"InternalStatus"});activeViewersComponent=new mt({entity:this,fieldName:"ActiveViewers"});static Views={All:["ID","ActiveViewers","InternalStatus","ReqNum"]};static ListDef={title:"AuditRequestsInternal",name:"AuditRequestsInternal"}}});var $a,Qa,Fs,Oi,tt=O(()=>{et();Ie();$a=ko.observable(!1),Qa=ko.observable(!1),Fs=class t extends Pe{constructor({ID:e,Title:s,LoginName:o=null,LookupValue:u=null,WorkPhone:h=null,EMail:w=null,IsGroup:N=null,IsEnsured:P=!1,Groups:U=null}){super({ID:e,Title:s,LookupValue:u,LoginName:o,IsGroup:N,IsEnsured:P}),this.WorkPhone=h,this.EMail=w,this.Groups=U}Groups=[];isInGroup(e){return e?.ID?this.getGroupIds().includes(e.ID):!1}getGroupIds(){return this.Groups.map(e=>e.ID)}IsSiteOwner=ko.pureComputed(()=>this.isInGroup(hi().owners));hasSystemRole=e=>{let s=this.IsSiteOwner();switch(e){case systemRoles.Admin:return s;case systemRoles.ActionOffice:return s||this.ActionOffices().length;default:}};static _user=null;static Create=async function(){if(t._user)return t._user;let e=await vi();return t._user=new t(e),t._user}},Oi=Fs.Create});var Qt,Qe,Ps=O(()=>{Oe();ye();Ee();Ce();ds();Ts();ot();tt();Qt={Open:"1-Open",Submitted:"2-Submitted",ReturnedToAO:"3-Returned to Action Office",ApprovedForQA:"4-Approved for QA",ReturnedToGFS:"5-Returned to GFS",RepostedAfterRejection:"6-Reposted After Rejection",Closed:"7-Closed"},Qe=class extends Z{constructor(e){super(e)}Title=new K({displayName:"Name"});ReqNum=new be({displayName:"Request Number",type:Se,entitySet:z.AuditRequests});SampleNumber=new K({displayName:"Sample Number",isRequired:!0});ResStatus=new Le({displayName:"Response Status",options:Object.values(Qt)});ReturnReason=new K({displayName:"Return Reason",options:["Incomplete Document","Incorrect POC"]});Comments=new $e({displayName:"Comments",isRichText:!0,isMinimalEditor:!0,classList:["min-w-full"]});ClosedDate=new Ae({displayName:"Closed Date",type:we.date});ClosedBy=new qe({displayName:"Closed By"});POC=new qe({displayName:"POC"});POCCC=new qe({displayName:"POCCC"});ActionOffice=new be({displayName:"Action Office",type:_e,options:Be,optionsFilter:ko.pureComputed(()=>{let e=ko.unwrap(this.ReqNum.Value);if(!e)return o=>o;let s=ko.unwrap(e.ActionOffice.Value);return o=>s.includes(o)}),entitySet:z.AuditOrganizations,lookupCol:"Title",isRequired:!0});ActiveViewers=new Ze({displayName:"Active Viewers",entityType:Je,multiple:!0});activeViewersComponent=new mt({entity:this,fieldName:"ActiveViewers"});async uploadResponseDocFile(e){let s={Title:e.name,ReqNumId:this.ReqNum.Value().ID,ResIDId:this.ID},{appContext:o}=await Promise.resolve().then(()=>(Ce(),Ui));return await o.AuditResponseDocs.UploadFileToFolderAndUpdateMetadata(e,e.name,this.Title.Value(),s)}markClosed(){this.ResStatus.Value(Qt.Closed),this.ClosedDate.set(new Date),this.ClosedBy.set(Oi())}static Views={All:["ID","Title","SampleNumber","ResStatus","ReturnReason","Comments","ClosedDate","ClosedBy","POC","POCCC","ReqNum","ActionOffice","ActiveViewers"],NewForm:["ReqNum","ActionOffice","SampleNumber","Comments"],EditForm:["ReqNum","SampleNumber","Title","ActionOffice","ResStatus","ReturnReason","Comments","ClosedDate","ClosedBy","POC","POCCC"],IACanUpdate:["Title","ActionOffice","ResStatus","ReturnReason","Comments","ClosedDate","ClosedBy","POC","POCCC"],IAUpdateClosed:["ResStatus","ClosedDate","ClosedBy"]};static ListDef={name:"AuditResponses",title:"AuditResponses"}}});var ms,qi=O(()=>{Ee();ms=class extends Qe{constructor(e){super(e)}static ListDef={name:"AuditBulkResponses",title:"AuditBulkResponses"}}});var fs,ft,Li=O(()=>{Oe();ye();Ps();Mt();Ce();fs={Open:"Open",Submitted:"Submitted",SentToQA:"Sent to QA",Approved:"Approved",Rejected:"Rejected",Archived:"Archived",MarkedForDeletion:"Marked for Deletion"},ft=class extends Z{constructor(e){super(e)}Title=new K({displayName:"Name"});ReceiptDate=new Ae({displayName:"Receipt Date",type:we.date});DocumentStatus=new Le({displayName:"Document Status",options:Object.values(fs)});RejectReason=new $e({displayName:"Reject Reason"});ReqNum=new be({displayName:"Request Number",type:Se,entitySet:z.AuditRequests});ResID=new be({displayName:"Response ID",type:Qe,entitySet:z.AuditResponses});FileName=new K({displayName:"Name",systemName:"FileLeafRef"});FileRef=new K({displayName:"File Link",systemName:"FileRef"});Modified=new Ae({displayName:"Modified",type:we.datetime});Editor=new qe({displayName:"Modified By"});Created=new Ae({displayName:"Created",type:we.datetime});FileSizeDisplay=new K({displayName:"File"});File_x0020_Type=new K({displayName:"File Type",systemName:"File_x0020_Type"});CheckoutUser=new qe({displayName:"Checked Out To"});markApprovedForRO(e){this.DocumentStatus.Value(fs.Approved),this.RejectReason.Value(""),this.FileName.Value()!=e&&this.FileName.Value(e)}static Views={All:["ID","Title","ReceiptDate","DocumentStatus","RejectReason","ReqNum","ResID","FileLeafRef","FileRef","FileSizeDisplay","File_x0020_Type","CheckoutUser","Modified","Editor","Created"],EditForm:["FileLeafRef","Title","ReceiptDate","DocumentStatus","RejectReason","ReqNum","ResID"],AOCanUpdate:["Title","ReceiptDate","DocumentStatus","RejectReason","FileLeafRef"],UpdateDocStatus:["Title","FileLeafRef","DocumentStatus"]};static ListDef={name:"AuditResponseDocs",title:"AuditResponseDocs",isLib:!0}}});var Ht,Vi=O(()=>{Oe();Ht=class extends Z{constructor(e){super(e)}markApprovedForRO(e,s){this.ReqNum=e.Title,this.ResID=s.Title.toString(),this.FiscalYear=e.FiscalYear.toString(),this.ReqSubject=e.ReqSubject.toString(),this.RequestingOffice=e.RequestingOffice.Value()?.UserGroup?.Title}static Views={All:["ID","Title","ReqNum","ResID","FiscalYear","RequestingOffice","ReqSubject","FileLeafRef","FileRef"],ApprovedForROUpdate:["ReqNum","ResID","FiscalYear","ReqSubject","RequestingOffice"]};static ListDef={name:"AuditResponseDocsRO",title:"AuditResponseDocsRO"}}});var jt,_s=O(()=>{Oe();jt=class t extends Z{constructor(e){super(e)}Responses="";ResponseCount=0;static Views={All:["ID","Title","RequestingOffice","Responses","ResponseCount","SentEmail"]};static ListDef={name:"AuditROEmailLog",title:"AuditROEmailLog",fields:t.Views.All}}});var gs,Gi=O(()=>{Oe();gs=class extends Z{constructor(e){super(e)}key;value;FieldMap={Title:{get:()=>this.key,set:e=>this.key=e},Value:{get:()=>this.value,set:e=>this.value=e}};static Views={All:["ID","Title","Value"]};static ListDef={name:"Config",title:"Config"}}});var Ee=O(()=>{Ii();Ti();xs();Mt();ki();Ei();Ps();qi();Li();Vi();_s();Gi()});function Ke(t,e){hs&&console.log(`ApplicationDBContext: ${e.constructor.name}: `,t),!(!t||!e)&&Object.keys(t).forEach(s=>{An(s,t[s],e)})}function An(t,e,s){if(hs&&console.log(`ApplicationDBContext: ${s.constructor.name}.${t} to ${e}`),s.FieldMap&&s.FieldMap[t]){Dn(e,s.FieldMap[t]);return}if(s[t]&&typeof s[t]=="function"){s[t](e);return}s[t]=e}function Dn(t,e){if(typeof e=="function"){e(t);return}if(typeof e!="object"){e=t;return}if(e.set&&typeof e.set=="function"){e.set(t);return}if(e.obs){if(!t){e.obs(null);return}let s=Array.isArray(t)?t.map(o=>Bi(o,e)):Bi(t,e);e.obs(s);return}e=t}function Bi(t,e){return e.factory?e.factory(t):t}function Mi(t,e=null){let s={},o=new Set([]);this?.ListDef?.fields&&this.ListDef.fields.forEach(w=>o.add(w)),this?.AllDeclaredFields&&this.AllDeclaredFields.map(w=>o.add(w)),t.FieldMap&&Object.keys(t.FieldMap).forEach(w=>o.add(w));let u=[...o];return(e??(t.FieldMap?Object.keys(t.FieldMap):null)??Object.keys(t)).filter(w=>u.includes(w)).map(w=>{if(t.FieldMap&&t.FieldMap[w]){let N=t.FieldMap[w].systemName??w;s[N]=xn(t.FieldMap[w]);return}s[w]=t[w]}),s}function xn(t){return typeof t=="function"?t():t.get&&typeof t.get=="function"?t.get():t.obs?t.obs():t}var hs,Wt,he,$i=O(()=>{et();Ie();hs=!1,Wt=class{constructor(){}Pages=new he(is);utilities={copyFileAsync:yi};virtualSets=new Map;Set=e=>{let s=e.ListDef.name,o=Object.values(this).filter(u=>u.constructor.name==he.name).find(u=>u.ListDef?.name==s);if(o)return o;if(!this.virtualSets.has(s)){let u=new he(listDef);return this.virtualSets.set(s,u),u}return this.virtualSets.get(s)}},he=class{constructor(e){if(!e.ListDef){console.error("Missing entityType listdef for",e);return}this.entityType=e;try{let s=new Set;e.Views?.All?.map(o=>s.add(o)),this.AllDeclaredFields=[...s]}catch(s){console.warn("Could not instantiate",e),console.warn(s),this.AllDeclaredFields=e.Views?.All??[]}this.ListDef=e.ListDef,this.Views=e.Views,this.Title=e.ListDef.title,this.Name=e.ListDef.name,this.ListRef=new wi(e.ListDef),this.entityConstructor=this.entityType.FindInStore||this.entityType.Create||this.entityType}FindById=async(e,s=this.AllDeclaredFields)=>{let o=await this.ListRef.getById(e,s);if(!o)return null;let u=new this.entityType(o);return Ke(o,u),u};FindByColumnValue=async(e,{orderByColumn:s,sortAsc:o},{count:u=null,includePermissions:h=!1,includeFolders:w=!1},N=this.AllDeclaredFields)=>{let P=u!=null;u=u??5e3;let U=await this.ListRef.findByColumnValueAsync(e,{orderByColumn:s,sortAsc:o},{count:u,includePermissions:h,includeFolders:w},N),B={_next:U._next,results:U.results.map(ee=>{let ae=new this.entityConstructor(ee);return Ke(ee,ae),ae})};if(P)return B;let j={results:B.results};for(;B._next;)B=await this.LoadNextPage(B),j.results=j.results.concat(B.results);return j};LoadNextPage=async e=>{let s=await this.ListRef.loadNextPage(e);return{_next:s._next,results:s.results.map(o=>{let u=new this.entityType(o);return Ke(o,u),u})}};ToList=async(e=!1)=>{let s=this.Views.All;return(await this.ListRef.getListItemsAsync({fields:s})).map(h=>{let w=new this.entityType(h);return Ke(h,w),w})};LoadEntity=async function(e,s=!1){if(!e.ID)return console.error("entity missing Id",e),!1;let o=await this.ListRef.getById(e.ID,this.AllDeclaredFields);return o?(Ke(o,e),e):null};AddEntity=async function(e,s){let u=Mi.bind(this)(e,this.AllDeclaredFields);hs&&console.log(u);let h=await this.ListRef.createListItemAsync(u,s);Ke({ID:h},e)};UpdateEntity=async function(e,s=null){let o=Mi.bind(this)(e,s);return o.ID=typeof e.ID=="function"?e.ID():e.ID,hs&&console.log(o),this.ListRef.updateListItemAsync(o)};RemoveEntity=async function(e){return e.ID?(await this.ListRef.deleteListItemAsync(e.ID),!0):!1};RemoveEntityById=function(e){return this.ListRef.deleteListItemAsync(e)};GetItemPermissions=function(e){return this.ListRef.getItemPermissionsAsync(e.ID)};SetItemPermissions=async function(e,s,o=!1){return this.ListRef.setItemPermissionsAsync(e.ID,s,o)};GetRootPermissions=function(){return this.ListRef.getListPermissions()};SetRootPermissions=async function(e,s){await this.ListRef.setListPermissionsAsync(e,s)};GetFolderUrl=function(e=""){return this.ListRef.getServerRelativeFolderPath(e)};GetItemsByFolderPath=async function(e,s=this.AllDeclaredFields){return(await this.ListRef.getFolderContentsAsync(e,s)).map(u=>{let h=new this.entityType(u);return Ke(u,h),h})};UpsertFolderPath=async function(e){return this.ListRef.upsertFolderPathAsync(e)};RemoveFolderByPath=async function(e){let o=(await this.FindByColumnValue([{column:"FileLeafRef",value:e}],{},{},["ID","Title","FileLeafRef"],!0)).results??[];for(let u of o)await this.RemoveEntityById(u.ID)};SetFolderReadOnly=async function(e){return this.ListRef.setFolderReadonlyAsync(e)};SetFolderPermissions=async function(e,s,o=!0){let u=s.filter(h=>h[0]&&h[1]).map(h=>[h[0].getKey(),h[1]]);return this.ListRef.setFolderPermissionsAsync(e,u,o)};EnsureFolderPermissions=async function(e,s){let o=s.filter(u=>u[0]&&u[1]).map(u=>[u[0].LoginName??u[0].Title,u[1]]);return this.ListRef.ensureFolderPermissionsAsync(e,o)};UploadFileToFolderAndUpdateMetadata=async function(e,s,o,u,h){let w=await this.ListRef.uploadFileToFolderAndUpdateMetadata(e,s,o,u,h),N=await this.ListRef.getById(w,this.AllDeclaredFields),P=new this.entityConstructor(N);return Ke(N,P),P};UploadNewDocument=async function(e,s){return this.ListRef.uploadNewDocumentAsync(e,"Attach a New Document",s)};CopyFolderContents=async function(e,s){return this.ListRef.copyFilesAsync(e,s)};ShowForm=async function(e,s,o){return new Promise((u,h)=>this.ListRef.showModal(e,s,o,u))};CheckInDocument=async function(e){return new Promise(s=>this.ListRef.showCheckinModal(e,s))};EnsureList=async function(){}}});var Qi=O(()=>{$i()});var Ui={};en(Ui,{ApplicationDbContext:()=>Rs,appContext:()=>z});var Rs,z,Ce=O(()=>{Ee();Qi();Rs=class extends Wt{constructor(){super()}AuditBulkRequests=new he(cs);AuditBulkResponses=new he(ms);AuditConfigurations=new he(gs);AuditCoversheets=new he(Bt);AuditEmails=new he(ls);AuditOrganizations=new he(_e);AuditResponses=new he(Qe);AuditResponseDocs=new he(ft);AuditResponseDocsRO=new he(Ht);AuditRequests=new he(Se);AuditRequestsInternals=new he($t);AuditROEmailsLog=new he(jt)},z=new Rs});window.Audit=window.Audit||{};Audit.Common=Audit.Common||{};function tn(){Audit.Common.Utilities=new Audit.Common.NewUtilities,Audit.Common.Init()}Audit.Common.Init=function(){};Audit.Common.NewUtilities=function(){var t=_spPageContextInfo.webServerRelativeUrl,e="AuditRequests",s="AuditRequests",o="AuditRequestsInternal",u="AuditRequestsInternal",h="AuditResponses",w="AuditResponses",N="AuditRequestDocs",P="AuditRequestDocs",U="AuditCoverSheets",B="AuditCoverSheets",j="AuditResponseDocs",ee="AuditResponseDocs",ae="AuditResponseDocsEA",ie="AuditResponseDocsEA",le="AuditOrganizations",ue="AuditOrganizations",de="AuditEmails",ne="AuditEmails",Te="AuditBulkResponses",ht="AuditBulkResponses",Y="AuditBulkPermissions",st="AuditBulkPermissions",Rt="CGFS Special Access1",vt="CGFS Special Access2",yt="Quality Assurance",ke="External Auditors",it=null,Ve=null,Ge=null;function wt(n=!1){if(n){location.href=location.pathname;return}var r=location.pathname;if($("#tabs").html()!=null&&$("#tabs").html()!=""){var d=0;try{d=$("#tabs").tabs("option","active")}catch{}if(r+="?Tab="+d,d==0&&$("#ddlResponseName").val()!="")r+="&ResNum="+$("#ddlResponseName").val();else if(d==1){var y=$("#ddlResponsesOpen").val(),D=$("#ddlResponsesProcessed").val();y!=null&&y!=""?r+="&ResNum="+y:D!=null&&D!=""&&(r+="&ResNum="+D)}location.href=r}else location.reload()}function bt(){var n=new Date;$("#divLoading").text("Loaded at "+n.format("MM/dd/yyyy hh:mm tt"))}function St(){var n=GetUrlKeyValue("Tab");n!=null&&n!=""&&$("#tabs").tabs("option","active",n);var r=!1,d=GetUrlKeyValue("ResNum");d!=null&&d!=""&&(n==0?$("#ddlResponseName option[value='"+d+"']").length>0&&($("#ddlResponseName").val(d).change(),r=!0):$("#ddlResponsesOpen option[value='"+d+"']").length>0?$("#ddlResponsesOpen").val(d).change():$("#ddlResponsesProcessed option[value='"+d+"']").length>0&&$("#ddlResponsesProcessed").val(d).change()),r||$(".sr-response-item").show()}function Ct(n,r){var d=0,y=0,D=0,E=0,_=0,Q=$(".sr-response-item");Q.each(function(){var re=$.trim($(this).find(".sr-response-requestStatus").text()),ge=$.trim($(this).find(".sr-response-status").text());(ge==n||ge==r)&&(re=="Open"||re=="ReOpened")&&($(this).addClass("highlighted"),d++,ge==n?E++:ge==r&&_++,re=="Open"?y++:re=="ReOpened"&&D++)}),d>0?($("#lblStatusReportResponsesMsg").html("<span class='ui-icon ui-icon-alert'></span>There are "+d+" Responses pending your review"),E>0&&_==0?$("#ddlResponseStatus").val(n).change():_>0&&E==0&&$("#ddlResponseStatus").val(r).change()):$("#lblStatusReportResponsesMsg").html("<span class='ui-icon ui-icon-circle-check'></span>There are 0 Responses pending your review")}function At(n){Ve=new Array;for(var r=n.getEnumerator();r.moveNext();){var d=r.get_current(),y=d.get_id(),D=d.get_loginName(),E=d.get_title(),_=new Object;_.ID=y,_.loginName=D,_.title=E,_.group=d,Ve.push(_)}}function Dt(n){var r=null;if(Ve!=null){for(var d=0;d<Ve.length;d++)if(Ve[d].title==n){r=Ve[d].group;break}}return r}function Ye(n){Ge=new Array;for(var r=n.getEnumerator();r.moveNext();){var d=r.get_current(),y=d.get_item("ID"),D=d.get_item("Title"),E=d.get_item("UserGroup");E!=null?E=E.get_lookupValue():E="";var _=new Object;_.ID=y,_.title=D,_.userGroup=E,Ge.push(_)}}function xt(n){var r=null;if(Ge!=null)for(var d=0;d<Ge.length;d++){var y=Ge[d];if(y.title==n){r=y.userGroup;break}}return r}function It(n,r,d){if(n==null||r==""||r==null||d==null)return!1;var y=!1,D=n.get_roleAssignments();if(D==null)return alert("Error retrieving role assignments"),!1;for(var E=D.getEnumerator();E.moveNext();){var _=E.get_current();if(_!=null){var Q=_.get_member();if(Q.isPropertyAvailable("Title")){var re=Q.get_title(),ge=_.get_roleDefinitionBindings();if(ge!=null)for(var Fe=ge.getEnumerator();Fe.moveNext();){var De=Fe.get_current(),Ne=De.get_name();if(re==r&&De.get_basePermissions().has(d)){y=!0;break}}}}}return y}function Tt(n,r){if(!r){var d=!1;$("#ddlResponsesOpen > option").each(function(){if($(this).text()==n)return d=!0,notifyId=SP.UI.Notify.addNotification("Displaying Response ("+n+")",!1),$("#ddlResponsesOpen").val(n).change(),!1}),d||$("#ddlResponsesProcessed > option").each(function(){if($(this).text()==n)return d=!0,notifyId=SP.UI.Notify.addNotification("Displaying Response ("+n+")",!1),$("#ddlResponsesProcessed").val(n).change(),!1}),$("#tabs").tabs({active:1})}}function kt(n){var r={};return n=="Archived"?r={"background-color":"Gainsboro"}:n=="Approved"?r={"background-color":"PaleGreen"}:n=="Rejected"?r={"background-color":"LightSalmon"}:n=="Sent to QA"?r={"background-color":"LightCyan"}:n=="Submitted"?r={"background-color":"LemonChiffon"}:n=="Marked for Deletion"&&(r={"background-color":"Gainsboro","font-style":"italic"}),r}function l(n){var r="";return n=="Archived"?r=" style='background-color:Gainsboro;' ":n=="Approved"?r=" style='background-color:PaleGreen;' ":n=="Rejected"?r=" style='background-color:LightSalmon;' ":n=="Sent to QA"?r=" style='background-color:LightCyan;' ":n=="Submitted"?r=" style='background-color:LemonChiffon;' ":n=="Marked for Deletion"&&(r=" style='background-color:Gainsboro; font-style:italic' title='Marked for Deletion by the Action Office' "),r}function f(n,r){for(var d=!1,y=n.getEnumerator();y.moveNext();){var D=y.get_current(),E=D.get_displayName();if(E==r){var d=!0;break}}return d}var R=0,I=0;function x(n,r,d,y){R=0,I=0;var D=new SP.ClientContext.get_current,E=D.get_web(),_=new SP.ListItemCreationInformation;_.set_underlyingObjectType(SP.FileSystemObjectType.folder),_.set_leafName(r),oNewEmailFolder=n.addItem(_),oNewEmailFolder.set_item("Title",r),oNewEmailFolder.update(),this.currentUser=E.get_currentUser(),this.ownerGroup=E.get_associatedOwnerGroup(),this.memberGroup=E.get_associatedMemberGroup(),this.visitorGroup=E.get_associatedVisitorGroup(),oNewEmailFolder.resetRoleInheritance(),oNewEmailFolder.breakRoleInheritance(!1,!1);var Q=SP.RoleDefinitionBindingCollection.newObject(D);Q.add(E.get_roleDefinitions().getByType(SP.RoleType.administrator));var re=SP.RoleDefinitionBindingCollection.newObject(D);re.add(E.get_roleDefinitions().getByType(SP.RoleType.contributor));var ge=SP.RoleDefinitionBindingCollection.newObject(D);ge.add(E.get_roleDefinitions().getByName("Restricted Read"));var Fe=SP.RoleDefinitionBindingCollection.newObject(D);Fe.add(E.get_roleDefinitions().getByName("Restricted Contribute")),oNewEmailFolder.get_roleAssignments().add(ownerGroup,Q),oNewEmailFolder.get_roleAssignments().add(memberGroup,re),oNewEmailFolder.get_roleAssignments().add(visitorGroup,ge);var De=Audit.Common.Utilities.GetSPSiteGroup(Audit.Common.Utilities.GetGroupNameQA());De!=null&&oNewEmailFolder.get_roleAssignments().add(De,Fe),oNewEmailFolder.get_roleAssignments().getByPrincipal(currentUser).deleteObject();function Ne(){if(this.requestItem){var xe=this.requestItem.get_item("ActionOffice");if(xe==null||xe.length==0){this.OnComplete&&this.OnComplete(!0);return}for(var nt=0;nt<xe.length;nt++){var Yi=xe[nt].get_lookupValue(),Xi=Audit.Common.Utilities.GetAOSPGroupName(Yi),Os=Audit.Common.Utilities.GetSPSiteGroup(Xi);if(Os!=null){let Ls=function(){I++,I==R&&this.OnComplete&&this.OnComplete(!0)},Vs=function(Ln,Vn){I++,I==R&&this.OnComplete&&this.OnComplete(!0)};var Un=Ls,qn=Vs;R++;var ys=new SP.ClientContext.get_current,Zi=ys.get_web(),Us=SP.RoleDefinitionBindingCollection.newObject(ys);Us.add(Zi.get_roleDefinitions().getByName("Restricted Contribute")),this.oNewEmailFolder.get_roleAssignments().add(Os,Us);var qs={OnComplete:this.OnComplete};ys.executeQueryAsync(Function.createDelegate(qs,Ls),Function.createDelegate(qs,Vs))}}}else this.OnComplete&&this.OnComplete(!0)}function Me(xe,nt){statusId=SP.UI.Status.addStatus("Request failed: "+nt.get_message()+`
-`+nt.get_stackTrace())}var He={requestItem:d,oNewEmailFolder,OnComplete:y};D.executeQueryAsync(Function.createDelegate(He,Ne),Function.createDelegate(He,Me))}function M(n,r){var d=n,y=r;let D,E;d==null&&(d=""),y==null&&(y="");var _=d.lastIndexOf("-");if(_>=0){var Q=d.substring(0,_+1),re=d.replace(Q,""),ge=parseInt(re,10),Fe=Audit.Common.Utilities.PadDigits(ge,5);D=Q+Fe}else D=d;var De=y.lastIndexOf("-");if(De>=0){var Ne=y.substring(0,De+1),Me=y.replace(Ne,""),He=parseInt(Me,10),xe=Audit.Common.Utilities.PadDigits(He,5);E=Ne+xe}else E=y;return D.toLowerCase().localeCompare(E.toLowerCase())}function G(n,r){var d=n.title,y=r.title,D,E;d==null&&(d=""),y==null&&(y="");var _=d.lastIndexOf("-");if(_>=0){var Q=d.substring(0,_+1),re=d.replace(Q,""),ge=parseInt(re,10),Fe=Audit.Common.Utilities.PadDigits(ge,5);D=Q+Fe}else D=d;var De=y.lastIndexOf("-");if(De>=0){var Ne=y.substring(0,De+1),Me=y.replace(Ne,""),He=parseInt(Me,10),xe=Audit.Common.Utilities.PadDigits(He,5);E=Ne+xe}else E=y;return D.toLowerCase().localeCompare(E.toLowerCase())}function q(n,r){return n.toLowerCase().localeCompare(r.toLowerCase())}function L(n,r){return n==""?-1:r==""?1:new Date(n).getTime()-new Date(r).getTime()}function W(n,r,d,y){if(n!=null){y?n.sort(M):d?n.sort(L):n.sort(q);var D=new Array,E=-1;D[++E]="<option value=''>-Select-</option>";for(var _=n.length,Q=0;Q<_;Q++){var re=$.trim(n[Q]);D[++E]="<option value='"+re+"'>"+re+"</option>"}var ge=$(r);ge.empty().append(D.join(""))}}function H(n,r){if(n==null)return!1;for(var d=n.length,y=0;y<d;y++)if(n[y]==r)return!0;return!1}function pe(n){return n==!0?"<span class='ui-icon ui-icon-check'>"+n+"</span>":"<span class='ui-icon ui-icon-close'>"+n+"</span>"}function oe(n,r){var d=n.get_item(r);return d==null?"":d.get_lookupValue()}function J(n,r){n=n.toString();var d="";if(r>n.length)for(let y=0;y<r-n.length;y++)d+="0";return d+n.toString()}function te(n,r){var d=n>=0?1:-1;return(Math.round(n*Math.pow(10,r)+d*.001)/Math.pow(10,r)).toFixed(r)}function ce(n){return n==null||n==""?"":(n>1048576?n=Audit.Common.Utilities.PreciseRound(n/1048576,2)+" MB":n>1024?n=Audit.Common.Utilities.PreciseRound(n/1024,2)+" KB":n+=" B",n)}function a(n){function r(d){return d<10?"0"+d:d}return n.getUTCFullYear()+"-"+r(n.getUTCMonth()+1)+"-"+r(n.getUTCDate())+"T"+r(n.getUTCHours())+":"+r(n.getUTCMinutes())+":"+r(n.getUTCSeconds())+"Z"}function c(){$(".requestInfo-response-doc img").click(function(n){n.preventDefault();var r=$(this).attr("src");r=="/_layouts/images/minus.gif"?$(this).attr("src","/_layouts/images/plus.gif"):$(this).attr("src","/_layouts/images/minus.gif"),$(this).parent().parent().nextUntil("tr.requestInfo-response-doc").each(function(){$(this).toggleClass("collapsed")})})}function p(n){return $("select[title='"+n+"']").html()!==null?$("select[title='"+n+"']"):$("input[title='"+n+"']")}function m(n){return $("select[title='"+n+"']").html()!==null?$("select[title='"+n+"'] option:selected").text():$("input[title='"+n+"']").val()}function v(n,r){try{if(r==null)return;var d=C("select","",n);if(d==null){var y=C("input","",n);ShowDropdown(y.id);var D=document.getElementById(y.opt);b(D,r),OptLoseFocus(D)}else b(d,r)}catch{}}function b(n,r){var d=n.options,y=d.length;if(n!=null){for(var D=0;D<y;D++)if(d[D].text==r)return n.selectedIndex=D,!0;return!1}}function C(n,r,d){for(var y=r.length,D=document.getElementsByTagName(n),E=0;E<D.length;E++){var _=D[E].id;if(D[E].title==d&&(r==""||_.indexOf(r)==_.length-y))return D[E]}return null}function g(n){var r=SP.UI.$create_DialogOptions();r.title="User Manual",r.height=250,n!=null?r.url=Audit.Common.Utilities.GetSiteUrl()+"/pages/AuditUserManuals.aspx?FilterField1=DocType&FilterValue1="+n:r.url=Audit.Common.Utilities.GetSiteUrl()+"/pages/AuditUserManuals.aspx",SP.UI.ModalDialog.showModalDialog(r)}function F(n,r){var d=new Date,y=Audit.Common.Utilities.GetSiteUrl(),D=y+"/siteassets/css/tablesorter/style.css?v="+d.format("MM_dd_yyyy"),E=y+"/siteAssets/css/audit_styles.css?v="+d.format("MM_dd_yyyy"),_=$(r).html(),Q=$("<div>").append(_);Q.find(".sr-response-title a").each(function(){$(this).removeAttr("onclick"),$(this).removeAttr("href")}),_=Q.html();var re=d.format("MM/dd/yyyy hh:mm tt");re="<div style='padding-bottom:10px;'>"+re+"</div>",_=re+_;var ge=$("<div></div>"),Fe=$("<div></div>"),De=$.Deferred(),Ne=$.Deferred(),Me="";ge.load(D,function(){Me+="<style>"+ge.html()+"</style>",De.resolve()}),Fe.load(E,function(){Me+="<style>"+Fe.html()+"</style>",Ne.resolve()}),$.when(De,Ne).done(function(){var He=`<HTML>
-<HEAD>
+`;
+    }
+  });
 
-<Title>`+n+`</Title>
-`+Me+`
-<style>.hideOnPrint, .rowFilters {display:none}</style>
-</HEAD>
-<BODY>
-`+_+`
-</BODY>
-</HTML>`,xe=window.open("","printWebPart");xe.document.open(),xe.document.write(He),xe.document.close(),xe.print()})}function T(n,r,d){var y=S(r);d==!0&&(y=y.slice(1));var D=A(y);if(navigator.userAgent.search("Trident")>=0)window.CsvExpFrame.document.open("text/html","replace"),window.CsvExpFrame.document.write(D),window.CsvExpFrame.document.close(),window.CsvExpFrame.focus(),window.CsvExpFrame.document.execCommand("SaveAs",!0,n+".csv");else{var E="data:text/csv;charset=utf-8,"+escape(D),_=document.createElement("a");_.href=E,_.download=n+".csv",document.body.appendChild(_),_.click(),document.body.removeChild(_)}}function S(n){var r=document.getElementById(n);if(r.innerHTML.indexOf("rowFilters")>=0){var d=$("<div>").append(r.outerHTML);d.find(".rowFilters").each(function(){$(this).remove()}),r=d.find("table")[0]}if(r.innerHTML.indexOf("footer")>=0){var d=$("<div>").append(r.outerHTML);d.find(".footer").each(function(){$(this).remove()}),r=d.find("table")[0]}for(var y=[],D=0,E=r.rows.length;D<E;D++){y[D]=[];for(var _=0,Q=r.rows[D].cells.length;_<Q;_++){var re=r.rows[D].cells[_].textContent||r.rows[D].cells[_].innerText;y[D][_]=re.trim()}}return y}function A(n){for(var r=typeof n!="object"?JSON.parse(n):n,d=`sep=,\r
-`,y="",D,E,_=0;_<r.length;_++){y="";var Q=r[_];for(D in Q)Q.hasOwnProperty(D)&&(E=Q[D]+"",y+='"'+E.replace(/"/g,'""')+'",');y=y.slice(0,-1),d+=y+`\r
-`}return d}var k={GetSiteUrl:function(){return t=="/"?"":t},GetListTitleRequests:function(){return e},GetListNameRequests:function(){return s},GetListTitleRequestsInternal:function(){return o},GetListNameRequestsInternal:function(){return u},GetListTitleResponses:function(){return h},GetListNameResponses:function(){return w},GetLibTitleRequestDocs:function(){return N},GetLibNameRequestDocs:function(){return P},GetLibTitleCoverSheets:function(){return U},GetLibNameCoverSheets:function(){return B},GetLibTitleResponseDocs:function(){return j},GetLibNameResponseDocs:function(){return ee},GetLibTitleResponseDocsEA:function(){return ae},GetLibNameResponseDocsEA:function(){return ie},GetListTitleActionOffices:function(){return le},GetListNameActionOffices:function(){return ue},GetListTitleEmailHistory:function(){return de},GetListNameEmailHistory:function(){return ne},GetListTitleBulkResponses:function(){return Te},GetListNameBulkResponses:function(){return ht},GetListTitleBulkPermissions:function(){return Y},GetListNameBulkPermissions:function(){return st},GetGroupNameSpecialPerm1:function(){return Rt},GetGroupNameSpecialPerm2:function(){return vt},GetGroupNameQA:function(){return yt},GetGroupNameEA:function(){return ke},Refresh:wt,OnLoadDisplayTimeStamp:bt,OnLoadDisplayTabAndResponse:St,OnLoadFilterResponses:function(n,r){Ct(n,r)},SetResponseDocLibGUID:function(n){it=n},GetResponseDocLibGUID:function(){return it},LoadSiteGroups:function(n){At(n)},GetSPSiteGroup:function(n){return Dt(n)},LoadActionOffices:function(n){Ye(n)},GetActionOffices:function(){return Ge},GetAOSPGroupName:function(n){return xt(n)},CheckSPItemHasGroupPermission:function(n,r,d){return It(n,r,d)},GoToResponse:function(n,r){Tt(n,r)},GetResponseDocStyleTag:function(n){return l(n)},GetResponseDocStyleTag2:function(n){return kt(n)},CheckIfEmailFolderExists:function(n,r){return f(n,r)},CreateEmailFolder:function(n,r,d,y){return x(n,r,d,y)},AddOptions:function(n,r,d,y){W(n,r,d,y)},ExistsInArr:function(n,r){return H(n,r)},GetTrueFalseIcon:function(n){return pe(n)},PadDigits:function(n,r){return J(n,r)},PreciseRound:function(n,r){return te(n,r)},GetFriendlyFileSize:function(n){return ce(n)},GetISODateString:function(n){return a(n)},GetFriendlyDisplayName:function(n,r){return oe(n,r)},BindHandlerResponseDoc:c,PrintStatusReport:function(n,r){F(n,r)},ExportToCsv:function(n,r,d){T(n,r,d)},ViewUserManuals:function(n){g(n)},GetLookupDisplayText:function(n){return m(n)},GetLookupFormField:function(n){return p(n)},SetLookupFromFieldNameByText:function(n,r){return v(n,r)},SortResponseObjects:function(n,r){return G(n,r)},SortResponseTitles:M};return k};tn();var sn=String.raw,$s,Qs=sn($s||($s=Ms([`
+  // src/components/comment_chain/comment_chain_module.js
+  var commentChainComponentName, CommentChainComponent, CommentChainModule;
+  var init_comment_chain_module = __esm({
+    "src/components/comment_chain/comment_chain_module.js"() {
+      init_application_db_context();
+      init_infrastructure();
+      init_comment();
+      init_CommentChainTemplate();
+      commentChainComponentName = "commentChain";
+      CommentChainComponent = class {
+        constructor({ entity, fieldName }) {
+          this.entity = entity;
+          this.blobField = entity[fieldName];
+          this.fieldName = fieldName;
+        }
+        entity;
+        blobField;
+        fieldName;
+        componentName = commentChainComponentName;
+      };
+      CommentChainModule = class {
+        constructor({ entity, fieldName, blobField }) {
+          this.entity = entity;
+          this.fieldName = fieldName;
+          this.blobField = blobField;
+          this.comments = blobField.TypedValues;
+        }
+        // comments = ko.observableArray();
+        newCommentText = ko.observable();
+        showHistoryBool = ko.observable(false);
+        toggleShowHistory = function() {
+          this.showHistoryBool(!this.showHistoryBool());
+        };
+        async onSubmit() {
+          var comment = Comment.Create({
+            id: Math.ceil(Math.random() * 1e6).toString(16),
+            text: this.newCommentText(),
+            author: _spPageContextInfo.userLoginName,
+            timestamp: (/* @__PURE__ */ new Date()).toLocaleString()
+          });
+          this.blobField.add(comment);
+          await this.commitChanges();
+          this.newCommentText("");
+        }
+        onRemove = (commentToRemove) => {
+          if (confirm("Are you sure you want to delete this item?")) {
+            this.blobField.remove(commentToRemove);
+            this.commitChanges();
+          }
+        };
+        async commitChanges() {
+          const set = appContext.Set(this.entity.constructor);
+          if (!set) {
+            alert("Cannot find entity set", this.entity);
+            return;
+          }
+          await set.UpdateEntity(this.entity, [this.fieldName]);
+        }
+      };
+      directRegisterComponent(commentChainComponentName, {
+        template: commentChainTemplate,
+        viewModel: CommentChainModule
+      });
+    }
+  });
+
+  // src/entities/audit_request_internal.js
+  var AuditRequestsInternal;
+  var init_audit_request_internal = __esm({
+    "src/entities/audit_request_internal.js"() {
+      init_fields2();
+      init_constrained_entity();
+      init_audit_request();
+      init_comment();
+      init_active_viewer();
+      init_active_viewers_module();
+      init_comment_chain_module();
+      init_application_db_context();
+      AuditRequestsInternal = class extends ConstrainedEntity {
+        constructor(params) {
+          super(params);
+        }
+        ActiveViewers = new BlobField({
+          displayName: "Active Viewers",
+          entityType: ActiveViewer,
+          multiple: true
+        });
+        InternalStatus = new BlobField({
+          displayName: "Internal Status",
+          entityType: Comment,
+          multiple: true
+        });
+        ReqNum = new LookupField({
+          displayName: "Request",
+          type: AuditRequest,
+          lookupCol: "Title",
+          entitySet: appContext.AuditRequests
+        });
+        commentChainComponent = new CommentChainComponent({
+          entity: this,
+          fieldName: "InternalStatus"
+        });
+        activeViewersComponent = new ActiveViewersComponent({
+          entity: this,
+          fieldName: "ActiveViewers"
+        });
+        static Views = {
+          All: ["ID", "ActiveViewers", "InternalStatus", "ReqNum"]
+        };
+        static ListDef = {
+          title: "AuditRequestsInternal",
+          name: "AuditRequestsInternal"
+        };
+      };
+    }
+  });
+
+  // src/services/people_manager.js
+  var specialGroupsLoading, qaGroupLoading, User, currentUser2;
+  var init_people_manager = __esm({
+    "src/services/people_manager.js"() {
+      init_entities();
+      init_infrastructure();
+      specialGroupsLoading = ko.observable(false);
+      qaGroupLoading = ko.observable(false);
+      User = class _User extends People2 {
+        constructor({
+          ID,
+          Title,
+          LoginName = null,
+          LookupValue = null,
+          WorkPhone = null,
+          EMail = null,
+          IsGroup = null,
+          IsEnsured = false,
+          Groups = null
+        }) {
+          super({ ID, Title, LookupValue, LoginName, IsGroup, IsEnsured });
+          this.WorkPhone = WorkPhone;
+          this.EMail = EMail;
+          this.Groups = Groups;
+        }
+        Groups = [];
+        isInGroup(group) {
+          if (!group?.ID)
+            return false;
+          return this.getGroupIds().includes(group.ID);
+        }
+        getGroupIds() {
+          return this.Groups.map((group) => group.ID);
+        }
+        IsSiteOwner = ko.pureComputed(
+          () => this.isInGroup(getDefaultGroups().owners)
+        );
+        hasSystemRole = (systemRole) => {
+          const userIsOwner = this.IsSiteOwner();
+          switch (systemRole) {
+            case systemRoles.Admin:
+              return userIsOwner;
+              break;
+            case systemRoles.ActionOffice:
+              return userIsOwner || this.ActionOffices().length;
+            default:
+          }
+        };
+        static _user = null;
+        static Create = async function() {
+          if (_User._user)
+            return _User._user;
+          const userProps = await getUserPropsAsync();
+          _User._user = new _User(userProps);
+          return _User._user;
+        };
+      };
+      currentUser2 = User.Create;
+    }
+  });
+
+  // src/entities/audit_response.js
+  var AuditResponseStates, AuditResponse;
+  var init_audit_response = __esm({
+    "src/entities/audit_response.js"() {
+      init_primitives();
+      init_fields2();
+      init_entities2();
+      init_application_db_context();
+      init_active_viewer();
+      init_active_viewers_module();
+      init_store();
+      init_people_manager();
+      AuditResponseStates = {
+        Open: "1-Open",
+        Submitted: "2-Submitted",
+        ReturnedToAO: "3-Returned to Action Office",
+        ApprovedForQA: "4-Approved for QA",
+        ReturnedToGFS: "5-Returned to GFS",
+        RepostedAfterRejection: "6-Reposted After Rejection",
+        Closed: "7-Closed"
+      };
+      AuditResponse = class extends ConstrainedEntity {
+        constructor(params) {
+          super(params);
+        }
+        Title = new TextField({
+          displayName: "Name"
+        });
+        ReqNum = new LookupField({
+          displayName: "Request Number",
+          type: AuditRequest,
+          entitySet: appContext.AuditRequests
+        });
+        SampleNumber = new TextField({
+          displayName: "Sample Number",
+          isRequired: true
+        });
+        ResStatus = new SelectField({
+          displayName: "Response Status",
+          options: Object.values(AuditResponseStates)
+        });
+        ReturnReason = new TextField({
+          displayName: "Return Reason",
+          options: ["Incomplete Document", "Incorrect POC"]
+        });
+        Comments = new TextAreaField({
+          displayName: "Comments",
+          isRichText: true,
+          isMinimalEditor: true,
+          classList: ["min-w-full"]
+        });
+        ClosedDate = new DateField({
+          displayName: "Closed Date",
+          type: dateFieldTypes.date
+        });
+        ClosedBy = new PeopleField({
+          displayName: "Closed By"
+        });
+        POC = new PeopleField({
+          displayName: "POC"
+        });
+        POCCC = new PeopleField({
+          displayName: "POCCC"
+        });
+        ActionOffice = new LookupField({
+          displayName: "Action Office",
+          type: AuditOrganization,
+          options: auditOrganizationStore,
+          optionsFilter: ko.pureComputed(() => {
+            const request2 = ko.unwrap(this.ReqNum.Value);
+            if (!request2)
+              return (val) => val;
+            const requestActionOffices = ko.unwrap(request2.ActionOffice.Value);
+            return (opt) => requestActionOffices.includes(opt);
+          }),
+          entitySet: appContext.AuditOrganizations,
+          lookupCol: "Title",
+          isRequired: true
+        });
+        ActiveViewers = new BlobField({
+          displayName: "Active Viewers",
+          entityType: ActiveViewer,
+          multiple: true
+        });
+        activeViewersComponent = new ActiveViewersComponent({
+          entity: this,
+          fieldName: "ActiveViewers"
+        });
+        async uploadResponseDocFile(file) {
+          const fileMetadata = {
+            Title: file.name,
+            ReqNumId: this.ReqNum.Value().ID,
+            ResIDId: this.ID
+          };
+          const { appContext: appContext2 } = await Promise.resolve().then(() => (init_application_db_context(), application_db_context_exports));
+          return await appContext2.AuditResponseDocs.UploadFileToFolderAndUpdateMetadata(
+            file,
+            file.name,
+            this.Title.Value(),
+            fileMetadata
+          );
+        }
+        markClosed() {
+          this.ResStatus.Value(AuditResponseStates.Closed);
+          this.ClosedDate.set(/* @__PURE__ */ new Date());
+          this.ClosedBy.set(currentUser2());
+        }
+        static Views = {
+          All: [
+            "ID",
+            "Title",
+            "SampleNumber",
+            "ResStatus",
+            "ReturnReason",
+            "Comments",
+            "ClosedDate",
+            "ClosedBy",
+            "POC",
+            "POCCC",
+            "ReqNum",
+            "ActionOffice",
+            "ActiveViewers"
+          ],
+          NewForm: ["ReqNum", "ActionOffice", "SampleNumber", "Comments"],
+          EditForm: [
+            "ReqNum",
+            "SampleNumber",
+            "Title",
+            "ActionOffice",
+            "ResStatus",
+            "ReturnReason",
+            "Comments",
+            "ClosedDate",
+            "ClosedBy",
+            "POC",
+            "POCCC"
+          ],
+          IACanUpdate: [
+            "Title",
+            "ActionOffice",
+            "ResStatus",
+            "ReturnReason",
+            "Comments",
+            "ClosedDate",
+            "ClosedBy",
+            "POC",
+            "POCCC"
+          ],
+          IAUpdateClosed: ["ResStatus", "ClosedDate", "ClosedBy"]
+        };
+        static ListDef = {
+          name: "AuditResponses",
+          title: "AuditResponses"
+        };
+      };
+    }
+  });
+
+  // src/entities/audit_bulk_response.js
+  var AuditBulkResponse;
+  var init_audit_bulk_response = __esm({
+    "src/entities/audit_bulk_response.js"() {
+      init_entities2();
+      AuditBulkResponse = class extends AuditResponse {
+        constructor(params) {
+          super(params);
+        }
+        static ListDef = {
+          name: "AuditBulkResponses",
+          title: "AuditBulkResponses"
+        };
+      };
+    }
+  });
+
+  // src/entities/audit_response_doc.js
+  var AuditResponseDocStates, AuditResponseDoc;
+  var init_audit_response_doc = __esm({
+    "src/entities/audit_response_doc.js"() {
+      init_primitives();
+      init_fields2();
+      init_audit_response();
+      init_audit_request();
+      init_application_db_context();
+      AuditResponseDocStates = {
+        Open: "Open",
+        Submitted: "Submitted",
+        SentToQA: "Sent to QA",
+        Approved: "Approved",
+        Rejected: "Rejected",
+        Archived: "Archived",
+        MarkedForDeletion: "Marked for Deletion"
+      };
+      AuditResponseDoc = class extends ConstrainedEntity {
+        constructor(params) {
+          super(params);
+        }
+        Title = new TextField({
+          displayName: "Name"
+        });
+        ReceiptDate = new DateField({
+          displayName: "Receipt Date",
+          type: dateFieldTypes.date
+        });
+        DocumentStatus = new SelectField({
+          displayName: "Document Status",
+          options: Object.values(AuditResponseDocStates)
+        });
+        RejectReason = new TextAreaField({
+          displayName: "Reject Reason"
+        });
+        ReqNum = new LookupField({
+          displayName: "Request Number",
+          type: AuditRequest,
+          entitySet: appContext.AuditRequests
+        });
+        ResID = new LookupField({
+          displayName: "Response ID",
+          type: AuditResponse,
+          entitySet: appContext.AuditResponses
+        });
+        FileName = new TextField({
+          displayName: "Name",
+          systemName: "FileLeafRef"
+        });
+        FileRef = new TextField({
+          displayName: "File Link",
+          systemName: "FileRef"
+        });
+        Modified = new DateField({
+          displayName: "Modified",
+          type: dateFieldTypes.datetime
+        });
+        Editor = new PeopleField({
+          displayName: "Modified By"
+        });
+        Created = new DateField({
+          displayName: "Created",
+          type: dateFieldTypes.datetime
+        });
+        FileSizeDisplay = new TextField({
+          displayName: "File"
+        });
+        File_x0020_Type = new TextField({
+          displayName: "File Type",
+          systemName: "File_x0020_Type"
+        });
+        CheckoutUser = new PeopleField({
+          displayName: "Checked Out To"
+        });
+        markApprovedForRO(newFileName) {
+          this.DocumentStatus.Value(AuditResponseDocStates.Approved);
+          this.RejectReason.Value("");
+          if (this.FileName.Value() != newFileName)
+            this.FileName.Value(newFileName);
+        }
+        static Views = {
+          All: [
+            "ID",
+            "Title",
+            "ReceiptDate",
+            "DocumentStatus",
+            "RejectReason",
+            "ReqNum",
+            "ResID",
+            "FileLeafRef",
+            "FileRef",
+            "FileSizeDisplay",
+            "File_x0020_Type",
+            "CheckoutUser",
+            "Modified",
+            "Editor",
+            "Created"
+          ],
+          EditForm: [
+            "FileLeafRef",
+            "Title",
+            "ReceiptDate",
+            "DocumentStatus",
+            "RejectReason",
+            "ReqNum",
+            "ResID"
+          ],
+          AOCanUpdate: [
+            "Title",
+            "ReceiptDate",
+            "DocumentStatus",
+            "RejectReason",
+            "FileLeafRef"
+          ],
+          UpdateDocStatus: ["Title", "FileLeafRef", "DocumentStatus"]
+        };
+        static ListDef = {
+          name: "AuditResponseDocs",
+          title: "AuditResponseDocs",
+          isLib: true
+        };
+      };
+    }
+  });
+
+  // src/entities/audit_response_doc_ro.js
+  var AuditResponseDocRO;
+  var init_audit_response_doc_ro = __esm({
+    "src/entities/audit_response_doc_ro.js"() {
+      init_primitives();
+      AuditResponseDocRO = class extends ConstrainedEntity {
+        constructor(params) {
+          super(params);
+        }
+        markApprovedForRO(request2, response) {
+          this.ReqNum = request2.Title;
+          this.ResID = response.Title.toString();
+          this.FiscalYear = request2.FiscalYear.toString();
+          this.ReqSubject = request2.ReqSubject.toString();
+          this.RequestingOffice = request2.RequestingOffice.Value()?.UserGroup?.Title;
+        }
+        static Views = {
+          All: [
+            "ID",
+            "Title",
+            "ReqNum",
+            "ResID",
+            "FiscalYear",
+            "RequestingOffice",
+            "ReqSubject",
+            "FileLeafRef",
+            "FileRef"
+          ],
+          ApprovedForROUpdate: [
+            "ReqNum",
+            "ResID",
+            "FiscalYear",
+            "ReqSubject",
+            "RequestingOffice"
+          ]
+        };
+        static ListDef = {
+          name: "AuditResponseDocsRO",
+          title: "AuditResponseDocsRO"
+        };
+      };
+    }
+  });
+
+  // src/entities/audit_ro_email_log.js
+  var AuditROEmailLog;
+  var init_audit_ro_email_log = __esm({
+    "src/entities/audit_ro_email_log.js"() {
+      init_primitives();
+      AuditROEmailLog = class _AuditROEmailLog extends ConstrainedEntity {
+        constructor(params) {
+          super(params);
+        }
+        Responses = "";
+        ResponseCount = 0;
+        static Views = {
+          All: [
+            "ID",
+            "Title",
+            "RequestingOffice",
+            "Responses",
+            "ResponseCount",
+            "SentEmail"
+          ]
+        };
+        static ListDef = {
+          name: "AuditROEmailLog",
+          title: "AuditROEmailLog",
+          fields: _AuditROEmailLog.Views.All
+        };
+      };
+    }
+  });
+
+  // src/entities/config.js
+  var AuditConfiguration;
+  var init_config = __esm({
+    "src/entities/config.js"() {
+      init_primitives();
+      AuditConfiguration = class extends ConstrainedEntity {
+        constructor(params) {
+          super(params);
+        }
+        key;
+        value;
+        FieldMap = {
+          Title: {
+            get: () => this.key,
+            set: (val) => this.key = val
+          },
+          Value: {
+            get: () => this.value,
+            set: (val) => this.value = val
+          }
+        };
+        static Views = {
+          All: ["ID", "Title", "Value"]
+        };
+        static ListDef = {
+          name: "Config",
+          title: "Config"
+        };
+      };
+    }
+  });
+
+  // src/entities/index.js
+  var init_entities2 = __esm({
+    "src/entities/index.js"() {
+      init_audit_coversheet();
+      init_audit_email();
+      init_audit_organization();
+      init_audit_request();
+      init_audit_bulk_request();
+      init_audit_request_internal();
+      init_audit_response();
+      init_audit_bulk_response();
+      init_audit_response_doc();
+      init_audit_response_doc_ro();
+      init_audit_ro_email_log();
+      init_config();
+    }
+  });
+
+  // src/sal/orm.js
+  function mapObjectToEntity(inputObject, targetEntity) {
+    if (DEBUG)
+      console.log(
+        `ApplicationDBContext: ${targetEntity.constructor.name}: `,
+        inputObject
+      );
+    if (!inputObject || !targetEntity)
+      return;
+    Object.keys(inputObject).forEach((key) => {
+      mapValueToEntityProperty(key, inputObject[key], targetEntity);
+    });
+  }
+  function mapValueToEntityProperty(propertyName, inputValue, targetEntity) {
+    if (DEBUG)
+      console.log(
+        `ApplicationDBContext: ${targetEntity.constructor.name}.${propertyName} to ${inputValue}`
+      );
+    if (targetEntity.FieldMap && targetEntity.FieldMap[propertyName]) {
+      mapObjectToViewField(inputValue, targetEntity.FieldMap[propertyName]);
+      return;
+    }
+    if (targetEntity[propertyName] && typeof targetEntity[propertyName] == "function") {
+      targetEntity[propertyName](inputValue);
+      return;
+    }
+    targetEntity[propertyName] = inputValue;
+    return;
+  }
+  function mapObjectToViewField(inVal, fieldMapping) {
+    if (typeof fieldMapping == "function") {
+      fieldMapping(inVal);
+      return;
+    }
+    if (typeof fieldMapping != "object") {
+      fieldMapping = inVal;
+      return;
+    }
+    if (fieldMapping.set && typeof fieldMapping.set == "function") {
+      fieldMapping.set(inVal);
+      return;
+    }
+    if (fieldMapping.obs) {
+      if (!inVal) {
+        fieldMapping.obs(null);
+        return;
+      }
+      const outVal = Array.isArray(inVal) ? inVal.map((item) => generateObject(item, fieldMapping)) : generateObject(inVal, fieldMapping);
+      fieldMapping.obs(outVal);
+      return;
+    }
+    fieldMapping = inVal;
+  }
+  function generateObject(inVal, fieldMap) {
+    return fieldMap.factory ? fieldMap.factory(inVal) : inVal;
+  }
+  function mapEntityToObject(input, selectedFields = null) {
+    const entity = {};
+    const allWriteableFieldsSet = /* @__PURE__ */ new Set([]);
+    if (this?.ListDef?.fields) {
+      this.ListDef.fields.forEach((field) => allWriteableFieldsSet.add(field));
+    }
+    if (this?.AllDeclaredFields) {
+      this.AllDeclaredFields.map((field) => allWriteableFieldsSet.add(field));
+    }
+    if (input.FieldMap) {
+      Object.keys(input.FieldMap).forEach(
+        (field) => allWriteableFieldsSet.add(field)
+      );
+    }
+    const allWriteableFields = [...allWriteableFieldsSet];
+    const fields = selectedFields ?? (input.FieldMap ? Object.keys(input.FieldMap) : null) ?? Object.keys(input);
+    fields.filter((field) => allWriteableFields.includes(field)).map((field) => {
+      if (input.FieldMap && input.FieldMap[field]) {
+        const storedFieldKey = input.FieldMap[field].systemName ?? field;
+        entity[storedFieldKey] = mapViewFieldToValue(input.FieldMap[field]);
+        return;
+      }
+      entity[field] = input[field];
+    });
+    return entity;
+  }
+  function mapViewFieldToValue(fieldMap) {
+    if (typeof fieldMap == "function") {
+      return fieldMap();
+    }
+    if (fieldMap.get && typeof fieldMap.get == "function") {
+      return fieldMap.get();
+    }
+    if (fieldMap.obs) {
+      return fieldMap.obs();
+    }
+    return fieldMap;
+  }
+  var DEBUG, DbContext, EntitySet;
+  var init_orm = __esm({
+    "src/sal/orm.js"() {
+      init_entities();
+      init_infrastructure();
+      DEBUG = false;
+      DbContext = class {
+        constructor() {
+        }
+        Pages = new EntitySet(Page);
+        utilities = {
+          copyFileAsync
+        };
+        virtualSets = /* @__PURE__ */ new Map();
+        Set = (entityType) => {
+          const key = entityType.ListDef.name;
+          const set = Object.values(this).filter((val) => val.constructor.name == EntitySet.name).find((set2) => set2.ListDef?.name == key);
+          if (set)
+            return set;
+          if (!this.virtualSets.has(key)) {
+            const newSet = new EntitySet(entityType);
+            this.virtualSets.set(key, newSet);
+            return newSet;
+          }
+          return this.virtualSets.get(key);
+        };
+      };
+      EntitySet = class {
+        constructor(entityType) {
+          if (!entityType.ListDef) {
+            console.error("Missing entityType listdef for", entityType);
+            return;
+          }
+          this.entityType = entityType;
+          try {
+            const allFieldsSet = /* @__PURE__ */ new Set();
+            entityType.Views?.All?.map((field) => allFieldsSet.add(field));
+            this.AllDeclaredFields = [...allFieldsSet];
+          } catch (e) {
+            console.warn("Could not instantiate", entityType), console.warn(e);
+            this.AllDeclaredFields = entityType.Views?.All ?? [];
+          }
+          this.ListDef = entityType.ListDef;
+          this.Views = entityType.Views;
+          this.Title = entityType.ListDef.title;
+          this.Name = entityType.ListDef.name;
+          this.ListRef = new SPList(entityType.ListDef);
+          this.entityConstructor = this.entityType.FindInStore || this.entityType.Create || this.entityType;
+        }
+        // Queries
+        FindById = async (id2, fields = this.AllDeclaredFields) => {
+          const result = await this.ListRef.getById(id2, fields);
+          if (!result)
+            return null;
+          const newEntity = new this.entityType(result);
+          mapObjectToEntity(result, newEntity);
+          return newEntity;
+        };
+        // TODO: Feature - Queries should return options to read e.g. toList, first, toCursor
+        /**
+         * Takes an array of columns and filter values with an optional comparison operator
+         * @param {[{column, op?, value}]} columnFilters
+         * @param {*} param1
+         * @param {*} param2
+         * @param {*} fields
+         * @param {*} includeFolders
+         * @returns
+         */
+        FindByColumnValue = async (columnFilters, { orderByColumn, sortAsc }, { count = null, includePermissions = false, includeFolders = false }, fields = this.AllDeclaredFields) => {
+          const returnCursor = count != null;
+          count = count ?? 5e3;
+          const results = await this.ListRef.findByColumnValueAsync(
+            columnFilters,
+            { orderByColumn, sortAsc },
+            { count, includePermissions, includeFolders },
+            fields
+          );
+          let cursor = {
+            _next: results._next,
+            results: results.results.map((item) => {
+              const newEntity = new this.entityConstructor(item);
+              mapObjectToEntity(item, newEntity);
+              return newEntity;
+            })
+          };
+          if (returnCursor) {
+            return cursor;
+          }
+          const resultObj = {
+            results: cursor.results
+          };
+          while (cursor._next) {
+            cursor = await this.LoadNextPage(cursor);
+            resultObj.results = resultObj.results.concat(cursor.results);
+          }
+          return resultObj;
+        };
+        LoadNextPage = async (cursor) => {
+          const results = await this.ListRef.loadNextPage(cursor);
+          return {
+            _next: results._next,
+            results: results.results.map((item) => {
+              const newEntity = new this.entityType(item);
+              mapObjectToEntity(item, newEntity);
+              return newEntity;
+            })
+          };
+        };
+        /**
+         * Return all items in list
+         */
+        ToList = async (refresh = false) => {
+          const fields = this.Views.All;
+          const results = await this.ListRef.getListItemsAsync({ fields });
+          const allItems = results.map((item) => {
+            let entityToLoad = new this.entityType(item);
+            mapObjectToEntity(item, entityToLoad);
+            return entityToLoad;
+          });
+          return allItems;
+        };
+        LoadEntity = async function(entity, refresh = false) {
+          if (!entity.ID) {
+            console.error("entity missing Id", entity);
+            return false;
+          }
+          const result = await this.ListRef.getById(
+            entity.ID,
+            this.AllDeclaredFields
+          );
+          if (!result)
+            return null;
+          mapObjectToEntity(result, entity);
+          return entity;
+        };
+        // Mutators
+        AddEntity = async function(entity, folderPath) {
+          const creationfunc = mapEntityToObject.bind(this);
+          const writeableEntity = creationfunc(entity, this.AllDeclaredFields);
+          if (DEBUG)
+            console.log(writeableEntity);
+          const newId = await this.ListRef.createListItemAsync(
+            writeableEntity,
+            folderPath
+          );
+          mapObjectToEntity({ ID: newId }, entity);
+          return;
+        };
+        UpdateEntity = async function(entity, fields = null) {
+          const writeableEntity = mapEntityToObject.bind(this)(entity, fields);
+          writeableEntity.ID = typeof entity.ID == "function" ? entity.ID() : entity.ID;
+          if (DEBUG)
+            console.log(writeableEntity);
+          return this.ListRef.updateListItemAsync(writeableEntity);
+        };
+        RemoveEntity = async function(entity) {
+          if (!entity.ID)
+            return false;
+          await this.ListRef.deleteListItemAsync(entity.ID);
+          return true;
+        };
+        RemoveEntityById = function(entityId) {
+          return this.ListRef.deleteListItemAsync(entityId);
+        };
+        // Permissions
+        GetItemPermissions = function(entity) {
+          return this.ListRef.getItemPermissionsAsync(entity.ID);
+        };
+        SetItemPermissions = async function(entity, valuePairs, reset = false) {
+          return this.ListRef.setItemPermissionsAsync(entity.ID, valuePairs, reset);
+        };
+        GetRootPermissions = function() {
+          return this.ListRef.getListPermissions();
+        };
+        SetRootPermissions = async function(itemPermissions, reset) {
+          await this.ListRef.setListPermissionsAsync(itemPermissions, reset);
+        };
+        // Folder Methods
+        GetFolderUrl = function(relFolderPath = "") {
+          return this.ListRef.getServerRelativeFolderPath(relFolderPath);
+        };
+        GetItemsByFolderPath = async function(folderPath, fields = this.AllDeclaredFields) {
+          const results = await this.ListRef.getFolderContentsAsync(
+            folderPath,
+            fields
+          );
+          return results.map((result) => {
+            const newEntity = new this.entityType(result);
+            mapObjectToEntity(result, newEntity);
+            return newEntity;
+          });
+        };
+        UpsertFolderPath = async function(folderPath) {
+          return this.ListRef.upsertFolderPathAsync(folderPath);
+        };
+        RemoveFolderByPath = async function(folderPath) {
+          const itemResults = await this.FindByColumnValue(
+            [{ column: "FileLeafRef", value: folderPath }],
+            {},
+            {},
+            ["ID", "Title", "FileLeafRef"],
+            true
+          );
+          const entities = itemResults.results ?? [];
+          for (const entity of entities) {
+            await this.RemoveEntityById(entity.ID);
+          }
+        };
+        // Permissions
+        SetFolderReadOnly = async function(relFolderPath) {
+          return this.ListRef.setFolderReadonlyAsync(relFolderPath);
+        };
+        SetFolderPermissions = async function(folderPath, valuePairs, reset = true) {
+          const salValuePairs = valuePairs.filter((vp) => vp[0] && vp[1]).map((vp) => [vp[0].getKey(), vp[1]]);
+          return this.ListRef.setFolderPermissionsAsync(
+            folderPath,
+            salValuePairs,
+            reset
+          );
+        };
+        EnsureFolderPermissions = async function(relFolderPath, valuePairs) {
+          const salValuePairs = valuePairs.filter((vp) => vp[0] && vp[1]).map((vp) => [vp[0].LoginName ?? vp[0].Title, vp[1]]);
+          return this.ListRef.ensureFolderPermissionsAsync(
+            relFolderPath,
+            salValuePairs
+          );
+        };
+        // Other Functions
+        // Upload file directly from browser "File" object e.g. from input field
+        UploadFileToFolderAndUpdateMetadata = async function(file, filename, folderPath, updates, progress) {
+          const itemId = await this.ListRef.uploadFileToFolderAndUpdateMetadata(
+            file,
+            filename,
+            folderPath,
+            updates,
+            progress
+          );
+          const item = await this.ListRef.getById(itemId, this.AllDeclaredFields);
+          const newEntity = new this.entityConstructor(item);
+          mapObjectToEntity(item, newEntity);
+          return newEntity;
+        };
+        // Open file upload Modal
+        UploadNewDocument = async function(folderPath, args) {
+          return this.ListRef.uploadNewDocumentAsync(
+            folderPath,
+            "Attach a New Document",
+            args
+          );
+        };
+        CopyFolderContents = async function(sourceFolder, targetFolder) {
+          return this.ListRef.copyFilesAsync(sourceFolder, targetFolder);
+        };
+        // Form Methods
+        ShowForm = async function(name, title, args) {
+          return new Promise(
+            (resolve, reject2) => this.ListRef.showModal(name, title, args, resolve)
+          );
+        };
+        CheckInDocument = async function(fileRef) {
+          return new Promise(
+            (resolve) => this.ListRef.showCheckinModal(fileRef, resolve)
+          );
+        };
+        EnsureList = async function() {
+        };
+      };
+    }
+  });
+
+  // src/sal/index.js
+  var init_sal2 = __esm({
+    "src/sal/index.js"() {
+      init_orm();
+    }
+  });
+
+  // src/infrastructure/application_db_context.js
+  var application_db_context_exports = {};
+  __export(application_db_context_exports, {
+    ApplicationDbContext: () => ApplicationDbContext,
+    appContext: () => appContext
+  });
+  var ApplicationDbContext, appContext;
+  var init_application_db_context = __esm({
+    "src/infrastructure/application_db_context.js"() {
+      init_entities2();
+      init_sal2();
+      ApplicationDbContext = class extends DbContext {
+        constructor() {
+          super();
+        }
+        AuditBulkRequests = new EntitySet(AuditBulkRequest);
+        AuditBulkResponses = new EntitySet(AuditBulkResponse);
+        AuditConfigurations = new EntitySet(AuditConfiguration);
+        AuditCoversheets = new EntitySet(AuditCoversheet);
+        AuditEmails = new EntitySet(AuditEmail);
+        AuditOrganizations = new EntitySet(AuditOrganization);
+        AuditResponses = new EntitySet(AuditResponse);
+        AuditResponseDocs = new EntitySet(AuditResponseDoc);
+        AuditResponseDocsRO = new EntitySet(AuditResponseDocRO);
+        AuditRequests = new EntitySet(AuditRequest);
+        AuditRequestsInternals = new EntitySet(AuditRequestsInternal);
+        AuditROEmailsLog = new EntitySet(AuditROEmailLog);
+      };
+      appContext = new ApplicationDbContext();
+    }
+  });
+
+  // src/common/utilities.js
+  window.Audit = window.Audit || {};
+  Audit.Common = Audit.Common || {};
+  function InitReport() {
+    Audit.Common.Utilities = new Audit.Common.NewUtilities();
+    Audit.Common.Init();
+  }
+  Audit.Common.Init = function() {
+  };
+  Audit.Common.NewUtilities = function() {
+    var m_siteUrl = _spPageContextInfo.webServerRelativeUrl;
+    var m_listTitleRequests = "AuditRequests";
+    var m_listNameRequests = "AuditRequests";
+    var m_listTitleRequestsInternal = "AuditRequestsInternal";
+    var m_listNameRequestsInternal = "AuditRequestsInternal";
+    var m_listTitleResponses = "AuditResponses";
+    var m_listNameResponses = "AuditResponses";
+    var m_libTitleRequestDocs = "AuditRequestDocs";
+    var m_libNameRequestDocs = "AuditRequestDocs";
+    var m_libTitleCoverSheet = "AuditCoverSheets";
+    var m_libNameCoverSheet = "AuditCoverSheets";
+    var m_libTitleResponseDocs = "AuditResponseDocs";
+    var m_libNameResponseDocs = "AuditResponseDocs";
+    var m_libTitleResponseDocsEA = "AuditResponseDocsEA";
+    var m_libNameResponseDocsEA = "AuditResponseDocsEA";
+    var m_listTitleActionOffices = "AuditOrganizations";
+    var m_listNameActionOffices = "AuditOrganizations";
+    var m_listTitleEmailHistory = "AuditEmails";
+    var m_listNameEmailHistory = "AuditEmails";
+    var m_listTitleBulkResponses = "AuditBulkResponses";
+    var m_listNameBulkResponses = "AuditBulkResponses";
+    var m_listTitleBulkPermissions = "AuditBulkPermissions";
+    var m_listNameBulkPermissions = "AuditBulkPermissions";
+    var m_groupNameSpecialPermName1 = "CGFS Special Access1";
+    var m_groupNameSpecialPermName2 = "CGFS Special Access2";
+    var m_groupNameQA = "Quality Assurance";
+    var m_groupNameEA = "External Auditors";
+    var m_libResponseDocsLibraryGUID = null;
+    var m_arrSiteGroups = null;
+    var m_arrAOs = null;
+    function m_fnRefresh(hard = false) {
+      if (hard) {
+        location.href = location.pathname;
+        return;
+      }
+      var curPath = location.pathname;
+      if ($("#tabs").html() != null && $("#tabs").html() != "") {
+        var tabIndex = 0;
+        try {
+          tabIndex = $("#tabs").tabs("option", "active");
+        } catch (ex) {
+        }
+        curPath += "?Tab=" + tabIndex;
+        if (tabIndex == 0 && $("#ddlResponseName").val() != "") {
+          curPath += "&ResNum=" + $("#ddlResponseName").val();
+        } else if (tabIndex == 1) {
+          var responseNumOpen = $("#ddlResponsesOpen").val();
+          var responseNumProcessed = $("#ddlResponsesProcessed").val();
+          if (responseNumOpen != null && responseNumOpen != "")
+            curPath += "&ResNum=" + responseNumOpen;
+          else if (responseNumProcessed != null && responseNumProcessed != "")
+            curPath += "&ResNum=" + responseNumProcessed;
+        }
+        location.href = curPath;
+      } else {
+        location.reload();
+      }
+    }
+    function m_fnOnLoadDisplayTimeStamp() {
+      var curDate = /* @__PURE__ */ new Date();
+      $("#divLoading").text("Loaded at " + curDate.format("MM/dd/yyyy hh:mm tt"));
+    }
+    function m_fnOnLoadDisplayTabAndResponse() {
+      var paramTabIndex = GetUrlKeyValue("Tab");
+      if (paramTabIndex != null && paramTabIndex != "") {
+        $("#tabs").tabs("option", "active", paramTabIndex);
+      }
+      var bFiltered = false;
+      var paramResponseNum = GetUrlKeyValue("ResNum");
+      if (paramResponseNum != null && paramResponseNum != "") {
+        if (paramTabIndex == 0) {
+          if ($("#ddlResponseName option[value='" + paramResponseNum + "']").length > 0) {
+            $("#ddlResponseName").val(paramResponseNum).change();
+            bFiltered = true;
+          }
+        } else {
+          if ($("#ddlResponsesOpen option[value='" + paramResponseNum + "']").length > 0) {
+            $("#ddlResponsesOpen").val(paramResponseNum).change();
+          } else if ($("#ddlResponsesProcessed option[value='" + paramResponseNum + "']").length > 0) {
+            $("#ddlResponsesProcessed").val(paramResponseNum).change();
+          }
+        }
+      }
+      if (!bFiltered) {
+        $(".sr-response-item").show();
+      }
+    }
+    function m_fnOnLoadFilterResponses(responseStatus1, responseStatus2) {
+      var count = 0;
+      var cntOpen = 0;
+      var cntReOpened = 0;
+      var resStatus1 = 0;
+      var resStatus2 = 0;
+      var eacher = $(".sr-response-item");
+      eacher.each(function() {
+        var reqStatus = $.trim($(this).find(".sr-response-requestStatus").text());
+        var resStatus = $.trim($(this).find(".sr-response-status").text());
+        if ((resStatus == responseStatus1 || resStatus == responseStatus2) && (reqStatus == "Open" || reqStatus == "ReOpened")) {
+          $(this).addClass("highlighted");
+          count++;
+          if (resStatus == responseStatus1)
+            resStatus1++;
+          else if (resStatus == responseStatus2)
+            resStatus2++;
+          if (reqStatus == "Open")
+            cntOpen++;
+          else if (reqStatus == "ReOpened")
+            cntReOpened++;
+        }
+      });
+      if (count > 0) {
+        $("#lblStatusReportResponsesMsg").html(
+          "<span class='ui-icon ui-icon-alert'></span>There are " + count + " Responses pending your review"
+        );
+        if (resStatus1 > 0 && resStatus2 == 0)
+          $("#ddlResponseStatus").val(responseStatus1).change();
+        else if (resStatus2 > 0 && resStatus1 == 0)
+          $("#ddlResponseStatus").val(responseStatus2).change();
+      } else
+        $("#lblStatusReportResponsesMsg").html(
+          "<span class='ui-icon ui-icon-circle-check'></span>There are 0 Responses pending your review"
+        );
+    }
+    function m_fnLoadSiteGroups(itemColl) {
+      m_arrSiteGroups = new Array();
+      var listItemEnumerator = itemColl.getEnumerator();
+      while (listItemEnumerator.moveNext()) {
+        var oListItem = listItemEnumerator.get_current();
+        var id2 = oListItem.get_id();
+        var loginName = oListItem.get_loginName();
+        var title = oListItem.get_title();
+        var groupObject = new Object();
+        groupObject["ID"] = id2;
+        groupObject["loginName"] = loginName;
+        groupObject["title"] = title;
+        groupObject["group"] = oListItem;
+        m_arrSiteGroups.push(groupObject);
+      }
+    }
+    function m_fnGetSPSiteGroup(groupName) {
+      var userGroup = null;
+      if (m_arrSiteGroups != null) {
+        for (var x = 0; x < m_arrSiteGroups.length; x++) {
+          if (m_arrSiteGroups[x].title == groupName) {
+            userGroup = m_arrSiteGroups[x].group;
+            break;
+          }
+        }
+      }
+      return userGroup;
+    }
+    function m_fnLoadActionOffices(itemColl) {
+      m_arrAOs = new Array();
+      var listItemEnumerator = itemColl.getEnumerator();
+      while (listItemEnumerator.moveNext()) {
+        var oListItem = listItemEnumerator.get_current();
+        var id2 = oListItem.get_item("ID");
+        var title = oListItem.get_item("Title");
+        var userGroup = oListItem.get_item("UserGroup");
+        if (userGroup != null) {
+          userGroup = userGroup.get_lookupValue();
+        } else
+          userGroup = "";
+        var aoObject = new Object();
+        aoObject["ID"] = id2;
+        aoObject["title"] = title;
+        aoObject["userGroup"] = userGroup;
+        m_arrAOs.push(aoObject);
+      }
+    }
+    function m_fnGetAOSPGroupName(groupName) {
+      var userGroup = null;
+      if (m_arrAOs != null) {
+        for (var x = 0; x < m_arrAOs.length; x++) {
+          var oGroup2 = m_arrAOs[x];
+          if (oGroup2.title == groupName) {
+            userGroup = oGroup2.userGroup;
+            break;
+          }
+        }
+      }
+      return userGroup;
+    }
+    function m_fnCheckSPItemHasGroupPermission(item, groupName, permissionLevel) {
+      if (item == null || groupName == "" || groupName == null || permissionLevel == null)
+        return false;
+      var match = false;
+      var roleAssignments = item.get_roleAssignments();
+      if (roleAssignments == null) {
+        alert("Error retrieving role assignments");
+        return false;
+      }
+      var rolesEnumerator = roleAssignments.getEnumerator();
+      while (rolesEnumerator.moveNext()) {
+        var role = rolesEnumerator.get_current();
+        if (role != null) {
+          var roleMember = role.get_member();
+          if (roleMember.isPropertyAvailable("Title")) {
+            var memberTitleName = roleMember.get_title();
+            var roleDefs = role.get_roleDefinitionBindings();
+            if (roleDefs != null) {
+              var roleDefsEnumerator = roleDefs.getEnumerator();
+              while (roleDefsEnumerator.moveNext()) {
+                var rd = roleDefsEnumerator.get_current();
+                var rdName = rd.get_name();
+                if (memberTitleName == groupName && rd.get_basePermissions().has(permissionLevel)) {
+                  match = true;
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+      return match;
+    }
+    function m_fnGoToResponse(responseTitle, isIA) {
+      if (!isIA) {
+        var bFound = false;
+        $("#ddlResponsesOpen > option").each(function() {
+          if ($(this).text() == responseTitle) {
+            bFound = true;
+            notifyId = SP.UI.Notify.addNotification(
+              "Displaying Response (" + responseTitle + ")",
+              false
+            );
+            $("#ddlResponsesOpen").val(responseTitle).change();
+            return false;
+          }
+        });
+        if (!bFound) {
+          $("#ddlResponsesProcessed > option").each(function() {
+            if ($(this).text() == responseTitle) {
+              bFound = true;
+              notifyId = SP.UI.Notify.addNotification(
+                "Displaying Response (" + responseTitle + ")",
+                false
+              );
+              $("#ddlResponsesProcessed").val(responseTitle).change();
+              return false;
+            }
+          });
+        }
+        $("#tabs").tabs({ active: 1 });
+      }
+    }
+    function m_fnGetResponseDocStyleTag2(documentStatus) {
+      var styleTag = {};
+      if (documentStatus == "Archived")
+        styleTag = { "background-color": "Gainsboro" };
+      else if (documentStatus == "Approved")
+        styleTag = { "background-color": "PaleGreen" };
+      else if (documentStatus == "Rejected")
+        styleTag = { "background-color": "LightSalmon" };
+      else if (documentStatus == "Sent to QA")
+        styleTag = { "background-color": "LightCyan" };
+      else if (documentStatus == "Submitted")
+        styleTag = { "background-color": "LemonChiffon" };
+      else if (documentStatus == "Marked for Deletion")
+        styleTag = {
+          "background-color": "Gainsboro",
+          "font-style": "italic"
+        };
+      return styleTag;
+    }
+    function m_fnGetResponseDocStyleTag(documentStatus) {
+      var styleTag = "";
+      if (documentStatus == "Archived")
+        styleTag = " style='background-color:Gainsboro;' ";
+      else if (documentStatus == "Approved")
+        styleTag = " style='background-color:PaleGreen;' ";
+      else if (documentStatus == "Rejected")
+        styleTag = " style='background-color:LightSalmon;' ";
+      else if (documentStatus == "Sent to QA")
+        styleTag = " style='background-color:LightCyan;' ";
+      else if (documentStatus == "Submitted")
+        styleTag = " style='background-color:LemonChiffon;' ";
+      else if (documentStatus == "Marked for Deletion")
+        styleTag = " style='background-color:Gainsboro; font-style:italic' title='Marked for Deletion by the Action Office' ";
+      return styleTag;
+    }
+    function m_fnCheckIfEmailFolderExists(items, requestNumber) {
+      var bFolderExists = false;
+      var listItemEnumerator = items.getEnumerator();
+      while (listItemEnumerator.moveNext()) {
+        var folderItem = listItemEnumerator.get_current();
+        var itemName = folderItem.get_displayName();
+        if (itemName == requestNumber) {
+          var bFolderExists = true;
+          break;
+        }
+      }
+      return bFolderExists;
+    }
+    var m_cntAddToEmailFolder = 0;
+    var m_cntAddedToEmailFolder = 0;
+    function m_fnCreateEmailFolder(list, requestNumber, requestItem, OnComplete) {
+      m_cntAddToEmailFolder = 0;
+      m_cntAddedToEmailFolder = 0;
+      var currCtx = new SP.ClientContext.get_current();
+      var web = currCtx.get_web();
+      var itemCreateInfo = new SP.ListItemCreationInformation();
+      itemCreateInfo.set_underlyingObjectType(SP.FileSystemObjectType.folder);
+      itemCreateInfo.set_leafName(requestNumber);
+      oNewEmailFolder = list.addItem(itemCreateInfo);
+      oNewEmailFolder.set_item("Title", requestNumber);
+      oNewEmailFolder.update();
+      this.currentUser = web.get_currentUser();
+      this.ownerGroup = web.get_associatedOwnerGroup();
+      this.memberGroup = web.get_associatedMemberGroup();
+      this.visitorGroup = web.get_associatedVisitorGroup();
+      oNewEmailFolder.resetRoleInheritance();
+      oNewEmailFolder.breakRoleInheritance(false, false);
+      var roleDefBindingCollAdmin = SP.RoleDefinitionBindingCollection.newObject(currCtx);
+      roleDefBindingCollAdmin.add(
+        web.get_roleDefinitions().getByType(SP.RoleType.administrator)
+      );
+      var roleDefBindingCollContribute = SP.RoleDefinitionBindingCollection.newObject(currCtx);
+      roleDefBindingCollContribute.add(
+        web.get_roleDefinitions().getByType(SP.RoleType.contributor)
+      );
+      var roleDefBindingCollRestrictedRead = SP.RoleDefinitionBindingCollection.newObject(currCtx);
+      roleDefBindingCollRestrictedRead.add(
+        web.get_roleDefinitions().getByName("Restricted Read")
+      );
+      var roleDefBindingCollRestrictedContribute = SP.RoleDefinitionBindingCollection.newObject(currCtx);
+      roleDefBindingCollRestrictedContribute.add(
+        web.get_roleDefinitions().getByName("Restricted Contribute")
+      );
+      oNewEmailFolder.get_roleAssignments().add(ownerGroup, roleDefBindingCollAdmin);
+      oNewEmailFolder.get_roleAssignments().add(memberGroup, roleDefBindingCollContribute);
+      oNewEmailFolder.get_roleAssignments().add(visitorGroup, roleDefBindingCollRestrictedRead);
+      var spGroupQA = Audit.Common.Utilities.GetSPSiteGroup(
+        Audit.Common.Utilities.GetGroupNameQA()
+      );
+      if (spGroupQA != null)
+        oNewEmailFolder.get_roleAssignments().add(spGroupQA, roleDefBindingCollRestrictedContribute);
+      oNewEmailFolder.get_roleAssignments().getByPrincipal(currentUser).deleteObject();
+      function onUpdatePermsSucceeded() {
+        if (this.requestItem) {
+          var arrActionOffice = this.requestItem.get_item("ActionOffice");
+          if (arrActionOffice == null || arrActionOffice.length == 0) {
+            if (this.OnComplete)
+              this.OnComplete(true);
+            return;
+          }
+          for (var x = 0; x < arrActionOffice.length; x++) {
+            var actionOfficeName = arrActionOffice[x].get_lookupValue();
+            var actionOfficeGroupName = Audit.Common.Utilities.GetAOSPGroupName(actionOfficeName);
+            var actionOfficeGroup = Audit.Common.Utilities.GetSPSiteGroup(
+              actionOfficeGroupName
+            );
+            if (actionOfficeGroup != null) {
+              let onUpdateAOPermsSucceeded2 = function() {
+                m_cntAddedToEmailFolder++;
+                if (m_cntAddedToEmailFolder == m_cntAddToEmailFolder) {
+                  if (this.OnComplete)
+                    this.OnComplete(true);
+                }
+              }, onUpdateAOPermsFailed2 = function(sender, args) {
+                m_cntAddedToEmailFolder++;
+                if (m_cntAddedToEmailFolder == m_cntAddToEmailFolder) {
+                  if (this.OnComplete)
+                    this.OnComplete(true);
+                }
+              };
+              var onUpdateAOPermsSucceeded = onUpdateAOPermsSucceeded2, onUpdateAOPermsFailed = onUpdateAOPermsFailed2;
+              m_cntAddToEmailFolder++;
+              var currCtx2 = new SP.ClientContext.get_current();
+              var web2 = currCtx2.get_web();
+              var roleDefBindingCollRestrictedContribute2 = SP.RoleDefinitionBindingCollection.newObject(currCtx2);
+              roleDefBindingCollRestrictedContribute2.add(
+                web2.get_roleDefinitions().getByName("Restricted Contribute")
+              );
+              this.oNewEmailFolder.get_roleAssignments().add(actionOfficeGroup, roleDefBindingCollRestrictedContribute2);
+              var data3 = { OnComplete: this.OnComplete };
+              currCtx2.executeQueryAsync(
+                Function.createDelegate(data3, onUpdateAOPermsSucceeded2),
+                Function.createDelegate(data3, onUpdateAOPermsFailed2)
+              );
+            }
+          }
+        } else {
+          if (this.OnComplete)
+            this.OnComplete(true);
+        }
+      }
+      function onUpdatePermsFailed(sender, args) {
+        statusId = SP.UI.Status.addStatus(
+          "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
+        );
+      }
+      var data2 = {
+        /*item: oListItem, */
+        requestItem,
+        oNewEmailFolder,
+        OnComplete
+      };
+      currCtx.executeQueryAsync(
+        Function.createDelegate(data2, onUpdatePermsSucceeded),
+        Function.createDelegate(data2, onUpdatePermsFailed)
+      );
+    }
+    function m_fnSortResponseTitleNoCase(a, b) {
+      var aTitle = a;
+      var bTitle = b;
+      let newA, newB;
+      if (aTitle == null)
+        aTitle = "";
+      if (bTitle == null)
+        bTitle = "";
+      var aIndex = aTitle.lastIndexOf("-");
+      if (aIndex >= 0) {
+        var subA = aTitle.substring(0, aIndex + 1);
+        var lastA = aTitle.replace(subA, "");
+        var intA = parseInt(lastA, 10);
+        var newIntA = Audit.Common.Utilities.PadDigits(intA, 5);
+        newA = subA + newIntA;
+      } else
+        newA = aTitle;
+      var bIndex = bTitle.lastIndexOf("-");
+      if (bIndex >= 0) {
+        var subB = bTitle.substring(0, bIndex + 1);
+        var lastB = bTitle.replace(subB, "");
+        var intB = parseInt(lastB, 10);
+        var newIntB = Audit.Common.Utilities.PadDigits(intB, 5);
+        newB = subB + newIntB;
+      } else
+        newB = bTitle;
+      return newA.toLowerCase().localeCompare(newB.toLowerCase());
+    }
+    function m_fnSortResponseObjectNoCase(a, b) {
+      var aTitle = a.title;
+      var bTitle = b.title;
+      var newA;
+      var newB;
+      if (aTitle == null)
+        aTitle = "";
+      if (bTitle == null)
+        bTitle = "";
+      var aIndex = aTitle.lastIndexOf("-");
+      if (aIndex >= 0) {
+        var subA = aTitle.substring(0, aIndex + 1);
+        var lastA = aTitle.replace(subA, "");
+        var intA = parseInt(lastA, 10);
+        var newIntA = Audit.Common.Utilities.PadDigits(intA, 5);
+        newA = subA + newIntA;
+      } else
+        newA = aTitle;
+      var bIndex = bTitle.lastIndexOf("-");
+      if (bIndex >= 0) {
+        var subB = bTitle.substring(0, bIndex + 1);
+        var lastB = bTitle.replace(subB, "");
+        var intB = parseInt(lastB, 10);
+        var newIntB = Audit.Common.Utilities.PadDigits(intB, 5);
+        newB = subB + newIntB;
+      } else
+        newB = bTitle;
+      return newA.toLowerCase().localeCompare(newB.toLowerCase());
+    }
+    function m_fnSortNoCase(a, b) {
+      return a.toLowerCase().localeCompare(b.toLowerCase());
+    }
+    function m_fnSortDate(a, b) {
+      if (a == "")
+        return -1;
+      if (b == "")
+        return 1;
+      return new Date(a).getTime() - new Date(b).getTime();
+    }
+    function m_fnAddOptions(arr, ddlID, dateSort, responseSort) {
+      if (arr == null)
+        return;
+      if (responseSort)
+        arr.sort(m_fnSortResponseTitleNoCase);
+      else if (!dateSort)
+        arr.sort(m_fnSortNoCase);
+      else
+        arr.sort(m_fnSortDate);
+      var rOptions = new Array(), j = -1;
+      rOptions[++j] = "<option value=''>-Select-</option>";
+      var arrLength = arr.length;
+      for (var x = 0; x < arrLength; x++) {
+        var option = $.trim(arr[x]);
+        rOptions[++j] = "<option value='" + option + "'>" + option + "</option>";
+      }
+      var thisDDL = $(ddlID);
+      thisDDL.empty().append(rOptions.join(""));
+    }
+    function m_fnExistsInArr(arr, val) {
+      if (arr == null)
+        return false;
+      var arrLength = arr.length;
+      for (var x = 0; x < arrLength; x++) {
+        if (arr[x] == val)
+          return true;
+      }
+      return false;
+    }
+    function m_fnGetTrueFalseIcon(val) {
+      if (val == true)
+        return "<span class='ui-icon ui-icon-check'>" + val + "</span>";
+      else
+        return "<span class='ui-icon ui-icon-close'>" + val + "</span>";
+    }
+    function m_fnGetFriendlyDisplayName(oListItem, fieldName) {
+      var user = oListItem.get_item(fieldName);
+      if (user == null)
+        return "";
+      else
+        return user.get_lookupValue();
+    }
+    function m_fnPadDigits(n, totalDigits) {
+      n = n.toString();
+      var pd = "";
+      if (totalDigits > n.length) {
+        for (let i2 = 0; i2 < totalDigits - n.length; i2++) {
+          pd += "0";
+        }
+      }
+      return pd + n.toString();
+    }
+    function m_fnPreciseRound(num, decimals) {
+      var sign = num >= 0 ? 1 : -1;
+      return (Math.round(num * Math.pow(10, decimals) + sign * 1e-3) / Math.pow(10, decimals)).toFixed(decimals);
+    }
+    function m_fnGetFriendlyFileSize(fileSize) {
+      if (fileSize == null || fileSize == "")
+        return "";
+      if (fileSize > 1048576) {
+        fileSize = Audit.Common.Utilities.PreciseRound(fileSize / 1048576, 2) + " MB";
+      } else if (fileSize > 1024) {
+        fileSize = Audit.Common.Utilities.PreciseRound(fileSize / 1024, 2) + " KB";
+      } else {
+        fileSize += " B";
+      }
+      return fileSize;
+    }
+    function m_fnISODateString(d) {
+      function pad(n) {
+        return n < 10 ? "0" + n : n;
+      }
+      return d.getUTCFullYear() + "-" + pad(d.getUTCMonth() + 1) + "-" + pad(d.getUTCDate()) + "T" + pad(d.getUTCHours()) + ":" + pad(d.getUTCMinutes()) + ":" + pad(d.getUTCSeconds()) + "Z";
+    }
+    function m_fnBindHandlerResponseDoc() {
+      $(".requestInfo-response-doc img").click(function(event) {
+        event.preventDefault();
+        var curIcon = $(this).attr("src");
+        if (curIcon == "/_layouts/images/minus.gif")
+          $(this).attr("src", "/_layouts/images/plus.gif");
+        else
+          $(this).attr("src", "/_layouts/images/minus.gif");
+        $(this).parent().parent().nextUntil("tr.requestInfo-response-doc").each(function() {
+          $(this).toggleClass("collapsed");
+        });
+      });
+    }
+    function m_fnGetLookupFormField(fieldTitle) {
+      if ($("select[title='" + fieldTitle + "']").html() !== null) {
+        return $("select[title='" + fieldTitle + "']");
+      } else {
+        return $("input[title='" + fieldTitle + "']");
+      }
+    }
+    function m_fnGetLookupDisplayText(fieldTitle) {
+      if ($("select[title='" + fieldTitle + "']").html() !== null) {
+        return $("select[title='" + fieldTitle + "'] option:selected").text();
+      } else {
+        return $("input[title='" + fieldTitle + "']").val();
+      }
+    }
+    function m_fnSetLookupFromFieldNameByText(fieldName, text) {
+      try {
+        if (text == void 0)
+          return;
+        var theSelect = m_fnGetTagFromIdentifierAndTitle("select", "", fieldName);
+        if (theSelect == null) {
+          var theInput = m_fnGetTagFromIdentifierAndTitle("input", "", fieldName);
+          ShowDropdown(theInput.id);
+          var opt = document.getElementById(theInput.opt);
+          m_fnSetSelectedOptionByText(opt, text);
+          OptLoseFocus(opt);
+        } else {
+          m_fnSetSelectedOptionByText(theSelect, text);
+        }
+      } catch (ex) {
+      }
+    }
+    function m_fnSetSelectedOptionByText(select, text) {
+      var opts = select.options;
+      var optLength = opts.length;
+      if (select == null)
+        return;
+      for (var i2 = 0; i2 < optLength; i2++) {
+        if (opts[i2].text == text) {
+          select.selectedIndex = i2;
+          return true;
+        }
+      }
+      return false;
+    }
+    function m_fnGetTagFromIdentifierAndTitle(tagName, identifier, title) {
+      var idLength = identifier.length;
+      var tags = document.getElementsByTagName(tagName);
+      for (var i2 = 0; i2 < tags.length; i2++) {
+        var tagID = tags[i2].id;
+        if (tags[i2].title == title && (identifier == "" || tagID.indexOf(identifier) == tagID.length - idLength)) {
+          return tags[i2];
+        }
+      }
+      return null;
+    }
+    function m_fnViewUserManuals(docType) {
+      var options = SP.UI.$create_DialogOptions();
+      options.title = "User Manual";
+      options.height = 250;
+      if (docType != null)
+        options.url = Audit.Common.Utilities.GetSiteUrl() + "/pages/AuditUserManuals.aspx?FilterField1=DocType&FilterValue1=" + docType;
+      else
+        options.url = Audit.Common.Utilities.GetSiteUrl() + "/pages/AuditUserManuals.aspx";
+      SP.UI.ModalDialog.showModalDialog(options);
+    }
+    function m_fnPrintPage(pageTitle, divTbl) {
+      var curDate = /* @__PURE__ */ new Date();
+      var siteUrl = Audit.Common.Utilities.GetSiteUrl();
+      var cssLink1 = siteUrl + "/siteassets/css/tablesorter/style.css?v=" + curDate.format("MM_dd_yyyy");
+      var cssLink2 = siteUrl + "/siteAssets/css/audit_styles.css?v=" + curDate.format("MM_dd_yyyy");
+      var divOutput = $(divTbl).html();
+      var updatedDivOutput = $("<div>").append(divOutput);
+      updatedDivOutput.find(".sr-response-title a").each(function() {
+        $(this).removeAttr("onclick");
+        $(this).removeAttr("href");
+      });
+      divOutput = updatedDivOutput.html();
+      var printDateString = curDate.format("MM/dd/yyyy hh:mm tt");
+      printDateString = "<div style='padding-bottom:10px;'>" + printDateString + "</div>";
+      divOutput = printDateString + divOutput;
+      var cssFile1 = $("<div></div>");
+      var cssFile2 = $("<div></div>");
+      var def1 = $.Deferred();
+      var def2 = $.Deferred();
+      var cssFileText = "";
+      cssFile1.load(cssLink1, function() {
+        cssFileText += "<style>" + cssFile1.html() + "</style>";
+        def1.resolve();
+      });
+      cssFile2.load(cssLink2, function() {
+        cssFileText += "<style>" + cssFile2.html() + "</style>";
+        def2.resolve();
+      });
+      $.when(def1, def2).done(function() {
+        var html4 = "<HTML>\n<HEAD>\n\n<Title>" + pageTitle + "</Title>\n" + cssFileText + "\n<style>.hideOnPrint, .rowFilters {display:none}</style>\n</HEAD>\n<BODY>\n" + divOutput + "\n</BODY>\n</HTML>";
+        var printWP = window.open("", "printWebPart");
+        printWP.document.open();
+        printWP.document.write(html4);
+        printWP.document.close();
+        printWP.print();
+      });
+    }
+    function m_fnExportToCsv(fileName, tableName, removeHeader) {
+      var data2 = m_fnGetCellValues(tableName);
+      if (removeHeader == true)
+        data2 = data2.slice(1);
+      var csv = m_fnConvertToCsv(data2);
+      if (navigator.userAgent.search("Trident") >= 0) {
+        window.CsvExpFrame.document.open("text/html", "replace");
+        window.CsvExpFrame.document.write(csv);
+        window.CsvExpFrame.document.close();
+        window.CsvExpFrame.focus();
+        window.CsvExpFrame.document.execCommand(
+          "SaveAs",
+          true,
+          fileName + ".csv"
+        );
+      } else {
+        var uri = "data:text/csv;charset=utf-8," + escape(csv);
+        var downloadLink = document.createElement("a");
+        downloadLink.href = uri;
+        downloadLink.download = fileName + ".csv";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      }
+    }
+    function m_fnGetCellValues(tableName) {
+      var table = document.getElementById(tableName);
+      if (table.innerHTML.indexOf("rowFilters") >= 0) {
+        var deets = $("<div>").append(table.outerHTML);
+        deets.find(".rowFilters").each(function() {
+          $(this).remove();
+        });
+        table = deets.find("table")[0];
+      }
+      if (table.innerHTML.indexOf("footer") >= 0) {
+        var deets = $("<div>").append(table.outerHTML);
+        deets.find(".footer").each(function() {
+          $(this).remove();
+        });
+        table = deets.find("table")[0];
+      }
+      var tableArray = [];
+      for (var r = 0, n = table.rows.length; r < n; r++) {
+        tableArray[r] = [];
+        for (var c = 0, m = table.rows[r].cells.length; c < m; c++) {
+          var text = table.rows[r].cells[c].textContent || table.rows[r].cells[c].innerText;
+          tableArray[r][c] = text.trim();
+        }
+      }
+      return tableArray;
+    }
+    function m_fnConvertToCsv(objArray) {
+      var array = typeof objArray != "object" ? JSON.parse(objArray) : objArray;
+      var str = "sep=,\r\n";
+      var line = "";
+      var index;
+      var value;
+      for (var i2 = 0; i2 < array.length; i2++) {
+        line = "";
+        var array1 = array[i2];
+        for (index in array1) {
+          if (array1.hasOwnProperty(index)) {
+            value = array1[index] + "";
+            line += '"' + value.replace(/"/g, '""') + '",';
+          }
+        }
+        line = line.slice(0, -1);
+        str += line + "\r\n";
+      }
+      return str;
+    }
+    var publicMembers = {
+      GetSiteUrl: function() {
+        if (m_siteUrl == "/")
+          return "";
+        else
+          return m_siteUrl;
+      },
+      GetListTitleRequests: function() {
+        return m_listTitleRequests;
+      },
+      GetListNameRequests: function() {
+        return m_listNameRequests;
+      },
+      GetListTitleRequestsInternal: function() {
+        return m_listTitleRequestsInternal;
+      },
+      GetListNameRequestsInternal: function() {
+        return m_listNameRequestsInternal;
+      },
+      GetListTitleResponses: function() {
+        return m_listTitleResponses;
+      },
+      GetListNameResponses: function() {
+        return m_listNameResponses;
+      },
+      GetLibTitleRequestDocs: function() {
+        return m_libTitleRequestDocs;
+      },
+      GetLibNameRequestDocs: function() {
+        return m_libNameRequestDocs;
+      },
+      GetLibTitleCoverSheets: function() {
+        return m_libTitleCoverSheet;
+      },
+      GetLibNameCoverSheets: function() {
+        return m_libNameCoverSheet;
+      },
+      GetLibTitleResponseDocs: function() {
+        return m_libTitleResponseDocs;
+      },
+      GetLibNameResponseDocs: function() {
+        return m_libNameResponseDocs;
+      },
+      GetLibTitleResponseDocsEA: function() {
+        return m_libTitleResponseDocsEA;
+      },
+      GetLibNameResponseDocsEA: function() {
+        return m_libNameResponseDocsEA;
+      },
+      GetListTitleActionOffices: function() {
+        return m_listTitleActionOffices;
+      },
+      GetListNameActionOffices: function() {
+        return m_listNameActionOffices;
+      },
+      GetListTitleEmailHistory: function() {
+        return m_listTitleEmailHistory;
+      },
+      GetListNameEmailHistory: function() {
+        return m_listNameEmailHistory;
+      },
+      GetListTitleBulkResponses: function() {
+        return m_listTitleBulkResponses;
+      },
+      GetListNameBulkResponses: function() {
+        return m_listNameBulkResponses;
+      },
+      GetListTitleBulkPermissions: function() {
+        return m_listTitleBulkPermissions;
+      },
+      GetListNameBulkPermissions: function() {
+        return m_listNameBulkPermissions;
+      },
+      GetGroupNameSpecialPerm1: function() {
+        return m_groupNameSpecialPermName1;
+      },
+      GetGroupNameSpecialPerm2: function() {
+        return m_groupNameSpecialPermName2;
+      },
+      GetGroupNameQA: function() {
+        return m_groupNameQA;
+      },
+      GetGroupNameEA: function() {
+        return m_groupNameEA;
+      },
+      Refresh: m_fnRefresh,
+      OnLoadDisplayTimeStamp: m_fnOnLoadDisplayTimeStamp,
+      OnLoadDisplayTabAndResponse: m_fnOnLoadDisplayTabAndResponse,
+      OnLoadFilterResponses: function(responseStatus1, responseStatus2) {
+        m_fnOnLoadFilterResponses(responseStatus1, responseStatus2);
+      },
+      SetResponseDocLibGUID: function(libGUID) {
+        m_libResponseDocsLibraryGUID = libGUID;
+      },
+      GetResponseDocLibGUID: function() {
+        return m_libResponseDocsLibraryGUID;
+      },
+      LoadSiteGroups: function(itemColl) {
+        m_fnLoadSiteGroups(itemColl);
+      },
+      GetSPSiteGroup: function(groupName) {
+        return m_fnGetSPSiteGroup(groupName);
+      },
+      LoadActionOffices: function(itemColl) {
+        m_fnLoadActionOffices(itemColl);
+      },
+      GetActionOffices: function() {
+        return m_arrAOs;
+      },
+      GetAOSPGroupName: function(groupName) {
+        return m_fnGetAOSPGroupName(groupName);
+      },
+      CheckSPItemHasGroupPermission: function(item, groupName, permissionLevel) {
+        return m_fnCheckSPItemHasGroupPermission(
+          item,
+          groupName,
+          permissionLevel
+        );
+      },
+      GoToResponse: function(responseTitle, isIA) {
+        m_fnGoToResponse(responseTitle, isIA);
+      },
+      GetResponseDocStyleTag: function(documentStatus) {
+        return m_fnGetResponseDocStyleTag(documentStatus);
+      },
+      GetResponseDocStyleTag2: function(documentStatus) {
+        return m_fnGetResponseDocStyleTag2(documentStatus);
+      },
+      CheckIfEmailFolderExists: function(items, requestNumber) {
+        return m_fnCheckIfEmailFolderExists(items, requestNumber);
+      },
+      CreateEmailFolder: function(list, requestNumber, requestItem, OnComplete) {
+        return m_fnCreateEmailFolder(
+          list,
+          requestNumber,
+          requestItem,
+          OnComplete
+        );
+      },
+      AddOptions: function(arr, ddlID, dateSort, responseSort) {
+        m_fnAddOptions(arr, ddlID, dateSort, responseSort);
+      },
+      ExistsInArr: function(arr, val) {
+        return m_fnExistsInArr(arr, val);
+      },
+      GetTrueFalseIcon: function(val) {
+        return m_fnGetTrueFalseIcon(val);
+      },
+      PadDigits: function(n, totalDigits) {
+        return m_fnPadDigits(n, totalDigits);
+      },
+      PreciseRound: function(num, decimals) {
+        return m_fnPreciseRound(num, decimals);
+      },
+      GetFriendlyFileSize: function(fileSize) {
+        return m_fnGetFriendlyFileSize(fileSize);
+      },
+      GetISODateString: function(d) {
+        return m_fnISODateString(d);
+      },
+      GetFriendlyDisplayName: function(oListItem, fieldName) {
+        return m_fnGetFriendlyDisplayName(oListItem, fieldName);
+      },
+      BindHandlerResponseDoc: m_fnBindHandlerResponseDoc,
+      PrintStatusReport: function(pageTitle, divTbl) {
+        m_fnPrintPage(pageTitle, divTbl);
+      },
+      ExportToCsv: function(fileName, tableName, removeHeader) {
+        m_fnExportToCsv(fileName, tableName, removeHeader);
+      },
+      ViewUserManuals: function(docType) {
+        m_fnViewUserManuals(docType);
+      },
+      //GetLookupFieldText: function( fieldName ){ return m_fnGetLookupFieldText( fieldName); },
+      GetLookupDisplayText: function(fieldName) {
+        return m_fnGetLookupDisplayText(fieldName);
+      },
+      GetLookupFormField: function(fieldName) {
+        return m_fnGetLookupFormField(fieldName);
+      },
+      SetLookupFromFieldNameByText: function(fieldName, text) {
+        return m_fnSetLookupFromFieldNameByText(fieldName, text);
+      },
+      SortResponseObjects: function(a, b) {
+        return m_fnSortResponseObjectNoCase(a, b);
+      },
+      SortResponseTitles: m_fnSortResponseTitleNoCase
+    };
+    return publicMembers;
+  };
+  InitReport();
+
+  // src/pages/ao_db/AO_DB_Template.js
+  var html = String.raw;
+  var _a;
+  var aoDbTemplate = html(_a || (_a = __template([`
   <link
     rel="stylesheet"
     type="text/css"
@@ -1032,7 +6823,349 @@ Group ID: `+de.get_id()+", Title : "+de.get_title(),ie.push(ne)}console.log(le.t
   <\/script>
 
   <div id="divTest"></div>
-`])));var Hs={};window.history.replaceState({},"",document.location.href);function Zt(t,e){if(nn(t)==e)return;let s=window.location.search,o=new RegExp("([?;&])"+t+"[^&;]*[;&]?"),u=s.replace(o,"$1").replace(/&$/,""),h=(u.length>2?u+"&":"?")+(e?t+"="+e:"");Hs[t]=e,window.history.pushState(Hs,"",h.toString())}function nn(t){let e=new RegExp("[?&]"+t+"=([^&#]*)").exec(window.location.href);return e==null?null:decodeURI(e[1])||0}var es=class{constructor(e,s="Tab"){this.urlParam=s,ko.utils.arrayPushAll(this.tabOpts,e),this.selectedTab.subscribe(this.tabChangeHandler),window.addEventListener("popstate",this.popStateHandler)}tabOpts=ko.observableArray();selectedTab=ko.observable();isSelected=e=>e.id==this.selectedTab()?.id;clickTabLink=e=>{this.selectedTab(e),console.log("selected: "+e.id)};selectTab=e=>this.selectById(e.id);selectById=e=>{let s=this.tabOpts().find(o=>o.id==e)??this.getDefaultTab();this.selectedTab(s)};getDefaultTab=()=>this.tabOpts()[0];tabChangeHandler=e=>{e&&Zt(this.urlParam,e.id)};popStateHandler=e=>{e.state&&e.state[this.urlParam]&&this.selectById(e.state[this.urlParam])}},Ft=class{constructor(e,s,o){this.id=e,this.linkText=s,this.template=o}};Ce();Ee();Ce();Ce();Ee();et();Ce();ot();Ie();tt();var ze={pending:"Pending",aging:"Aging",completed:"Completed"},vs=class{constructor({msg:e,blocking:s}){this.msg=e,this.blocking=s,this.Status(ze.pending)}msg;blocking;Status=ko.observable();timeout=window.setTimeout(()=>{console.warn("this task is aging:",this),this.Status(ze.aging)},5e3);markComplete=()=>{window.clearTimeout(this.timeout),this.Status(ze.completed)};IsBlocking=ko.pureComputed(()=>this.blocking&&this.Status()!=ze.completed)},Jt=class t{constructor({msg:e,blocking:s}){this.msg=e,this.blocking=s,this.Status(ze.pending)}msg;blocking;Status=ko.observable();updateProgress=({percentDone:e})=>{this.Status(`${parseInt(e*100)}%`)};setTimeout=()=>window.setTimeout(()=>{console.warn("this task is aging:",this),this.Status(`${this.Status()} (${ze.aging})`)},5e4);resetTimeout=()=>{window.clearTimeout(this.timeout),this.timeout=this.setTimeout()};timeout=this.setTimeout();markComplete=()=>{window.clearTimeout(this.timeout),this.Status(ze.completed)};IsBlocking=ko.pureComputed(()=>this.blocking&&this.Status()!=ze.completed);static Create(e){return new t(e)}};var Kt=ko.observableArray(),Hi=ko.pureComputed(()=>Kt().filter(t=>t.IsBlocking())??[]),gt=class{constructor(e,s=!1,o=null){this.msg=e,this.blocking=s,this.type=o}msg;blocking;type},zt={init:{msg:"Initializing the Application",blocking:!0},save:{msg:"Saving Request",blocking:!0},newRequest:{msg:"Processing New Request",blocking:!0},cancelAction:{msg:"Cancelling Action",blocking:!0},view:{msg:"Viewing Request",blocking:!1},refresh:{msg:"Refreshing Request",blocking:!1},permissionsRequest:{msg:"Updating Request Item Permissions",blocking:!0},permissionsResponse:t=>({msg:"Updating Response Item Permissions: "+t,blocking:!0}),permissionsResponseFolder:t=>({msg:"Updating Response Folder Item Permissions: "+t,blocking:!0}),permissionsResponseAndFolder:t=>({msg:"Updating Response and Folder Item Permissions: "+t,blocking:!0}),permissionsEmailFolder:{msg:"Updating Email Folder Permissions",blocking:!0},permissionsCoversheet:t=>({msg:"Updating Coversheet Permissions: "+t,blocking:!0}),ensurePagePermissions:t=>new gt("Ensuring Page Permissions: "+t),resetPagePermissions:t=>new gt("Resetting Page Permissions: "+t,!0),ensureListPermissions:t=>new gt("Ensuring List Permissions: "+t.ListDef.title),resetListPermissions:t=>new gt("Resetting List Permissions: "+t.ListDef.title,!0),deleteEmailFolder:{msg:"Deleting Email Folder",blocking:!0},newResponse:t=>({msg:"Submitting new Response: "+t,blocking:!0}),updateResponse:t=>({msg:"Updating Response: "+t,blocking:!0}),deleteResponse:t=>({msg:"Deleting Response: "+t,blocking:!0}),closeResponse:t=>({msg:"Closing Response: "+t,blocking:!0}),uploadResponseDoc:t=>({msg:"Uploading Response Document: "+t,blocking:!0,type:Jt}),updateResponseDoc:t=>({msg:"Updating Response Document: "+t,blocking:!0}),approveResponseDoc:t=>({msg:"Approving Response Document: "+t,blocking:!0}),deleteResponseDocFolder:t=>({msg:"Deleting Response Document Folder: "+t,blocking:!0}),uploadCoversheet:t=>({msg:"Uploading Coversheet: "+t,blocking:!0,type:Jt}),updateCoversheet:t=>({msg:"Updating Coversheet: "+t,blocking:!0}),deleteCoversheet:t=>({msg:"Deleting Coversheet: "+t,blocking:!0}),deleteRequestInternalItem:{msg:"Deleting Request Internal Item",blocking:!0},newComment:{msg:"Submitting Comment",blocking:!1},refreshComments:{msg:"Refreshing Comments",blocking:!1},notifyComment:{msg:"Sending Comment Email",blocking:!1},removeComment:{msg:"Removing Comment",blocking:!1},newAction:{msg:"Submitting Action",blocking:!1},refreshActions:{msg:"Refreshing Actions",blocking:!1},newAttachment:{msg:"Submitting Attachment",blocking:!1},refreshAttachments:{msg:"Refreshing Attachments",blocking:!1},approve:{msg:"Approving Request",blocking:!0},lock:{msg:"Locking Request",blocking:!0},closing:{msg:"Closing Request",blocking:!0}},Yt=t=>{let e;return t.type?e=t.type.Create(t):e=new vs(t),Kt.push(e),e},Xt=function(t){t&&(t.markComplete(),window.setTimeout(()=>kn(t),3e3))},kn=function(t){Kt.remove(t)};tt();Ie();_s();Ce();tt();Ie();Ee();et();Ce();tt();Ie();et();Ee();ot();Ee();Ce();Ie();Ie();var Ji=os`
+`])));
+
+  // src/common/router.js
+  var state = {};
+  window.history.replaceState({}, "", document.location.href);
+  function setUrlParam(param, newVal) {
+    if (getUrlParam(param) == newVal)
+      return;
+    const search = window.location.search;
+    const regex = new RegExp("([?;&])" + param + "[^&;]*[;&]?");
+    const query = search.replace(regex, "$1").replace(/&$/, "");
+    const urlParams = (query.length > 2 ? query + "&" : "?") + (newVal ? param + "=" + newVal : "");
+    state[param] = newVal;
+    window.history.pushState(state, "", urlParams.toString());
+  }
+  function getUrlParam(param) {
+    const results = new RegExp("[?&]" + param + "=([^&#]*)").exec(
+      window.location.href
+    );
+    if (results == null) {
+      return null;
+    } else {
+      return decodeURI(results[1]) || 0;
+    }
+  }
+
+  // src/components/tabs/tabs_module.js
+  var TabsModule = class {
+    constructor(tabOpts, urlParam = "Tab") {
+      this.urlParam = urlParam;
+      ko.utils.arrayPushAll(this.tabOpts, tabOpts);
+      this.selectedTab.subscribe(this.tabChangeHandler);
+      window.addEventListener("popstate", this.popStateHandler);
+    }
+    tabOpts = ko.observableArray();
+    selectedTab = ko.observable();
+    isSelected = (tab) => {
+      return tab.id == this.selectedTab()?.id;
+    };
+    clickTabLink = (tab) => {
+      this.selectedTab(tab);
+      console.log("selected: " + tab.id);
+    };
+    selectTab = (tab) => this.selectById(tab.id);
+    selectById = (tabId) => {
+      const tabById = this.tabOpts().find((tab) => tab.id == tabId) ?? this.getDefaultTab();
+      this.selectedTab(tabById);
+    };
+    getDefaultTab = () => this.tabOpts()[0];
+    tabChangeHandler = (newTab) => {
+      if (newTab)
+        setUrlParam(this.urlParam, newTab.id);
+    };
+    popStateHandler = (event) => {
+      if (event.state) {
+        if (event.state[this.urlParam])
+          this.selectById(event.state[this.urlParam]);
+      }
+    };
+  };
+  var Tab = class {
+    constructor(id2, linkText, template) {
+      this.id = id2;
+      this.linkText = linkText;
+      this.template = template;
+    }
+  };
+
+  // src/pages/ao_db/ao_db.js
+  init_application_db_context();
+
+  // src/services/approvals_service.js
+  init_entities2();
+  init_application_db_context();
+
+  // src/services/audit_email_service.js
+  init_application_db_context();
+
+  // src/services/permission_manager.js
+  init_entities2();
+  init_entities();
+  init_application_db_context();
+  init_store();
+  init_infrastructure();
+  init_people_manager();
+
+  // src/value_objects/task.js
+  var taskStates = {
+    pending: "Pending",
+    aging: "Aging",
+    completed: "Completed"
+  };
+  var Task = class {
+    constructor({ msg, blocking }) {
+      this.msg = msg;
+      this.blocking = blocking;
+      this.Status(taskStates.pending);
+    }
+    msg;
+    blocking;
+    Status = ko.observable();
+    timeout = window.setTimeout(() => {
+      console.warn("this task is aging:", this);
+      this.Status(taskStates.aging);
+    }, 5e3);
+    markComplete = () => {
+      window.clearTimeout(this.timeout);
+      this.Status(taskStates.completed);
+    };
+    // Should this task block user input?
+    IsBlocking = ko.pureComputed(
+      () => this.blocking && this.Status() != taskStates.completed
+    );
+  };
+  var ProgressTask = class _ProgressTask {
+    constructor({ msg, blocking }) {
+      this.msg = msg;
+      this.blocking = blocking;
+      this.Status(taskStates.pending);
+    }
+    msg;
+    blocking;
+    Status = ko.observable();
+    updateProgress = ({ percentDone }) => {
+      this.Status(`${parseInt(percentDone * 100)}%`);
+    };
+    setTimeout = () => window.setTimeout(() => {
+      console.warn("this task is aging:", this);
+      this.Status(`${this.Status()} (${taskStates.aging})`);
+    }, 5e4);
+    resetTimeout = () => {
+      window.clearTimeout(this.timeout);
+      this.timeout = this.setTimeout();
+    };
+    timeout = this.setTimeout();
+    markComplete = () => {
+      window.clearTimeout(this.timeout);
+      this.Status(taskStates.completed);
+    };
+    // Should this task block user input?
+    IsBlocking = ko.pureComputed(
+      () => this.blocking && this.Status() != taskStates.completed
+    );
+    static Create(params) {
+      return new _ProgressTask(params);
+    }
+  };
+
+  // src/services/tasks.js
+  var runningTasks = ko.observableArray();
+  var blockingTasks = ko.pureComputed(() => {
+    return runningTasks().filter((task) => task.IsBlocking()) ?? [];
+  });
+  var TaskDef = class {
+    constructor(msg, blocking = false, type = null) {
+      this.msg = msg;
+      this.blocking = blocking;
+      this.type = type;
+    }
+    msg;
+    blocking;
+    type;
+  };
+  var taskDefs = {
+    init: { msg: "Initializing the Application", blocking: true },
+    save: { msg: "Saving Request", blocking: true },
+    newRequest: { msg: "Processing New Request", blocking: true },
+    cancelAction: { msg: "Cancelling Action", blocking: true },
+    view: { msg: "Viewing Request", blocking: false },
+    refresh: { msg: "Refreshing Request", blocking: false },
+    permissionsRequest: {
+      msg: "Updating Request Item Permissions",
+      blocking: true
+    },
+    permissionsResponse: (responseTitle) => {
+      return {
+        msg: "Updating Response Item Permissions: " + responseTitle,
+        blocking: true
+      };
+    },
+    permissionsResponseFolder: (responseTitle) => {
+      return {
+        msg: "Updating Response Folder Item Permissions: " + responseTitle,
+        blocking: true
+      };
+    },
+    permissionsResponseAndFolder: (responseTitle) => {
+      return {
+        msg: "Updating Response and Folder Item Permissions: " + responseTitle,
+        blocking: true
+      };
+    },
+    permissionsEmailFolder: {
+      msg: "Updating Email Folder Permissions",
+      blocking: true
+    },
+    permissionsCoversheet: (coversheetName) => {
+      return {
+        msg: "Updating Coversheet Permissions: " + coversheetName,
+        blocking: true
+      };
+    },
+    ensurePagePermissions: (page) => new TaskDef("Ensuring Page Permissions: " + page),
+    resetPagePermissions: (page) => new TaskDef("Resetting Page Permissions: " + page, true),
+    ensureListPermissions: (entitySet) => new TaskDef("Ensuring List Permissions: " + entitySet.ListDef.title),
+    resetListPermissions: (entitySet) => new TaskDef("Resetting List Permissions: " + entitySet.ListDef.title, true),
+    deleteEmailFolder: { msg: "Deleting Email Folder", blocking: true },
+    newResponse: (responseTitle) => {
+      return {
+        msg: "Submitting new Response: " + responseTitle,
+        blocking: true
+      };
+    },
+    updateResponse: (responseTitle) => {
+      return {
+        msg: "Updating Response: " + responseTitle,
+        blocking: true
+      };
+    },
+    deleteResponse: (responseTitle) => {
+      return {
+        msg: "Deleting Response: " + responseTitle,
+        blocking: true
+      };
+    },
+    closeResponse: (responseTitle) => {
+      return {
+        msg: "Closing Response: " + responseTitle,
+        blocking: true
+      };
+    },
+    uploadResponseDoc: (responseDocTitle) => {
+      return {
+        msg: "Uploading Response Document: " + responseDocTitle,
+        blocking: true,
+        type: ProgressTask
+      };
+    },
+    updateResponseDoc: (responseDocTitle) => {
+      return {
+        msg: "Updating Response Document: " + responseDocTitle,
+        blocking: true
+      };
+    },
+    approveResponseDoc: (responseDocTitle) => {
+      return {
+        msg: "Approving Response Document: " + responseDocTitle,
+        blocking: true
+      };
+    },
+    deleteResponseDocFolder: (responseTitle) => {
+      return {
+        msg: "Deleting Response Document Folder: " + responseTitle,
+        blocking: true
+      };
+    },
+    uploadCoversheet: (coversheetName) => {
+      return {
+        msg: "Uploading Coversheet: " + coversheetName,
+        blocking: true,
+        type: ProgressTask
+      };
+    },
+    updateCoversheet: (coversheetName) => {
+      return {
+        msg: "Updating Coversheet: " + coversheetName,
+        blocking: true
+      };
+    },
+    deleteCoversheet: (coversheetName) => {
+      return {
+        msg: "Deleting Coversheet: " + coversheetName,
+        blocking: true
+      };
+    },
+    deleteRequestInternalItem: {
+      msg: "Deleting Request Internal Item",
+      blocking: true
+    },
+    newComment: { msg: "Submitting Comment", blocking: false },
+    refreshComments: { msg: "Refreshing Comments", blocking: false },
+    notifyComment: { msg: "Sending Comment Email", blocking: false },
+    removeComment: { msg: "Removing Comment", blocking: false },
+    newAction: { msg: "Submitting Action", blocking: false },
+    refreshActions: { msg: "Refreshing Actions", blocking: false },
+    newAttachment: { msg: "Submitting Attachment", blocking: false },
+    refreshAttachments: { msg: "Refreshing Attachments", blocking: false },
+    approve: { msg: "Approving Request", blocking: true },
+    lock: { msg: "Locking Request", blocking: true },
+    closing: { msg: "Closing Request", blocking: true }
+  };
+  var addTask = (taskDef) => {
+    let newTask;
+    if (taskDef.type) {
+      newTask = taskDef.type.Create(taskDef);
+    } else {
+      newTask = new Task(taskDef);
+    }
+    runningTasks.push(newTask);
+    return newTask;
+  };
+  var finishTask = function(activeTask) {
+    if (activeTask) {
+      activeTask.markComplete();
+      window.setTimeout(() => removeTask(activeTask), 3e3);
+    }
+  };
+  var removeTask = function(taskToRemove) {
+    runningTasks.remove(taskToRemove);
+  };
+
+  // src/services/audit_email_service.js
+  init_people_manager();
+  init_infrastructure();
+  init_audit_ro_email_log();
+
+  // src/services/audit_request_service.js
+  init_application_db_context();
+  init_people_manager();
+  init_infrastructure();
+  init_entities2();
+  init_entities();
+
+  // src/services/coversheet_manager.js
+  init_application_db_context();
+  init_people_manager();
+  init_infrastructure();
+  init_entities();
+  init_entities2();
+
+  // src/services/audit_request_service.js
+  init_store();
+
+  // src/services/audit_response_service.js
+  init_entities2();
+  init_application_db_context();
+
+  // src/sal/components/modal/modalDialog.js
+  init_infrastructure();
+
+  // src/sal/components/modal/ModalDialogTemplate.js
+  init_infrastructure();
+  var modalDialogTemplate = html3`
   <dialog
     id=""
     class="card bg-dark draggable modal-dialog"
@@ -1067,10 +7200,1111 @@ Group ID: `+de.get_id()+", Title : "+de.get_title(),ie.push(ne)}console.log(le.t
       </button>
     </div>
   </dialog>
-`;var Fn="modal-dialog-component",Pn=ko.observableArray(),_n;var Es=class{constructor(e){if(this.dialogOpts=e,this.title=e.title,this.dialogReturnValueCallback=e.dialogReturnValueCallback,this.form=e.form,this.form?.onComplete){alert("Pass the form onComplete to the modal dialog!");return}this.form.onComplete=this.close.bind(this),_n=this.toggle}toggle=(e=null)=>{e==null&&(e=!this.dlgElement.hasAttribute("open")),e?this.showModal():this.hide()};showModal=()=>{this.dlgElement.showModal(),this.dlgElement.classList.add("active")};clickClose=()=>{this.close(!1)};hide=()=>{this.dlgElement.close(),this.dlgElement.classList.remove("active")};close(e){this.dlgElement.close(),this.dlgElement.classList.remove("active"),this.dialogReturnValueCallback&&this.dialogReturnValueCallback(e),Pn.remove(this.dialogOpts)}_id;getUniqueId=()=>(this._id||(this._id="field-"+Math.floor(Math.random()*1e4)),this._id);koDescendantsComplete=function(e){this.dlgElement=e.querySelector("dialog"),En(this.dlgElement),Nn(this.dlgElement),this.showModal()}};rs(Fn,{template:Ji,viewModel:Es});function Nn(t){t.style.width="550px",t.style.height="",t.style.top="125px",t.style.left=(window.GetViewportWidth()-550)/2+"px"}function En(t){var e=0,s=0,o=0,u=0;let h=t.querySelector(".grabber");h?h.onmousedown=w:t.onmousedown=w;function w(U){U=U||window.event,U.preventDefault(),o=U.clientX,u=U.clientY,document.onmouseup=P,document.onmousemove=N}function N(U){U=U||window.event,U.preventDefault(),e=o-U.clientX,s=u-U.clientY,o=U.clientX,u=U.clientY,t.style.top=t.offsetTop-s+"px",t.style.left=t.offsetLeft-e+"px"}function P(){document.onmouseup=null,document.onmousemove=null}}async function Ki(t,e){let s=Yt(zt.uploadResponseDoc(e.name)),o={Title:e.name,ReqNumId:t.ReqNum.Value().ID,ResIDId:t.ID};await z.AuditResponseDocs.UploadFileToFolderAndUpdateMetadata(e,e.name,t.Title.Value(),o,({currentBlock:u,totalBlocks:h})=>s.updateProgress({percentDone:u/h})),Xt(s)}tt();Cs();var V=window.Audit||{};V.AOReport=V.AOReport||{};var On="ResNum";V.AOReport.Init=function(){var t=GetUrlKeyValue("ShowSiteActions");t!=!0&&($("#RibbonContainer-TabRowLeft").hide(),$(".ms-siteactionsmenu").hide());function e(){var s=setInterval(function(){var o=$("#divCounter").text(),u=o*1-1;$("#divCounter").text(u),u<=0&&(V.AOReport.Report.IsTransactionExecuting()?(clearInterval(s),$("#divCounter").text("1200"),e()):V.Common.Utilities.Refresh())},1e3)}e()};V.AOReport.NewReportPage=function(){var t=new Object,e=new Array,s=new Array,o=new Array,u=null,h=null,w,N,P=null,U=null,B=null,j=null,ee=null,ae=null,ie=null,le="",ue=!1,de=!1,ne="1-Open",Te="3-Returned to Action Office";function ht(){var l=this;l.debugMode=ko.observable(!1),l.siteUrl=V.Common.Utilities.GetSiteUrl(),l.tabOpts={Responses:new Ft("response-report","Status Report",{id:"responseStatusReportTemplate",data:l}),ResponseDetail:new Ft("response-detail","Responses",{id:"responseDetailTemplate",data:l})},l.tabs=new es(Object.values(l.tabOpts)),l.runningTasks=Kt,l.blockingTasks=Hi,l.arrResponses=ko.observableArray(null),l.arrFilteredResponsesCount=ko.observable(0),l.cntPendingReview=ko.observable(0),l.ddOptionsResponseTabRequestID=ko.observableArray(),l.ddOptionsResponseTabRequestStatus=ko.observableArray(),l.ddOptionsResponseTabRequestInternalDueDate=ko.observableArray(),l.ddOptionsResponseTabRequestSample=ko.observableArray(),l.ddOptionsResponseTabResponseTitle=ko.observableArray(),l.ddOptionsResponseTabResponseStatus=ko.observableArray(),l.filterResponseTabRequestIntDueDate=ko.observable(),l.filterResponseTabResponseName=ko.observable(),l.filterResponseTabResponseStatus=ko.observable(),l.doSort=ko.observable(!1),l.ddOptionsResponseInfoTabResponseNameOpen2=ko.observableArray(),l.ddOptionsResponseInfoTabResponseNameProcessed2=ko.observableArray(),l.filterResponseInfoTabResponseNameOpen2=ko.observable(""),l.filterResponseInfoTabResponseNameProcessed2=ko.observable(""),l.currentResponse=ko.observable(),l.arrCoverSheets=ko.observableArray(null),l.arrResponseDocs=ko.observable(null),l.cntResponseDocs=ko.observable(0),l.responseDocFiles=ko.observableArray(),l.showUpload=ko.observable(!1),l.showSubmit=ko.observable(!1),l.refresh=()=>window.location.reload(),l.onNewResponseDocCallback=l.refresh,l.currentResponse.subscribe(f=>{f&&Zt(On,f.title)}),l.selectedFiltersResponseTab=ko.computed(function(){var f=l.filterResponseTabRequestIntDueDate(),R=l.filterResponseTabResponseName(),I=l.filterResponseTabResponseStatus();return f+" "+R+" "+I}),l.ClearFiltersResponseTab=function(){l.filterResponseTabRequestIntDueDate(""),l.filterResponseTabResponseName(""),l.filterResponseTabResponseStatus("")},l.FilterChangedResponseTab=function(){document.body.style.cursor="wait",setTimeout(function(){var f=l.filterResponseTabRequestIntDueDate(),R=l.filterResponseTabResponseName(),I=l.filterResponseTabResponseStatus();if(!f&&!R&&!I){$(".sr-response-item").show(),l.arrFilteredResponsesCount(l.arrResponses().length),document.body.style.cursor="default";return}f=f||"",R=R||"",I=I||"";var x=0,M=$(".sr-response-item");M.each(function(){var G=!1;!G&&f!=""&&$.trim($(this).find(".sr-response-internalDueDate").text())!=f&&(G=!0),!G&&R!=""&&$.trim($(this).find(".sr-response-title").text())!=R&&(G=!0),!G&&I!=""&&$.trim($(this).find(".sr-response-status").text())!=I&&(G=!0),G?$(this).hide():($(this).show(),x++)}),l.arrFilteredResponsesCount(x),document.body.style.cursor="default"},100)},l.ClickSubmitResponse=function(){At()},l.ClickUploadResponseDoc=function(){var f=l.currentResponse();f&&f.number&&f.title&&St(f.number,f.title)},l.ClickMarkForDeletionResponseDoc=function(f){f&&f.ID&&Dt(f.ID)},l.selectedFiltersResponseTab.subscribe(function(f){l.FilterChangedResponseTab()}),l.doSort.subscribe(function(f){V.Common.Utilities.OnLoadDisplayTimeStamp(),l.arrResponses().length>0&&f&&(l.arrFilteredResponsesCount(l.arrResponses().length),ko.utils.arrayPushAll(l.ddOptionsResponseTabResponseStatus(),l.GetDDVals("status")),l.ddOptionsResponseTabResponseStatus.valueHasMutated(),ko.utils.arrayPushAll(l.ddOptionsResponseInfoTabResponseNameOpen2(),l.GetDDVals2("1",!0)),l.ddOptionsResponseInfoTabResponseNameOpen2.valueHasMutated(),ko.utils.arrayPushAll(l.ddOptionsResponseInfoTabResponseNameProcessed2(),l.GetDDVals2("0",!0)),l.ddOptionsResponseInfoTabResponseNameProcessed2.valueHasMutated(),ko.utils.arrayPushAll(l.ddOptionsResponseTabRequestInternalDueDate(),l.GetDDVals("internalDueDate")),l.ddOptionsResponseTabRequestInternalDueDate.valueHasMutated(),ko.utils.arrayPushAll(l.ddOptionsResponseTabResponseTitle(),l.GetDDVals("title",!0)),l.ddOptionsResponseTabResponseTitle.valueHasMutated(),setTimeout(function(){var R=GetUrlKeyValue("Tab");R!=null&&R!=""?l.tabs.selectById(R):l.tabs.selectById(l.tabOpts.Responses.id),(R==null||R==""||R==0)&&l.cntPendingReview()>0&&SP.UI.Notify.addNotification("<div style='text-align:left'>There are <b>"+l.cntPendingReview()+"</b> Responses pending your review/action. <br/> <br/> Please click on the links in the <b>Response Name</b> column of the <b>Status Report tab</b> <br/> to access each response and upload documents and submit the package.</div>",!1);var I=GetUrlKeyValue("ResNum");I!=null&&I!=""&&(R==0?$("#ddlResponseName option[value='"+I+"']").length>0&&Y.filterResponseTabResponseName(I):$("#ddlResponsesOpen option[value='"+I+"']").length>0?Y.filterResponseInfoTabResponseNameOpen2(I):$("#ddlResponsesProcessed option[value='"+I+"']").length>0&&Y.filterResponseInfoTabResponseNameProcessed2(I)),Ye(),l.filterResponseTabResponseStatus(le),$("#tblStatusReportResponses").tablesorter({sortList:[[2,0]],selectorHeaders:".sorter-true"})},200))}),l.filterResponseInfoTabResponseNameOpen2.subscribe(function(f){l.filterResponseInfoTabResponseName(f,!0)}),l.filterResponseInfoTabResponseNameProcessed2.subscribe(function(f){l.filterResponseInfoTabResponseName(f,!1)}),l.filterResponseInfoTabResponseName=function(f,R){l.currentResponse(null),l.arrCoverSheets([]),l.arrResponseDocs(null),l.cntResponseDocs(0),ue=!1;var I=t["response-"+f];I&&(R?l.filterResponseInfoTabResponseNameProcessed2(""):l.filterResponseInfoTabResponseNameOpen2(""),l.currentResponse(I),Ge(I),wt(I),R&&(ue=!0))},l.responseDocFiles.subscribe(async function(f){if(!f.length)return;let R=l.currentResponse()?.ID;if(!R)return;let I=await z.AuditResponses.FindById(R),x=[];for(let M of f)x.push(new Promise(async G=>{let q=await Ki(I,M);G()}));await Promise.all(x),l.responseDocFiles.removeAll(),l.onNewResponseDocCallback()}),l.GetDDVals=function(f,R){var I=ko.utils.arrayMap(l.arrResponses(),function(M){return M[f]}),x=ko.utils.arrayGetDistinctValues(I).sort();return R&&x.sort(V.Common.Utilities.SortResponseTitles),x[0]==""&&x.shift(),x},l.GetDDVals2=function(f,R){var I=ko.utils.arrayMap(l.arrResponses(),function(M){var G=M.requestStatus,q=M.status;if(f==0)return q!=ne&&q!=Te?M.title:"";if(f==1)return(q==ne||q==Te)&&(G=="Open"||G=="ReOpened")?M.title:""}),x=ko.utils.arrayGetDistinctValues(I).sort();return R&&x.sort(V.Common.Utilities.SortResponseTitles),x[0]==""&&x.shift(),x}}var Y=new ht;ko.applyBindings(Y),st();function st(){var l=new SP.ClientContext.get_current,f=l.get_web();let R=f.get_currentUser();l.load(R);var I=f.get_lists().getByTitle(V.Common.Utilities.GetListTitleRequests()),x=new SP.CamlQuery;x.set_viewXml('<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'),B=I.getItems(x),l.load(B,"Include(ID, Title, ReqSubject, ReqStatus, InternalDueDate, ActionOffice, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate)");var M=f.get_lists().getByTitle(V.Common.Utilities.GetListTitleResponses()),G=new SP.CamlQuery;G.set_viewXml('<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="ReqNum"/></OrderBy></Query></View>'),j=M.getItems(G),l.load(j,"Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, Comments, Modified, ClosedDate, ClosedBy, POC)");var q=f.get_lists().getByTitle(V.Common.Utilities.GetLibTitleResponseDocs()),L=new SP.CamlQuery;L.set_viewXml('<View Scope="RecursiveAll"><Query><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">0</Value></Eq></Where></Query></View>'),ee=q.getItems(L),l.load(ee,"Include(ID, Title, ReqNum, ResID, DocumentStatus, ReceiptDate, FileLeafRef, FileDirRef, File_x0020_Size, Modified, Editor)");var W=f.get_lists().getByTitle(V.Common.Utilities.GetListTitleActionOffices()),H=new SP.CamlQuery;H.set_viewXml('<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'),ae=W.getItems(H),l.load(ae,"Include(ID, Title, UserGroup)"),ie=l.get_web().get_lists().getByTitle(V.Common.Utilities.GetLibTitleResponseDocs()),l.load(ie,"Title","Id"),w=f.get_associatedOwnerGroup(),N=f.get_associatedMemberGroup(),P=f.get_associatedVisitorGroup(),l.load(w),l.load(N),l.load(P),U=f.get_siteGroups(),l.load(U),l.executeQueryAsync(pe,oe);function pe(J,te){$("#divRefresh").show(),Rt()}function oe(J,te){$("#divRefresh").hide(),$("#divLoading").hide();let ce=SP.UI.Status.addStatus("Request failed: "+te.get_message()+`
-`+te.get_stackTrace());SP.UI.Status.setStatusPriColor(ce,"red")}}function Rt(){if(V.Common.Utilities.LoadSiteGroups(U),vt(),V.Common.Utilities.LoadActionOffices(ae),N!=null&&(u=N.get_title()),u==null||u==""){let l=SP.UI.Status.addStatus("Unable to retrieve the IA SharePoint Group. Please contact the Administrator");SP.UI.Status.setStatusPriColor(l,"red");return}h=V.Common.Utilities.GetActionOffices()?.find(l=>l.userGroup==u),yt(),ke(),it(),Ve(s,"fbody")}function vt(){V.Common.Utilities.SetResponseDocLibGUID(ie.get_id())}function yt(){t=new Object,e=new Array;for(var l=0,f=B.getEnumerator();f.moveNext();){var R=f.get_current(),I=R.get_item("EmailSent");if(I){var x=R.get_item("ID"),M=R.get_item("Title"),G=R.get_item("ReqStatus"),q=R.get_item("ReqSubject");q==null&&(q="");for(var L=R.get_item("ActionOffice"),W="",H=0;H<L.length;H++)W+="<div>"+L[H].get_lookupValue()+"</div>";var pe=R.get_item("Comments"),oe=R.get_item("RelatedAudit"),J=R.get_item("ActionItems");pe==null&&(pe=""),oe==null&&(oe=""),J==null&&(J="");var te=R.get_item("InternalDueDate"),ce=R.get_item("ClosedDate");te!=null?te=te.format("MM/dd/yyyy"):te="",ce!=null?ce=ce.format("MM/dd/yyyy"):ce="";var a=new Object;a.ID=x,a.number=M,a.subject=q,a.status=G,a.internalDueDate=te,a.actionOffice=W,a.comments=pe,a.relatedAudit=oe,a.actionItems=J,a.emailSent=I,a.closedDate=ce,a.responses=new Array,a.arrIndex=l,e.push(a),t["request-"+M]=a,l++}}}function ke(){s=new Array;for(var l=0,f=j.getEnumerator();f.moveNext();){var R=f.get_current(),I=R.get_item("ReqNum");if(I!=null){I=I.get_lookupValue();var x=new Object;if(x.request=t["request-"+I],!x.request||!x.request.emailSent||(x.actionOffice=R.get_item("ActionOffice"),x.actionOffice==null?x.actionOffice="":x.actionOffice=x.actionOffice.get_lookupValue(),x.actionOffice==""))continue;x.poc=R.get_item("POC"),x.poc==null?x.poc="":x.poc=x.poc.get_lookupValue(),x.ID=R.get_item("ID"),x.number=I;var M=R.get_item("Title");x.title=M,x.resStatus=R.get_item("ResStatus"),(x.request.status=="Closed"||x.request.status=="Canceled")&&(x.resStatus="7-Closed");var G=R.get_item("Modified"),q=R.get_item("ClosedDate");G!=null?G=G.format("MM/dd/yyyy hh:mm tt"):G="",q!=null?q=q.format("MM/dd/yyyy"):q="",x.modified=G,x.closedDate=q,x.closedBy=V.Common.Utilities.GetFriendlyDisplayName(R,"ClosedBy"),x.sample=R.get_item("SampleNumber"),x.sample==null&&(x.sample="");var L=R.get_item("Comments");L==null&&(L=""),x.comments=L;var W=R.get_item("ReturnReason");W==null&&(W=""),x.returnReason=W,x.responseDocs=new Array,x.coversheets=new Array,x.arrIndex=l,s.push(x),t["response-"+M]=x,l++}}}function it(){for(var l=ee.getEnumerator();l.moveNext();){var f=l.get_current();let pe=f.get_item("ID");var R=f.get_item("ReqNum");R!=null&&(R=R.get_lookupValue());var I=f.get_item("ResID");if(I!=null&&(I=I.get_lookupValue()),!(R==null||I==null)&&f.get_item("DocumentStatus")!="Marked for Deletion")try{var x=t["response-"+I],M=x.arrIndex,G=s[M];if(G){var q=new Object;q.ID=f.get_item("ID"),q.title=f.get_item("Title"),q.title==null&&(q.title=""),q.fileName=f.get_item("FileLeafRef"),q.folder=f.get_item("FileDirRef"),q.documentStatus=f.get_item("DocumentStatus");var L=f.get_item("File_x0020_Size");L=V.Common.Utilities.GetFriendlyFileSize(L),q.fileSize=L;var W="";f.get_item("ReceiptDate")!=null&&f.get_item("ReceiptDate")!=""&&(W=f.get_item("ReceiptDate").format("MM/dd/yyyy")),q.receiptDate=W;var H="";f.get_item("Modified")!=null&&f.get_item("Modified")!=""&&(H=f.get_item("Modified").format("MM/dd/yyyy hh:mm tt")),q.modifiedDate=H,q.modifiedBy=V.Common.Utilities.GetFriendlyDisplayName(f,"Editor"),G.responseDocs.push(q)}}catch{}}}function Ve(l,f){if(l!=null){for(var R=new Array,I=new Array,x=new Array,M=new Array,G=0,q=0,L=0,W=l.length;W--;){var H=l[W],pe=H.title,oe=!1,J=H.resStatus;(J==ne||J==Te)&&(G++,J==ne?q++:L++,oe=!0);var te={title:pe,requestSubject:H.request.subject,requestStatus:H.request.status,internalDueDate:H.request.internalDueDate,status:J,docCount:H.responseDocs.length,modified:H.modified,highlight:oe,visibleRow:ko.observable(!0)};R.push(te)}R.length>0&&(le="",q>0&&L==0?le=ne:L>0&&q==0&&(le=Te),Y.cntPendingReview(G),ko.utils.arrayPushAll(Y.arrResponses,R)),Y.doSort(!0)}}function Ge(l){Y.arrCoverSheets([]);var f=new SP.ClientContext.get_current,R=f.get_web(),I=R.get_lists().getByTitle(V.Common.Utilities.GetLibTitleCoverSheets()),x=new SP.CamlQuery;x.set_viewXml('<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><Eq><FieldRef Name="ReqNum"/><Value Type="Text">'+l.request.number+"</Value></Eq></Where></Query></View>");let M=I.getItems(x);f.load(M,"Include(ID, Title, ReqNum, ActionOffice, FileLeafRef, FileDirRef)");var G={oResponse:l};function q(W,H){for(var pe=new Array,oe=M.getEnumerator();oe.moveNext();){var J=oe.get_current();if(J.get_item("ActionOffice")!=null){var te=J.get_item("ActionOffice");if(te.length>0)for(var ce=0;ce<te.length;ce++){var a=te[ce].get_lookupValue();if(a==this.oResponse.actionOffice){var c=J.get_item("FileDirRef"),p=J.get_item("FileLeafRef"),m=p.replace(/'/g,"&#39");pe.push({folder:c,title:p,link:"STSNavigate('../_layouts/download.aspx?SourceUrl="+c+"/"+m+"')"});break}}}}ko.utils.arrayPushAll(Y.arrCoverSheets(),pe),Y.arrCoverSheets.valueHasMutated()}function L(W,H){}f.executeQueryAsync(Function.createDelegate(G,q),Function.createDelegate(G,L))}function wt(l){Y.arrResponseDocs(null),Y.cntResponseDocs(0),Y.showUpload(!1),Y.showSubmit(!1);for(var f=new SP.ClientContext.get_current,R=f.get_web(),I=0;I<l.responseDocs.length;I++){var x=l.responseDocs[I];x.docIcon=R.mapToIcon(x.fileName,"",SP.Utilities.IconSize.Size16)}function M(L,W){q(l)}function G(L,W){let H=SP.UI.Status.addStatus("Request failed: "+W.get_message()+`
-`+W.get_stackTrace());SP.UI.Status.setStatusPriColor(H,"red")}f.executeQueryAsync(M,G);function q(L){for(var W=0,H=0,pe=new Array,oe=0;oe<L.responseDocs.length;oe++){var J=L.responseDocs[oe];J.docIcon=J.docIcon.get_value(),J.styleTag=V.Common.Utilities.GetResponseDocStyleTag2(J.documentStatus),J.responseTitle=L.title,J.documentStatus=="Open"&&(L.resStatus==ne||L.resStatus==Te)&&H++,pe.push(J)}ue&&(Y.showUpload(!0),H>0&&Y.showSubmit(!0));var te={responseTitle:L.title,responseDocs:pe,responseStatus:L.resStatus};if(Y.arrResponseDocs(te),Y.arrResponseDocs.valueHasMutated(),Y.cntResponseDocs(L.responseDocs.length),L.resStatus==Te&&L.returnReason!=null&&L.returnReason!=""&&ue&&H==0){var ce=SP.UI.ModalDialog.showWaitScreenWithNoClose("Notice - Response Needs to be Updated","<span style=''><span class='ui-icon ui-icon-alert'></span>Response Return Reason: <span style='font-weight:bold; color:red;'>"+L.returnReason+"</span></span>",100,500);setTimeout(function(){ce.close()},5e3)}if(L.resStatus=="1-Open"||L.resStatus=="3-Returned to Action Office"){if(ue&&H>0){let c=function(){$(".btnSubmitPackage").parent().css({"background-color":"inherit","font-weight":"inherit"})},a=SP.UI.Notify.addNotification("<div style='text-align:left'>Response documents have been added. <br/><br/>Your package <span style='font-weight:bold; color:red'>has not yet been submitted</span>. <br></br>Please review your documents and click on the link <b>SUBMIT this Response Package</b> below</div>",!1);$(".btnSubmitPackage").parent().css({"background-color":"yellow","font-weight":"inherit"}),$(".btnSubmitPackage").get(0).scrollIntoView(),setTimeout(function(){c()},2e3)}else if(ue&&H==0){let a=SP.UI.Notify.addNotification("<div style='text-align:left'>Please review the Response Information and any CoverSheets/Supplemental Documents. <br/><br/>Then, click the link to <span style='font-weight:bold; color:gree'>Upload Response Documents</span> pertaining to this Response</div>",!1)}}}}function bt(l,f){var R="<div>Audit Request Reference: <b>{REQUEST_NUMBER}</b></div><div>Audit Request Subject: <b>{REQUEST_SUBJECT}</b></div><div>Audit Request Due Date: <b>{REQUEST_DUEDATE}</b></div><br/><div>Below is the Response that was submitted: </div><div>{RESPONSE_TITLE}</div>";R=R.replace("{REQUEST_NUMBER}",l.number),R=R.replace("{REQUEST_SUBJECT}",l.subject),R=R.replace("{REQUEST_DUEDATE}",l.internalDueDate);var I="<ul><li>"+f+"</li></ul>";return R=R.replace("{RESPONSE_TITLE}",I),R}function St(l,f){de=!0;var R=SP.UI.ModalDialog.showWaitScreenWithNoClose("Loading...","<span style='font-size:11pt'><span class='ui-icon ui-icon-info'></span>If you are uploading <span style='font-weight:bold; color:green;text-decoration:underline'>multiple</span> documents, please <span style='font-weight:bold; color:green;text-decoration:underline'>zip </span> them.</span>",100,600);setTimeout(function(){R.close();var I=SP.UI.$create_DialogOptions();I.title="Upload Response Document to: "+f,I.dialogReturnValueCallback=Ct;var x=V.Common.Utilities.GetSiteUrl()+"/"+V.Common.Utilities.GetLibNameResponseDocs()+"/"+f;I.url=V.Common.Utilities.GetSiteUrl()+"/_layouts/Upload.aspx?List={"+V.Common.Utilities.GetResponseDocLibGUID()+"}&RootFolder="+x+"&ReqNum="+l+"&ResID="+f,SP.UI.ModalDialog.showModalDialog(I)},3e3)}function Ct(l,f){l===SP.UI.DialogResult.OK?V.Common.Utilities.Refresh():de=!1}function At(){var l=$("#ddlResponsesOpen").val();if(confirm("Are you sure you would like to submit these response documents? Note: You will NOT be able to make changes or upload any more documents after you submit this package.")){let pe=function(J,te){var ce=0;if(W!=null)for(var a=W.getEnumerator();a.moveNext();){var c=a.get_current();c.set_item("DocumentStatus","Submitted"),c.update(),ce++}if(ce==0){let A=SP.UI.Notify.addNotification("Please upload a Response document.",!1);L.close();return}var p=null;try{var m=t["response-"+l],v=m.arrIndex;let A=s[v];if(A){p=A.request;var b=f.get_web().get_lists().getByTitle(V.Common.Utilities.GetListTitleResponses());let k=b.getItemById(A.ID);k.set_item("ResStatus","2-Submitted"),k.update()}}catch(A){alert(A),V.Common.Utilities.Refresh()}if(p==null){L.close();return}var C="A Response has been Submitted by an Action Office: "+p.number,g=bt(p,l),F=new SP.ListItemCreationInformation;F.set_folderUrl(location.protocol+"//"+location.host+V.Common.Utilities.GetSiteUrl()+"/Lists/"+V.Common.Utilities.GetListNameEmailHistory()+"/"+p.number),c=G.addItem(F),c.set_item("Title",C),c.set_item("Body",g),c.set_item("To",h.title),c.set_item("ReqNum",p.number),c.set_item("ResID",l),c.set_item("NotificationType","IA Notification"),c.update();function T(A,k){document.body.style.cursor="default",L.close(),V.Common.Utilities.Refresh()}function S(A,k){L.close();let n=SP.UI.Status.addStatus("Request failed: "+k.get_message()+`
-`+k.get_stackTrace());SP.UI.Status.setStatusPriColor(n,"red")}f.executeQueryAsync(T,S)},oe=function(J,te){L.close();let ce=SP.UI.Status.addStatus("Request failed: "+te.get_message()+`
-`+te.get_stackTrace());SP.UI.Status.setStatusPriColor(ce,"red")};de=!0;let L=SP.UI.ModalDialog.showWaitScreenWithNoClose("Submitting Response","Please wait... Submitting Response",200,400);var f=new SP.ClientContext.get_current,R=f.get_web(),I=V.Common.Utilities.GetSiteUrl()+"/"+V.Common.Utilities.GetLibNameResponseDocs()+"/"+l,x=R.get_lists().getByTitle(V.Common.Utilities.GetLibTitleResponseDocs()),M=new SP.CamlQuery;M.set_viewXml(`<View Scope="RecursiveAll"><Query><Where><And><Eq><FieldRef Name='FileDirRef'/><Value Type='Text'>`+I+"</Value></Eq><Eq><FieldRef Name='DocumentStatus'/><Value Type='Text'>Open</Value></Eq></And></Where></Query></View>");let W=x.getItems(M);f.load(W,"Include(ID, DocumentStatus, FileDirRef)");var G=R.get_lists().getByTitle(V.Common.Utilities.GetListTitleEmailHistory()),q=new SP.CamlQuery;q.set_viewXml('<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>');let H=G.getItems(q);f.load(H,"Include(ID, Title, DisplayName)"),f.executeQueryAsync(pe,oe)}}function Dt(l){if(confirm("Are you sure you would like to Delete this Response Document?")){let x=function(G,q){V.Common.Utilities.Refresh()},M=function(G,q){let L=SP.UI.Status.addStatus("Request failed: "+q.get_message()+`
-`+q.get_stackTrace());SP.UI.Status.setStatusPriColor(L,"red")};var f=new SP.ClientContext,R=f.get_web().get_lists().getByTitle(V.Common.Utilities.GetLibNameResponseDocs());let I=R.getItemById(l);I.set_item("DocumentStatus","Marked for Deletion"),I.update(),f.executeQueryAsync(x,M)}}function Ye(){xt("#btnPrint1","#divStatusReportRespones","Action Office Response Status Report"),It(".export1","AOResponseStatusReport_","tblStatusReportResponses")}function xt(l,f,R){$(l).on("click",function(){V.Common.Utilities.PrintStatusReport(R,f)})}function It(l,f,R){$(l).on("click",function(I){var x=new Date().format("yyyyMMdd_hhmmtt");V.Common.Utilities.ExportToCsv(f+x,R)})}function Tt(l){if(Y.tabs.selectById(Y.tabOpts.ResponseDetail.id),l){l=t["response-"+l];var f=l.request.status,R=l.resStatus;(R==ne||R==Te)&&(f=="Open"||f=="ReOpened")?Y.filterResponseInfoTabResponseNameOpen2(l.title):Y.filterResponseInfoTabResponseNameProcessed2(l.title)}}var kt={GoToResponse:Tt,IsTransactionExecuting:function(){return de}};return kt};document.readyState==="ready"||document.readyState==="complete"?zi():document.onreadystatechange=()=>{(document.readyState==="complete"||document.readyState==="ready")&&ExecuteOrDelayUntilScriptLoaded(function(){SP.SOD.executeFunc("sp.js","SP.ClientContext",zi)},"sp.js")};function zi(){document.getElementById("app").innerHTML=Qs,V.AOReport.Report=new V.AOReport.NewReportPage,V.AOReport.Init()}})();
+`;
+
+  // src/sal/components/modal/modalDialog.js
+  var componentName = "modal-dialog-component";
+  var currentDialogs = ko.observableArray();
+  var toggle;
+  var ModalDialogModule = class {
+    constructor(dialogOpts) {
+      this.dialogOpts = dialogOpts;
+      this.title = dialogOpts.title;
+      this.dialogReturnValueCallback = dialogOpts.dialogReturnValueCallback;
+      this.form = dialogOpts.form;
+      if (this.form?.onComplete) {
+        alert("Pass the form onComplete to the modal dialog!");
+        return;
+      }
+      this.form.onComplete = this.close.bind(this);
+      toggle = this.toggle;
+    }
+    toggle = (show = null) => {
+      if (show == null)
+        show = !this.dlgElement.hasAttribute("open");
+      show ? this.showModal() : this.hide();
+    };
+    showModal = () => {
+      this.dlgElement.showModal();
+      this.dlgElement.classList.add("active");
+    };
+    clickClose = () => {
+      this.close(false);
+    };
+    hide = () => {
+      this.dlgElement.close();
+      this.dlgElement.classList.remove("active");
+    };
+    close(result) {
+      this.dlgElement.close();
+      this.dlgElement.classList.remove("active");
+      if (this.dialogReturnValueCallback)
+        this.dialogReturnValueCallback(result);
+      currentDialogs.remove(this.dialogOpts);
+    }
+    _id;
+    getUniqueId = () => {
+      if (!this._id) {
+        this._id = "field-" + Math.floor(Math.random() * 1e4);
+      }
+      return this._id;
+    };
+    koDescendantsComplete = function(node) {
+      this.dlgElement = node.querySelector("dialog");
+      dragElement(this.dlgElement);
+      resizeDialog(this.dlgElement);
+      this.showModal();
+    };
+  };
+  directRegisterComponent(componentName, {
+    template: modalDialogTemplate,
+    viewModel: ModalDialogModule
+  });
+  function resizeDialog(elmnt) {
+    elmnt.style.width = "550px";
+    elmnt.style.height = "";
+    elmnt.style.top = "125px";
+    elmnt.style.left = (window.GetViewportWidth() - 550) / 2 + "px";
+  }
+  function dragElement(elmnt) {
+    var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    const dragger = elmnt.querySelector(".grabber");
+    if (dragger) {
+      dragger.onmousedown = dragMouseDown;
+    } else {
+      elmnt.onmousedown = dragMouseDown;
+    }
+    function dragMouseDown(e) {
+      e = e || window.event;
+      e.preventDefault();
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+      document.onmouseup = closeDragElement;
+      document.onmousemove = elementDrag;
+    }
+    function elementDrag(e) {
+      e = e || window.event;
+      e.preventDefault();
+      pos1 = pos3 - e.clientX;
+      pos2 = pos4 - e.clientY;
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+      elmnt.style.top = elmnt.offsetTop - pos2 + "px";
+      elmnt.style.left = elmnt.offsetLeft - pos1 + "px";
+    }
+    function closeDragElement() {
+      document.onmouseup = null;
+      document.onmousemove = null;
+    }
+  }
+
+  // src/services/audit_response_service.js
+  async function uploadResponseDocFile(response, file) {
+    const uploadResponseDocTask = addTask(taskDefs.uploadResponseDoc(file.name));
+    const fileMetadata = {
+      Title: file.name,
+      ReqNumId: response.ReqNum.Value().ID,
+      ResIDId: response.ID
+    };
+    await appContext.AuditResponseDocs.UploadFileToFolderAndUpdateMetadata(
+      file,
+      file.name,
+      response.Title.Value(),
+      fileMetadata,
+      ({ currentBlock, totalBlocks }) => uploadResponseDocTask.updateProgress({
+        percentDone: currentBlock / totalBlocks
+      })
+    );
+    finishTask(uploadResponseDocTask);
+  }
+
+  // src/services/index.js
+  init_people_manager();
+
+  // src/pages/ao_db/ao_db.js
+  init_knockout_extensions();
+  var Audit2 = window.Audit || {};
+  Audit2.AOReport = Audit2.AOReport || {};
+  var responseParam = "ResNum";
+  Audit2.AOReport.Init = function() {
+    var paramShowSiteActionsToAnyone = GetUrlKeyValue("ShowSiteActions");
+    if (paramShowSiteActionsToAnyone != true) {
+      $("#RibbonContainer-TabRowLeft").hide();
+      $(".ms-siteactionsmenu").hide();
+    }
+    function SetTimer() {
+      var intervalRefreshID = setInterval(function() {
+        var divVal = $("#divCounter").text();
+        var count = divVal * 1 - 1;
+        $("#divCounter").text(count);
+        if (count <= 0) {
+          if (!Audit2.AOReport.Report.IsTransactionExecuting())
+            Audit2.Common.Utilities.Refresh();
+          else {
+            clearInterval(intervalRefreshID);
+            $("#divCounter").text("1200");
+            SetTimer();
+          }
+        }
+      }, 1e3);
+    }
+    SetTimer();
+  };
+  Audit2.AOReport.NewReportPage = function() {
+    var m_bigMap = new Object();
+    var m_arrRequests = new Array();
+    var m_arrResponses = new Array();
+    var m_arrPermissions = new Array();
+    var m_IA_SPGroupName = null;
+    var m_IA_ActionOffice = null;
+    var ownerGroup2, memberGroup2, visitorGroup2 = null;
+    var m_groupColl = null;
+    var m_requestItems = null;
+    var m_responseItems = null;
+    var m_ResponseDocsItems = null;
+    var m_aoItems = null;
+    var m_responseDocsLibrary = null;
+    var m_statusToFilterOn = "";
+    var m_curResponseSelectedIsEditableByAO = false;
+    var m_bIsTransactionExecuting = false;
+    var m_responseStatus1 = "1-Open";
+    var m_responseStatus2 = "3-Returned to Action Office";
+    function ViewModel() {
+      var self = this;
+      self.debugMode = ko.observable(false);
+      self.siteUrl = Audit2.Common.Utilities.GetSiteUrl();
+      self.tabOpts = {
+        Responses: new Tab("response-report", "Status Report", {
+          id: "responseStatusReportTemplate",
+          data: self
+        }),
+        ResponseDetail: new Tab("response-detail", "Responses", {
+          id: "responseDetailTemplate",
+          data: self
+        })
+      };
+      self.tabs = new TabsModule(Object.values(self.tabOpts));
+      self.runningTasks = runningTasks;
+      self.blockingTasks = blockingTasks;
+      self.arrResponses = ko.observableArray(null);
+      self.arrFilteredResponsesCount = ko.observable(0);
+      self.cntPendingReview = ko.observable(0);
+      self.ddOptionsResponseTabRequestID = ko.observableArray();
+      self.ddOptionsResponseTabRequestStatus = ko.observableArray();
+      self.ddOptionsResponseTabRequestInternalDueDate = ko.observableArray();
+      self.ddOptionsResponseTabRequestSample = ko.observableArray();
+      self.ddOptionsResponseTabResponseTitle = ko.observableArray();
+      self.ddOptionsResponseTabResponseStatus = ko.observableArray();
+      self.filterResponseTabRequestIntDueDate = ko.observable();
+      self.filterResponseTabResponseName = ko.observable();
+      self.filterResponseTabResponseStatus = ko.observable();
+      self.doSort = ko.observable(false);
+      self.ddOptionsResponseInfoTabResponseNameOpen2 = ko.observableArray();
+      self.ddOptionsResponseInfoTabResponseNameProcessed2 = ko.observableArray();
+      self.filterResponseInfoTabResponseNameOpen2 = ko.observable("");
+      self.filterResponseInfoTabResponseNameProcessed2 = ko.observable("");
+      self.currentResponse = ko.observable();
+      self.arrCoverSheets = ko.observableArray(null);
+      self.arrResponseDocs = ko.observable(null);
+      self.cntResponseDocs = ko.observable(0);
+      self.responseDocFiles = ko.observableArray();
+      self.showUpload = ko.observable(false);
+      self.showSubmit = ko.observable(false);
+      self.refresh = () => window.location.reload();
+      self.onNewResponseDocCallback = self.refresh;
+      self.currentResponse.subscribe((newResponse) => {
+        if (!newResponse)
+          return;
+        setUrlParam(responseParam, newResponse.title);
+      });
+      self.selectedFiltersResponseTab = ko.computed(function() {
+        var requestIntDueDate = self.filterResponseTabRequestIntDueDate();
+        var responseName = self.filterResponseTabResponseName();
+        var responseStatus = self.filterResponseTabResponseStatus();
+        return requestIntDueDate + " " + responseName + " " + responseStatus;
+      });
+      self.ClearFiltersResponseTab = function() {
+        self.filterResponseTabRequestIntDueDate("");
+        self.filterResponseTabResponseName("");
+        self.filterResponseTabResponseStatus("");
+      };
+      self.FilterChangedResponseTab = function() {
+        document.body.style.cursor = "wait";
+        setTimeout(function() {
+          var requestIntDueDate = self.filterResponseTabRequestIntDueDate();
+          var responseName = self.filterResponseTabResponseName();
+          var responseStatus = self.filterResponseTabResponseStatus();
+          if (!requestIntDueDate && !responseName && !responseStatus) {
+            $(".sr-response-item").show();
+            self.arrFilteredResponsesCount(self.arrResponses().length);
+            document.body.style.cursor = "default";
+            return;
+          }
+          requestIntDueDate = !requestIntDueDate ? "" : requestIntDueDate;
+          responseName = !responseName ? "" : responseName;
+          responseStatus = !responseStatus ? "" : responseStatus;
+          var count = 0;
+          var eacher = $(".sr-response-item");
+          eacher.each(function() {
+            var hide = false;
+            if (!hide && requestIntDueDate != "" && $.trim($(this).find(".sr-response-internalDueDate").text()) != requestIntDueDate)
+              hide = true;
+            if (!hide && responseName != "" && $.trim($(this).find(".sr-response-title").text()) != responseName)
+              hide = true;
+            if (!hide && responseStatus != "" && $.trim($(this).find(".sr-response-status").text()) != responseStatus)
+              hide = true;
+            if (hide)
+              $(this).hide();
+            else {
+              $(this).show();
+              count++;
+            }
+          });
+          self.arrFilteredResponsesCount(count);
+          document.body.style.cursor = "default";
+        }, 100);
+      };
+      self.ClickSubmitResponse = function() {
+        m_fnSubmitPackage();
+      };
+      self.ClickUploadResponseDoc = function() {
+        var oResponse = self.currentResponse();
+        if (oResponse && oResponse.number && oResponse.title)
+          m_fnUploadResponseDoc(oResponse.number, oResponse.title);
+      };
+      self.ClickMarkForDeletionResponseDoc = function(oResponseDoc) {
+        if (oResponseDoc && oResponseDoc.ID)
+          m_fnMarkForDeletionResponseDoc(oResponseDoc.ID);
+      };
+      self.selectedFiltersResponseTab.subscribe(function(value) {
+        self.FilterChangedResponseTab();
+      });
+      self.doSort.subscribe(function(newValue) {
+        Audit2.Common.Utilities.OnLoadDisplayTimeStamp();
+        if (self.arrResponses().length > 0 && newValue) {
+          self.arrFilteredResponsesCount(self.arrResponses().length);
+          ko.utils.arrayPushAll(
+            self.ddOptionsResponseTabResponseStatus(),
+            self.GetDDVals("status")
+          );
+          self.ddOptionsResponseTabResponseStatus.valueHasMutated();
+          ko.utils.arrayPushAll(
+            self.ddOptionsResponseInfoTabResponseNameOpen2(),
+            self.GetDDVals2("1", true)
+          );
+          self.ddOptionsResponseInfoTabResponseNameOpen2.valueHasMutated();
+          ko.utils.arrayPushAll(
+            self.ddOptionsResponseInfoTabResponseNameProcessed2(),
+            self.GetDDVals2("0", true)
+          );
+          self.ddOptionsResponseInfoTabResponseNameProcessed2.valueHasMutated();
+          ko.utils.arrayPushAll(
+            self.ddOptionsResponseTabRequestInternalDueDate(),
+            self.GetDDVals("internalDueDate")
+          );
+          self.ddOptionsResponseTabRequestInternalDueDate.valueHasMutated();
+          ko.utils.arrayPushAll(
+            self.ddOptionsResponseTabResponseTitle(),
+            self.GetDDVals("title", true)
+          );
+          self.ddOptionsResponseTabResponseTitle.valueHasMutated();
+          setTimeout(function() {
+            var paramTabIndex = GetUrlKeyValue("Tab");
+            if (paramTabIndex != null && paramTabIndex != "") {
+              self.tabs.selectById(paramTabIndex);
+            } else {
+              self.tabs.selectById(self.tabOpts.Responses.id);
+            }
+            if (paramTabIndex == null || paramTabIndex == "" || paramTabIndex == 0) {
+              if (self.cntPendingReview() > 0) {
+                SP.UI.Notify.addNotification(
+                  "<div style='text-align:left'>There are <b>" + self.cntPendingReview() + "</b> Responses pending your review/action. <br/> <br/> Please click on the links in the <b>Response Name</b> column of the <b>Status Report tab</b> <br/> to access each response and upload documents and submit the package.</div>",
+                  false
+                );
+              }
+            }
+            var paramResponseNum = GetUrlKeyValue("ResNum");
+            if (paramResponseNum != null && paramResponseNum != "") {
+              if (paramTabIndex == 0) {
+                if ($("#ddlResponseName option[value='" + paramResponseNum + "']").length > 0)
+                  _myViewModel.filterResponseTabResponseName(paramResponseNum);
+              } else {
+                if ($("#ddlResponsesOpen option[value='" + paramResponseNum + "']").length > 0)
+                  _myViewModel.filterResponseInfoTabResponseNameOpen2(
+                    paramResponseNum
+                  );
+                else if ($(
+                  "#ddlResponsesProcessed option[value='" + paramResponseNum + "']"
+                ).length > 0)
+                  _myViewModel.filterResponseInfoTabResponseNameProcessed2(
+                    paramResponseNum
+                  );
+              }
+            }
+            BindHandlersOnLoad();
+            self.filterResponseTabResponseStatus(m_statusToFilterOn);
+            $("#tblStatusReportResponses").tablesorter({
+              sortList: [[2, 0]],
+              selectorHeaders: ".sorter-true"
+            });
+          }, 200);
+        }
+      });
+      self.filterResponseInfoTabResponseNameOpen2.subscribe(function(newValue) {
+        self.filterResponseInfoTabResponseName(newValue, true);
+      });
+      self.filterResponseInfoTabResponseNameProcessed2.subscribe(function(newValue) {
+        self.filterResponseInfoTabResponseName(newValue, false);
+      });
+      self.filterResponseInfoTabResponseName = function(newValue, bOpenResponses) {
+        self.currentResponse(null);
+        self.arrCoverSheets([]);
+        self.arrResponseDocs(null);
+        self.cntResponseDocs(0);
+        m_curResponseSelectedIsEditableByAO = false;
+        var oResponse = m_bigMap["response-" + newValue];
+        if (oResponse) {
+          if (bOpenResponses)
+            self.filterResponseInfoTabResponseNameProcessed2("");
+          else
+            self.filterResponseInfoTabResponseNameOpen2("");
+          self.currentResponse(oResponse);
+          LoadTabResponseInfoCoverSheets(oResponse);
+          LoadTabResponseInfoResponseDocs(oResponse);
+          if (bOpenResponses)
+            m_curResponseSelectedIsEditableByAO = true;
+        }
+      };
+      self.responseDocFiles.subscribe(async function(files) {
+        if (!files.length)
+          return;
+        const resId = self.currentResponse()?.ID;
+        if (!resId)
+          return;
+        const response = await appContext.AuditResponses.FindById(resId);
+        const promises = [];
+        for (let file of files) {
+          promises.push(
+            new Promise(async (resolve) => {
+              const newSheet = await uploadResponseDocFile(response, file);
+              resolve();
+            })
+          );
+        }
+        await Promise.all(promises);
+        self.responseDocFiles.removeAll();
+        self.onNewResponseDocCallback();
+      });
+      self.GetDDVals = function(fieldName, sortAsResponse) {
+        var types = ko.utils.arrayMap(self.arrResponses(), function(item) {
+          return item[fieldName];
+        });
+        var ddArr = ko.utils.arrayGetDistinctValues(types).sort();
+        if (sortAsResponse)
+          ddArr.sort(Audit2.Common.Utilities.SortResponseTitles);
+        if (ddArr[0] == "")
+          ddArr.shift();
+        return ddArr;
+      };
+      self.GetDDVals2 = function(responseStatusType, sortAsResponse) {
+        var types = ko.utils.arrayMap(self.arrResponses(), function(item) {
+          var requestStatus = item.requestStatus;
+          var responseStatus = item.status;
+          if (responseStatusType == 0) {
+            if (responseStatus != m_responseStatus1 && responseStatus != m_responseStatus2)
+              return item["title"];
+            else
+              return "";
+          } else if (responseStatusType == 1) {
+            if ((responseStatus == m_responseStatus1 || responseStatus == m_responseStatus2) && (requestStatus == "Open" || requestStatus == "ReOpened"))
+              return item["title"];
+            else
+              return "";
+          }
+        });
+        var ddArr = ko.utils.arrayGetDistinctValues(types).sort();
+        if (sortAsResponse)
+          ddArr.sort(Audit2.Common.Utilities.SortResponseTitles);
+        if (ddArr[0] == "")
+          ddArr.shift();
+        return ddArr;
+      };
+    }
+    var _myViewModel = new ViewModel();
+    ko.applyBindings(_myViewModel);
+    LoadInfo();
+    function LoadInfo() {
+      var currCtx = new SP.ClientContext.get_current();
+      var web = currCtx.get_web();
+      const m_currentUser = web.get_currentUser();
+      currCtx.load(m_currentUser);
+      var requestList = web.get_lists().getByTitle(Audit2.Common.Utilities.GetListTitleRequests());
+      var requestQuery = new SP.CamlQuery();
+      requestQuery.set_viewXml(
+        '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
+      );
+      m_requestItems = requestList.getItems(requestQuery);
+      currCtx.load(
+        m_requestItems,
+        "Include(ID, Title, ReqSubject, ReqStatus, InternalDueDate, ActionOffice, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate)"
+      );
+      var responseList = web.get_lists().getByTitle(Audit2.Common.Utilities.GetListTitleResponses());
+      var responseQuery = new SP.CamlQuery();
+      responseQuery.set_viewXml(
+        '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="ReqNum"/></OrderBy></Query></View>'
+      );
+      m_responseItems = responseList.getItems(responseQuery);
+      currCtx.load(
+        m_responseItems,
+        "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, Comments, Modified, ClosedDate, ClosedBy, POC)"
+      );
+      var responseDocsLib = web.get_lists().getByTitle(Audit2.Common.Utilities.GetLibTitleResponseDocs());
+      var responseDocsQuery = new SP.CamlQuery();
+      responseDocsQuery.set_viewXml(
+        '<View Scope="RecursiveAll"><Query><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">0</Value></Eq></Where></Query></View>'
+      );
+      m_ResponseDocsItems = responseDocsLib.getItems(responseDocsQuery);
+      currCtx.load(
+        m_ResponseDocsItems,
+        "Include(ID, Title, ReqNum, ResID, DocumentStatus, ReceiptDate, FileLeafRef, FileDirRef, File_x0020_Size, Modified, Editor)"
+      );
+      var aoList = web.get_lists().getByTitle(Audit2.Common.Utilities.GetListTitleActionOffices());
+      var aoQuery = new SP.CamlQuery();
+      aoQuery.set_viewXml(
+        '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
+      );
+      m_aoItems = aoList.getItems(aoQuery);
+      currCtx.load(m_aoItems, "Include(ID, Title, UserGroup)");
+      m_responseDocsLibrary = currCtx.get_web().get_lists().getByTitle(Audit2.Common.Utilities.GetLibTitleResponseDocs());
+      currCtx.load(m_responseDocsLibrary, "Title", "Id");
+      ownerGroup2 = web.get_associatedOwnerGroup();
+      memberGroup2 = web.get_associatedMemberGroup();
+      visitorGroup2 = web.get_associatedVisitorGroup();
+      currCtx.load(ownerGroup2);
+      currCtx.load(memberGroup2);
+      currCtx.load(visitorGroup2);
+      m_groupColl = web.get_siteGroups();
+      currCtx.load(m_groupColl);
+      currCtx.executeQueryAsync(OnSuccess, OnFailure);
+      function OnSuccess(sender, args) {
+        $("#divRefresh").show();
+        m_fnLoadData();
+      }
+      function OnFailure(sender, args) {
+        $("#divRefresh").hide();
+        $("#divLoading").hide();
+        const statusId2 = SP.UI.Status.addStatus(
+          "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
+        );
+        SP.UI.Status.setStatusPriColor(statusId2, "red");
+      }
+    }
+    function m_fnLoadData() {
+      Audit2.Common.Utilities.LoadSiteGroups(m_groupColl);
+      LoadLibGUIDS();
+      Audit2.Common.Utilities.LoadActionOffices(m_aoItems);
+      if (memberGroup2 != null)
+        m_IA_SPGroupName = memberGroup2.get_title();
+      if (m_IA_SPGroupName == null || m_IA_SPGroupName == "") {
+        const statusId2 = SP.UI.Status.addStatus(
+          "Unable to retrieve the IA SharePoint Group. Please contact the Administrator"
+        );
+        SP.UI.Status.setStatusPriColor(statusId2, "red");
+        return;
+      }
+      m_IA_ActionOffice = Audit2.Common.Utilities.GetActionOffices()?.find(
+        (ao) => ao.userGroup == m_IA_SPGroupName
+      );
+      LoadRequests();
+      LoadResponses();
+      LoadResponseDocs();
+      LoadTabStatusReport(m_arrResponses, "fbody");
+    }
+    function LoadLibGUIDS() {
+      Audit2.Common.Utilities.SetResponseDocLibGUID(
+        m_responseDocsLibrary.get_id()
+      );
+    }
+    function LoadRequests() {
+      m_bigMap = new Object();
+      m_arrRequests = new Array();
+      var cnt = 0;
+      var listItemEnumerator = m_requestItems.getEnumerator();
+      while (listItemEnumerator.moveNext()) {
+        var oListItem = listItemEnumerator.get_current();
+        var emailSent = oListItem.get_item("EmailSent");
+        if (!emailSent)
+          continue;
+        var id2 = oListItem.get_item("ID");
+        var number = oListItem.get_item("Title");
+        var status = oListItem.get_item("ReqStatus");
+        var subject = oListItem.get_item("ReqSubject");
+        if (subject == null)
+          subject = "";
+        var arrActionOffice = oListItem.get_item("ActionOffice");
+        var actionOffice = "";
+        for (var x = 0; x < arrActionOffice.length; x++) {
+          actionOffice += "<div>" + arrActionOffice[x].get_lookupValue() + "</div>";
+        }
+        var comments = oListItem.get_item("Comments");
+        var relatedAudit = oListItem.get_item("RelatedAudit");
+        var actionItems = oListItem.get_item("ActionItems");
+        if (comments == null)
+          comments = "";
+        if (relatedAudit == null)
+          relatedAudit = "";
+        if (actionItems == null)
+          actionItems = "";
+        var internalDueDate = oListItem.get_item("InternalDueDate");
+        var closedDate = oListItem.get_item("ClosedDate");
+        internalDueDate != null ? internalDueDate = internalDueDate.format("MM/dd/yyyy") : internalDueDate = "";
+        closedDate != null ? closedDate = closedDate.format("MM/dd/yyyy") : closedDate = "";
+        var requestObject = new Object();
+        requestObject["ID"] = id2;
+        requestObject["number"] = number;
+        requestObject["subject"] = subject;
+        requestObject["status"] = status;
+        requestObject["internalDueDate"] = internalDueDate;
+        requestObject["actionOffice"] = actionOffice;
+        requestObject["comments"] = comments;
+        requestObject["relatedAudit"] = relatedAudit;
+        requestObject["actionItems"] = actionItems;
+        requestObject["emailSent"] = emailSent;
+        requestObject["closedDate"] = closedDate;
+        requestObject["responses"] = new Array();
+        requestObject["arrIndex"] = cnt;
+        m_arrRequests.push(requestObject);
+        m_bigMap["request-" + number] = requestObject;
+        cnt++;
+      }
+    }
+    function LoadResponses() {
+      m_arrResponses = new Array();
+      var cnt = 0;
+      var listItemEnumerator = m_responseItems.getEnumerator();
+      while (listItemEnumerator.moveNext()) {
+        var oListItem = listItemEnumerator.get_current();
+        var number = oListItem.get_item("ReqNum");
+        if (number != null) {
+          number = number.get_lookupValue();
+          var responseObject = new Object();
+          responseObject["request"] = m_bigMap["request-" + number];
+          if (!responseObject.request || !responseObject.request.emailSent)
+            continue;
+          responseObject["actionOffice"] = oListItem.get_item("ActionOffice");
+          if (responseObject["actionOffice"] == null)
+            responseObject["actionOffice"] = "";
+          else
+            responseObject["actionOffice"] = responseObject["actionOffice"].get_lookupValue();
+          if (responseObject["actionOffice"] == "")
+            continue;
+          responseObject["poc"] = oListItem.get_item("POC");
+          if (responseObject["poc"] == null)
+            responseObject["poc"] = "";
+          else
+            responseObject["poc"] = responseObject["poc"].get_lookupValue();
+          responseObject["ID"] = oListItem.get_item("ID");
+          responseObject["number"] = number;
+          var title = oListItem.get_item("Title");
+          responseObject["title"] = title;
+          responseObject["resStatus"] = oListItem.get_item("ResStatus");
+          if (responseObject.request.status == "Closed" || responseObject.request.status == "Canceled")
+            responseObject["resStatus"] = "7-Closed";
+          var modifiedDate = oListItem.get_item("Modified");
+          var closedDate = oListItem.get_item("ClosedDate");
+          modifiedDate != null ? modifiedDate = modifiedDate.format("MM/dd/yyyy hh:mm tt") : modifiedDate = "";
+          closedDate != null ? closedDate = closedDate.format("MM/dd/yyyy") : closedDate = "";
+          responseObject["modified"] = modifiedDate;
+          responseObject["closedDate"] = closedDate;
+          responseObject["closedBy"] = Audit2.Common.Utilities.GetFriendlyDisplayName(oListItem, "ClosedBy");
+          responseObject["sample"] = oListItem.get_item("SampleNumber");
+          if (responseObject["sample"] == null)
+            responseObject["sample"] = "";
+          var comments = oListItem.get_item("Comments");
+          if (comments == null)
+            comments = "";
+          responseObject["comments"] = comments;
+          var returnReason = oListItem.get_item("ReturnReason");
+          if (returnReason == null)
+            returnReason = "";
+          responseObject["returnReason"] = returnReason;
+          responseObject["responseDocs"] = new Array();
+          responseObject["coversheets"] = new Array();
+          responseObject["arrIndex"] = cnt;
+          m_arrResponses.push(responseObject);
+          m_bigMap["response-" + title] = responseObject;
+          cnt++;
+        }
+      }
+    }
+    function LoadResponseDocs() {
+      var listItemEnumerator = m_ResponseDocsItems.getEnumerator();
+      while (listItemEnumerator.moveNext()) {
+        var oListItem = listItemEnumerator.get_current();
+        const responseDocID = oListItem.get_item("ID");
+        var requestNumber = oListItem.get_item("ReqNum");
+        if (requestNumber != null)
+          requestNumber = requestNumber.get_lookupValue();
+        var responseID = oListItem.get_item("ResID");
+        if (responseID != null)
+          responseID = responseID.get_lookupValue();
+        if (requestNumber == null || responseID == null)
+          continue;
+        if (oListItem.get_item("DocumentStatus") == "Marked for Deletion") {
+        } else {
+          try {
+            var bigMapItem = m_bigMap["response-" + responseID];
+            var indexOfArrResponses = bigMapItem.arrIndex;
+            var oResponse = m_arrResponses[indexOfArrResponses];
+            if (oResponse) {
+              var responseDocObject = new Object();
+              responseDocObject["ID"] = oListItem.get_item("ID");
+              responseDocObject["title"] = oListItem.get_item("Title");
+              if (responseDocObject["title"] == null)
+                responseDocObject["title"] = "";
+              responseDocObject["fileName"] = oListItem.get_item("FileLeafRef");
+              responseDocObject["folder"] = oListItem.get_item("FileDirRef");
+              responseDocObject["documentStatus"] = oListItem.get_item("DocumentStatus");
+              var fileSize = oListItem.get_item("File_x0020_Size");
+              fileSize = Audit2.Common.Utilities.GetFriendlyFileSize(fileSize);
+              responseDocObject["fileSize"] = fileSize;
+              var receiptDate = "";
+              if (oListItem.get_item("ReceiptDate") != null && oListItem.get_item("ReceiptDate") != "")
+                receiptDate = oListItem.get_item("ReceiptDate").format("MM/dd/yyyy");
+              responseDocObject["receiptDate"] = receiptDate;
+              var modifiedDate = "";
+              if (oListItem.get_item("Modified") != null && oListItem.get_item("Modified") != "")
+                modifiedDate = oListItem.get_item("Modified").format("MM/dd/yyyy hh:mm tt");
+              responseDocObject["modifiedDate"] = modifiedDate;
+              responseDocObject["modifiedBy"] = Audit2.Common.Utilities.GetFriendlyDisplayName(
+                oListItem,
+                "Editor"
+              );
+              oResponse["responseDocs"].push(responseDocObject);
+            }
+          } catch (err) {
+          }
+        }
+      }
+    }
+    function LoadTabStatusReport(arr, fbody) {
+      if (arr == null)
+        return;
+      var responseArr = new Array();
+      var arrResponseTitle = new Array();
+      var arrResponseInternalDueDate = new Array();
+      var arrResponseStatus = new Array();
+      var count = 0;
+      var resStatus1 = 0;
+      var resStatus2 = 0;
+      var arrlength = arr.length;
+      while (arrlength--) {
+        var oResponse = arr[arrlength];
+        var responseTitle = oResponse.title;
+        var highlight = false;
+        var responseStatus = oResponse.resStatus;
+        if (responseStatus == m_responseStatus1 || responseStatus == m_responseStatus2) {
+          count++;
+          if (responseStatus == m_responseStatus1)
+            resStatus1++;
+          else
+            resStatus2++;
+          highlight = true;
+        }
+        var aResponse = {
+          title: responseTitle,
+          requestSubject: oResponse.request.subject,
+          requestStatus: oResponse.request.status,
+          internalDueDate: oResponse.request.internalDueDate,
+          status: responseStatus,
+          docCount: oResponse.responseDocs.length,
+          modified: oResponse.modified,
+          highlight,
+          visibleRow: ko.observable(true)
+        };
+        responseArr.push(aResponse);
+      }
+      if (responseArr.length > 0) {
+        m_statusToFilterOn = "";
+        if (resStatus1 > 0 && resStatus2 == 0)
+          m_statusToFilterOn = m_responseStatus1;
+        else if (resStatus2 > 0 && resStatus1 == 0)
+          m_statusToFilterOn = m_responseStatus2;
+        _myViewModel.cntPendingReview(count);
+        ko.utils.arrayPushAll(_myViewModel.arrResponses, responseArr);
+      }
+      _myViewModel.doSort(true);
+    }
+    function LoadTabResponseInfoCoverSheets(oResponse) {
+      _myViewModel.arrCoverSheets([]);
+      var currCtx = new SP.ClientContext.get_current();
+      var web = currCtx.get_web();
+      var coverSheetLib = web.get_lists().getByTitle(Audit2.Common.Utilities.GetLibTitleCoverSheets());
+      var coverSheetQuery = new SP.CamlQuery();
+      coverSheetQuery.set_viewXml(
+        '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><Eq><FieldRef Name="ReqNum"/><Value Type="Text">' + oResponse.request.number + "</Value></Eq></Where></Query></View>"
+      );
+      const m_subsetCoverSheetItems = coverSheetLib.getItems(coverSheetQuery);
+      currCtx.load(
+        m_subsetCoverSheetItems,
+        "Include(ID, Title, ReqNum, ActionOffice, FileLeafRef, FileDirRef)"
+      );
+      var data2 = { oResponse };
+      function OnSuccess(sender, args) {
+        var arrCS = new Array();
+        var listItemEnumerator = m_subsetCoverSheetItems.getEnumerator();
+        while (listItemEnumerator.moveNext()) {
+          var oListItem = listItemEnumerator.get_current();
+          if (oListItem.get_item("ActionOffice") != null) {
+            var arrActionOffice = oListItem.get_item("ActionOffice");
+            if (arrActionOffice.length > 0) {
+              for (var y = 0; y < arrActionOffice.length; y++) {
+                var curActionOffice = arrActionOffice[y].get_lookupValue();
+                if (curActionOffice == this.oResponse.actionOffice) {
+                  var csFolder = oListItem.get_item("FileDirRef");
+                  var csTitle = oListItem.get_item("FileLeafRef");
+                  var encodedTitle = csTitle.replace(/'/g, "&#39");
+                  arrCS.push({
+                    folder: csFolder,
+                    title: csTitle,
+                    link: "STSNavigate('../_layouts/download.aspx?SourceUrl=" + csFolder + "/" + encodedTitle + "')"
+                  });
+                  break;
+                }
+              }
+            }
+          }
+        }
+        ko.utils.arrayPushAll(_myViewModel.arrCoverSheets(), arrCS);
+        _myViewModel.arrCoverSheets.valueHasMutated();
+      }
+      function OnFailure(sender, args) {
+      }
+      currCtx.executeQueryAsync(
+        Function.createDelegate(data2, OnSuccess),
+        Function.createDelegate(data2, OnFailure)
+      );
+    }
+    function LoadTabResponseInfoResponseDocs(oResponse) {
+      _myViewModel.arrResponseDocs(null);
+      _myViewModel.cntResponseDocs(0);
+      _myViewModel.showUpload(false);
+      _myViewModel.showSubmit(false);
+      var currCtx = new SP.ClientContext.get_current();
+      var web = currCtx.get_web();
+      for (var z = 0; z < oResponse.responseDocs.length; z++) {
+        var oResponseDoc = oResponse.responseDocs[z];
+        oResponseDoc["docIcon"] = web.mapToIcon(
+          oResponseDoc.fileName,
+          "",
+          SP.Utilities.IconSize.Size16
+        );
+      }
+      function OnSuccess(sender, args) {
+        RenderResponses(oResponse);
+      }
+      function OnFailure(sender, args) {
+        const statusId2 = SP.UI.Status.addStatus(
+          "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
+        );
+        SP.UI.Status.setStatusPriColor(statusId2, "red");
+      }
+      currCtx.executeQueryAsync(OnSuccess, OnFailure);
+      function RenderResponses(oResponse2) {
+        var rowCount = 0;
+        var cntAddedByAO = 0;
+        var arrResponseDocs = new Array();
+        for (var z2 = 0; z2 < oResponse2.responseDocs.length; z2++) {
+          var oResponseDoc2 = oResponse2.responseDocs[z2];
+          oResponseDoc2.docIcon = oResponseDoc2.docIcon.get_value();
+          oResponseDoc2.styleTag = Audit2.Common.Utilities.GetResponseDocStyleTag2(
+            oResponseDoc2.documentStatus
+          );
+          oResponseDoc2.responseTitle = oResponse2.title;
+          if (oResponseDoc2.documentStatus == "Open" && (oResponse2.resStatus == m_responseStatus1 || oResponse2.resStatus == m_responseStatus2))
+            cntAddedByAO++;
+          arrResponseDocs.push(oResponseDoc2);
+        }
+        if (m_curResponseSelectedIsEditableByAO) {
+          _myViewModel.showUpload(true);
+          if (cntAddedByAO > 0)
+            _myViewModel.showSubmit(true);
+        }
+        var arrResponseSummary = {
+          responseTitle: oResponse2.title,
+          responseDocs: arrResponseDocs,
+          responseStatus: oResponse2.resStatus
+        };
+        _myViewModel.arrResponseDocs(arrResponseSummary);
+        _myViewModel.arrResponseDocs.valueHasMutated();
+        _myViewModel.cntResponseDocs(oResponse2.responseDocs.length);
+        if (oResponse2.resStatus == m_responseStatus2 && oResponse2.returnReason != null && oResponse2.returnReason != "") {
+          if (m_curResponseSelectedIsEditableByAO && cntAddedByAO == 0) {
+            var waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+              "Notice - Response Needs to be Updated",
+              "<span style=''><span class='ui-icon ui-icon-alert'></span>Response Return Reason: <span style='font-weight:bold; color:red;'>" + oResponse2.returnReason + "</span></span>",
+              100,
+              500
+            );
+            setTimeout(function() {
+              waitDialog.close();
+            }, 5e3);
+          }
+        }
+        if (oResponse2.resStatus == "1-Open" || oResponse2.resStatus == "3-Returned to Action Office") {
+          if (m_curResponseSelectedIsEditableByAO && cntAddedByAO > 0) {
+            let resetColor = function() {
+              $(".btnSubmitPackage").parent().css({ "background-color": "inherit", "font-weight": "inherit" });
+            };
+            const notifyId2 = SP.UI.Notify.addNotification(
+              "<div style='text-align:left'>Response documents have been added. <br/><br/>Your package <span style='font-weight:bold; color:red'>has not yet been submitted</span>. <br></br>Please review your documents and click on the link <b>SUBMIT this Response Package</b> below</div>",
+              false
+            );
+            $(".btnSubmitPackage").parent().css({ "background-color": "yellow", "font-weight": "inherit" });
+            $(".btnSubmitPackage").get(0).scrollIntoView();
+            setTimeout(function() {
+              resetColor();
+            }, 2e3);
+          } else if (m_curResponseSelectedIsEditableByAO && cntAddedByAO == 0) {
+            const notifyId2 = SP.UI.Notify.addNotification(
+              "<div style='text-align:left'>Please review the Response Information and any CoverSheets/Supplemental Documents. <br/><br/>Then, click the link to <span style='font-weight:bold; color:gree'>Upload Response Documents</span> pertaining to this Response</div>",
+              false
+            );
+          }
+        }
+      }
+    }
+    function m_fnFormatEmailBodyToIAFromAO(oRequest, responseTitle) {
+      var emailText = "<div>Audit Request Reference: <b>{REQUEST_NUMBER}</b></div><div>Audit Request Subject: <b>{REQUEST_SUBJECT}</b></div><div>Audit Request Due Date: <b>{REQUEST_DUEDATE}</b></div><br/><div>Below is the Response that was submitted: </div><div>{RESPONSE_TITLE}</div>";
+      emailText = emailText.replace("{REQUEST_NUMBER}", oRequest.number);
+      emailText = emailText.replace("{REQUEST_SUBJECT}", oRequest.subject);
+      emailText = emailText.replace(
+        "{REQUEST_DUEDATE}",
+        oRequest.internalDueDate
+      );
+      var responseTitleBody = "<ul><li>" + responseTitle + "</li></ul>";
+      emailText = emailText.replace("{RESPONSE_TITLE}", responseTitleBody);
+      return emailText;
+    }
+    function m_fnUploadResponseDoc(requestID, responseID) {
+      m_bIsTransactionExecuting = true;
+      var waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+        "Loading...",
+        "<span style='font-size:11pt'><span class='ui-icon ui-icon-info'></span>If you are uploading <span style='font-weight:bold; color:green;text-decoration:underline'>multiple</span> documents, please <span style='font-weight:bold; color:green;text-decoration:underline'>zip </span> them.</span>",
+        100,
+        600
+      );
+      setTimeout(function() {
+        waitDialog.close();
+        var options = SP.UI.$create_DialogOptions();
+        options.title = "Upload Response Document to: " + responseID;
+        options.dialogReturnValueCallback = OnCallbackForm;
+        var rootFolder = Audit2.Common.Utilities.GetSiteUrl() + "/" + Audit2.Common.Utilities.GetLibNameResponseDocs() + "/" + responseID;
+        options.url = Audit2.Common.Utilities.GetSiteUrl() + "/_layouts/Upload.aspx?List={" + Audit2.Common.Utilities.GetResponseDocLibGUID() + "}&RootFolder=" + rootFolder + "&ReqNum=" + requestID + "&ResID=" + responseID;
+        SP.UI.ModalDialog.showModalDialog(options);
+      }, 3e3);
+    }
+    function OnCallbackForm(result, value) {
+      if (result === SP.UI.DialogResult.OK) {
+        Audit2.Common.Utilities.Refresh();
+      } else
+        m_bIsTransactionExecuting = false;
+    }
+    function m_fnSubmitPackage() {
+      var responseToSubmit = $("#ddlResponsesOpen").val();
+      if (confirm(
+        "Are you sure you would like to submit these response documents? Note: You will NOT be able to make changes or upload any more documents after you submit this package."
+      )) {
+        let OnSuccessLoadedResponseDocs = function(sender, args) {
+          var ctOpenResponseDocs = 0;
+          if (responseDocOpenItems != null) {
+            var listItemEnumerator = responseDocOpenItems.getEnumerator();
+            while (listItemEnumerator.moveNext()) {
+              var oListItem = listItemEnumerator.get_current();
+              oListItem.set_item("DocumentStatus", "Submitted");
+              oListItem.update();
+              ctOpenResponseDocs++;
+            }
+          }
+          if (ctOpenResponseDocs == 0) {
+            const notifyId2 = SP.UI.Notify.addNotification(
+              "Please upload a Response document.",
+              false
+            );
+            m_waitDialog.close();
+            return;
+          }
+          var oRequest = null;
+          try {
+            var bigMapItem = m_bigMap["response-" + responseToSubmit];
+            var indexOfArrResponses = bigMapItem.arrIndex;
+            const oResponse = m_arrResponses[indexOfArrResponses];
+            if (oResponse) {
+              oRequest = oResponse.request;
+              var responseList = currCtx.get_web().get_lists().getByTitle(Audit2.Common.Utilities.GetListTitleResponses());
+              const responseItem = responseList.getItemById(oResponse.ID);
+              responseItem.set_item("ResStatus", "2-Submitted");
+              responseItem.update();
+            }
+          } catch (err) {
+            alert(err);
+            Audit2.Common.Utilities.Refresh();
+          }
+          if (oRequest == null) {
+            m_waitDialog.close();
+            return;
+          }
+          var emailSubject = "A Response has been Submitted by an Action Office: " + oRequest.number;
+          var emailText = m_fnFormatEmailBodyToIAFromAO(
+            oRequest,
+            responseToSubmit
+          );
+          var itemCreateInfo = new SP.ListItemCreationInformation();
+          itemCreateInfo.set_folderUrl(
+            location.protocol + "//" + location.host + Audit2.Common.Utilities.GetSiteUrl() + "/Lists/" + Audit2.Common.Utilities.GetListNameEmailHistory() + "/" + oRequest.number
+          );
+          oListItem = emailList.addItem(itemCreateInfo);
+          oListItem.set_item("Title", emailSubject);
+          oListItem.set_item("Body", emailText);
+          oListItem.set_item("To", m_IA_ActionOffice.title);
+          oListItem.set_item("ReqNum", oRequest.number);
+          oListItem.set_item("ResID", responseToSubmit);
+          oListItem.set_item("NotificationType", "IA Notification");
+          oListItem.update();
+          function OnSuccessUpdateResponse(sender2, args2) {
+            document.body.style.cursor = "default";
+            m_waitDialog.close();
+            Audit2.Common.Utilities.Refresh();
+          }
+          function OnFailureUpdateResponse(sender2, args2) {
+            m_waitDialog.close();
+            const statusId2 = SP.UI.Status.addStatus(
+              "Request failed: " + args2.get_message() + "\n" + args2.get_stackTrace()
+            );
+            SP.UI.Status.setStatusPriColor(statusId2, "red");
+          }
+          currCtx.executeQueryAsync(
+            OnSuccessUpdateResponse,
+            OnFailureUpdateResponse
+          );
+        }, OnFailureLoadedResponseDocs = function(sender, args) {
+          m_waitDialog.close();
+          const statusId2 = SP.UI.Status.addStatus(
+            "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
+          );
+          SP.UI.Status.setStatusPriColor(statusId2, "red");
+        };
+        m_bIsTransactionExecuting = true;
+        const m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+          "Submitting Response",
+          "Please wait... Submitting Response",
+          200,
+          400
+        );
+        var currCtx = new SP.ClientContext.get_current();
+        var web = currCtx.get_web();
+        var folderPath = Audit2.Common.Utilities.GetSiteUrl() + "/" + Audit2.Common.Utilities.GetLibNameResponseDocs() + "/" + responseToSubmit;
+        var responseDocLib = web.get_lists().getByTitle(Audit2.Common.Utilities.GetLibTitleResponseDocs());
+        var responseDocQuery = new SP.CamlQuery();
+        responseDocQuery.set_viewXml(
+          `<View Scope="RecursiveAll"><Query><Where><And><Eq><FieldRef Name='FileDirRef'/><Value Type='Text'>` + folderPath + "</Value></Eq><Eq><FieldRef Name='DocumentStatus'/><Value Type='Text'>Open</Value></Eq></And></Where></Query></View>"
+        );
+        const responseDocOpenItems = responseDocLib.getItems(responseDocQuery);
+        currCtx.load(
+          responseDocOpenItems,
+          "Include(ID, DocumentStatus, FileDirRef)"
+        );
+        var emailList = web.get_lists().getByTitle(Audit2.Common.Utilities.GetListTitleEmailHistory());
+        var emailListQuery = new SP.CamlQuery();
+        emailListQuery.set_viewXml(
+          '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
+        );
+        const emailListFolderItems = emailList.getItems(emailListQuery);
+        currCtx.load(emailListFolderItems, "Include(ID, Title, DisplayName)");
+        currCtx.executeQueryAsync(
+          OnSuccessLoadedResponseDocs,
+          OnFailureLoadedResponseDocs
+        );
+      }
+    }
+    function m_fnMarkForDeletionResponseDoc(itemID) {
+      if (confirm("Are you sure you would like to Delete this Response Document?")) {
+        let OnSuccess = function(sender, args) {
+          Audit2.Common.Utilities.Refresh();
+        }, OnFailure = function(sender, args) {
+          const statusId2 = SP.UI.Status.addStatus(
+            "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
+          );
+          SP.UI.Status.setStatusPriColor(statusId2, "red");
+        };
+        var currCtx = new SP.ClientContext();
+        var responseDocsLib = currCtx.get_web().get_lists().getByTitle(Audit2.Common.Utilities.GetLibNameResponseDocs());
+        const oListItem = responseDocsLib.getItemById(itemID);
+        oListItem.set_item("DocumentStatus", "Marked for Deletion");
+        oListItem.update();
+        currCtx.executeQueryAsync(OnSuccess, OnFailure);
+      }
+    }
+    function BindHandlersOnLoad() {
+      BindPrintButton(
+        "#btnPrint1",
+        "#divStatusReportRespones",
+        "Action Office Response Status Report"
+      );
+      BindExportButton(
+        ".export1",
+        "AOResponseStatusReport_",
+        "tblStatusReportResponses"
+      );
+    }
+    function BindPrintButton(btnPrint, divTbl, pageTitle) {
+      $(btnPrint).on("click", function() {
+        Audit2.Common.Utilities.PrintStatusReport(pageTitle, divTbl);
+      });
+    }
+    function BindExportButton(btnExport, fileNamePrefix, tbl) {
+      $(btnExport).on("click", function(event) {
+        var curDate = (/* @__PURE__ */ new Date()).format("yyyyMMdd_hhmmtt");
+        Audit2.Common.Utilities.ExportToCsv(fileNamePrefix + curDate, tbl);
+      });
+    }
+    function GoToResponse(response) {
+      _myViewModel.tabs.selectById(_myViewModel.tabOpts.ResponseDetail.id);
+      if (response) {
+        response = m_bigMap["response-" + response];
+        var requestStatus = response.request.status;
+        var responseStatus = response.resStatus;
+        if ((responseStatus == m_responseStatus1 || responseStatus == m_responseStatus2) && (requestStatus == "Open" || requestStatus == "ReOpened"))
+          _myViewModel.filterResponseInfoTabResponseNameOpen2(response.title);
+        else
+          _myViewModel.filterResponseInfoTabResponseNameProcessed2(
+            response.title
+          );
+      }
+    }
+    var publicMembers = {
+      GoToResponse,
+      IsTransactionExecuting: function() {
+        return m_bIsTransactionExecuting;
+      }
+    };
+    return publicMembers;
+  };
+  if (document.readyState === "ready" || document.readyState === "complete") {
+    InitReport2();
+  } else {
+    document.onreadystatechange = () => {
+      if (document.readyState === "complete" || document.readyState === "ready") {
+        ExecuteOrDelayUntilScriptLoaded(function() {
+          SP.SOD.executeFunc("sp.js", "SP.ClientContext", InitReport2);
+        }, "sp.js");
+      }
+    };
+  }
+  function InitReport2() {
+    document.getElementById("app").innerHTML = aoDbTemplate;
+    Audit2.AOReport.Report = new Audit2.AOReport.NewReportPage();
+    Audit2.AOReport.Init();
+  }
+})();
 //# sourceMappingURL=ao_db.js.map

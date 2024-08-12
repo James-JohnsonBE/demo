@@ -2,12 +2,18 @@ import * as esbuild from "esbuild";
 import * as fs from "fs";
 import * as path from "path";
 
-let sourcemap = true;
+let buildOpts = {
+  sourcemap: true,
+  minify: false,
+  outdir: "dist",
+};
+let minify = false;
 console.log(process.argv);
 if (process.argv.includes("-p")) {
   // If we're in production, don't publish source maps
   console.log("Production Build");
-  sourcemap = false;
+  buildOpts.sourcemap = false;
+  buildOpts.minify = true;
 }
 
 await esbuild.build({
@@ -23,9 +29,7 @@ await esbuild.build({
     "./src/pages/update_site_groups/update_site_groups.js",
   ],
   bundle: true,
-  minify: true,
-  sourcemap,
-  outdir: "dist",
+  ...buildOpts,
 });
 
 const referenceFiles = [
@@ -43,6 +47,6 @@ const referenceFiles = [
 referenceFiles.forEach(copyReferenceFiles);
 function copyReferenceFiles(filePath) {
   const srcTextFile = path.resolve("src/" + filePath);
-  const destTextFile = path.resolve("dist/" + filePath);
+  const destTextFile = path.resolve(buildOpts.outdir + "/" + filePath);
   fs.copyFileSync(srcTextFile, destTextFile);
 }

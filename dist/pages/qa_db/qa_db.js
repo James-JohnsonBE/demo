@@ -1,4 +1,12 @@
-(()=>{var kt=Object.freeze,Vt=Object.defineProperty;var Ft=(d,r)=>kt(Vt(d,"raw",{value:kt(r||d.slice())}));var Bt=String.raw,Pt,Et=Bt(Pt||(Pt=Ft([`
+(() => {
+  var __freeze = Object.freeze;
+  var __defProp = Object.defineProperty;
+  var __template = (cooked, raw) => __freeze(__defProp(cooked, "raw", { value: __freeze(raw || cooked.slice()) }));
+
+  // src/pages/qa_db/QA_DB_Template.js
+  var html = String.raw;
+  var _a;
+  var qaDbTemplate = html(_a || (_a = __template([`
   <link
     rel="stylesheet"
     type="text/css"
@@ -669,10 +677,156 @@
   <\/script>
 
   <div id="divTest"></div>
-`])));var Nt={};window.history.replaceState({},"",document.location.href);function je(d,r){if(Lt(d)==r)return;let f=window.location.search,m=new RegExp("([?;&])"+d+"[^&;]*[;&]?"),y=f.replace(m,"$1").replace(/&$/,""),C=(y.length>2?y+"&":"?")+(r?d+"="+r:"");Nt[d]=r,window.history.pushState(Nt,"",C.toString())}function Lt(d){let r=new RegExp("[?&]"+d+"=([^&#]*)").exec(window.location.href);return r==null?null:decodeURI(r[1])||0}var He=class{constructor(r,f="Tab"){this.urlParam=f,ko.utils.arrayPushAll(this.tabOpts,r),this.selectedTab.subscribe(this.tabChangeHandler),window.addEventListener("popstate",this.popStateHandler)}tabOpts=ko.observableArray();selectedTab=ko.observable();isSelected=r=>r.id==this.selectedTab()?.id;clickTabLink=r=>{this.selectedTab(r),console.log("selected: "+r.id)};selectTab=r=>this.selectById(r.id);selectById=r=>{let f=this.tabOpts().find(m=>m.id==r)??this.getDefaultTab();this.selectedTab(f)};getDefaultTab=()=>this.tabOpts()[0];tabChangeHandler=r=>{r&&je(this.urlParam,r.id)};popStateHandler=r=>{r.state&&r.state[this.urlParam]&&this.selectById(r.state[this.urlParam])}},Pe=class{constructor(r,f,m){this.id=r,this.linkText=f,this.template=m}};var Ee=class d{constructor({ID:r,Title:f,LoginName:m=null,IsGroup:y=null,IsEnsured:C=!1}){this.ID=r,this.Title=f,this.LookupValue=f,this.LoginName=m!=""?m:null,this.IsGroup=y,this.IsEnsured=C}ID=null;Title=null;LoginName=null;LookupValue=null;getKey=()=>this.LoginName??this.Title;static Create=function(r){return!r||!r.ID&&!(r.Title||r.LookupValue)?null:new d({...r,Title:r.Title??r.LookupValue})}};var V=String.raw;function K(d){ko.components.register(d.edit,{template:d.editTemplate,viewModel:d}),ko.components.register(d.view,{template:d.viewTemplate,viewModel:d})}var H=class{constructor(r){Object.assign(this,r)}_id;getUniqueId=()=>(this._id||(this._id="field-"+Math.floor(Math.random()*1e4)),this._id);Errors=ko.pureComputed(()=>this.ShowErrors()?this.isRequired?this.Value()?[]:[new ValidationError("text-field","required-field",this.displayName+" is required!")]:[]:[]);ShowErrors=ko.observable(!1);ValidationClass=ko.pureComputed(()=>{if(this.ShowErrors())return this.Errors().length?"is-invalid":"is-valid"});static viewTemplate=V`
+`])));
+
+  // src/common/router.js
+  var state = {};
+  window.history.replaceState({}, "", document.location.href);
+  function setUrlParam(param, newVal) {
+    if (getUrlParam(param) == newVal)
+      return;
+    const search = window.location.search;
+    const regex = new RegExp("([?;&])" + param + "[^&;]*[;&]?");
+    const query = search.replace(regex, "$1").replace(/&$/, "");
+    const urlParams = (query.length > 2 ? query + "&" : "?") + (newVal ? param + "=" + newVal : "");
+    state[param] = newVal;
+    window.history.pushState(state, "", urlParams.toString());
+  }
+  function getUrlParam(param) {
+    const results = new RegExp("[?&]" + param + "=([^&#]*)").exec(
+      window.location.href
+    );
+    if (results == null) {
+      return null;
+    } else {
+      return decodeURI(results[1]) || 0;
+    }
+  }
+
+  // src/components/tabs/tabs_module.js
+  var TabsModule = class {
+    constructor(tabOpts, urlParam = "Tab") {
+      this.urlParam = urlParam;
+      ko.utils.arrayPushAll(this.tabOpts, tabOpts);
+      this.selectedTab.subscribe(this.tabChangeHandler);
+      window.addEventListener("popstate", this.popStateHandler);
+    }
+    tabOpts = ko.observableArray();
+    selectedTab = ko.observable();
+    isSelected = (tab) => {
+      return tab.id == this.selectedTab()?.id;
+    };
+    clickTabLink = (tab) => {
+      this.selectedTab(tab);
+      console.log("selected: " + tab.id);
+    };
+    selectTab = (tab) => this.selectById(tab.id);
+    selectById = (tabId) => {
+      const tabById = this.tabOpts().find((tab) => tab.id == tabId) ?? this.getDefaultTab();
+      this.selectedTab(tabById);
+    };
+    getDefaultTab = () => this.tabOpts()[0];
+    tabChangeHandler = (newTab) => {
+      if (newTab)
+        setUrlParam(this.urlParam, newTab.id);
+    };
+    popStateHandler = (event) => {
+      if (event.state) {
+        if (event.state[this.urlParam])
+          this.selectById(event.state[this.urlParam]);
+      }
+    };
+  };
+  var Tab = class {
+    constructor(id2, linkText, template) {
+      this.id = id2;
+      this.linkText = linkText;
+      this.template = template;
+    }
+  };
+
+  // src/sal/entities/People.js
+  var People2 = class _People {
+    constructor({
+      ID,
+      Title,
+      LoginName = null,
+      IsGroup = null,
+      IsEnsured = false
+    }) {
+      this.ID = ID;
+      this.Title = Title;
+      this.LookupValue = Title;
+      this.LoginName = LoginName != "" ? LoginName : null;
+      this.IsGroup = IsGroup;
+      this.IsEnsured = IsEnsured;
+    }
+    ID = null;
+    Title = null;
+    LoginName = null;
+    LookupValue = null;
+    getKey = () => this.LoginName ?? this.Title;
+    static Create = function(props) {
+      if (!props || !props.ID && !(props.Title || props.LookupValue))
+        return null;
+      return new _People({
+        ...props,
+        Title: props.Title ?? props.LookupValue
+      });
+    };
+  };
+
+  // src/sal/components/fields/BaseFieldModule.js
+  var html2 = String.raw;
+  function registerFieldComponents(constructor) {
+    ko.components.register(constructor.edit, {
+      template: constructor.editTemplate,
+      viewModel: constructor
+    });
+    ko.components.register(constructor.view, {
+      template: constructor.viewTemplate,
+      viewModel: constructor
+    });
+  }
+  var BaseFieldModule = class {
+    constructor(params) {
+      Object.assign(this, params);
+    }
+    _id;
+    getUniqueId = () => {
+      if (!this._id) {
+        this._id = "field-" + Math.floor(Math.random() * 1e4);
+      }
+      return this._id;
+    };
+    Errors = ko.pureComputed(() => {
+      if (!this.ShowErrors())
+        return [];
+      if (!this.isRequired)
+        return [];
+      return this.Value() ? [] : [
+        new ValidationError(
+          "text-field",
+          "required-field",
+          this.displayName + ` is required!`
+        )
+      ];
+    });
+    ShowErrors = ko.observable(false);
+    ValidationClass = ko.pureComputed(() => {
+      if (!this.ShowErrors())
+        return;
+      return this.Errors().length ? "is-invalid" : "is-valid";
+    });
+    static viewTemplate = html2`
     <div class="fw-semibold" data-bind="text: displayName"></div>
     <div data-bind="text: toString()"></div>
-  `;static editTemplate=V`<div>Uh oh!</div>`};var qt=V`
+  `;
+    static editTemplate = html2`<div>Uh oh!</div>`;
+  };
+
+  // src/sal/components/fields/BlobModule.js
+  var editTemplate = html2`
   <h5>
     <span data-bind="text: displayName"></span
     ><span data-bind="if: isRequired" class="fw-bold text-danger">*</span>:
@@ -734,7 +888,8 @@
   </table>
   <!-- /ko -->
   <!-- /ko -->
-`,$t=V`
+`;
+  var viewTemplate = html2`
   <h5>
     <span data-bind="text: displayName"></span
     ><span data-bind="if: isRequired" class="fw-bold text-danger">*</span>:
@@ -771,7 +926,21 @@
   </table>
   <!-- /ko -->
   <!-- /ko -->
-`,We=class extends H{constructor(r){super(r)}static viewTemplate=$t;static editTemplate=qt;static view="blob-view";static edit="blob-edit";static new="blob-edit"};K(We);var Mt=V`
+`;
+  var BlobModule = class extends BaseFieldModule {
+    constructor(params) {
+      super(params);
+    }
+    static viewTemplate = viewTemplate;
+    static editTemplate = editTemplate;
+    static view = "blob-view";
+    static edit = "blob-edit";
+    static new = "blob-edit";
+  };
+  registerFieldComponents(BlobModule);
+
+  // src/sal/components/fields/CheckboxModule.js
+  var editTemplate2 = html2`
   <div class="form-check form-switch">
     <label class="form-check-label"
       ><span class="fw-semibold" data-bind="text: displayName"></span>
@@ -789,7 +958,8 @@
       <!-- /ko -->
     </label>
   </div>
-`,Qt=V`
+`;
+  var viewTemplate2 = html2`
   <div class="form-check form-switch">
     <label class="form-check-label"
       ><span class="fw-semibold" data-bind="text: displayName"></span>
@@ -802,7 +972,21 @@
       />
     </label>
   </div>
-`,Je=class extends H{constructor(r){super(r)}static viewTemplate=Qt;static editTemplate=Mt;static view="checkbox-view";static edit="checkbox-edit";static new="checkbox-edit"};K(Je);var jt=V`
+`;
+  var CheckboxModule = class extends BaseFieldModule {
+    constructor(params) {
+      super(params);
+    }
+    static viewTemplate = viewTemplate2;
+    static editTemplate = editTemplate2;
+    static view = "checkbox-view";
+    static edit = "checkbox-edit";
+    static new = "checkbox-edit";
+  };
+  registerFieldComponents(CheckboxModule);
+
+  // src/sal/components/fields/DateModule.js
+  var editTemplate3 = html2`
   <label class="fw-semibold"
     ><span data-bind="text: displayName"></span
     ><span data-bind="if: isRequired" class="fw-bold text-danger">*</span>:
@@ -822,7 +1006,20 @@
   <div class="fw-semibold text-danger" data-bind="text: description"></div>
   <!-- /ko -->
   <!-- /ko -->
-`,Xe=class extends H{constructor(r){super(r)}static editTemplate=jt;static view="date-view";static edit="date-edit";static new="date-edit"};K(Xe);var Ht=V`
+`;
+  var DateModule = class extends BaseFieldModule {
+    constructor(params) {
+      super(params);
+    }
+    static editTemplate = editTemplate3;
+    static view = "date-view";
+    static edit = "date-edit";
+    static new = "date-edit";
+  };
+  registerFieldComponents(DateModule);
+
+  // src/sal/components/fields/LookupModule.js
+  var editTemplate4 = html2`
   <label class="fw-semibold"
     ><span data-bind="text: displayName"></span
     ><span data-bind="if: isRequired" class="fw-bold text-danger">*</span>:
@@ -876,7 +1073,39 @@
   <div class="fw-semibold text-danger" data-bind="text: description"></div>
   <!-- /ko -->
   <!-- /ko -->
-`,Ke=class extends H{constructor(r){super(r),this.onSearchInput=r.onSearchInput,this.multiple=r.multiple??!1}static editTemplate=Ht;static view="lookup-view";static edit="lookup-edit";static new="lookup-edit"};K(Ke);var Wt=V`
+`;
+  var LookupModule = class extends BaseFieldModule {
+    constructor(field) {
+      super(field);
+      this.onSearchInput = field.onSearchInput;
+      this.multiple = field.multiple ?? false;
+    }
+    // selectedOptions = ko.pureComputed({
+    //   read: () => {
+    //     if (this.multiple) return this.Value();
+    //     return ko.unwrap(this.Value) ? [ko.unwrap(this.Value)] : [];
+    //   },
+    //   write: (val) => {
+    //     if (this.multiple) {
+    //       this.Value(val);
+    //       return;
+    //     }
+    //     if (val.length) {
+    //       this.Value(val[0]);
+    //       return;
+    //     }
+    //     this.Value(null);
+    //   },
+    // });
+    static editTemplate = editTemplate4;
+    static view = "lookup-view";
+    static edit = "lookup-edit";
+    static new = "lookup-edit";
+  };
+  registerFieldComponents(LookupModule);
+
+  // src/sal/components/fields/PeopleModule.js
+  var editTemplate5 = html2`
   <label class="fw-semibold w-100"
     ><span data-bind="text: displayName"></span
     ><span data-bind="if: isRequired" class="fw-bold text-danger">*</span>:
@@ -912,7 +1141,8 @@
   <div class="fw-semibold text-danger" data-bind="text: description"></div>
   <!-- /ko -->
   <!-- /ko -->
-`,Jt=V`
+`;
+  var viewTemplate3 = html2`
   <div class="fw-semibold" data-bind="text: displayName"></div>
   <!-- ko if: toString -->
   <!-- ko ifnot: multiple -->
@@ -930,7 +1160,42 @@
   <!-- ko ifnot: toString -->
   <div class="fst-italic">Not provided.</div>
   <!-- /ko -->
-`,Ze=class extends H{constructor(r){super(r)}ValueFunc=ko.pureComputed({read:()=>this.Value()?ko.unwrap(this.userOpts).find(f=>f.ID==this.Value().ID):void 0,write:r=>{ko.unwrap(this.userOpts)&&this.Value(r)}});ShowUserSelect=ko.pureComputed(()=>this.spGroupName?ko.unwrap(this.userOpts).length:!1);static viewTemplate=Jt;static editTemplate=Wt;static view="people-view";static edit="people-edit";static new="people-edit"};K(Ze);var Xt=V`
+`;
+  var PeopleModule = class extends BaseFieldModule {
+    constructor(params) {
+      super(params);
+    }
+    ValueFunc = ko.pureComputed({
+      read: () => {
+        if (!this.Value())
+          return;
+        const userOpts = ko.unwrap(this.userOpts);
+        return userOpts.find((opt) => opt.ID == this.Value().ID);
+      },
+      write: (opt) => {
+        const userOpts = ko.unwrap(this.userOpts);
+        if (!userOpts)
+          return;
+        this.Value(opt);
+      }
+    });
+    ShowUserSelect = ko.pureComputed(() => {
+      const groupName = this.spGroupName;
+      if (!groupName)
+        return false;
+      const options = ko.unwrap(this.userOpts);
+      return options.length;
+    });
+    static viewTemplate = viewTemplate3;
+    static editTemplate = editTemplate5;
+    static view = "people-view";
+    static edit = "people-edit";
+    static new = "people-edit";
+  };
+  registerFieldComponents(PeopleModule);
+
+  // src/sal/components/fields/SearchSelectModule.js
+  var editTemplate6 = html2`
   <label class="fw-semibold"
     ><span data-bind="text: displayName"></span
     ><span data-bind="if: isRequired" class="fw-bold text-danger">*</span>:
@@ -962,7 +1227,66 @@
   <div class="fw-semibold text-danger" data-bind="text: description"></div>
   <!-- /ko -->
   <!-- /ko -->
-`,Ne=class extends H{constructor(r){super(r),this.Options=r.Options,this.Value=r.Value,this.optionsText=r.optionsText??(f=>f),this.multiple=r.multiple,this.OptionsCaption=r.OptionsCaption??"Select...",this.onSearchInput=r.onSearchInput}GetSelectedOptions=ko.pureComputed(()=>this.multiple?this.Value():this.Value()?[this.Value()]:[]);InputGroupFocused=ko.observable();setFocus=()=>this.InputGroupFocused(!0);FilterText=ko.observable();FilteredOptions=ko.pureComputed(()=>this.Options().filter(r=>this.GetSelectedOptions().indexOf(r)>=0?!1:this.FilterText()?this.optionsText(r).toLowerCase().includes(this.FilterText().toLowerCase()):!0));addSelection=(r,f)=>{console.log("selected",r),f.target.nextElementSibling&&f.target.nextElementSibling.focus(),this.multiple?this.Value.push(r):this.Value(r)};removeSelection=r=>this.multiple?this.Value.remove(r):this.Value(null);setInputGroupFocus=()=>{this.InputGroupFocused(!0),clearTimeout(this.focusOutTimeout)};removeInputGroupFocus=(r,f)=>{this.focusOutTimeout=window.setTimeout(()=>{this.InputGroupFocused(!1)},0)};static editTemplate=Xt;static view="search-select-view";static edit="search-select-edit";static new="search-select-new"};K(Ne);var Kt=V`
+`;
+  var SearchSelectModule = class extends BaseFieldModule {
+    constructor(field) {
+      super(field);
+      this.Options = field.Options;
+      this.Value = field.Value;
+      this.optionsText = field.optionsText ?? ((val) => {
+        return val;
+      });
+      this.multiple = field.multiple;
+      this.OptionsCaption = field.OptionsCaption ?? "Select...";
+      this.onSearchInput = field.onSearchInput;
+    }
+    GetSelectedOptions = ko.pureComputed(() => {
+      if (this.multiple)
+        return this.Value();
+      return this.Value() ? [this.Value()] : [];
+    });
+    InputGroupFocused = ko.observable();
+    setFocus = () => this.InputGroupFocused(true);
+    FilterText = ko.observable();
+    FilteredOptions = ko.pureComputed(
+      () => this.Options().filter((option) => {
+        if (this.GetSelectedOptions().indexOf(option) >= 0)
+          return false;
+        if (this.FilterText())
+          return this.optionsText(option).toLowerCase().includes(this.FilterText().toLowerCase());
+        return true;
+      })
+    );
+    addSelection = (option, e) => {
+      console.log("selected", option);
+      if (e.target.nextElementSibling) {
+        e.target.nextElementSibling.focus();
+      }
+      if (this.multiple) {
+        this.Value.push(option);
+      } else {
+        this.Value(option);
+      }
+    };
+    removeSelection = (option) => this.multiple ? this.Value.remove(option) : this.Value(null);
+    setInputGroupFocus = () => {
+      this.InputGroupFocused(true);
+      clearTimeout(this.focusOutTimeout);
+    };
+    removeInputGroupFocus = (data2, e) => {
+      this.focusOutTimeout = window.setTimeout(() => {
+        this.InputGroupFocused(false);
+      }, 0);
+    };
+    static editTemplate = editTemplate6;
+    static view = "search-select-view";
+    static edit = "search-select-edit";
+    static new = "search-select-new";
+  };
+  registerFieldComponents(SearchSelectModule);
+
+  // src/sal/components/fields/SelectModule.js
+  var editTemplate7 = html2`
   <label class="fw-semibold"
     ><span data-bind="text: displayName"></span
     ><span data-bind="if: isRequired" class="fw-bold text-danger">*</span>:
@@ -1004,7 +1328,20 @@
   <div class="fw-semibold text-danger" data-bind="text: description"></div>
   <!-- /ko -->
   <!-- /ko -->
-`,ze=class extends H{constructor(r){super(r)}static editTemplate=Kt;static view="select-view";static edit="select-edit";static new="select-edit"};K(ze);var Zt=V`
+`;
+  var SelectModule = class extends BaseFieldModule {
+    constructor(params) {
+      super(params);
+    }
+    static editTemplate = editTemplate7;
+    static view = "select-view";
+    static edit = "select-edit";
+    static new = "select-edit";
+  };
+  registerFieldComponents(SelectModule);
+
+  // src/sal/components/fields/TextAreaModule.js
+  var editTemplate8 = html2`
   <div class="component field">
     <!-- ko if: isRichText -->
     <label class="fw-semibold"
@@ -1058,7 +1395,8 @@
     <!-- /ko -->
     <!-- /ko -->
   </div>
-`,zt=V`
+`;
+  var viewTemplate4 = html2`
   <div class="fw-semibold" data-bind="text: displayName"></div>
   <!-- ko if: Value -->
   <!-- ko if: isRichText -->
@@ -1071,7 +1409,64 @@
   <!-- ko ifnot: Value -->
   <div class="fst-italic">Not provided.</div>
   <!-- /ko -->
-`,Ye=class extends H{constructor(r){super(r)}childrenHaveLoaded=r=>{this.initializeEditor()};getToolbarId=()=>"toolbar-"+this.getUniqueId();initializeEditor(){let r=[["bold","italic","underline","strike"],["link"],["blockquote","code-block"],[{header:1},{header:2}],[{list:"ordered"},{list:"bullet"}],[{script:"sub"},{script:"super"}],[{indent:"-1"},{indent:"+1"}],[{direction:"rtl"}],[{size:["small",!1,"large","huge"]}],[{header:[1,2,3,4,5,6,!1]}],[{color:[]},{background:[]}],[{font:[]}],[{align:[]}],["clean"]];var f=new Quill("#"+this.getUniqueId(),{modules:{toolbar:r},theme:"snow"});let m=this.Value;m.subscribe(y=>{y==""&&f.setText("")}),f.on("text-change",function(y,C,_){m(f.root.textContent?f.root.innerHTML:"")})}static viewTemplate=zt;static editTemplate=Zt;static view="text-area-view";static edit="text-area-edit";static new="text-area-edit"};K(Ye);var Yt=V`
+`;
+  var TextAreaModule = class extends BaseFieldModule {
+    constructor(params) {
+      super(params);
+    }
+    childrenHaveLoaded = (nodes) => {
+      this.initializeEditor();
+    };
+    getToolbarId = () => "toolbar-" + this.getUniqueId();
+    initializeEditor() {
+      const toolbarOptions = [
+        ["bold", "italic", "underline", "strike"],
+        // toggled buttons
+        ["link"],
+        ["blockquote", "code-block"],
+        [{ header: 1 }, { header: 2 }],
+        // custom button values
+        [{ list: "ordered" }, { list: "bullet" }],
+        [{ script: "sub" }, { script: "super" }],
+        // superscript/subscript
+        [{ indent: "-1" }, { indent: "+1" }],
+        // outdent/indent
+        [{ direction: "rtl" }],
+        // text direction
+        [{ size: ["small", false, "large", "huge"] }],
+        // custom dropdown
+        [{ header: [1, 2, 3, 4, 5, 6, false] }],
+        [{ color: [] }, { background: [] }],
+        // dropdown with defaults from theme
+        [{ font: [] }],
+        [{ align: [] }],
+        ["clean"]
+        // remove formatting button
+      ];
+      var editor = new Quill("#" + this.getUniqueId(), {
+        modules: { toolbar: toolbarOptions },
+        theme: "snow"
+      });
+      const Value = this.Value;
+      Value.subscribe((val) => {
+        if (val == "") {
+          editor.setText("");
+        }
+      });
+      editor.on("text-change", function(delta, oldDelta, source) {
+        Value(editor.root.textContent ? editor.root.innerHTML : "");
+      });
+    }
+    static viewTemplate = viewTemplate4;
+    static editTemplate = editTemplate8;
+    static view = "text-area-view";
+    static edit = "text-area-edit";
+    static new = "text-area-edit";
+  };
+  registerFieldComponents(TextAreaModule);
+
+  // src/sal/components/fields/TextModule.js
+  var editTemplate9 = html2`
   <label class="fw-semibold"
     ><span data-bind="text: displayName"></span
     ><span data-bind="if: isRequired" class="fw-bold text-danger">*</span>:
@@ -1091,32 +1486,3342 @@
   <div class="fw-semibold text-danger" data-bind="text: description"></div>
   <!-- /ko -->
   <!-- /ko -->
-`,et=class extends H{constructor(r){super(r)}static editTemplate=Yt;static view="text-view";static edit="text-edit";static new="text-edit"};K(et);var ui=String.raw;window.console=window.console||{log:function(){}};window.sal=window.sal??{};var fe=window.sal,Ut=_spPageContextInfo.webServerRelativeUrl=="/"?"":_spPageContextInfo.webServerRelativeUrl;fe.globalConfig=fe.globalConfig||{siteGroups:[],siteUrl:Ut,listServices:Ut+"/_vti_bin/ListData.svc/",defaultGroups:{}};fe.site=fe.site||{};window.DEBUG=!0;function Dt(d,r=null){return{ID:d.get_id(),Title:d.get_title(),LoginName:d.get_loginName(),IsEnsured:!0,IsGroup:r??d.constructor.getName()=="SP.Group",oPrincipal:d}}var ci=_spPageContextInfo.webAbsoluteUrl=="/"?"":_spPageContextInfo.webAbsoluteUrl;fe.NewAppConfig=function(){var d={};d.roles={FullControl:"Full Control",Design:"Design",Edit:"Edit",Contribute:"Contribute",RestrictedContribute:"Restricted Contribute",InitialCreate:"Initial Create",Read:"Read",RestrictedRead:"Restricted Read",LimitedAccess:"Limited Access"},d.fulfillsRole=function(m,y){let C=Object.values(d.roles);return!C.includes(m)||!C.includes(y)?!1:C.indexOf(m)<=C.indexOf(y)},d.validate=function(){Object.keys(d.roles).forEach(function(m){var y=d.roles[m];fe.globalConfig.roles.includes(y)?console.log(y):console.error(y+" is not in the global roles list")})};var r={groups:{Owners:"workorder Owners",Members:"workorder Members",Visitors:"workorder Visitors",RestrictedReaders:"Restricted Readers"}},f={siteRoles:d,siteGroups:r};return f};fe.NewUtilities=function(){function d(_,A,T){T=T===void 0?null:T;var E=new SP.ClientContext.get_current,O=E.get_web(),G=new SP.GroupCreationInformation;G.set_title(_),this.oGroup=oWebsite.get_siteGroups().add(G),oGroup.set_owner(oWebsite.get_associatedOwnerGroup()),oGroup.update();var x=SP.RoleDefinitionBindingCollection.newObject(clientContext);this.oRoleDefinitions=[],A.forEach(function(Z){var X=oWebsite.get_roleDefinitions().getByName(Z);this.oRoleDefinitions.push(X),x.add(X)});var Y=oWebsite.get_roleAssignments();Y.add(oGroup,x);function Q(){var Z=oGroup.get_title()+" created and assigned to "+oRoleDefinitions.forEach(function(X){X+""});T&&T(oGroup.get_id()),console.log(Z)}function J(Z,X){alert(groupnName+" - Create group failed. "+X.get_message()+`
-`+X.get_stackTrace())}clientContext.load(oGroup,"Title");var ee={groupName:_,oGroup,oRoleDefinition,callback:T};clientContext.executeQueryAsync(Function.createDelegate(ee,Q),Function.createDelegate(ee,J))}function r(_,A){var T=new SP.ClientContext.get_current,E=T.get_web(),O=E.ensureUser(_),G=O.get_groups();function x(){for(var Q=new Array,J=new String,ee=G.getEnumerator();ee.moveNext();){var Z=ee.get_current(),X=Dt(Z);J+=`
-Group ID: `+Z.get_id()+", Title : "+Z.get_title(),Q.push(X)}console.log(J.toString()),A(Q)}function Y(Q,J){console.error(" Everyone - Query Everyone group failed. "+J.get_message()+`
-`+J.get_stackTrace())}T.load(O),T.load(G),data={everyone:O,oGroups:G,callback:A},T.executeQueryAsync(Function.createDelegate(data,x),Function.createDelegate(data,Y))}function f(_,A){var T=new SP.ClientContext.get_current,E=_.get_users();function O(){for(var Y=[],Q=E.getEnumerator();Q.moveNext();){var J=Q.get_current(),ee=Dt(J);Y.push(ee)}A(Y)}function G(Y,Q){}var x={oUsers:E,callback:A};T.load(E),T.executeQueryAsync(Function.createDelegate(x,O),Function.createDelegate(x,G))}function m(_,A,T,E){var O=new SP.ClientContext.get_current,G=O.get_web(),x=G.getFolderByServerRelativeUrl(_);O.load(x,"Files"),O.executeQueryAsync(function(){console.log("Got the source folder right here!");for(var Y=x.get_files(),Q=Y.getEnumerator(),J=[];Q.moveNext();){var ee=Q.get_current(),Z=A+"/"+ee.get_name();J.push(Z),ee.copyTo(Z,!0)}console.log(J),O.executeQueryAsync(function(){console.log("Files moved successfully!"),T()},function(X,le){console.log("error: ")+le.get_message()})},function(Y,Q){console.log("Sorry, something messed up: "+Q.get_message())})}function y(_,A){return new Promise((T,E)=>{m(_,A,T,E)})}var C={copyFiles:m,copyFilesAsync:y,createSiteGroup:d,getUserGroups:r,getUsersWithGroup:f};return C};async function It(d){return new Promise((r,f)=>{var m=fe.globalConfig.siteGroups.find(function(E){return E.LoginName==d});if(m){r(m);return}var y=new SP.ClientContext.get_current,C=y.get_web().ensureUser(d);function _(E,O){let G=Dt(C);r(G)}function A(E,O){console.error("Failed to ensure user :"+O.get_message()+`
-`+O.get_stackTrace()),f(O)}let T={oUser:C,resolve:r,reject:f};y.load(C),y.executeQueryAsync(Function.createDelegate(T,_),Function.createDelegate(T,A))})}async function es(d,r="GET",f={},m={}){let y=d.startsWith("http")?d:fe.globalConfig.siteUrl+"/_api"+d,C=await fetch(y,{method:r,headers:{Accept:"application/json; odata=verbose","X-RequestDigest":document.getElementById("__REQUESTDIGEST").value,...f},...m});if(!C.ok){if(C.status==404)return;console.error(C)}try{return await C.json()}catch{return}}window.fetchSharePointData=es;var At=class{constructor(r){this.maxConcurrency=r,this.runningJobs=0,this.queue=[]}addJob(r){return new Promise((f,m)=>{let y=async()=>{try{let C=await r();f(C)}catch(C){m(C)}finally{this.runningJobs--,this.processQueue()}};this.queue.push(y),this.processQueue()})}processQueue(){for(;this.runningJobs<this.maxConcurrency&&this.queue.length>0;){let r=this.queue.shift();this.runningJobs++,r()}}},pi=new At(5);var tt="/sites/CGFS/Style Library/apps/audit/src";ko.subscribable.fn.subscribeChanged=function(d){var r;this.subscribe(function(f){r=f},this,"beforeChange"),this.subscribe(function(f){d(f,r)})};ko.observableArray.fn.subscribeAdded=function(d){this.subscribe(function(r){let f=r.filter(m=>m.status=="added").map(m=>m.value);d(f)},this,"arrayChange")};ko.bindingHandlers.searchSelect={init:function(d,r,f){let{options:m,selectedOptions:y,optionsText:C,onSearchInput:_}=r();function A(){let E=ko.unwrap(m).map(O=>{let G=document.createElement("option");return ko.selectExtensions.writeValue(G,ko.unwrap(O)),G.innerText=C(O),ko.unwrap(y)?.find(x=>x.ID==O.ID)&&G.setAttribute("selected",""),G});d.append(...E)}A(),ko.isObservable(m)&&m.subscribe(()=>A(),this),ko.utils.registerEventHandler(d,"change",T=>{y(d.selectedOptions.map(E=>ko.selectExtensions.readValue(E)))}),_&&ko.utils.registerEventHandler(d,"input",T=>{_(T.originalEvent.target.searchInputElement.value)})},update:function(d,r,f,m,y){let{selectedOptions:C}=r(),_=ko.unwrap(C);for(var A=0;A<d.options.length;A++){let T=d.options[A];T.toggleAttribute("selected",_.includes(ko.selectExtensions.readValue(T)))}}};ko.bindingHandlers.people={init:function(d,r,f){var m={};m.PrincipalAccountType="User",m.SearchPrincipalSource=15,m.ShowUserPresence=!0,m.ResolvePrincipalSource=15,m.AllowEmailAddresses=!0,m.AllowMultipleValues=!1,m.MaximumEntitySuggestions=50,m.OnUserResolvedClientScript=async function(y,C){var _=SPClientPeoplePicker.SPClientPeoplePickerDict[y],A=r(),T=_.GetControlValueAsJSObject()[0];if(!T){A(null);return}if(T.IsResolved){if(T.Key==A()?.LoginName)return;var E=await It(T.Key),O=new Ee(E);A(O)}},SPClientPeoplePicker_InitStandaloneControlWrapper(d.id,null,m)},update:function(d,r,f,m,y){var C=SPClientPeoplePicker.SPClientPeoplePickerDict[d.id+"_TopSpan"],_=ko.utils.unwrapObservable(r());if(!_){C?.DeleteProcessedUser();return}_&&!C.GetAllUserInfo().find(A=>A.DisplayText==_.LookupValue)&&C.AddUserKeys(_.LoginName??_.LookupValue??_.Title)}};ko.bindingHandlers.dateField={init:function(d,r,f){},update:function(d,r,f,m,y){}};ko.bindingHandlers.downloadLink={update:function(d,r,f,m,y){var C=r(),_=C.replace(/:([A-Za-z_]+)/g,function(A,T){return ko.unwrap(m[T])});d.href=_}};ko.bindingHandlers.files={init:function(d,r){function f(y){var C=r();if(!y.length){C.removeAll();return}let _=ko.unwrap(C),A=[];for(let T of y)_.find(E=>E.name==T.name)||A.push(T);ko.utils.arrayPushAll(C,A)}ko.utils.registerEventHandler(d,"change",function(){f(d.files)});let m=d.closest("label");m&&(ko.utils.registerEventHandler(m,"dragover",function(y){y.preventDefault(),y.stopPropagation()}),ko.utils.registerEventHandler(m,"dragenter",function(y){y.preventDefault(),y.stopPropagation(),m.classList.add("dragging")}),ko.utils.registerEventHandler(m,"dragleave",function(y){y.preventDefault(),y.stopPropagation(),m.classList.remove("dragging")}),ko.utils.registerEventHandler(m,"drop",function(y){y.preventDefault(),y.stopPropagation();let _=y.originalEvent.dataTransfer.files;f(_)}))},update:function(d,r,f,m,y){if(!r()().length&&d.files.length){d.value=null;return}}};ko.bindingHandlers.toggleClick={init:function(d,r,f){var m=r();ko.utils.registerEventHandler(d,"click",function(){var y=f.get("toggleClass"),C=f.get("classContainer"),_=f.get("containerType");if(_&&_=="sibling")$(d).nextUntil(C).each(function(){$(this).toggleClass(y)});else if(_&&_=="doc"){var A=$(d).attr("src");A=="/_layouts/images/minus.gif"?$(d).attr("src","/_layouts/images/plus.gif"):$(d).attr("src","/_layouts/images/minus.gif"),$(d).parent()&&$(d).parent().parent()&&$(d).parent().parent().nextUntil(C).each(function(){$(this).toggleClass(y)})}else _&&_=="any"?$("."+y).is(":visible")?$("."+y).hide():$("."+y).show():$(d).find(C).toggleClass(y)})}};ko.bindingHandlers.toggles={init:function(d,r){var f=r();ko.utils.registerEventHandler(d,"click",function(){f(!f())})}};var ss={loadTemplate:function(d,r,f){r.fromPath?fetch(tt+r.fromPath).then(m=>{if(!m.ok)throw new Error(`Error Fetching HTML Template - ${m.statusText}`);return m.text()}).catch(m=>{r.fallback&&(console.warn("Primary template not found, attempting fallback",r),fetch(tt+r.fallback).then(y=>{if(!y.ok)throw new Error(`Error Fetching fallback HTML Template - ${y.statusText}`);return y.text()}).then(y=>ko.components.defaultLoader.loadTemplate(d,y,f)))}).then(m=>m?ko.components.defaultLoader.loadTemplate(d,m,f):null):f(null)}};ko.components.loaders.unshift(ss);var is={loadViewModel:function(d,r,f){if(r.viaLoader){let m=import(tt+r.viaLoader).then(y=>{let C=y.default;ko.components.defaultLoader.loadViewModel(d,C,f)})}else f(null)}};ko.components.loaders.unshift(is);window.Audit=window.Audit||{};Audit.Common=Audit.Common||{};function ns(){Audit.Common.Utilities=new Audit.Common.NewUtilities,Audit.Common.Init()}Audit.Common.Init=function(){};Audit.Common.NewUtilities=function(){var d=_spPageContextInfo.webServerRelativeUrl,r="AuditRequests",f="AuditRequests",m="AuditRequestsInternal",y="AuditRequestsInternal",C="AuditResponses",_="AuditResponses",A="AuditRequestDocs",T="AuditRequestDocs",E="AuditCoverSheets",O="AuditCoverSheets",G="AuditResponseDocs",x="AuditResponseDocs",Y="AuditResponseDocsEA",Q="AuditResponseDocsEA",J="AuditOrganizations",ee="AuditOrganizations",Z="AuditEmails",X="AuditEmails",le="AuditBulkResponses",st="AuditBulkResponses",it="AuditBulkPermissions",k="AuditBulkPermissions",nt="CGFS Special Access1",Ue="CGFS Special Access2",ot="Quality Assurance",rt="External Auditors",Oe=null,me=null,ge=null;function at(e=!1){if(e){location.href=location.pathname;return}var s=location.pathname;if($("#tabs").html()!=null&&$("#tabs").html()!=""){var o=0;try{o=$("#tabs").tabs("option","active")}catch{}if(s+="?Tab="+o,o==0&&$("#ddlResponseName").val()!="")s+="&ResNum="+$("#ddlResponseName").val();else if(o==1){var c=$("#ddlResponsesOpen").val(),u=$("#ddlResponsesProcessed").val();c!=null&&c!=""?s+="&ResNum="+c:u!=null&&u!=""&&(s+="&ResNum="+u)}location.href=s}else location.reload()}function lt(){var e=new Date;$("#divLoading").text("Loaded at "+e.format("MM/dd/yyyy hh:mm tt"))}function ut(){var e=GetUrlKeyValue("Tab");e!=null&&e!=""&&$("#tabs").tabs("option","active",e);var s=!1,o=GetUrlKeyValue("ResNum");o!=null&&o!=""&&(e==0?$("#ddlResponseName option[value='"+o+"']").length>0&&($("#ddlResponseName").val(o).change(),s=!0):$("#ddlResponsesOpen option[value='"+o+"']").length>0?$("#ddlResponsesOpen").val(o).change():$("#ddlResponsesProcessed option[value='"+o+"']").length>0&&$("#ddlResponsesProcessed").val(o).change()),s||$(".sr-response-item").show()}function xe(e,s){var o=0,c=0,u=0,v=0,h=0,I=$(".sr-response-item");I.each(function(){var N=$.trim($(this).find(".sr-response-requestStatus").text()),U=$.trim($(this).find(".sr-response-status").text());(U==e||U==s)&&(N=="Open"||N=="ReOpened")&&($(this).addClass("highlighted"),o++,U==e?v++:U==s&&h++,N=="Open"?c++:N=="ReOpened"&&u++)}),o>0?($("#lblStatusReportResponsesMsg").html("<span class='ui-icon ui-icon-alert'></span>There are "+o+" Responses pending your review"),v>0&&h==0?$("#ddlResponseStatus").val(e).change():h>0&&v==0&&$("#ddlResponseStatus").val(s).change()):$("#lblStatusReportResponsesMsg").html("<span class='ui-icon ui-icon-circle-check'></span>There are 0 Responses pending your review")}function De(e){me=new Array;for(var s=e.getEnumerator();s.moveNext();){var o=s.get_current(),c=o.get_id(),u=o.get_loginName(),v=o.get_title(),h=new Object;h.ID=c,h.loginName=u,h.title=v,h.group=o,me.push(h)}}function dt(e){var s=null;if(me!=null){for(var o=0;o<me.length;o++)if(me[o].title==e){s=me[o].group;break}}return s}function ct(e){ge=new Array;for(var s=e.getEnumerator();s.moveNext();){var o=s.get_current(),c=o.get_item("ID"),u=o.get_item("Title"),v=o.get_item("UserGroup");v!=null?v=v.get_lookupValue():v="";var h=new Object;h.ID=c,h.title=u,h.userGroup=v,ge.push(h)}}function pt(e){var s=null;if(ge!=null)for(var o=0;o<ge.length;o++){var c=ge[o];if(c.title==e){s=c.userGroup;break}}return s}function ft(e,s,o){if(e==null||s==""||s==null||o==null)return!1;var c=!1,u=e.get_roleAssignments();if(u==null)return alert("Error retrieving role assignments"),!1;for(var v=u.getEnumerator();v.moveNext();){var h=v.get_current();if(h!=null){var I=h.get_member();if(I.isPropertyAvailable("Title")){var N=I.get_title(),U=h.get_roleDefinitionBindings();if(U!=null)for(var L=U.getEnumerator();L.moveNext();){var q=L.get_current(),W=q.get_name();if(N==s&&q.get_basePermissions().has(o)){c=!0;break}}}}}return c}function mt(e,s){if(!s){var o=!1;$("#ddlResponsesOpen > option").each(function(){if($(this).text()==e)return o=!0,notifyId=SP.UI.Notify.addNotification("Displaying Response ("+e+")",!1),$("#ddlResponsesOpen").val(e).change(),!1}),o||$("#ddlResponsesProcessed > option").each(function(){if($(this).text()==e)return o=!0,notifyId=SP.UI.Notify.addNotification("Displaying Response ("+e+")",!1),$("#ddlResponsesProcessed").val(e).change(),!1}),$("#tabs").tabs({active:1})}}function gt(e){var s={};return e=="Archived"?s={"background-color":"Gainsboro"}:e=="Approved"?s={"background-color":"PaleGreen"}:e=="Rejected"?s={"background-color":"LightSalmon"}:e=="Sent to QA"?s={"background-color":"LightCyan"}:e=="Submitted"?s={"background-color":"LemonChiffon"}:e=="Marked for Deletion"&&(s={"background-color":"Gainsboro","font-style":"italic"}),s}function Ge(e){var s="";return e=="Archived"?s=" style='background-color:Gainsboro;' ":e=="Approved"?s=" style='background-color:PaleGreen;' ":e=="Rejected"?s=" style='background-color:LightSalmon;' ":e=="Sent to QA"?s=" style='background-color:LightCyan;' ":e=="Submitted"?s=" style='background-color:LemonChiffon;' ":e=="Marked for Deletion"&&(s=" style='background-color:Gainsboro; font-style:italic' title='Marked for Deletion by the Action Office' "),s}function Ve(e,s){for(var o=!1,c=e.getEnumerator();c.moveNext();){var u=c.get_current(),v=u.get_displayName();if(v==s){var o=!0;break}}return o}var ye=0,ue=0;function de(e,s,o,c){ye=0,ue=0;var u=new SP.ClientContext.get_current,v=u.get_web(),h=new SP.ListItemCreationInformation;h.set_underlyingObjectType(SP.FileSystemObjectType.folder),h.set_leafName(s),oNewEmailFolder=e.addItem(h),oNewEmailFolder.set_item("Title",s),oNewEmailFolder.update(),this.currentUser=v.get_currentUser(),this.ownerGroup=v.get_associatedOwnerGroup(),this.memberGroup=v.get_associatedMemberGroup(),this.visitorGroup=v.get_associatedVisitorGroup(),oNewEmailFolder.resetRoleInheritance(),oNewEmailFolder.breakRoleInheritance(!1,!1);var I=SP.RoleDefinitionBindingCollection.newObject(u);I.add(v.get_roleDefinitions().getByType(SP.RoleType.administrator));var N=SP.RoleDefinitionBindingCollection.newObject(u);N.add(v.get_roleDefinitions().getByType(SP.RoleType.contributor));var U=SP.RoleDefinitionBindingCollection.newObject(u);U.add(v.get_roleDefinitions().getByName("Restricted Read"));var L=SP.RoleDefinitionBindingCollection.newObject(u);L.add(v.get_roleDefinitions().getByName("Restricted Contribute")),oNewEmailFolder.get_roleAssignments().add(ownerGroup,I),oNewEmailFolder.get_roleAssignments().add(memberGroup,N),oNewEmailFolder.get_roleAssignments().add(visitorGroup,U);var q=Audit.Common.Utilities.GetSPSiteGroup(Audit.Common.Utilities.GetGroupNameQA());q!=null&&oNewEmailFolder.get_roleAssignments().add(q,L),oNewEmailFolder.get_roleAssignments().getByPrincipal(currentUser).deleteObject();function W(){if(this.requestItem){var M=this.requestItem.get_item("ActionOffice");if(M==null||M.length==0){this.OnComplete&&this.OnComplete(!0);return}for(var se=0;se<M.length;se++){var z=M[se].get_lookupValue(),j=Audit.Common.Utilities.GetAOSPGroupName(z),ie=Audit.Common.Utilities.GetSPSiteGroup(j);if(ie!=null){let we=function(){ue++,ue==ye&&this.OnComplete&&this.OnComplete(!0)},ve=function(Re,Te){ue++,ue==ye&&this.OnComplete&&this.OnComplete(!0)};var Ce=we,Le=ve;ye++;var ne=new SP.ClientContext.get_current,ce=ne.get_web(),ae=SP.RoleDefinitionBindingCollection.newObject(ne);ae.add(ce.get_roleDefinitions().getByName("Restricted Contribute")),this.oNewEmailFolder.get_roleAssignments().add(ie,ae);var re={OnComplete:this.OnComplete};ne.executeQueryAsync(Function.createDelegate(re,we),Function.createDelegate(re,ve))}}}else this.OnComplete&&this.OnComplete(!0)}function B(M,se){statusId=SP.UI.Status.addStatus("Request failed: "+se.get_message()+`
-`+se.get_stackTrace())}var te={requestItem:o,oNewEmailFolder,OnComplete:c};u.executeQueryAsync(Function.createDelegate(te,W),Function.createDelegate(te,B))}function Be(e,s){var o=e,c=s;let u,v;o==null&&(o=""),c==null&&(c="");var h=o.lastIndexOf("-");if(h>=0){var I=o.substring(0,h+1),N=o.replace(I,""),U=parseInt(N,10),L=Audit.Common.Utilities.PadDigits(U,5);u=I+L}else u=o;var q=c.lastIndexOf("-");if(q>=0){var W=c.substring(0,q+1),B=c.replace(W,""),te=parseInt(B,10),M=Audit.Common.Utilities.PadDigits(te,5);v=W+M}else v=c;return u.toLowerCase().localeCompare(v.toLowerCase())}function vt(e,s){var o=e.title,c=s.title,u,v;o==null&&(o=""),c==null&&(c="");var h=o.lastIndexOf("-");if(h>=0){var I=o.substring(0,h+1),N=o.replace(I,""),U=parseInt(N,10),L=Audit.Common.Utilities.PadDigits(U,5);u=I+L}else u=o;var q=c.lastIndexOf("-");if(q>=0){var W=c.substring(0,q+1),B=c.replace(W,""),te=parseInt(B,10),M=Audit.Common.Utilities.PadDigits(te,5);v=W+M}else v=c;return u.toLowerCase().localeCompare(v.toLowerCase())}function ht(e,s){return e.toLowerCase().localeCompare(s.toLowerCase())}function bt(e,s){return e==""?-1:s==""?1:new Date(e).getTime()-new Date(s).getTime()}function yt(e,s,o,c){if(e!=null){c?e.sort(Be):o?e.sort(bt):e.sort(ht);var u=new Array,v=-1;u[++v]="<option value=''>-Select-</option>";for(var h=e.length,I=0;I<h;I++){var N=$.trim(e[I]);u[++v]="<option value='"+N+"'>"+N+"</option>"}var U=$(s);U.empty().append(u.join(""))}}function wt(e,s){if(e==null)return!1;for(var o=e.length,c=0;c<o;c++)if(e[c]==s)return!0;return!1}function Rt(e){return e==!0?"<span class='ui-icon ui-icon-check'>"+e+"</span>":"<span class='ui-icon ui-icon-close'>"+e+"</span>"}function St(e,s){var o=e.get_item(s);return o==null?"":o.get_lookupValue()}function Ct(e,s){e=e.toString();var o="";if(s>e.length)for(let c=0;c<s-e.length;c++)o+="0";return o+e.toString()}function Tt(e,s){var o=e>=0?1:-1;return(Math.round(e*Math.pow(10,s)+o*.001)/Math.pow(10,s)).toFixed(s)}function _t(e){return e==null||e==""?"":(e>1048576?e=Audit.Common.Utilities.PreciseRound(e/1048576,2)+" MB":e>1024?e=Audit.Common.Utilities.PreciseRound(e/1024,2)+" KB":e+=" B",e)}function t(e){function s(o){return o<10?"0"+o:o}return e.getUTCFullYear()+"-"+s(e.getUTCMonth()+1)+"-"+s(e.getUTCDate())+"T"+s(e.getUTCHours())+":"+s(e.getUTCMinutes())+":"+s(e.getUTCSeconds())+"Z"}function n(){$(".requestInfo-response-doc img").click(function(e){e.preventDefault();var s=$(this).attr("src");s=="/_layouts/images/minus.gif"?$(this).attr("src","/_layouts/images/plus.gif"):$(this).attr("src","/_layouts/images/minus.gif"),$(this).parent().parent().nextUntil("tr.requestInfo-response-doc").each(function(){$(this).toggleClass("collapsed")})})}function a(e){return $("select[title='"+e+"']").html()!==null?$("select[title='"+e+"']"):$("input[title='"+e+"']")}function l(e){return $("select[title='"+e+"']").html()!==null?$("select[title='"+e+"'] option:selected").text():$("input[title='"+e+"']").val()}function p(e,s){try{if(s==null)return;var o=R("select","",e);if(o==null){var c=R("input","",e);ShowDropdown(c.id);var u=document.getElementById(c.opt);S(u,s),OptLoseFocus(u)}else S(o,s)}catch{}}function S(e,s){var o=e.options,c=o.length;if(e!=null){for(var u=0;u<c;u++)if(o[u].text==s)return e.selectedIndex=u,!0;return!1}}function R(e,s,o){for(var c=s.length,u=document.getElementsByTagName(e),v=0;v<u.length;v++){var h=u[v].id;if(u[v].title==o&&(s==""||h.indexOf(s)==h.length-c))return u[v]}return null}function b(e){var s=SP.UI.$create_DialogOptions();s.title="User Manual",s.height=250,e!=null?s.url=Audit.Common.Utilities.GetSiteUrl()+"/pages/AuditUserManuals.aspx?FilterField1=DocType&FilterValue1="+e:s.url=Audit.Common.Utilities.GetSiteUrl()+"/pages/AuditUserManuals.aspx",SP.UI.ModalDialog.showModalDialog(s)}function w(e,s){var o=new Date,c=Audit.Common.Utilities.GetSiteUrl(),u=c+"/siteassets/css/tablesorter/style.css?v="+o.format("MM_dd_yyyy"),v=c+"/siteAssets/css/audit_styles.css?v="+o.format("MM_dd_yyyy"),h=$(s).html(),I=$("<div>").append(h);I.find(".sr-response-title a").each(function(){$(this).removeAttr("onclick"),$(this).removeAttr("href")}),h=I.html();var N=o.format("MM/dd/yyyy hh:mm tt");N="<div style='padding-bottom:10px;'>"+N+"</div>",h=N+h;var U=$("<div></div>"),L=$("<div></div>"),q=$.Deferred(),W=$.Deferred(),B="";U.load(u,function(){B+="<style>"+U.html()+"</style>",q.resolve()}),L.load(v,function(){B+="<style>"+L.html()+"</style>",W.resolve()}),$.when(q,W).done(function(){var te=`<HTML>
-<HEAD>
+`;
+  var TextModule = class extends BaseFieldModule {
+    constructor(params) {
+      super(params);
+    }
+    static editTemplate = editTemplate9;
+    static view = "text-view";
+    static edit = "text-edit";
+    static new = "text-edit";
+  };
+  registerFieldComponents(TextModule);
 
-<Title>`+e+`</Title>
-`+B+`
-<style>.hideOnPrint, .rowFilters {display:none}</style>
-</HEAD>
-<BODY>
-`+h+`
-</BODY>
-</HTML>`,M=window.open("","printWebPart");M.document.open(),M.document.write(te),M.document.close(),M.print()})}function g(e,s,o){var c=F(s);o==!0&&(c=c.slice(1));var u=P(c);if(navigator.userAgent.search("Trident")>=0)window.CsvExpFrame.document.open("text/html","replace"),window.CsvExpFrame.document.write(u),window.CsvExpFrame.document.close(),window.CsvExpFrame.focus(),window.CsvExpFrame.document.execCommand("SaveAs",!0,e+".csv");else{var v="data:text/csv;charset=utf-8,"+escape(u),h=document.createElement("a");h.href=v,h.download=e+".csv",document.body.appendChild(h),h.click(),document.body.removeChild(h)}}function F(e){var s=document.getElementById(e);if(s.innerHTML.indexOf("rowFilters")>=0){var o=$("<div>").append(s.outerHTML);o.find(".rowFilters").each(function(){$(this).remove()}),s=o.find("table")[0]}if(s.innerHTML.indexOf("footer")>=0){var o=$("<div>").append(s.outerHTML);o.find(".footer").each(function(){$(this).remove()}),s=o.find("table")[0]}for(var c=[],u=0,v=s.rows.length;u<v;u++){c[u]=[];for(var h=0,I=s.rows[u].cells.length;h<I;h++){var N=s.rows[u].cells[h].textContent||s.rows[u].cells[h].innerText;c[u][h]=N.trim()}}return c}function P(e){for(var s=typeof e!="object"?JSON.parse(e):e,o=`sep=,\r
-`,c="",u,v,h=0;h<s.length;h++){c="";var I=s[h];for(u in I)I.hasOwnProperty(u)&&(v=I[u]+"",c+='"'+v.replace(/"/g,'""')+'",');c=c.slice(0,-1),o+=c+`\r
-`}return o}var D={GetSiteUrl:function(){return d=="/"?"":d},GetListTitleRequests:function(){return r},GetListNameRequests:function(){return f},GetListTitleRequestsInternal:function(){return m},GetListNameRequestsInternal:function(){return y},GetListTitleResponses:function(){return C},GetListNameResponses:function(){return _},GetLibTitleRequestDocs:function(){return A},GetLibNameRequestDocs:function(){return T},GetLibTitleCoverSheets:function(){return E},GetLibNameCoverSheets:function(){return O},GetLibTitleResponseDocs:function(){return G},GetLibNameResponseDocs:function(){return x},GetLibTitleResponseDocsEA:function(){return Y},GetLibNameResponseDocsEA:function(){return Q},GetListTitleActionOffices:function(){return J},GetListNameActionOffices:function(){return ee},GetListTitleEmailHistory:function(){return Z},GetListNameEmailHistory:function(){return X},GetListTitleBulkResponses:function(){return le},GetListNameBulkResponses:function(){return st},GetListTitleBulkPermissions:function(){return it},GetListNameBulkPermissions:function(){return k},GetGroupNameSpecialPerm1:function(){return nt},GetGroupNameSpecialPerm2:function(){return Ue},GetGroupNameQA:function(){return ot},GetGroupNameEA:function(){return rt},Refresh:at,OnLoadDisplayTimeStamp:lt,OnLoadDisplayTabAndResponse:ut,OnLoadFilterResponses:function(e,s){xe(e,s)},SetResponseDocLibGUID:function(e){Oe=e},GetResponseDocLibGUID:function(){return Oe},LoadSiteGroups:function(e){De(e)},GetSPSiteGroup:function(e){return dt(e)},LoadActionOffices:function(e){ct(e)},GetActionOffices:function(){return ge},GetAOSPGroupName:function(e){return pt(e)},CheckSPItemHasGroupPermission:function(e,s,o){return ft(e,s,o)},GoToResponse:function(e,s){mt(e,s)},GetResponseDocStyleTag:function(e){return Ge(e)},GetResponseDocStyleTag2:function(e){return gt(e)},CheckIfEmailFolderExists:function(e,s){return Ve(e,s)},CreateEmailFolder:function(e,s,o,c){return de(e,s,o,c)},AddOptions:function(e,s,o,c){yt(e,s,o,c)},ExistsInArr:function(e,s){return wt(e,s)},GetTrueFalseIcon:function(e){return Rt(e)},PadDigits:function(e,s){return Ct(e,s)},PreciseRound:function(e,s){return Tt(e,s)},GetFriendlyFileSize:function(e){return _t(e)},GetISODateString:function(e){return t(e)},GetFriendlyDisplayName:function(e,s){return St(e,s)},BindHandlerResponseDoc:n,PrintStatusReport:function(e,s){w(e,s)},ExportToCsv:function(e,s,o){g(e,s,o)},ViewUserManuals:function(e){b(e)},GetLookupDisplayText:function(e){return l(e)},GetLookupFormField:function(e){return a(e)},SetLookupFromFieldNameByText:function(e,s){return p(e,s)},SortResponseObjects:function(e,s){return vt(e,s)},SortResponseTitles:Be};return D};ns();document.getElementById("app").innerHTML=Et;window.Audit=window.Audit||{};Audit.QAReport=Audit.QAReport||{};var os="ResNum",rs=GetUrlKeyValue("ShowSiteActions");rs!=!0&&($("#RibbonContainer-TabRowLeft").hide(),$(".ms-siteactionsmenu").hide());document.readyState==="ready"||document.readyState==="complete"?Ot():document.onreadystatechange=()=>{(document.readyState==="complete"||document.readyState==="ready")&&ExecuteOrDelayUntilScriptLoaded(function(){SP.SOD.executeFunc("sp.js","SP.ClientContext",Ot)},"sp.js")};function Ot(){Audit.QAReport.Report=new Audit.QAReport.NewReportPage,Audit.QAReport.Init()}Audit.QAReport.Init=function(){var d=GetUrlKeyValue("ShowSiteActions");d!=!0&&($("#RibbonContainer-TabRowLeft").hide(),$(".ms-siteactionsmenu").hide());function r(){var f=setInterval(function(){var m=$("#divCounter").text(),y=m*1-1;$("#divCounter").text(y),y<=0&&(Audit.QAReport.Report.IsTransactionExecuting()?(clearInterval(f),$("#divCounter").text("1200"),r()):Audit.Common.Utilities.Refresh())},1e3)}r()};Audit.QAReport.NewReportPage=function(){var d=new Array,r=new Array,f=new Object,m=null,y=null,C=null,_="",A="",T=!1,E=null,O=null,G=null;let x=null;var Y=null,Q=null,J=null,ee=null,Z=null;let X=null,le=null;function st(t,n){var a=n.requestListTitle,l=n.columnName,p=n.initialValue,S=ko.observable(!1),R=function(){S(!S())},b=[];if(p)try{b=JSON.parse(p),b.forEach(function(s){s.timestamp=new Date(s.timestamp)})}catch{console.error("could not parse internal status comments.")}var w=ko.observableArray(b),g=ko.observable();function F(){var s={id:Math.ceil(Math.random()*1e6).toString(16),text:g(),author:_spPageContextInfo.userLoginName,timestamp:new Date};w.push(s),D()}function P(s){if(confirm("Are you sure you want to delete this item?")){var o=w.indexOf(s);w.splice(o,1),D()}}function D(){var s=new SP.ClientContext.get_current,o=s.get_web(),c=o.get_lists().getByTitle(a);let u=c.getItemById(t);u.set_item(l,JSON.stringify(w())),u.update(),s.load(u),s.executeQueryAsync(function(){g("")},function(h,I){console.error("Failed to commit changes.",h)})}var e={comments:w,newCommentText:g,onSubmit:F,onRemove:P,toggleShowHistory:R,showHistoryBool:S};return e}function it(){var t=this;t.debugMode=ko.observable(!1),t.siteUrl=Audit.Common.Utilities.GetSiteUrl(),t.arrResponses=ko.observableArray(null),t.cntPendingReview=ko.observable(0),t.ddOptionsResponseTabRequestID=ko.observableArray(),t.ddOptionsResponseTabRequestStatus=ko.observableArray(),t.ddOptionsResponseTabRequestInternalDueDate=ko.observableArray(),t.ddOptionsResponseTabRequestSample=ko.observableArray(),t.ddOptionsResponseTabResponseTitle=ko.observableArray(),t.ddOptionsResponseTabResponseStatus=ko.observableArray(),t.filterResponseTabRequestID=ko.observable(),t.filterResponseTabRequestStatus=ko.observable(),t.filterResponseTabRequestIntDueDate=ko.observable(),t.filterResponseTabSampleNum=ko.observable(),t.filterResponseTabResponseName=ko.observable(),t.filterResponseTabResponseStatus=ko.observable(),t.doSort=ko.observable(!1),t.ddOptionsResponseInfoTabResponseNameOpen2=ko.observableArray(),t.ddOptionsResponseInfoTabResponseNameProcessed2=ko.observableArray(),t.filterResponseInfoTabResponseNameOpen2=ko.observable(""),t.filterResponseInfoTabResponseNameProcessed2=ko.observable(""),t.currentResponse=ko.observable(),t.arrCoverSheets=ko.observableArray(null),t.arrResponseDocs=ko.observable(),t.cntResponseDocs=ko.observable(0),t.showBulkApprove=ko.observable(!1),t.showCloseResponse=ko.observable(!1),t.showReturnToCGFS=ko.observable(!1),t.tabOpts={Responses:new Pe("response-report","Status Report",{id:"responseStatusReportTemplate",data:t}),ResponseDetail:new Pe("response-detail","Responses",{id:"responseDetailTemplate",data:t})},t.tabs=new He(Object.values(t.tabOpts)),t.ClearFiltersResponseTab=function(){t.filterResponseTabRequestID(""),t.filterResponseTabRequestStatus(""),t.filterResponseTabRequestIntDueDate(""),t.filterResponseTabSampleNum(""),t.filterResponseTabResponseName(""),t.filterResponseTabResponseStatus("")},t.filteredResponses=ko.pureComputed(()=>{let n=ko.unwrap(t.arrResponses);var a=t.filterResponseTabRequestID(),l=t.filterResponseTabRequestStatus(),p=t.filterResponseTabRequestIntDueDate(),S=t.filterResponseTabSampleNum(),R=t.filterResponseTabResponseName(),b=t.filterResponseTabResponseStatus();return!a&&!l&&!p&&!S&&!R&&!b?(document.body.style.cursor="default",n):n.filter(g=>!(b&&g.status!=b||a&&g.reqNumber!=a||l&&g.requestStatus!=l||p&&g.internalDueDate!=p||R&&g.title!=R||S&&g.sample!=S))}),t.arrFilteredResponsesCount=ko.pureComputed(()=>t.filteredResponses().length),t.FilterChangedResponseTab=function(){document.body.style.cursor="wait",setTimeout(function(){var n=t.filterResponseTabRequestID(),a=t.filterResponseTabRequestStatus(),l=t.filterResponseTabRequestIntDueDate(),p=t.filterResponseTabSampleNum(),S=t.filterResponseTabResponseName(),R=t.filterResponseTabResponseStatus();if(!n&&!a&&!l&&!p&&!S&&!R){$(".sr-response-item").show(),document.body.style.cursor="default";return}n=n||"",a=a||"",l=l||"",p=p||"",S=S||"",R=R||"";var b=0,w=$(".sr-response-item");w.each(function(){var g=!1;!g&&n!=""&&$.trim($(this).find(".sr-response-requestNum").text())!=n&&(g=!0),!g&&a!=""&&$.trim($(this).find(".sr-response-requestStatus").text())!=a&&(g=!0),!g&&l!=""&&$.trim($(this).find(".sr-response-internalDueDate").text())!=l&&(g=!0),!g&&S!=""&&$.trim($(this).find(".sr-response-title").text())!=S&&(g=!0),!g&&p!=""&&$.trim($(this).find(".sr-response-sample").text())!=p&&(g=!0),!g&&R!=""&&$.trim($(this).find(".sr-response-status").text())!=R&&(g=!0),g?$(this).hide():($(this).show(),b++)}),document.body.style.cursor="default"},100)},t.ClickHelpResponseDocs=function(){ut()},t.ClickCloseResponse=function(){ft()},t.ClickReturnToCGFS=function(){mt()},t.ClickBulkApprove=function(){dt()},t.ClickApproveResponseDoc=function(n){n&&n.ID&&n.fileName&&ct(n.ID,n.fileName)},t.ClickRejectResponseDoc=function(n){n&&n.ID&&n.fileName&&pt(n.ID,n.fileName)},t.currentResponse.subscribe(n=>{n&&je(os,n.title)}),t.doSort.subscribe(function(n){Audit.Common.Utilities.OnLoadDisplayTimeStamp(),t.arrResponses().length>0&&n&&(ko.utils.arrayPushAll(t.ddOptionsResponseTabResponseStatus(),t.GetDDVals("status")),t.ddOptionsResponseTabResponseStatus.valueHasMutated(),ko.utils.arrayPushAll(t.ddOptionsResponseInfoTabResponseNameOpen2(),t.GetDDVals2("1",!0)),t.ddOptionsResponseInfoTabResponseNameOpen2.valueHasMutated(),ko.utils.arrayPushAll(t.ddOptionsResponseInfoTabResponseNameProcessed2(),t.GetDDVals2("0",!0)),t.ddOptionsResponseInfoTabResponseNameProcessed2.valueHasMutated(),ko.utils.arrayPushAll(t.ddOptionsResponseTabRequestID(),t.GetDDVals("reqNumber")),t.ddOptionsResponseTabRequestID.valueHasMutated(),ko.utils.arrayPushAll(t.ddOptionsResponseTabRequestStatus(),t.GetDDVals("requestStatus")),t.ddOptionsResponseTabRequestStatus.valueHasMutated(),ko.utils.arrayPushAll(t.ddOptionsResponseTabRequestInternalDueDate(),t.GetDDVals("internalDueDate")),t.ddOptionsResponseTabRequestInternalDueDate.valueHasMutated(),ko.utils.arrayPushAll(t.ddOptionsResponseTabRequestSample(),t.GetDDVals("sample")),t.ddOptionsResponseTabRequestSample.valueHasMutated(),ko.utils.arrayPushAll(t.ddOptionsResponseTabResponseTitle(),t.GetDDVals("title",!0)),t.ddOptionsResponseTabResponseTitle.valueHasMutated(),setTimeout(function(){var a=GetUrlKeyValue("Tab");a!=null&&a!=""?k.tabs.selectById(a):k.tabs.selectTab(k.tabOpts.Responses);var l=GetUrlKeyValue("ResNum");l!=null&&l!=""&&(a==k.tabOpts.Responses.id?$("#ddlResponseName option[value='"+l+"']").length>0&&k.filterResponseTabResponseName(l):$("#ddlResponsesOpen option[value='"+l+"']").length>0?k.filterResponseInfoTabResponseNameOpen2(l):$("#ddlResponsesProcessed option[value='"+l+"']").length>0&&k.filterResponseInfoTabResponseNameProcessed2(l)),Rt(),A!=""?t.filterResponseTabResponseStatus(A):t.filterResponseTabRequestStatus("Open"),$("#tblStatusReportResponses").tablesorter({sortList:[[3,0]],selectorHeaders:".sorter-true"})},200))}),t.filterResponseInfoTabResponseNameOpen2.subscribe(function(n){t.filterResponseInfoTabResponseName(n,!0)}),t.filterResponseInfoTabResponseNameProcessed2.subscribe(function(n){t.filterResponseInfoTabResponseName(n,!1)}),t.filterResponseInfoTabResponseName=function(n,a){t.currentResponse(null),t.arrCoverSheets([]),t.arrResponseDocs(null),t.cntResponseDocs(0),t.showBulkApprove(!1),t.showCloseResponse(!1),t.showReturnToCGFS(!1);var l=f["response-"+n];l&&(a?t.filterResponseInfoTabResponseNameProcessed2(""):t.filterResponseInfoTabResponseNameOpen2(""),t.currentResponse(l),at(l),lt(l),setTimeout(function(){let p=SP.UI.Notify.addNotification("Displaying Response ("+l.title+")",!1)}))},t.GetDDVals=function(n,a){var l=ko.utils.arrayMap(t.arrResponses(),function(S){return S[n]}),p=ko.utils.arrayGetDistinctValues(l).sort();return a&&p.sort(Audit.Common.Utilities.SortResponseTitles),p[0]==""&&p.shift(),p},t.GetDDVals2=function(n,a){var l=ko.utils.arrayMap(t.arrResponses(),function(S){var R=S.requestStatus,b=S.status;if(n==0)return b!="4-Approved for QA"&&b!="6-Reposted After Rejection"?S.title:"";if(n==1)return(b=="4-Approved for QA"||b=="6-Reposted After Rejection")&&(R=="Open"||R=="ReOpened")?S.title:""}),p=ko.utils.arrayGetDistinctValues(l).sort();return a&&p.sort(Audit.Common.Utilities.SortResponseTitles),p[0]==""&&p.shift(),p}}var k=new it;ko.applyBindings(k),nt();function nt(){var t=new SP.ClientContext.get_current,n=t.get_web();let a=n.get_currentUser();t.load(a);var l=n.get_lists().getByTitle(Audit.Common.Utilities.GetListTitleRequests()),p=new SP.CamlQuery;p.set_viewXml('<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'),Y=l.getItems(p),t.load(Y,"Include(ID, Title, ReqSubject, ReqStatus, IsSample, InternalDueDate, ActionOffice, Comments, RelatedAudit, ActionItems, EmailSent, ClosedDate, Modified)");var S=n.get_lists().getByTitle(Audit.Common.Utilities.GetListTitleRequestsInternal()),R=new SP.CamlQuery;R.set_viewXml('<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'),Q=S.getItems(R),t.load(Q,"Include(ID, Title, ReqNum, InternalStatus)");var b=n.get_lists().getByTitle(Audit.Common.Utilities.GetListTitleResponses()),w=new SP.CamlQuery;w.set_viewXml('<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="ReqNum"/></OrderBy></Query></View>'),J=b.getItems(w),t.load(J,"Include(ID, Title, ReqNum, ActionOffice, SampleNumber, ResStatus, Comments, Modified, ClosedDate, ClosedBy)");var g=n.get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs()),F=new SP.CamlQuery;F.set_viewXml('<View Scope="RecursiveAll"><Query><Where><Eq><FieldRef Name="ContentType"/><Value Type="Text">Document</Value></Eq></Where></Query></View>'),ee=g.getItems(F),t.load(ee,"Include(ID, Title, ReqNum, ResID, DocumentStatus, RejectReason, ReceiptDate, FileLeafRef, FileDirRef, File_x0020_Size, Modified, Editor)");var P=n.get_lists().getByTitle(Audit.Common.Utilities.GetListTitleActionOffices()),D=new SP.CamlQuery;D.set_viewXml('<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'),Z=P.getItems(D),t.load(Z,"Include(ID, Title, UserGroup)"),E=n.get_associatedMemberGroup(),t.load(E),t.executeQueryAsync(e,s);function e(o,c){$("#divRefresh").show(),Ue()}function s(o,c){$("#divRefresh").hide(),$("#divLoading").hide();let u=SP.UI.Status.addStatus("Request failed: "+c.get_message()+`
-`+c.get_stackTrace());SP.UI.Status.setStatusPriColor(u,"red")}}function Ue(){if(Audit.Common.Utilities.LoadActionOffices(Z),E!=null&&(m=E.get_title()),m==null||m==""){let t=SP.UI.Status.addStatus("Unable to retrieve the IA SharePoint Group. Please contact the Administrator");SP.UI.Status.setStatusPriColor(t,"red");return}y=Audit.Common.Utilities.GetActionOffices()?.find(t=>t.userGroup==m),ot(),rt(),Oe(),me(r,"fbody")}function ot(){f=new Object,d=new Array;for(var t=0,n=Y.getEnumerator();n.moveNext();){var a=n.get_current(),l=a.get_item("ID"),p=a.get_item("Title"),S=a.get_item("ReqStatus"),R=a.get_item("IsSample"),b=a.get_item("EmailSent"),w=a.get_item("ReqSubject");w==null&&(w="");for(var g=a.get_item("ActionOffice"),F="",P=0;P<g.length;P++)F+="<div>"+g[P].get_lookupValue()+"</div>";var D=a.get_item("InternalDueDate"),e=a.get_item("ClosedDate");D!=null?D=D.format("MM/dd/yyyy"):D="",e!=null?e=e.format("MM/dd/yyyy"):e="";var s=a.get_item("Comments"),o=a.get_item("RelatedAudit"),c=a.get_item("ActionItems");s==null&&(s=""),o==null&&(o=""),c==null&&(c="");var u=new Object;u.ID=l,u.number=p,u.subject=w,u.status=S,u.internalDueDate=D,u.sample=R,u.actionOffice=F,u.comments=s,u.emailSent=b,u.closedDate=e,u.relatedAudit=o,u.actionItems=c,u.arrIndex=t,d.push(u),f[p]=u,t++}try{for(var n=Q.getEnumerator();n.moveNext();){var a=n.get_current(),l=a.get_item("ID"),v=a.get_item("ReqNum");if(!v||!v.get_lookupValue()){console.warn("Unaffiliated Internal Status ID:",l);continue}var u=f[v.get_lookupValue()];u.internalStatus=new st(l,{requestListTitle:Audit.Common.Utilities.GetListTitleRequestsInternal(),columnName:"InternalStatus",initialValue:a.get_item("InternalStatus")})}}catch(h){alert(h)}}function rt(){r=new Array;for(var t=0,n=J.getEnumerator();n.moveNext();){var a=n.get_current(),l=a.get_item("ReqNum");if(l!=null){l=l.get_lookupValue();var p=new Object;if(p.request=f[l],!p.request||!p.request.emailSent||(p.item=a,p.resStatus=a.get_item("ResStatus"),p.actionOffice=a.get_item("ActionOffice"),p.actionOffice==null?p.actionOffice="":p.actionOffice=p.actionOffice.get_lookupValue(),p.actionOffice==""))continue;p.ID=a.get_item("ID"),p.number=l;var S=a.get_item("Title");p.title=S;var R=a.get_item("Modified");R!=null?R=R.format("MM/dd/yyyy hh:mm tt"):R="",p.modified=R;var b=a.get_item("ClosedDate");b!=null?b=b.format("MM/dd/yyyy"):b="",p.closedDate=b,p.sample=a.get_item("SampleNumber"),p.sample==null&&(p.sample=""),p.coversheets=new Array,p.responseDocs=new Array;var w=a.get_item("Comments");w==null&&(w=""),p.comments=w,p.closedBy=Audit.Common.Utilities.GetFriendlyDisplayName(a,"ClosedBy"),p.arrIndex=t,r.push(p),f["response-"+S]=p,t++}}}function Oe(){for(var t=ee.getEnumerator();t.moveNext();){var n=t.get_current();if(!(n.get_item("DocumentStatus")=="Open"||n.get_item("DocumentStatus")=="Marked for Deletion"||n.get_item("DocumentStatus")=="Submitted")){var a=n.get_item("ReqNum");a!=null&&(a=a.get_lookupValue());var l=n.get_item("ResID");if(l!=null&&(l=l.get_lookupValue()),!(a==null||l==null))try{var p=f["response-"+l],S=p.arrIndex,R=r[S];if(R){var b=new Object;b.ID=n.get_item("ID"),b.title=n.get_item("Title"),b.title==null&&(b.title=""),b.fileName=n.get_item("FileLeafRef"),b.title=n.get_item("FileLeafRef"),b.folder=n.get_item("FileDirRef"),b.documentStatus=n.get_item("DocumentStatus"),b.rejectReason=n.get_item("RejectReason"),b.rejectReason==null?b.rejectReason="":b.rejectReason=b.rejectReason.replace(/(\r\n|\n|\r)/gm,"<br/>");var w=n.get_item("File_x0020_Size");w=Audit.Common.Utilities.GetFriendlyFileSize(w),b.fileSize=w;var g="";n.get_item("ReceiptDate")!=null&&n.get_item("ReceiptDate")!=""&&(g=n.get_item("ReceiptDate").format("MM/dd/yyyy")),b.receiptDate=g;var F="";n.get_item("Modified")!=null&&n.get_item("Modified")!=""&&(F=n.get_item("Modified").format("MM/dd/yyyy hh:mm tt")),b.modifiedDate=F,b.modifiedBy=Audit.Common.Utilities.GetFriendlyDisplayName(n,"Editor"),b.item=n,R.responseDocs.push(b)}}catch{}}}}function me(t,n){if(t!=null){for(var a=new Array,l="4-Approved for QA",p="6-Reposted After Rejection",S=0,R=0,b=0,w=t.length;w--;){var g=t[w],P=g.title,D=g.request.status,e=g.resStatus,F=!1;(e==l||e==p)&&(D=="Open"||D=="ReOpened")&&(S++,e==l?R++:b++,F=!0);var P=g.title,D=g.request.status,e=g.resStatus,s={reqNumber:g.request.number,requestSubject:g.request.subject,requestStatus:D,internalDueDate:g.request.internalDueDate,sample:g.sample,title:P,status:e,docCount:g.responseDocs.length,modified:g.modified,comments:g.comments,highlight:F,visibleRow:ko.observable(!0)};a.push(s)}a.length>0&&(A="",R>0&&b==0?A=l:b>0&&R==0&&(A=p),k.cntPendingReview(S),ko.utils.arrayPushAll(k.arrResponses,a)),k.doSort(!0)}}function ge(t,n){var a=[],l=!0,p=100;if(n&&(p=100),t.length>=p?(a=t.slice(0,p),t.splice(0,p)):t.length>0&&(a=t.slice(0,t.length),t.splice(0,t.length)),l){ko.utils.arrayPushAll(k.arrResponses(),a);var S=!1;n&&(S=!0),k.arrResponses.valueHasMutated(),t.length==0&&k.doSort(!0),t.length>0&&setTimeout(function(){ge(t,!1)},100)}}function at(t){k.arrCoverSheets([]);var n=new SP.ClientContext.get_current,a=n.get_web(),l=a.get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleCoverSheets()),p=new SP.CamlQuery;p.set_viewXml('<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><Eq><FieldRef Name="ReqNum"/><Value Type="Text">'+t.request.number+"</Value></Eq></Where></Query></View>");let S=l.getItems(p);n.load(S,"Include(ID, Title, ReqNum, ActionOffice, FileLeafRef, FileDirRef)");var R={oResponse:t};function b(g,F){for(var P=new Array,D=S.getEnumerator();D.moveNext();){var e=D.get_current();if(e.get_item("ActionOffice")!=null){var s=e.get_item("ActionOffice");if(s.length>0)for(var o=0;o<s.length;o++){var c=s[o].get_lookupValue();if(c==this.oResponse.actionOffice){var u=e.get_item("FileDirRef"),v=e.get_item("FileLeafRef");P.push({folder:u,fileName:v});break}}}}ko.utils.arrayPushAll(k.arrCoverSheets(),P),k.arrCoverSheets.valueHasMutated()}function w(g,F){$("#tblCoverSheets").hide(),$("#divEmptyCoversheetsMsg").show()}n.executeQueryAsync(Function.createDelegate(R,b),Function.createDelegate(R,w))}function lt(t){if(k.arrResponseDocs(null),k.cntResponseDocs(0),k.showBulkApprove(!1),k.showCloseResponse(!1),k.showReturnToCGFS(!1),(t==null||t.responseDocs.length==0)&&$("#ddlResponsesOpen").val()!=""){G=SP.UI.Notify.addNotification("There are 0 documents to review for "+$("#ddlResponsesOpen").val(),!1),k.showReturnToCGFS(!0);return}for(var n=new SP.ClientContext.get_current,a=n.get_web(),l=0;l<t.responseDocs.length;l++){var p=t.responseDocs[l];p.docIcon=a.mapToIcon(p.fileName,"",SP.Utilities.IconSize.Size16)}function S(w,g){b(t)}function R(w,g){O=SP.UI.Status.addStatus("Request failed: "+g.get_message()+`
-`+g.get_stackTrace()),SP.UI.Status.setStatusPriColor(O,"red")}n.executeQueryAsync(S,R);function b(w){if(w!=null){for(var g=0,F=0,P=0,D=!1,e=new Array,s=0;s<w.responseDocs.length;s++){var o=w.responseDocs[s];o.docIcon=o.docIcon.get_value(),o.styleTag=Audit.Common.Utilities.GetResponseDocStyleTag2(o.documentStatus),o.responseTitle=w.title,(w.resStatus=="4-Approved for QA"||w.resStatus=="6-Reposted After Rejection")&&o.documentStatus=="Sent to QA"?(F++,k.showBulkApprove(!0)):(w.resStatus=="4-Approved for QA"||w.resStatus=="6-Reposted After Rejection")&&o.documentStatus=="Rejected"?k.showReturnToCGFS(!0):(w.resStatus=="4-Approved for QA"||w.resStatus=="6-Reposted After Rejection")&&(o.documentStatus=="Archived"||o.documentStatus=="Approved")&&P++,e.push(o)}var c={responseTitle:w.title,responseDocs:e,responseStatus:w.resStatus};P==e.length&&$("#ddlResponsesOpen").val()!=""&&(k.showCloseResponse(!0),SP.UI.Notify.addNotification("This Response did not automatically close. Please close this response.",!1)),!D&&F==0&&$("#ddlResponsesOpen").val()!=""&&k.showReturnToCGFS(!0),k.arrResponseDocs(c),k.arrResponseDocs.valueHasMutated(),k.cntResponseDocs(w.responseDocs.length)}}}function ut(){var t="<div id='helpDlg' style='padding:20px; height:100px; width:700px'><div style='padding:20px;'><fieldset><legend>Response Document Status</legend> <ul style='padding-top:10px;'><li style='padding-top:5px;'><b>Submitted</b> - Submitted to the Internal Auditor by the Action Office</li><li style='padding-top:5px;'><b>Sent to QA</b> - Submitted to the Quality Assurance team by the Internal Auditor</li><li style='padding-top:5px;'><b>Approved</b> - Approved by the Quality Assurance team and submitted to the External Auditor</li><li style='padding-top:5px;'><b>Rejected</b> - Rejected by the Quality Assurance team and returned to the Internal Auditor</li><li style='padding-top:5px;'><b>Archived</b> - Previously Rejected by the Quality Assurance team and is now read-only for record keeping</li></ul></fieldset></div><div style='padding:20px; padding-top:10px;'><fieldset style='padding-top:10px;'><legend>Actions</legend> If the Response Status is <b>4-Approved for QA</b> or <b>6-Reposted After Rejection</b>, then the documents can be <b>Approved</b> or <b>Rejected</b><ul style='padding-top:10px;'><li style='padding-top:5px;'><b>Approve</b> - Submit the document to the External Auditor</li><li style='padding-top:5px;'><b>Reject</b> - Reject the document and return to the Internal Auditor</li></ul></fieldset></div><table style='padding-top:10px; width:200px; float:right'><tr><td class='ms-separator'>&#160;</td><td><input id='btnCancel' type='button' class='ms-ButtonHeightWidth' value='Close' title='Close Help' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)'/></td></tr></table></div>";$("body").append(t);var n=SP.UI.$create_DialogOptions();n.title="Response Documents Help",n.dialogReturnValueCallback=Be,n.html=document.getElementById("helpDlg"),n.height=450,SP.UI.ModalDialog.showModalDialog(n)}let xe=0,De=0;function dt(){T=!0;var t="<div id='approveResponseDocDlg' style='padding:20px; height:100px'><div style='padding:20px;'>Are you sure you would like to <span style='font-weight:bold; color:green'>Approve</span> all remaining documents?</span></div><table style='padding-top:10px; width:200px; margin:0px auto'><tr><td><input id='btnClientOk1' type='button' class='ms-ButtonHeightWidth' value='Send to Auditor' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.OK)'/></td><td class='ms-separator'>&#160;</td><td><input id='btnCancel' type='button' class='ms-ButtonHeightWidth' value='Close' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)'/></td></tr></table></div>";$("body").append(t);var n=SP.UI.$create_DialogOptions();n.title="Approve Response Documents",n.dialogReturnValueCallback=wt,n.html=document.getElementById("approveResponseDocDlg"),SP.UI.ModalDialog.showModalDialog(n)}function ct(t,n){T=!0,C=t,_="";var a="<div id='approveResponseDocDlg' style='padding:20px; height:100px'><div style='padding:20px;'>Are you sure you would like to <span style='font-weight:bold; color:green'>Approve</span> the Response Document? <p style='padding-top:10px; font-weight:bold; color:green'>"+n+"</p></span></div><table style='padding-top:10px; width:200px; margin:0px auto'><tr><td><input id='btnClientOk1' type='button' class='ms-ButtonHeightWidth' value='Send to Auditor' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.OK)'/></td><td class='ms-separator'>&#160;</td><td><input id='btnCancel' type='button' class='ms-ButtonHeightWidth' value='Close' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)'/></td></tr></table></div>";$("body").append(a);var l=SP.UI.$create_DialogOptions();l.title="Approve Response Document",l.dialogReturnValueCallback=bt,l.html=document.getElementById("approveResponseDocDlg"),SP.UI.ModalDialog.showModalDialog(l)}function pt(t,n){T=!0,C=t,_="";var a="<div id='rejectResponseDocDlg' style='padding:20px; height:100px'><div style='padding:20px;'>Are you sure you would like to <span style='font-weight:bold; color:DarkRed'>Reject</span> the Response Document? <p style='padding-top:10px; font-weight:bold; color:DarkRed'>"+n+"</p><p style='padding-top:10px'>If so, please specify the reason: </p><p><textarea id='txtRejectReason' cols='50' rows='3' onkeyup='Audit.QAReport.Report.GetCancelReason()'></textarea></p></span></div><table style='padding-top:10px; width:200px; margin:0px auto'><tr><td><input id='btnClientOk1' type='button' class='ms-ButtonHeightWidth' value='Yes, Reject Document' disabled='disabled' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.OK)'/></td><td class='ms-separator'>&#160;</td><td><input id='btnCancel' type='button' class='ms-ButtonHeightWidth' value='Close' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)'/></td></tr></table></div>";$("body").append(a);var l=SP.UI.$create_DialogOptions();l.title="Reject Response Document",l.dialogReturnValueCallback=yt,l.html=document.getElementById("rejectResponseDocDlg"),SP.UI.ModalDialog.showModalDialog(l),$("#txtRejectReason").focus()}function ft(){T=!0;var t="<div id='responseDocDlg' style='padding:20px; height:100px'><div style='padding:20px;'>All documents in this response are Approved. Are you sure you would like to <span style='font-weight:bold; color:green'>Close this Response</span>? </span></div><table style='padding-top:10px; width:200px; margin:0px auto'><tr><td><input id='btnClientOk1' type='button' class='ms-ButtonHeightWidth' value='Close Response' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.OK)'/></td><td class='ms-separator'>&#160;</td><td><input id='btnCancel' type='button' class='ms-ButtonHeightWidth' value='Close' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)'/></td></tr></table></div>";$("body").append(t);var n=SP.UI.$create_DialogOptions();n.title="Close Response",n.dialogReturnValueCallback=vt,n.html=document.getElementById("responseDocDlg"),SP.UI.ModalDialog.showModalDialog(n)}function mt(){T=!0;var t="<div id='responseDocDlg' style='padding:20px; height:100px'><div style='padding:20px;'>Are you sure you would like to <span style='font-weight:bold; color:darkred'>Return this Response to CGFS</span>? <p style='padding-top:10px;'><b>Note</b>: If you return it, you will no longer be able to Approve or Reject the Remaining Response Documents</p></span></div><table style='padding-top:10px; width:200px; margin:0px auto'><tr><td><input id='btnClientOk1' type='button' class='ms-ButtonHeightWidth' value='Return to CGFS' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.OK)'/></td><td class='ms-separator'>&#160;</td><td><input id='btnCancel' type='button' class='ms-ButtonHeightWidth' value='Close' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)'/></td></tr></table></div>";$("body").append(t);var n=SP.UI.$create_DialogOptions();n.title="Return to CGFS",n.dialogReturnValueCallback=ht,n.html=document.getElementById("responseDocDlg"),SP.UI.ModalDialog.showModalDialog(n)}function gt(t,n){var a="<div>Audit Request Reference: <b>REQUEST_NUMBER</b></div><div>Audit Request Subject: <b>REQUEST_SUBJECT</b></div><div>Audit Request Due Date: <b>REQUEST_DUEDATE</b></div><br/><div>Below is the Response that was updated: </div><div>RESPONSE_TITLE</div>";a=a.replace("REQUEST_NUMBER",t.number),a=a.replace("REQUEST_SUBJECT",t.subject),a=a.replace("REQUEST_DUEDATE",t.internalDueDate),a=a.replace("REQUEST_ACTIONITEMS",t.actionItems);var l="<ul><li>"+n+"</li></ul>";return a=a.replace("RESPONSE_TITLE",l),a}function Ge(t){var n=null;try{n=f["response-"+t]}catch{}return n}function Ve(t){for(var n=new SP.ClientContext.get_current,a=!1,l=X.getEnumerator();l.moveNext();){var p=l.get_current(),S=p.get_displayName();if(S==t){a=!0;break}}if(!a){let g=function(P,D){},F=function(P,D){};var R=n.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocsEA()),b=new SP.ListItemCreationInformation;b.set_underlyingObjectType(SP.FileSystemObjectType.folder),b.set_leafName(t);let w=R.addItem(b);w.set_item("Title",t),w.update(),n.executeQueryAsync(g,F)}}function ye(){for(var t=new SP.ClientContext.get_current,n=!1,a=le.getEnumerator();a.moveNext();){var l=a.get_current(),n=!0;break}if(!n){let g=function(P,D){},F=function(P,D){};var p=t.get_web().get_lists().getByTitle("AuditEAEmailLog"),S=new Date,R=S.format("MM/dd/yyyy"),b=new SP.ListItemCreationInformation;let w=p.addItem(b);w.set_item("Title",R),w.update(),t.executeQueryAsync(g,F)}}function ue(t){var n=null;try{var a=f["response-"+t];a&&(n=a.request)}catch{}return n}function de(t,n,a,l){if(!n||!t)return;var p=gt(n,a),S=new SP.ListItemCreationInformation;S.set_folderUrl(location.protocol+"//"+location.host+Audit.Common.Utilities.GetSiteUrl()+"/Lists/"+Audit.Common.Utilities.GetListNameEmailHistory()+"/"+n.number);let R=t.addItem(S);R.set_item("Title",l),R.set_item("Body",p),R.set_item("To",y.title),R.set_item("ReqNum",n.number),R.set_item("ResID",a),R.set_item("NotificationType","IA Notification"),R.update()}function Be(t,n){SP.UI.DialogResult.OK}function vt(t,n){if(t===SP.UI.DialogResult.OK){let F=function(D,e){for(var s=w.getEnumerator();s.moveNext();){var o=s.get_current(),c=o.get_item("Title"),u=new Date;o.set_item("ResStatus","7-Closed");var v=new Date(u.getFullYear(),u.getMonth(),u.getDate(),u.getHours(),u.getMinutes(),u.getSeconds(),u.getMilliseconds());o.set_item("ClosedDate",v),o.set_item("ClosedBy",_spPageContextInfo.userId),o.update();var h=null;try{var I=f["response-"+c];I&&(h=I.request)}catch{}h?de(R,h,c,"An Audit Response has been Closed by the Quality Assurance Team: "+c):x.close(),l.executeQueryAsync(function(){x.close(),Audit.Common.Utilities.Refresh()},function(){x.close(),Audit.Common.Utilities.Refresh()});break}},P=function(D,e){x.close(),alert("Request failed. "+e.get_message()+`
-`+e.get_stackTrace())};x=SP.UI.ModalDialog.showWaitScreenWithNoClose("Closing Response","Please wait... Closing Response",200,400);var a=$("#ddlResponsesOpen").val(),l=SP.ClientContext.get_current(),p=l.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetListTitleResponses()),S=new SP.CamlQuery;S.set_viewXml('<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><Eq><FieldRef Name="Title"/><Value Type="Text">'+a+"</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>");let w=p.getItems(S);l.load(w);var R=l.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory()),b=new SP.CamlQuery;b.set_viewXml('<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>');let g=R.getItems(b);l.load(g,"Include(ID, FSObjType, Title, DisplayName)"),l.executeQueryAsync(F,P)}else T=!1}function ht(t,n){if(t===SP.UI.DialogResult.OK){let F=function(D,e){for(var s=w.getEnumerator();s.moveNext();){var o=s.get_current(),c=o.get_item("Title"),u=new Date;o.set_item("ResStatus","5-Returned to GFS"),o.update();var v=null;try{var h=f["response-"+c];h&&(v=h.request)}catch{}v?de(R,v,c,"An Audit Response has been Returned by the Quality Assurance Team: "+c):x.close(),l.executeQueryAsync(function(){x.close(),Audit.Common.Utilities.Refresh()},function(){x.close(),Audit.Common.Utilities.Refresh()});break}},P=function(D,e){x.close(),alert("Request failed. "+e.get_message()+`
-`+e.get_stackTrace())};x=SP.UI.ModalDialog.showWaitScreenWithNoClose("Returning to CGFS","Please wait... Returning to CGFS",200,400);var a=$("#ddlResponsesOpen").val(),l=SP.ClientContext.get_current(),p=l.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetListTitleResponses()),S=new SP.CamlQuery;S.set_viewXml('<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><Eq><FieldRef Name="Title"/><Value Type="Text">'+a+"</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>");let w=p.getItems(S);l.load(w);var R=l.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory()),b=new SP.CamlQuery;b.set_viewXml('<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>');let g=R.getItems(b);l.load(g,"Include(ID, FSObjType, Title, DisplayName)"),l.executeQueryAsync(F,P)}else T=!1}function bt(t,n){if(t===SP.UI.DialogResult.OK){let g=function(P,D){var e=Ge($("#ddlResponsesOpen").val());if(e==null||e.request==null){x.close();return}let s=e.request,o=s.number;Ve(o),ye();var c=s.number,u=e.title,v=w.get_item("FileLeafRef"),h=new SP.ClientContext.get_current,I=h.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());w=I.getItemById(C);var N=w.get_file(),U=location.protocol+"//"+location.host+_spPageContextInfo.webServerRelativeUrl+"/",L=U+Audit.Common.Utilities.GetLibTitleResponseDocsEA()+"/"+o+"/"+v;N.copyTo(L,1),w.set_item("DocumentStatus","Approved"),w.set_item("RejectReason",""),w.update();var q=location.protocol+"//"+location.host,W=L.replace(q,"");let B=h.get_web().getFileByServerRelativeUrl(W);h.load(B,"ListItemAllFields");var te={responseTitle:u,copiedFileName:L,requestId:c,responseNumber:u};function M(){if(this.responseTitle==null||this.responseTitle==null||this.responseTitle==""){x.close(),alert("Error: empty response title ");return}var z=SP.ClientContext.get_current(),j=B.get_listItemAllFields().get_id(),ie=z.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocsEA());let ne=ie.getItemById(j);ne.set_item("RequestNumber",this.requestId),ne.set_item("ResponseID",this.responseNumber),ne.update();var ce=z.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetListTitleResponses()),ae=new SP.CamlQuery;ae.set_viewXml('<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><Eq><FieldRef Name="Title"/><Value Type="Text">'+this.responseTitle+"</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>");let re=ce.getItems(ae);z.load(re);var Ce=Audit.Common.Utilities.GetSiteUrl()+"/"+Audit.Common.Utilities.GetLibNameResponseDocs()+"/"+this.responseTitle,Le=z.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs()),we=new SP.CamlQuery;we.set_viewXml('<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><And><Eq><FieldRef Name="FSObjType"/><Value Type="Text">0</Value></Eq><Eq><FieldRef Name="FileDirRef"/><Value Type="Text">'+Ce+"</Value></Eq></And></Where></Query></View>");let ve=Le.getItems(we);z.load(ve);var Re=z.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory()),Te=new SP.CamlQuery;Te.set_viewXml('<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>');let qe=Re.getItems(Te);z.load(qe,"Include(ID, FSObjType, Title, DisplayName)");function $e(){G=SP.UI.Notify.addNotification("Approved Response Document",!1);let Ae=!0;for(var Ie=ve.getEnumerator(),ke=!1;Ie.moveNext();){var Qe=Ie.get_current(),_e=Qe.get_item("DocumentStatus");_e=="Open"||_e=="Submitted"||_e=="Sent to QA"?Ae=!1:_e=="Rejected"&&(ke=!0)}if(Ae)for(var Se=ue(this.responseTitle),Fe=re.getEnumerator();Fe.moveNext();){var he=Fe.get_current();if(ke)he.set_item("ResStatus","5-Returned to GFS"),de(Re,Se,this.responseTitle,"An Audit Response has been Returned by the Quality Assurance Team: "+this.responseTitle);else{var oe=new Date;he.set_item("ResStatus","7-Closed");var pe=new Date(oe.getFullYear(),oe.getMonth(),oe.getDate(),oe.getHours(),oe.getMinutes(),oe.getSeconds(),oe.getMilliseconds());he.set_item("ClosedDate",pe),he.set_item("ClosedBy",_spPageContextInfo.userId),de(Re,Se,this.responseTitle,"An Audit Response has been Closed by the Quality Assurance Team: "+this.responseTitle)}he.update(),z.executeQueryAsync(function(){x.close(),Audit.Common.Utilities.Refresh()});break}else x.close(),Audit.Common.Utilities.Refresh()}function xt(){x.close()}var Me={responseTitle:this.responseTitle};z.executeQueryAsync(Function.createDelegate(Me,$e),Function.createDelegate(Me,xt))}function se(z,j){x.close(),alert("Request failed. "+j.get_message()+`
-`+j.get_stackTrace()),Audit.Common.Utilities.Refresh()}h.executeQueryAsync(Function.createDelegate(te,M),Function.createDelegate(te,se))},F=function(P,D){x.close(),alert("Request failed. "+D.get_message()+`
-`+D.get_stackTrace())};x=SP.UI.ModalDialog.showWaitScreenWithNoClose("Approving Response Document","Please wait... Approving Response Document",200,400);var a=SP.ClientContext.get_current(),l=a.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());let w=l.getItemById(C);a.load(w);var p=a.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocsEA()),S=new SP.CamlQuery;S.set_viewXml('<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'),X=p.getItems(S),a.load(X,"Include(ID, FSObjType, Title, DisplayName)");var R=a.get_web().get_lists().getByTitle("AuditEAEmailLog"),b=new SP.CamlQuery;b.set_viewXml('<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="Created"/><Value IncludeTimeValue="FALSE" Type="DateTime"><Today/></Value></Eq></Where></Query></View>'),le=R.getItems(b),a.load(le,"Include(ID)"),a.executeQueryAsync(g,F)}else T=!1}function yt(t,n){if(t===SP.UI.DialogResult.OK){let S=function(b,w){var g=new SP.ClientContext.get_current,F=g.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());p=F.getItemById(C),p.set_item("DocumentStatus","Rejected"),p.set_item("RejectReason",_),p.update();var P=location.protocol+"//"+location.host+_spPageContextInfo.webServerRelativeUrl+"/";let D=p.get_item("FileDirRef"),e=p.get_item("FileLeafRef");var s=D.lastIndexOf("/"),o=D.substring(0,s+1),c=D.replace(o,""),u=Audit.Common.Utilities.GetSiteUrl()+"/"+Audit.Common.Utilities.GetLibNameResponseDocs()+"/"+c,v=g.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs()),h=new SP.CamlQuery;h.set_viewXml('<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><And><Eq><FieldRef Name="FSObjType"/><Value Type="Text">0</Value></Eq><Eq><FieldRef Name="FileDirRef"/><Value Type="Text">'+u+"</Value></Eq></And></Where></Query></View>");let I=v.getItems(h);g.load(I);var N=g.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetListTitleResponses()),U=new SP.CamlQuery;U.set_viewXml('<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><Eq><FieldRef Name="Title"/><Value Type="Text">'+c+"</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>");let L=N.getItems(U);g.load(L);var q=g.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory()),W=new SP.CamlQuery;W.set_viewXml('<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>');let B=q.getItems(W);g.load(B,"Include(ID, FSObjType, Title, DisplayName)");function te(){G=SP.UI.Notify.addNotification("Rejected Response Document",!1);let z=!0;for(var j=I.getEnumerator();j.moveNext();){var ie=j.get_current(),ne=ie.get_item("DocumentStatus");(ne=="Open"||ne=="Submitted"||ne=="Sent to QA")&&(z=!1)}if(z)for(var ce=ue(this.responseTitle),ae=L.getEnumerator();ae.moveNext();){var re=ae.get_current(),Ce=new Date;re.set_item("ResStatus","5-Returned to GFS"),re.update(),de(q,ce,this.responseTitle,"An Audit Response has been Returned by the Quality Assurance Team: "+this.responseTitle),g.executeQueryAsync(function(){x.close(),Audit.Common.Utilities.Refresh()});break}else x.close(),Audit.Common.Utilities.Refresh()}function M(){x.close()}var se={responseTitle:c};g.executeQueryAsync(Function.createDelegate(se,te),Function.createDelegate(se,M))},R=function(b,w){x.close(),alert("Request failed. "+w.get_message()+`
-`+w.get_stackTrace())};x=SP.UI.ModalDialog.showWaitScreenWithNoClose("Rejecting Response Document","Please wait... Rejecting Response Document",200,400);var a=SP.ClientContext.get_current(),l=a.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());let p=l.getItemById(C);a.load(p),a.executeQueryAsync(S,R)}else T=!1}function wt(t,n){if(t===SP.UI.DialogResult.OK){let w=function(F,P){var D=null,e=null;if(e=Ge($("#ddlResponsesOpen").val()),e==null||e.request==null)return;D=e.request;let s=D.number;Ve(D.number),ye();var o=D.number,c=e.title;xe=0,De=0;for(var u=0;u<e.responseDocs.length;u++){let se=function(){if(this.responseTitle==null||this.responseTitle==null||this.responseTitle==""){document.body.style.cursor="default",G=SP.UI.Notify.addNotification("Error: empty response title ",!1),x.close();return}var j=SP.ClientContext.get_current(),ie=this.newFile.get_listItemAllFields().get_id(),ne=j.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocsEA());let ce=ne.getItemById(ie);ce.set_item("RequestNumber",this.requestId),ce.set_item("ResponseID",this.responseNumber),ce.update();var ae=j.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetListTitleResponses()),re=new SP.CamlQuery;re.set_viewXml('<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><Eq><FieldRef Name="Title"/><Value Type="Text">'+this.responseTitle+"</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>");let Ce=ae.getItems(re);j.load(Ce);var Le=Audit.Common.Utilities.GetSiteUrl()+"/"+Audit.Common.Utilities.GetLibNameResponseDocs()+"/"+this.responseTitle,we=j.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs()),ve=new SP.CamlQuery;ve.set_viewXml('<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><And><Eq><FieldRef Name="FSObjType"/><Value Type="Text">0</Value></Eq><Eq><FieldRef Name="FileDirRef"/><Value Type="Text">'+Le+"</Value></Eq></And></Where></Query></View>");let Re=we.getItems(ve);j.load(Re);var Te=j.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory()),qe=new SP.CamlQuery;qe.set_viewXml('<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>');let $e=Te.getItems(qe);j.load($e,"Include(ID, FSObjType, Title, DisplayName)");function xt(){if(De++,De!=xe)return;G=SP.UI.Notify.addNotification("Approved Response Documents",!1);let Ie=!0;for(var ke=this.aresponseDocItems.getEnumerator(),Qe=!1;ke.moveNext();){var _e=ke.get_current(),Se=_e.get_item("DocumentStatus");Se=="Open"||Se=="Submitted"||Se=="Sent to QA"?Ie=!1:Se=="Rejected"&&(Qe=!0)}if(Ie)for(var Fe=ue(this.responseTitle),he=this.aresponseItems.getEnumerator();he.moveNext();){var oe=he.get_current();if(Qe)oe.set_item("ResStatus","5-Returned to GFS"),de(this.emailList,Fe,this.responseTitle,"An Audit Response has been Returned by the Quality Assurance Team: "+this.responseTitle);else{var pe=new Date;oe.set_item("ResStatus","7-Closed");var Gt=new Date(pe.getFullYear(),pe.getMonth(),pe.getDate(),pe.getHours(),pe.getMinutes(),pe.getSeconds(),pe.getMilliseconds());oe.set_item("ClosedDate",Gt),oe.set_item("ClosedBy",_spPageContextInfo.userId),de(this.emailList,Fe,this.responseTitle,"An Audit Response has been Closed by the Quality Assurance Team: "+this.responseTitle)}oe.update(),j.executeQueryAsync(function(){x.close(),Audit.Common.Utilities.Refresh()});break}else x.close(),Audit.Common.Utilities.Refresh()}function Me(){x.close()}var Ae={responseTitle:this.responseTitle,emailList:Te,aresponseItems:Ce,aresponseDocItems:Re,emailListFolderItems:$e};j.executeQueryAsync(Function.createDelegate(Ae,xt),Function.createDelegate(Ae,Me))},z=function(j,ie){x.close(),G=SP.UI.Notify.addNotification("Request failed. "+ie.get_message()+`
-`+ie.get_stackTrace(),!1),alert("Request failed. "+ie.get_message()+`
-`+ie.get_stackTrace()),Audit.Common.Utilities.Refresh()};if(e.responseDocs[u].documentStatus!="Sent to QA")continue;xe++;var v=new SP.ClientContext.get_current,h=v.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());let B=e.responseDocs[u].item,te=B.get_item("FileLeafRef");B=h.getItemById(B.get_item("ID"));var I=B.get_file(),N=location.protocol+"//"+location.host+_spPageContextInfo.webServerRelativeUrl+"/",U=N+Audit.Common.Utilities.GetLibTitleResponseDocsEA()+"/"+s+"/"+te;I.copyTo(U,1),B.set_item("DocumentStatus","Approved"),B.set_item("RejectReason",""),B.update();var L=location.protocol+"//"+location.host,q=U.replace(L,"");let M=v.get_web().getFileByServerRelativeUrl(q);v.load(M,"ListItemAllFields");var W={responseTitle:c,copiedFileName:U,requestId:o,responseNumber:c,newFile:M};v.executeQueryAsync(Function.createDelegate(W,se),Function.createDelegate(W,z))}},g=function(F,P){x.close(),alert("Request failed. "+P.get_message()+`
-`+P.get_stackTrace())};x=SP.UI.ModalDialog.showWaitScreenWithNoClose("Approving Response Documents","Please wait... Approving Response Documents",200,400);var a=$("#ddlResponsesOpen").val(),l=SP.ClientContext.get_current(),p=l.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocsEA()),S=new SP.CamlQuery;S.set_viewXml('<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'),X=p.getItems(S),l.load(X,"Include(ID, FSObjType, Title, DisplayName)");var R=l.get_web().get_lists().getByTitle("AuditEAEmailLog"),b=new SP.CamlQuery;b.set_viewXml('<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="Created"/><Value IncludeTimeValue="FALSE" Type="DateTime"><Today/></Value></Eq></Where></Query></View>'),le=R.getItems(b),l.load(le,"Include(ID)"),l.executeQueryAsync(w,g)}else T=!1}function Rt(){St("#btnPrint1","#divStatusReportRespones","QA Response Status Report"),Ct(".export1","QAResponseStatusReport_","tblStatusReportResponses")}function St(t,n,a){$(t).on("click",function(){Audit.Common.Utilities.PrintStatusReport(a,n)})}function Ct(t,n,a){$(t).on("click",function(l){var p=new Date().format("yyyyMMdd_hhmmtt");Audit.Common.Utilities.ExportToCsv(n+p,a)})}function Tt(t){if(k.tabs.selectTab(k.tabOpts.ResponseDetail),t){t=f["response-"+t];var n=t.request.status,a=t.resStatus;(a=="4-Approved for QA"||a=="6-Reposted After Rejection")&&(n=="Open"||n=="ReOpened")?k.filterResponseInfoTabResponseNameOpen2(t.title):k.filterResponseInfoTabResponseNameProcessed2(t.title)}}var _t={Load:Ue,IsTransactionExecuting:function(){return T},GoToResponse:Tt,GetCancelReason:function(){return _=$("#txtRejectReason").val(),$.trim(_)==""?$("#btnClientOk1").attr("disabled","disabled"):$("#btnClientOk1").removeAttr("disabled"),_}};return _t};})();
+  // src/sal/infrastructure/register_components.js
+  var html3 = String.raw;
+
+  // src/sal/infrastructure/sal.js
+  window.console = window.console || { log: function() {
+  } };
+  window.sal = window.sal ?? {};
+  var sal = window.sal;
+  var serverRelativeUrl = _spPageContextInfo.webServerRelativeUrl == "/" ? "" : _spPageContextInfo.webServerRelativeUrl;
+  sal.globalConfig = sal.globalConfig || {
+    siteGroups: [],
+    siteUrl: serverRelativeUrl,
+    listServices: serverRelativeUrl + "/_vti_bin/ListData.svc/",
+    defaultGroups: {}
+  };
+  sal.site = sal.site || {};
+  window.DEBUG = true;
+  function principalToPeople(oPrincipal, isGroup = null) {
+    return {
+      ID: oPrincipal.get_id(),
+      Title: oPrincipal.get_title(),
+      LoginName: oPrincipal.get_loginName(),
+      IsEnsured: true,
+      IsGroup: isGroup != null ? isGroup : oPrincipal.constructor.getName() == "SP.Group",
+      oPrincipal
+    };
+  }
+  var webRoot = _spPageContextInfo.webAbsoluteUrl == "/" ? "" : _spPageContextInfo.webAbsoluteUrl;
+  sal.NewAppConfig = function() {
+    var siteRoles = {};
+    siteRoles.roles = {
+      FullControl: "Full Control",
+      Design: "Design",
+      Edit: "Edit",
+      Contribute: "Contribute",
+      RestrictedContribute: "Restricted Contribute",
+      InitialCreate: "Initial Create",
+      Read: "Read",
+      RestrictedRead: "Restricted Read",
+      LimitedAccess: "Limited Access"
+    };
+    siteRoles.fulfillsRole = function(inputRole, targetRole) {
+      const roles = Object.values(siteRoles.roles);
+      if (!roles.includes(inputRole) || !roles.includes(targetRole))
+        return false;
+      return roles.indexOf(inputRole) <= roles.indexOf(targetRole);
+    };
+    siteRoles.validate = function() {
+      Object.keys(siteRoles.roles).forEach(function(role) {
+        var roleName = siteRoles.roles[role];
+        if (!sal.globalConfig.roles.includes(roleName)) {
+          console.error(roleName + " is not in the global roles list");
+        } else {
+          console.log(roleName);
+        }
+      });
+    };
+    var siteGroups = {
+      groups: {
+        Owners: "workorder Owners",
+        Members: "workorder Members",
+        Visitors: "workorder Visitors",
+        RestrictedReaders: "Restricted Readers"
+      }
+    };
+    var publicMembers = {
+      siteRoles,
+      siteGroups
+    };
+    return publicMembers;
+  };
+  sal.NewUtilities = function() {
+    function createSiteGroup(groupName, permissions, callback) {
+      callback = callback === void 0 ? null : callback;
+      var currCtx = new SP.ClientContext.get_current();
+      var web = currCtx.get_web();
+      var groupCreationInfo = new SP.GroupCreationInformation();
+      groupCreationInfo.set_title(groupName);
+      this.oGroup = oWebsite.get_siteGroups().add(groupCreationInfo);
+      oGroup.set_owner(oWebsite.get_associatedOwnerGroup());
+      oGroup.update();
+      var collRoleDefinitionBinding = SP.RoleDefinitionBindingCollection.newObject(clientContext);
+      this.oRoleDefinitions = [];
+      permissions.forEach(function(perm) {
+        var oRoleDefinition2 = oWebsite.get_roleDefinitions().getByName(perm);
+        this.oRoleDefinitions.push(oRoleDefinition2);
+        collRoleDefinitionBinding.add(oRoleDefinition2);
+      });
+      var collRollAssignment = oWebsite.get_roleAssignments();
+      collRollAssignment.add(oGroup, collRoleDefinitionBinding);
+      function onCreateGroupSucceeded() {
+        var roleInfo = oGroup.get_title() + " created and assigned to " + oRoleDefinitions.forEach(function(rd) {
+          rd + ", ";
+        });
+        if (callback) {
+          callback(oGroup.get_id());
+        }
+        console.log(roleInfo);
+      }
+      function onCreateGroupFailed(sender, args) {
+        alert(
+          groupnName + " - Create group failed. " + args.get_message() + "\n" + args.get_stackTrace()
+        );
+      }
+      clientContext.load(oGroup, "Title");
+      var data2 = {
+        groupName,
+        oGroup,
+        oRoleDefinition,
+        callback
+      };
+      clientContext.executeQueryAsync(
+        Function.createDelegate(data2, onCreateGroupSucceeded),
+        Function.createDelegate(data2, onCreateGroupFailed)
+      );
+    }
+    function getUserGroups(user, callback) {
+      var currCtx = new SP.ClientContext.get_current();
+      var web = currCtx.get_web();
+      var everyone = web.ensureUser(user);
+      var oGroups = everyone.get_groups();
+      function onQueryGroupsSucceeded() {
+        var groups = new Array();
+        var groupsInfo = new String();
+        var groupsEnumerator = oGroups.getEnumerator();
+        while (groupsEnumerator.moveNext()) {
+          var oGroup2 = groupsEnumerator.get_current();
+          var group = principalToPeople(oGroup2);
+          groupsInfo += "\nGroup ID: " + oGroup2.get_id() + ", Title : " + oGroup2.get_title();
+          groups.push(group);
+        }
+        console.log(groupsInfo.toString());
+        callback(groups);
+      }
+      function onQueryGroupsFailed(sender, args) {
+        console.error(
+          " Everyone - Query Everyone group failed. " + args.get_message() + "\n" + args.get_stackTrace()
+        );
+      }
+      currCtx.load(everyone);
+      currCtx.load(oGroups);
+      data = { everyone, oGroups, callback };
+      currCtx.executeQueryAsync(
+        Function.createDelegate(data, onQueryGroupsSucceeded),
+        Function.createDelegate(data, onQueryGroupsFailed)
+      );
+    }
+    function getUsersWithGroup(oGroup2, callback) {
+      var context = new SP.ClientContext.get_current();
+      var oUsers = oGroup2.get_users();
+      function onGetUserSuccess() {
+        var userObjs = [];
+        var userEnumerator = oUsers.getEnumerator();
+        while (userEnumerator.moveNext()) {
+          var oUser = userEnumerator.get_current();
+          var userObj = principalToPeople(oUser);
+          userObjs.push(userObj);
+        }
+        callback(userObjs);
+      }
+      function onGetUserFailed(sender, args) {
+      }
+      var data2 = { oUsers, callback };
+      context.load(oUsers);
+      context.executeQueryAsync(
+        Function.createDelegate(data2, onGetUserSuccess),
+        Function.createDelegate(data2, onGetUserFailed)
+      );
+    }
+    function copyFiles(sourceLib, destLib, callback, onError) {
+      var context = new SP.ClientContext.get_current();
+      var web = context.get_web();
+      var folderSrc = web.getFolderByServerRelativeUrl(sourceLib);
+      context.load(folderSrc, "Files");
+      context.executeQueryAsync(
+        function() {
+          console.log("Got the source folder right here!");
+          var files = folderSrc.get_files();
+          var e = files.getEnumerator();
+          var dest = [];
+          while (e.moveNext()) {
+            var file = e.get_current();
+            var destLibUrl = destLib + "/" + file.get_name();
+            dest.push(destLibUrl);
+            file.copyTo(destLibUrl, true);
+          }
+          console.log(dest);
+          context.executeQueryAsync(
+            function() {
+              console.log("Files moved successfully!");
+              callback();
+            },
+            function(sender, args) {
+              console.log("error: ") + args.get_message();
+              onError;
+            }
+          );
+        },
+        function(sender, args) {
+          console.log("Sorry, something messed up: " + args.get_message());
+        }
+      );
+    }
+    function copyFilesAsync(sourceFolder, destFolder) {
+      return new Promise((resolve, reject2) => {
+        copyFiles(sourceFolder, destFolder, resolve, reject2);
+      });
+    }
+    var publicMembers = {
+      copyFiles,
+      copyFilesAsync,
+      createSiteGroup,
+      getUserGroups,
+      getUsersWithGroup
+    };
+    return publicMembers;
+  };
+  async function ensureUserByKeyAsync(userName) {
+    return new Promise((resolve, reject2) => {
+      var group = sal.globalConfig.siteGroups.find(function(group2) {
+        return group2.LoginName == userName;
+      });
+      if (group) {
+        resolve(group);
+        return;
+      }
+      var context = new SP.ClientContext.get_current();
+      var oUser = context.get_web().ensureUser(userName);
+      function onEnsureUserSucceeded(sender, args) {
+        const user = principalToPeople(oUser);
+        resolve(user);
+      }
+      function onEnsureUserFailed(sender, args) {
+        console.error(
+          "Failed to ensure user :" + args.get_message() + "\n" + args.get_stackTrace()
+        );
+        reject2(args);
+      }
+      const data2 = { oUser, resolve, reject: reject2 };
+      context.load(oUser);
+      context.executeQueryAsync(
+        Function.createDelegate(data2, onEnsureUserSucceeded),
+        Function.createDelegate(data2, onEnsureUserFailed)
+      );
+    });
+  }
+  async function fetchSharePointData(uri, method = "GET", headers = {}, opts = {}) {
+    const siteEndpoint = uri.startsWith("http") ? uri : sal.globalConfig.siteUrl + "/_api" + uri;
+    const response = await fetch(siteEndpoint, {
+      method,
+      headers: {
+        Accept: "application/json; odata=verbose",
+        "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value,
+        ...headers
+      },
+      ...opts
+    });
+    if (!response.ok) {
+      if (response.status == 404) {
+        return;
+      }
+      console.error(response);
+    }
+    try {
+      const result = await response.json();
+      return result;
+    } catch (e) {
+      return;
+    }
+  }
+  window.fetchSharePointData = fetchSharePointData;
+  var JobProcessor = class {
+    constructor(maxConcurrency) {
+      this.maxConcurrency = maxConcurrency;
+      this.runningJobs = 0;
+      this.queue = [];
+    }
+    addJob(asyncFunction) {
+      return new Promise((resolve, reject2) => {
+        const job = async () => {
+          try {
+            const result = await asyncFunction();
+            resolve(result);
+          } catch (error2) {
+            reject2(error2);
+          } finally {
+            this.runningJobs--;
+            this.processQueue();
+          }
+        };
+        this.queue.push(job);
+        this.processQueue();
+      });
+    }
+    processQueue() {
+      while (this.runningJobs < this.maxConcurrency && this.queue.length > 0) {
+        const job = this.queue.shift();
+        this.runningJobs++;
+        job();
+      }
+    }
+  };
+  var uploadQueue = new JobProcessor(5);
+
+  // src/env.js
+  var assetsPath = "/sites/CGFS/Style Library/apps/audit/src";
+
+  // src/sal/infrastructure/knockout_extensions.js
+  ko.subscribable.fn.subscribeChanged = function(callback) {
+    var oldValue;
+    this.subscribe(
+      function(_oldValue) {
+        oldValue = _oldValue;
+      },
+      this,
+      "beforeChange"
+    );
+    this.subscribe(function(newValue) {
+      callback(newValue, oldValue);
+    });
+  };
+  ko.observableArray.fn.subscribeAdded = function(callback) {
+    this.subscribe(
+      function(arrayChanges) {
+        const addedValues = arrayChanges.filter((value) => value.status == "added").map((value) => value.value);
+        callback(addedValues);
+      },
+      this,
+      "arrayChange"
+    );
+  };
+  ko.bindingHandlers.searchSelect = {
+    init: function(element, valueAccessor, allBindingsAccessor) {
+      const { options, selectedOptions, optionsText, onSearchInput } = valueAccessor();
+      function populateOpts() {
+        const optionItems = ko.unwrap(options);
+        const optionElements = optionItems.map((option) => {
+          const optionElement = document.createElement("option");
+          ko.selectExtensions.writeValue(optionElement, ko.unwrap(option));
+          optionElement.innerText = optionsText(option);
+          if (ko.unwrap(selectedOptions)?.find((selectedOption) => selectedOption.ID == option.ID)) {
+            optionElement.setAttribute("selected", "");
+          }
+          return optionElement;
+        });
+        element.append(...optionElements);
+      }
+      populateOpts();
+      if (ko.isObservable(options)) {
+        options.subscribe(() => populateOpts(), this);
+      }
+      ko.utils.registerEventHandler(element, "change", (e) => {
+        selectedOptions(
+          element.selectedOptions.map((opt) => ko.selectExtensions.readValue(opt))
+        );
+      });
+      if (onSearchInput) {
+        ko.utils.registerEventHandler(element, "input", (e) => {
+          onSearchInput(e.originalEvent.target.searchInputElement.value);
+        });
+      }
+    },
+    update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+      const { selectedOptions } = valueAccessor();
+      const selectedUnwrapped = ko.unwrap(selectedOptions);
+      for (var i2 = 0; i2 < element.options.length; i2++) {
+        const o = element.options[i2];
+        o.toggleAttribute(
+          "selected",
+          selectedUnwrapped.includes(ko.selectExtensions.readValue(o))
+        );
+      }
+    }
+  };
+  ko.bindingHandlers.people = {
+    init: function(element, valueAccessor, allBindingsAccessor) {
+      var schema = {};
+      schema["PrincipalAccountType"] = "User";
+      schema["SearchPrincipalSource"] = 15;
+      schema["ShowUserPresence"] = true;
+      schema["ResolvePrincipalSource"] = 15;
+      schema["AllowEmailAddresses"] = true;
+      schema["AllowMultipleValues"] = false;
+      schema["MaximumEntitySuggestions"] = 50;
+      schema["OnUserResolvedClientScript"] = async function(elemId, userKeys) {
+        var pickerControl = SPClientPeoplePicker.SPClientPeoplePickerDict[elemId];
+        var observable = valueAccessor();
+        var userJSObject = pickerControl.GetControlValueAsJSObject()[0];
+        if (!userJSObject) {
+          observable(null);
+          return;
+        }
+        if (userJSObject.IsResolved) {
+          if (userJSObject.Key == observable()?.LoginName)
+            return;
+          var user = await ensureUserByKeyAsync(userJSObject.Key);
+          var person = new People2(user);
+          observable(person);
+        }
+      };
+      SPClientPeoplePicker_InitStandaloneControlWrapper(element.id, null, schema);
+    },
+    update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+      var pickerControl = SPClientPeoplePicker.SPClientPeoplePickerDict[element.id + "_TopSpan"];
+      var userValue = ko.utils.unwrapObservable(valueAccessor());
+      if (!userValue) {
+        pickerControl?.DeleteProcessedUser();
+        return;
+      }
+      if (userValue && !pickerControl.GetAllUserInfo().find((pickerUser) => pickerUser.DisplayText == userValue.LookupValue)) {
+        pickerControl.AddUserKeys(
+          userValue.LoginName ?? userValue.LookupValue ?? userValue.Title
+        );
+      }
+    }
+  };
+  ko.bindingHandlers.dateField = {
+    init: function(element, valueAccessor, allBindingsAccessor) {
+    },
+    update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    }
+  };
+  ko.bindingHandlers.downloadLink = {
+    update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+      var path = valueAccessor();
+      var replaced = path.replace(/:([A-Za-z_]+)/g, function(_, token) {
+        return ko.unwrap(viewModel[token]);
+      });
+      element.href = replaced;
+    }
+  };
+  ko.bindingHandlers.files = {
+    init: function(element, valueAccessor) {
+      function addFiles(fileList) {
+        var value = valueAccessor();
+        if (!fileList.length) {
+          value.removeAll();
+          return;
+        }
+        const existingFiles = ko.unwrap(value);
+        const newFileList = [];
+        for (let file of fileList) {
+          if (!existingFiles.find((exFile) => exFile.name == file.name))
+            newFileList.push(file);
+        }
+        ko.utils.arrayPushAll(value, newFileList);
+        return;
+      }
+      ko.utils.registerEventHandler(element, "change", function() {
+        addFiles(element.files);
+      });
+      const label = element.closest("label");
+      if (!label)
+        return;
+      ko.utils.registerEventHandler(label, "dragover", function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+      });
+      ko.utils.registerEventHandler(label, "dragenter", function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        label.classList.add("dragging");
+      });
+      ko.utils.registerEventHandler(label, "dragleave", function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        label.classList.remove("dragging");
+      });
+      ko.utils.registerEventHandler(label, "drop", function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        let dt = event.originalEvent.dataTransfer;
+        let files = dt.files;
+        addFiles(files);
+      });
+    },
+    update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+      const value = valueAccessor();
+      if (!value().length && element.files.length) {
+        element.value = null;
+        return;
+      }
+      return;
+    }
+  };
+  ko.bindingHandlers.toggleClick = {
+    init: function(element, valueAccessor, allBindings) {
+      var value = valueAccessor();
+      ko.utils.registerEventHandler(element, "click", function() {
+        var classToToggle = allBindings.get("toggleClass");
+        var classContainer = allBindings.get("classContainer");
+        var containerType = allBindings.get("containerType");
+        if (containerType && containerType == "sibling") {
+          $(element).nextUntil(classContainer).each(function() {
+            $(this).toggleClass(classToToggle);
+          });
+        } else if (containerType && containerType == "doc") {
+          var curIcon = $(element).attr("src");
+          if (curIcon == "/_layouts/images/minus.gif")
+            $(element).attr("src", "/_layouts/images/plus.gif");
+          else
+            $(element).attr("src", "/_layouts/images/minus.gif");
+          if ($(element).parent() && $(element).parent().parent()) {
+            $(element).parent().parent().nextUntil(classContainer).each(function() {
+              $(this).toggleClass(classToToggle);
+            });
+          }
+        } else if (containerType && containerType == "any") {
+          if ($("." + classToToggle).is(":visible"))
+            $("." + classToToggle).hide();
+          else
+            $("." + classToToggle).show();
+        } else
+          $(element).find(classContainer).toggleClass(classToToggle);
+      });
+    }
+  };
+  ko.bindingHandlers.toggles = {
+    init: function(element, valueAccessor) {
+      var value = valueAccessor();
+      ko.utils.registerEventHandler(element, "click", function() {
+        value(!value());
+      });
+    }
+  };
+  var fromPathTemplateLoader = {
+    loadTemplate: function(name, templateConfig, callback) {
+      if (templateConfig.fromPath) {
+        fetch(assetsPath + templateConfig.fromPath).then((response) => {
+          if (!response.ok) {
+            throw new Error(
+              `Error Fetching HTML Template - ${response.statusText}`
+            );
+          }
+          return response.text();
+        }).catch((error2) => {
+          if (!templateConfig.fallback)
+            return;
+          console.warn(
+            "Primary template not found, attempting fallback",
+            templateConfig
+          );
+          fetch(assetsPath + templateConfig.fallback).then((response) => {
+            if (!response.ok) {
+              throw new Error(
+                `Error Fetching fallback HTML Template - ${response.statusText}`
+              );
+            }
+            return response.text();
+          }).then(
+            (text) => ko.components.defaultLoader.loadTemplate(name, text, callback)
+          );
+        }).then(
+          (text) => text ? ko.components.defaultLoader.loadTemplate(name, text, callback) : null
+        );
+      } else {
+        callback(null);
+      }
+    }
+  };
+  ko.components.loaders.unshift(fromPathTemplateLoader);
+  var fromPathViewModelLoader = {
+    loadViewModel: function(name, viewModelConfig, callback) {
+      if (viewModelConfig.viaLoader) {
+        const module = import(assetsPath + viewModelConfig.viaLoader).then(
+          (module2) => {
+            const viewModelConstructor = module2.default;
+            ko.components.defaultLoader.loadViewModel(
+              name,
+              viewModelConstructor,
+              callback
+            );
+          }
+        );
+      } else {
+        callback(null);
+      }
+    }
+  };
+  ko.components.loaders.unshift(fromPathViewModelLoader);
+
+  // src/common/utilities.js
+  window.Audit = window.Audit || {};
+  Audit.Common = Audit.Common || {};
+  function InitReport() {
+    Audit.Common.Utilities = new Audit.Common.NewUtilities();
+    Audit.Common.Init();
+  }
+  Audit.Common.Init = function() {
+  };
+  Audit.Common.NewUtilities = function() {
+    var m_siteUrl = _spPageContextInfo.webServerRelativeUrl;
+    var m_listTitleRequests = "AuditRequests";
+    var m_listNameRequests = "AuditRequests";
+    var m_listTitleRequestsInternal = "AuditRequestsInternal";
+    var m_listNameRequestsInternal = "AuditRequestsInternal";
+    var m_listTitleResponses = "AuditResponses";
+    var m_listNameResponses = "AuditResponses";
+    var m_libTitleRequestDocs = "AuditRequestDocs";
+    var m_libNameRequestDocs = "AuditRequestDocs";
+    var m_libTitleCoverSheet = "AuditCoverSheets";
+    var m_libNameCoverSheet = "AuditCoverSheets";
+    var m_libTitleResponseDocs = "AuditResponseDocs";
+    var m_libNameResponseDocs = "AuditResponseDocs";
+    var m_libTitleResponseDocsEA = "AuditResponseDocsEA";
+    var m_libNameResponseDocsEA = "AuditResponseDocsEA";
+    var m_listTitleActionOffices = "AuditOrganizations";
+    var m_listNameActionOffices = "AuditOrganizations";
+    var m_listTitleEmailHistory = "AuditEmails";
+    var m_listNameEmailHistory = "AuditEmails";
+    var m_listTitleBulkResponses = "AuditBulkResponses";
+    var m_listNameBulkResponses = "AuditBulkResponses";
+    var m_listTitleBulkPermissions = "AuditBulkPermissions";
+    var m_listNameBulkPermissions = "AuditBulkPermissions";
+    var m_groupNameSpecialPermName1 = "CGFS Special Access1";
+    var m_groupNameSpecialPermName2 = "CGFS Special Access2";
+    var m_groupNameQA = "Quality Assurance";
+    var m_groupNameEA = "External Auditors";
+    var m_libResponseDocsLibraryGUID = null;
+    var m_arrSiteGroups = null;
+    var m_arrAOs = null;
+    function m_fnRefresh(hard = false) {
+      if (hard) {
+        location.href = location.pathname;
+        return;
+      }
+      var curPath = location.pathname;
+      if ($("#tabs").html() != null && $("#tabs").html() != "") {
+        var tabIndex = 0;
+        try {
+          tabIndex = $("#tabs").tabs("option", "active");
+        } catch (ex) {
+        }
+        curPath += "?Tab=" + tabIndex;
+        if (tabIndex == 0 && $("#ddlResponseName").val() != "") {
+          curPath += "&ResNum=" + $("#ddlResponseName").val();
+        } else if (tabIndex == 1) {
+          var responseNumOpen = $("#ddlResponsesOpen").val();
+          var responseNumProcessed = $("#ddlResponsesProcessed").val();
+          if (responseNumOpen != null && responseNumOpen != "")
+            curPath += "&ResNum=" + responseNumOpen;
+          else if (responseNumProcessed != null && responseNumProcessed != "")
+            curPath += "&ResNum=" + responseNumProcessed;
+        }
+        location.href = curPath;
+      } else {
+        location.reload();
+      }
+    }
+    function m_fnOnLoadDisplayTimeStamp() {
+      var curDate = /* @__PURE__ */ new Date();
+      $("#divLoading").text("Loaded at " + curDate.format("MM/dd/yyyy hh:mm tt"));
+    }
+    function m_fnOnLoadDisplayTabAndResponse() {
+      var paramTabIndex = GetUrlKeyValue("Tab");
+      if (paramTabIndex != null && paramTabIndex != "") {
+        $("#tabs").tabs("option", "active", paramTabIndex);
+      }
+      var bFiltered = false;
+      var paramResponseNum = GetUrlKeyValue("ResNum");
+      if (paramResponseNum != null && paramResponseNum != "") {
+        if (paramTabIndex == 0) {
+          if ($("#ddlResponseName option[value='" + paramResponseNum + "']").length > 0) {
+            $("#ddlResponseName").val(paramResponseNum).change();
+            bFiltered = true;
+          }
+        } else {
+          if ($("#ddlResponsesOpen option[value='" + paramResponseNum + "']").length > 0) {
+            $("#ddlResponsesOpen").val(paramResponseNum).change();
+          } else if ($("#ddlResponsesProcessed option[value='" + paramResponseNum + "']").length > 0) {
+            $("#ddlResponsesProcessed").val(paramResponseNum).change();
+          }
+        }
+      }
+      if (!bFiltered) {
+        $(".sr-response-item").show();
+      }
+    }
+    function m_fnOnLoadFilterResponses(responseStatus1, responseStatus2) {
+      var count = 0;
+      var cntOpen = 0;
+      var cntReOpened = 0;
+      var resStatus1 = 0;
+      var resStatus2 = 0;
+      var eacher = $(".sr-response-item");
+      eacher.each(function() {
+        var reqStatus = $.trim($(this).find(".sr-response-requestStatus").text());
+        var resStatus = $.trim($(this).find(".sr-response-status").text());
+        if ((resStatus == responseStatus1 || resStatus == responseStatus2) && (reqStatus == "Open" || reqStatus == "ReOpened")) {
+          $(this).addClass("highlighted");
+          count++;
+          if (resStatus == responseStatus1)
+            resStatus1++;
+          else if (resStatus == responseStatus2)
+            resStatus2++;
+          if (reqStatus == "Open")
+            cntOpen++;
+          else if (reqStatus == "ReOpened")
+            cntReOpened++;
+        }
+      });
+      if (count > 0) {
+        $("#lblStatusReportResponsesMsg").html(
+          "<span class='ui-icon ui-icon-alert'></span>There are " + count + " Responses pending your review"
+        );
+        if (resStatus1 > 0 && resStatus2 == 0)
+          $("#ddlResponseStatus").val(responseStatus1).change();
+        else if (resStatus2 > 0 && resStatus1 == 0)
+          $("#ddlResponseStatus").val(responseStatus2).change();
+      } else
+        $("#lblStatusReportResponsesMsg").html(
+          "<span class='ui-icon ui-icon-circle-check'></span>There are 0 Responses pending your review"
+        );
+    }
+    function m_fnLoadSiteGroups(itemColl) {
+      m_arrSiteGroups = new Array();
+      var listItemEnumerator = itemColl.getEnumerator();
+      while (listItemEnumerator.moveNext()) {
+        var oListItem = listItemEnumerator.get_current();
+        var id2 = oListItem.get_id();
+        var loginName = oListItem.get_loginName();
+        var title = oListItem.get_title();
+        var groupObject = new Object();
+        groupObject["ID"] = id2;
+        groupObject["loginName"] = loginName;
+        groupObject["title"] = title;
+        groupObject["group"] = oListItem;
+        m_arrSiteGroups.push(groupObject);
+      }
+    }
+    function m_fnGetSPSiteGroup(groupName) {
+      var userGroup = null;
+      if (m_arrSiteGroups != null) {
+        for (var x = 0; x < m_arrSiteGroups.length; x++) {
+          if (m_arrSiteGroups[x].title == groupName) {
+            userGroup = m_arrSiteGroups[x].group;
+            break;
+          }
+        }
+      }
+      return userGroup;
+    }
+    function m_fnLoadActionOffices(itemColl) {
+      m_arrAOs = new Array();
+      var listItemEnumerator = itemColl.getEnumerator();
+      while (listItemEnumerator.moveNext()) {
+        var oListItem = listItemEnumerator.get_current();
+        var id2 = oListItem.get_item("ID");
+        var title = oListItem.get_item("Title");
+        var userGroup = oListItem.get_item("UserGroup");
+        if (userGroup != null) {
+          userGroup = userGroup.get_lookupValue();
+        } else
+          userGroup = "";
+        var aoObject = new Object();
+        aoObject["ID"] = id2;
+        aoObject["title"] = title;
+        aoObject["userGroup"] = userGroup;
+        m_arrAOs.push(aoObject);
+      }
+    }
+    function m_fnGetAOSPGroupName(groupName) {
+      var userGroup = null;
+      if (m_arrAOs != null) {
+        for (var x = 0; x < m_arrAOs.length; x++) {
+          var oGroup2 = m_arrAOs[x];
+          if (oGroup2.title == groupName) {
+            userGroup = oGroup2.userGroup;
+            break;
+          }
+        }
+      }
+      return userGroup;
+    }
+    function m_fnCheckSPItemHasGroupPermission(item, groupName, permissionLevel) {
+      if (item == null || groupName == "" || groupName == null || permissionLevel == null)
+        return false;
+      var match = false;
+      var roleAssignments = item.get_roleAssignments();
+      if (roleAssignments == null) {
+        alert("Error retrieving role assignments");
+        return false;
+      }
+      var rolesEnumerator = roleAssignments.getEnumerator();
+      while (rolesEnumerator.moveNext()) {
+        var role = rolesEnumerator.get_current();
+        if (role != null) {
+          var roleMember = role.get_member();
+          if (roleMember.isPropertyAvailable("Title")) {
+            var memberTitleName = roleMember.get_title();
+            var roleDefs = role.get_roleDefinitionBindings();
+            if (roleDefs != null) {
+              var roleDefsEnumerator = roleDefs.getEnumerator();
+              while (roleDefsEnumerator.moveNext()) {
+                var rd = roleDefsEnumerator.get_current();
+                var rdName = rd.get_name();
+                if (memberTitleName == groupName && rd.get_basePermissions().has(permissionLevel)) {
+                  match = true;
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+      return match;
+    }
+    function m_fnGoToResponse(responseTitle, isIA) {
+      if (!isIA) {
+        var bFound = false;
+        $("#ddlResponsesOpen > option").each(function() {
+          if ($(this).text() == responseTitle) {
+            bFound = true;
+            notifyId = SP.UI.Notify.addNotification(
+              "Displaying Response (" + responseTitle + ")",
+              false
+            );
+            $("#ddlResponsesOpen").val(responseTitle).change();
+            return false;
+          }
+        });
+        if (!bFound) {
+          $("#ddlResponsesProcessed > option").each(function() {
+            if ($(this).text() == responseTitle) {
+              bFound = true;
+              notifyId = SP.UI.Notify.addNotification(
+                "Displaying Response (" + responseTitle + ")",
+                false
+              );
+              $("#ddlResponsesProcessed").val(responseTitle).change();
+              return false;
+            }
+          });
+        }
+        $("#tabs").tabs({ active: 1 });
+      }
+    }
+    function m_fnGetResponseDocStyleTag2(documentStatus) {
+      var styleTag = {};
+      if (documentStatus == "Archived")
+        styleTag = { "background-color": "Gainsboro" };
+      else if (documentStatus == "Approved")
+        styleTag = { "background-color": "PaleGreen" };
+      else if (documentStatus == "Rejected")
+        styleTag = { "background-color": "LightSalmon" };
+      else if (documentStatus == "Sent to QA")
+        styleTag = { "background-color": "LightCyan" };
+      else if (documentStatus == "Submitted")
+        styleTag = { "background-color": "LemonChiffon" };
+      else if (documentStatus == "Marked for Deletion")
+        styleTag = {
+          "background-color": "Gainsboro",
+          "font-style": "italic"
+        };
+      return styleTag;
+    }
+    function m_fnGetResponseDocStyleTag(documentStatus) {
+      var styleTag = "";
+      if (documentStatus == "Archived")
+        styleTag = " style='background-color:Gainsboro;' ";
+      else if (documentStatus == "Approved")
+        styleTag = " style='background-color:PaleGreen;' ";
+      else if (documentStatus == "Rejected")
+        styleTag = " style='background-color:LightSalmon;' ";
+      else if (documentStatus == "Sent to QA")
+        styleTag = " style='background-color:LightCyan;' ";
+      else if (documentStatus == "Submitted")
+        styleTag = " style='background-color:LemonChiffon;' ";
+      else if (documentStatus == "Marked for Deletion")
+        styleTag = " style='background-color:Gainsboro; font-style:italic' title='Marked for Deletion by the Action Office' ";
+      return styleTag;
+    }
+    function m_fnCheckIfEmailFolderExists(items, requestNumber) {
+      var bFolderExists = false;
+      var listItemEnumerator = items.getEnumerator();
+      while (listItemEnumerator.moveNext()) {
+        var folderItem = listItemEnumerator.get_current();
+        var itemName = folderItem.get_displayName();
+        if (itemName == requestNumber) {
+          var bFolderExists = true;
+          break;
+        }
+      }
+      return bFolderExists;
+    }
+    var m_cntAddToEmailFolder = 0;
+    var m_cntAddedToEmailFolder = 0;
+    function m_fnCreateEmailFolder(list, requestNumber, requestItem, OnComplete) {
+      m_cntAddToEmailFolder = 0;
+      m_cntAddedToEmailFolder = 0;
+      var currCtx = new SP.ClientContext.get_current();
+      var web = currCtx.get_web();
+      var itemCreateInfo = new SP.ListItemCreationInformation();
+      itemCreateInfo.set_underlyingObjectType(SP.FileSystemObjectType.folder);
+      itemCreateInfo.set_leafName(requestNumber);
+      oNewEmailFolder = list.addItem(itemCreateInfo);
+      oNewEmailFolder.set_item("Title", requestNumber);
+      oNewEmailFolder.update();
+      this.currentUser = web.get_currentUser();
+      this.ownerGroup = web.get_associatedOwnerGroup();
+      this.memberGroup = web.get_associatedMemberGroup();
+      this.visitorGroup = web.get_associatedVisitorGroup();
+      oNewEmailFolder.resetRoleInheritance();
+      oNewEmailFolder.breakRoleInheritance(false, false);
+      var roleDefBindingCollAdmin = SP.RoleDefinitionBindingCollection.newObject(currCtx);
+      roleDefBindingCollAdmin.add(
+        web.get_roleDefinitions().getByType(SP.RoleType.administrator)
+      );
+      var roleDefBindingCollContribute = SP.RoleDefinitionBindingCollection.newObject(currCtx);
+      roleDefBindingCollContribute.add(
+        web.get_roleDefinitions().getByType(SP.RoleType.contributor)
+      );
+      var roleDefBindingCollRestrictedRead = SP.RoleDefinitionBindingCollection.newObject(currCtx);
+      roleDefBindingCollRestrictedRead.add(
+        web.get_roleDefinitions().getByName("Restricted Read")
+      );
+      var roleDefBindingCollRestrictedContribute = SP.RoleDefinitionBindingCollection.newObject(currCtx);
+      roleDefBindingCollRestrictedContribute.add(
+        web.get_roleDefinitions().getByName("Restricted Contribute")
+      );
+      oNewEmailFolder.get_roleAssignments().add(ownerGroup, roleDefBindingCollAdmin);
+      oNewEmailFolder.get_roleAssignments().add(memberGroup, roleDefBindingCollContribute);
+      oNewEmailFolder.get_roleAssignments().add(visitorGroup, roleDefBindingCollRestrictedRead);
+      var spGroupQA = Audit.Common.Utilities.GetSPSiteGroup(
+        Audit.Common.Utilities.GetGroupNameQA()
+      );
+      if (spGroupQA != null)
+        oNewEmailFolder.get_roleAssignments().add(spGroupQA, roleDefBindingCollRestrictedContribute);
+      oNewEmailFolder.get_roleAssignments().getByPrincipal(currentUser).deleteObject();
+      function onUpdatePermsSucceeded() {
+        if (this.requestItem) {
+          var arrActionOffice = this.requestItem.get_item("ActionOffice");
+          if (arrActionOffice == null || arrActionOffice.length == 0) {
+            if (this.OnComplete)
+              this.OnComplete(true);
+            return;
+          }
+          for (var x = 0; x < arrActionOffice.length; x++) {
+            var actionOfficeName = arrActionOffice[x].get_lookupValue();
+            var actionOfficeGroupName = Audit.Common.Utilities.GetAOSPGroupName(actionOfficeName);
+            var actionOfficeGroup = Audit.Common.Utilities.GetSPSiteGroup(
+              actionOfficeGroupName
+            );
+            if (actionOfficeGroup != null) {
+              let onUpdateAOPermsSucceeded2 = function() {
+                m_cntAddedToEmailFolder++;
+                if (m_cntAddedToEmailFolder == m_cntAddToEmailFolder) {
+                  if (this.OnComplete)
+                    this.OnComplete(true);
+                }
+              }, onUpdateAOPermsFailed2 = function(sender, args) {
+                m_cntAddedToEmailFolder++;
+                if (m_cntAddedToEmailFolder == m_cntAddToEmailFolder) {
+                  if (this.OnComplete)
+                    this.OnComplete(true);
+                }
+              };
+              var onUpdateAOPermsSucceeded = onUpdateAOPermsSucceeded2, onUpdateAOPermsFailed = onUpdateAOPermsFailed2;
+              m_cntAddToEmailFolder++;
+              var currCtx2 = new SP.ClientContext.get_current();
+              var web2 = currCtx2.get_web();
+              var roleDefBindingCollRestrictedContribute2 = SP.RoleDefinitionBindingCollection.newObject(currCtx2);
+              roleDefBindingCollRestrictedContribute2.add(
+                web2.get_roleDefinitions().getByName("Restricted Contribute")
+              );
+              this.oNewEmailFolder.get_roleAssignments().add(actionOfficeGroup, roleDefBindingCollRestrictedContribute2);
+              var data3 = { OnComplete: this.OnComplete };
+              currCtx2.executeQueryAsync(
+                Function.createDelegate(data3, onUpdateAOPermsSucceeded2),
+                Function.createDelegate(data3, onUpdateAOPermsFailed2)
+              );
+            }
+          }
+        } else {
+          if (this.OnComplete)
+            this.OnComplete(true);
+        }
+      }
+      function onUpdatePermsFailed(sender, args) {
+        statusId = SP.UI.Status.addStatus(
+          "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
+        );
+      }
+      var data2 = {
+        /*item: oListItem, */
+        requestItem,
+        oNewEmailFolder,
+        OnComplete
+      };
+      currCtx.executeQueryAsync(
+        Function.createDelegate(data2, onUpdatePermsSucceeded),
+        Function.createDelegate(data2, onUpdatePermsFailed)
+      );
+    }
+    function m_fnSortResponseTitleNoCase(a, b) {
+      var aTitle = a;
+      var bTitle = b;
+      let newA, newB;
+      if (aTitle == null)
+        aTitle = "";
+      if (bTitle == null)
+        bTitle = "";
+      var aIndex = aTitle.lastIndexOf("-");
+      if (aIndex >= 0) {
+        var subA = aTitle.substring(0, aIndex + 1);
+        var lastA = aTitle.replace(subA, "");
+        var intA = parseInt(lastA, 10);
+        var newIntA = Audit.Common.Utilities.PadDigits(intA, 5);
+        newA = subA + newIntA;
+      } else
+        newA = aTitle;
+      var bIndex = bTitle.lastIndexOf("-");
+      if (bIndex >= 0) {
+        var subB = bTitle.substring(0, bIndex + 1);
+        var lastB = bTitle.replace(subB, "");
+        var intB = parseInt(lastB, 10);
+        var newIntB = Audit.Common.Utilities.PadDigits(intB, 5);
+        newB = subB + newIntB;
+      } else
+        newB = bTitle;
+      return newA.toLowerCase().localeCompare(newB.toLowerCase());
+    }
+    function m_fnSortResponseObjectNoCase(a, b) {
+      var aTitle = a.title;
+      var bTitle = b.title;
+      var newA;
+      var newB;
+      if (aTitle == null)
+        aTitle = "";
+      if (bTitle == null)
+        bTitle = "";
+      var aIndex = aTitle.lastIndexOf("-");
+      if (aIndex >= 0) {
+        var subA = aTitle.substring(0, aIndex + 1);
+        var lastA = aTitle.replace(subA, "");
+        var intA = parseInt(lastA, 10);
+        var newIntA = Audit.Common.Utilities.PadDigits(intA, 5);
+        newA = subA + newIntA;
+      } else
+        newA = aTitle;
+      var bIndex = bTitle.lastIndexOf("-");
+      if (bIndex >= 0) {
+        var subB = bTitle.substring(0, bIndex + 1);
+        var lastB = bTitle.replace(subB, "");
+        var intB = parseInt(lastB, 10);
+        var newIntB = Audit.Common.Utilities.PadDigits(intB, 5);
+        newB = subB + newIntB;
+      } else
+        newB = bTitle;
+      return newA.toLowerCase().localeCompare(newB.toLowerCase());
+    }
+    function m_fnSortNoCase(a, b) {
+      return a.toLowerCase().localeCompare(b.toLowerCase());
+    }
+    function m_fnSortDate(a, b) {
+      if (a == "")
+        return -1;
+      if (b == "")
+        return 1;
+      return new Date(a).getTime() - new Date(b).getTime();
+    }
+    function m_fnAddOptions(arr, ddlID, dateSort, responseSort) {
+      if (arr == null)
+        return;
+      if (responseSort)
+        arr.sort(m_fnSortResponseTitleNoCase);
+      else if (!dateSort)
+        arr.sort(m_fnSortNoCase);
+      else
+        arr.sort(m_fnSortDate);
+      var rOptions = new Array(), j = -1;
+      rOptions[++j] = "<option value=''>-Select-</option>";
+      var arrLength = arr.length;
+      for (var x = 0; x < arrLength; x++) {
+        var option = $.trim(arr[x]);
+        rOptions[++j] = "<option value='" + option + "'>" + option + "</option>";
+      }
+      var thisDDL = $(ddlID);
+      thisDDL.empty().append(rOptions.join(""));
+    }
+    function m_fnExistsInArr(arr, val) {
+      if (arr == null)
+        return false;
+      var arrLength = arr.length;
+      for (var x = 0; x < arrLength; x++) {
+        if (arr[x] == val)
+          return true;
+      }
+      return false;
+    }
+    function m_fnGetTrueFalseIcon(val) {
+      if (val == true)
+        return "<span class='ui-icon ui-icon-check'>" + val + "</span>";
+      else
+        return "<span class='ui-icon ui-icon-close'>" + val + "</span>";
+    }
+    function m_fnGetFriendlyDisplayName(oListItem, fieldName) {
+      var user = oListItem.get_item(fieldName);
+      if (user == null)
+        return "";
+      else
+        return user.get_lookupValue();
+    }
+    function m_fnPadDigits(n, totalDigits) {
+      n = n.toString();
+      var pd = "";
+      if (totalDigits > n.length) {
+        for (let i2 = 0; i2 < totalDigits - n.length; i2++) {
+          pd += "0";
+        }
+      }
+      return pd + n.toString();
+    }
+    function m_fnPreciseRound(num, decimals) {
+      var sign = num >= 0 ? 1 : -1;
+      return (Math.round(num * Math.pow(10, decimals) + sign * 1e-3) / Math.pow(10, decimals)).toFixed(decimals);
+    }
+    function m_fnGetFriendlyFileSize(fileSize) {
+      if (fileSize == null || fileSize == "")
+        return "";
+      if (fileSize > 1048576) {
+        fileSize = Audit.Common.Utilities.PreciseRound(fileSize / 1048576, 2) + " MB";
+      } else if (fileSize > 1024) {
+        fileSize = Audit.Common.Utilities.PreciseRound(fileSize / 1024, 2) + " KB";
+      } else {
+        fileSize += " B";
+      }
+      return fileSize;
+    }
+    function m_fnISODateString(d) {
+      function pad(n) {
+        return n < 10 ? "0" + n : n;
+      }
+      return d.getUTCFullYear() + "-" + pad(d.getUTCMonth() + 1) + "-" + pad(d.getUTCDate()) + "T" + pad(d.getUTCHours()) + ":" + pad(d.getUTCMinutes()) + ":" + pad(d.getUTCSeconds()) + "Z";
+    }
+    function m_fnBindHandlerResponseDoc() {
+      $(".requestInfo-response-doc img").click(function(event) {
+        event.preventDefault();
+        var curIcon = $(this).attr("src");
+        if (curIcon == "/_layouts/images/minus.gif")
+          $(this).attr("src", "/_layouts/images/plus.gif");
+        else
+          $(this).attr("src", "/_layouts/images/minus.gif");
+        $(this).parent().parent().nextUntil("tr.requestInfo-response-doc").each(function() {
+          $(this).toggleClass("collapsed");
+        });
+      });
+    }
+    function m_fnGetLookupFormField(fieldTitle) {
+      if ($("select[title='" + fieldTitle + "']").html() !== null) {
+        return $("select[title='" + fieldTitle + "']");
+      } else {
+        return $("input[title='" + fieldTitle + "']");
+      }
+    }
+    function m_fnGetLookupDisplayText(fieldTitle) {
+      if ($("select[title='" + fieldTitle + "']").html() !== null) {
+        return $("select[title='" + fieldTitle + "'] option:selected").text();
+      } else {
+        return $("input[title='" + fieldTitle + "']").val();
+      }
+    }
+    function m_fnSetLookupFromFieldNameByText(fieldName, text) {
+      try {
+        if (text == void 0)
+          return;
+        var theSelect = m_fnGetTagFromIdentifierAndTitle("select", "", fieldName);
+        if (theSelect == null) {
+          var theInput = m_fnGetTagFromIdentifierAndTitle("input", "", fieldName);
+          ShowDropdown(theInput.id);
+          var opt = document.getElementById(theInput.opt);
+          m_fnSetSelectedOptionByText(opt, text);
+          OptLoseFocus(opt);
+        } else {
+          m_fnSetSelectedOptionByText(theSelect, text);
+        }
+      } catch (ex) {
+      }
+    }
+    function m_fnSetSelectedOptionByText(select, text) {
+      var opts = select.options;
+      var optLength = opts.length;
+      if (select == null)
+        return;
+      for (var i2 = 0; i2 < optLength; i2++) {
+        if (opts[i2].text == text) {
+          select.selectedIndex = i2;
+          return true;
+        }
+      }
+      return false;
+    }
+    function m_fnGetTagFromIdentifierAndTitle(tagName, identifier, title) {
+      var idLength = identifier.length;
+      var tags = document.getElementsByTagName(tagName);
+      for (var i2 = 0; i2 < tags.length; i2++) {
+        var tagID = tags[i2].id;
+        if (tags[i2].title == title && (identifier == "" || tagID.indexOf(identifier) == tagID.length - idLength)) {
+          return tags[i2];
+        }
+      }
+      return null;
+    }
+    function m_fnViewUserManuals(docType) {
+      var options = SP.UI.$create_DialogOptions();
+      options.title = "User Manual";
+      options.height = 250;
+      if (docType != null)
+        options.url = Audit.Common.Utilities.GetSiteUrl() + "/pages/AuditUserManuals.aspx?FilterField1=DocType&FilterValue1=" + docType;
+      else
+        options.url = Audit.Common.Utilities.GetSiteUrl() + "/pages/AuditUserManuals.aspx";
+      SP.UI.ModalDialog.showModalDialog(options);
+    }
+    function m_fnPrintPage(pageTitle, divTbl) {
+      var curDate = /* @__PURE__ */ new Date();
+      var siteUrl = Audit.Common.Utilities.GetSiteUrl();
+      var cssLink1 = siteUrl + "/siteassets/css/tablesorter/style.css?v=" + curDate.format("MM_dd_yyyy");
+      var cssLink2 = siteUrl + "/siteAssets/css/audit_styles.css?v=" + curDate.format("MM_dd_yyyy");
+      var divOutput = $(divTbl).html();
+      var updatedDivOutput = $("<div>").append(divOutput);
+      updatedDivOutput.find(".sr-response-title a").each(function() {
+        $(this).removeAttr("onclick");
+        $(this).removeAttr("href");
+      });
+      divOutput = updatedDivOutput.html();
+      var printDateString = curDate.format("MM/dd/yyyy hh:mm tt");
+      printDateString = "<div style='padding-bottom:10px;'>" + printDateString + "</div>";
+      divOutput = printDateString + divOutput;
+      var cssFile1 = $("<div></div>");
+      var cssFile2 = $("<div></div>");
+      var def1 = $.Deferred();
+      var def2 = $.Deferred();
+      var cssFileText = "";
+      cssFile1.load(cssLink1, function() {
+        cssFileText += "<style>" + cssFile1.html() + "</style>";
+        def1.resolve();
+      });
+      cssFile2.load(cssLink2, function() {
+        cssFileText += "<style>" + cssFile2.html() + "</style>";
+        def2.resolve();
+      });
+      $.when(def1, def2).done(function() {
+        var html4 = "<HTML>\n<HEAD>\n\n<Title>" + pageTitle + "</Title>\n" + cssFileText + "\n<style>.hideOnPrint, .rowFilters {display:none}</style>\n</HEAD>\n<BODY>\n" + divOutput + "\n</BODY>\n</HTML>";
+        var printWP = window.open("", "printWebPart");
+        printWP.document.open();
+        printWP.document.write(html4);
+        printWP.document.close();
+        printWP.print();
+      });
+    }
+    function m_fnExportToCsv(fileName, tableName, removeHeader) {
+      var data2 = m_fnGetCellValues(tableName);
+      if (removeHeader == true)
+        data2 = data2.slice(1);
+      var csv = m_fnConvertToCsv(data2);
+      if (navigator.userAgent.search("Trident") >= 0) {
+        window.CsvExpFrame.document.open("text/html", "replace");
+        window.CsvExpFrame.document.write(csv);
+        window.CsvExpFrame.document.close();
+        window.CsvExpFrame.focus();
+        window.CsvExpFrame.document.execCommand(
+          "SaveAs",
+          true,
+          fileName + ".csv"
+        );
+      } else {
+        var uri = "data:text/csv;charset=utf-8," + escape(csv);
+        var downloadLink = document.createElement("a");
+        downloadLink.href = uri;
+        downloadLink.download = fileName + ".csv";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      }
+    }
+    function m_fnGetCellValues(tableName) {
+      var table = document.getElementById(tableName);
+      if (table.innerHTML.indexOf("rowFilters") >= 0) {
+        var deets = $("<div>").append(table.outerHTML);
+        deets.find(".rowFilters").each(function() {
+          $(this).remove();
+        });
+        table = deets.find("table")[0];
+      }
+      if (table.innerHTML.indexOf("footer") >= 0) {
+        var deets = $("<div>").append(table.outerHTML);
+        deets.find(".footer").each(function() {
+          $(this).remove();
+        });
+        table = deets.find("table")[0];
+      }
+      var tableArray = [];
+      for (var r = 0, n = table.rows.length; r < n; r++) {
+        tableArray[r] = [];
+        for (var c = 0, m = table.rows[r].cells.length; c < m; c++) {
+          var text = table.rows[r].cells[c].textContent || table.rows[r].cells[c].innerText;
+          tableArray[r][c] = text.trim();
+        }
+      }
+      return tableArray;
+    }
+    function m_fnConvertToCsv(objArray) {
+      var array = typeof objArray != "object" ? JSON.parse(objArray) : objArray;
+      var str = "sep=,\r\n";
+      var line = "";
+      var index;
+      var value;
+      for (var i2 = 0; i2 < array.length; i2++) {
+        line = "";
+        var array1 = array[i2];
+        for (index in array1) {
+          if (array1.hasOwnProperty(index)) {
+            value = array1[index] + "";
+            line += '"' + value.replace(/"/g, '""') + '",';
+          }
+        }
+        line = line.slice(0, -1);
+        str += line + "\r\n";
+      }
+      return str;
+    }
+    var publicMembers = {
+      GetSiteUrl: function() {
+        if (m_siteUrl == "/")
+          return "";
+        else
+          return m_siteUrl;
+      },
+      GetListTitleRequests: function() {
+        return m_listTitleRequests;
+      },
+      GetListNameRequests: function() {
+        return m_listNameRequests;
+      },
+      GetListTitleRequestsInternal: function() {
+        return m_listTitleRequestsInternal;
+      },
+      GetListNameRequestsInternal: function() {
+        return m_listNameRequestsInternal;
+      },
+      GetListTitleResponses: function() {
+        return m_listTitleResponses;
+      },
+      GetListNameResponses: function() {
+        return m_listNameResponses;
+      },
+      GetLibTitleRequestDocs: function() {
+        return m_libTitleRequestDocs;
+      },
+      GetLibNameRequestDocs: function() {
+        return m_libNameRequestDocs;
+      },
+      GetLibTitleCoverSheets: function() {
+        return m_libTitleCoverSheet;
+      },
+      GetLibNameCoverSheets: function() {
+        return m_libNameCoverSheet;
+      },
+      GetLibTitleResponseDocs: function() {
+        return m_libTitleResponseDocs;
+      },
+      GetLibNameResponseDocs: function() {
+        return m_libNameResponseDocs;
+      },
+      GetLibTitleResponseDocsEA: function() {
+        return m_libTitleResponseDocsEA;
+      },
+      GetLibNameResponseDocsEA: function() {
+        return m_libNameResponseDocsEA;
+      },
+      GetListTitleActionOffices: function() {
+        return m_listTitleActionOffices;
+      },
+      GetListNameActionOffices: function() {
+        return m_listNameActionOffices;
+      },
+      GetListTitleEmailHistory: function() {
+        return m_listTitleEmailHistory;
+      },
+      GetListNameEmailHistory: function() {
+        return m_listNameEmailHistory;
+      },
+      GetListTitleBulkResponses: function() {
+        return m_listTitleBulkResponses;
+      },
+      GetListNameBulkResponses: function() {
+        return m_listNameBulkResponses;
+      },
+      GetListTitleBulkPermissions: function() {
+        return m_listTitleBulkPermissions;
+      },
+      GetListNameBulkPermissions: function() {
+        return m_listNameBulkPermissions;
+      },
+      GetGroupNameSpecialPerm1: function() {
+        return m_groupNameSpecialPermName1;
+      },
+      GetGroupNameSpecialPerm2: function() {
+        return m_groupNameSpecialPermName2;
+      },
+      GetGroupNameQA: function() {
+        return m_groupNameQA;
+      },
+      GetGroupNameEA: function() {
+        return m_groupNameEA;
+      },
+      Refresh: m_fnRefresh,
+      OnLoadDisplayTimeStamp: m_fnOnLoadDisplayTimeStamp,
+      OnLoadDisplayTabAndResponse: m_fnOnLoadDisplayTabAndResponse,
+      OnLoadFilterResponses: function(responseStatus1, responseStatus2) {
+        m_fnOnLoadFilterResponses(responseStatus1, responseStatus2);
+      },
+      SetResponseDocLibGUID: function(libGUID) {
+        m_libResponseDocsLibraryGUID = libGUID;
+      },
+      GetResponseDocLibGUID: function() {
+        return m_libResponseDocsLibraryGUID;
+      },
+      LoadSiteGroups: function(itemColl) {
+        m_fnLoadSiteGroups(itemColl);
+      },
+      GetSPSiteGroup: function(groupName) {
+        return m_fnGetSPSiteGroup(groupName);
+      },
+      LoadActionOffices: function(itemColl) {
+        m_fnLoadActionOffices(itemColl);
+      },
+      GetActionOffices: function() {
+        return m_arrAOs;
+      },
+      GetAOSPGroupName: function(groupName) {
+        return m_fnGetAOSPGroupName(groupName);
+      },
+      CheckSPItemHasGroupPermission: function(item, groupName, permissionLevel) {
+        return m_fnCheckSPItemHasGroupPermission(
+          item,
+          groupName,
+          permissionLevel
+        );
+      },
+      GoToResponse: function(responseTitle, isIA) {
+        m_fnGoToResponse(responseTitle, isIA);
+      },
+      GetResponseDocStyleTag: function(documentStatus) {
+        return m_fnGetResponseDocStyleTag(documentStatus);
+      },
+      GetResponseDocStyleTag2: function(documentStatus) {
+        return m_fnGetResponseDocStyleTag2(documentStatus);
+      },
+      CheckIfEmailFolderExists: function(items, requestNumber) {
+        return m_fnCheckIfEmailFolderExists(items, requestNumber);
+      },
+      CreateEmailFolder: function(list, requestNumber, requestItem, OnComplete) {
+        return m_fnCreateEmailFolder(
+          list,
+          requestNumber,
+          requestItem,
+          OnComplete
+        );
+      },
+      AddOptions: function(arr, ddlID, dateSort, responseSort) {
+        m_fnAddOptions(arr, ddlID, dateSort, responseSort);
+      },
+      ExistsInArr: function(arr, val) {
+        return m_fnExistsInArr(arr, val);
+      },
+      GetTrueFalseIcon: function(val) {
+        return m_fnGetTrueFalseIcon(val);
+      },
+      PadDigits: function(n, totalDigits) {
+        return m_fnPadDigits(n, totalDigits);
+      },
+      PreciseRound: function(num, decimals) {
+        return m_fnPreciseRound(num, decimals);
+      },
+      GetFriendlyFileSize: function(fileSize) {
+        return m_fnGetFriendlyFileSize(fileSize);
+      },
+      GetISODateString: function(d) {
+        return m_fnISODateString(d);
+      },
+      GetFriendlyDisplayName: function(oListItem, fieldName) {
+        return m_fnGetFriendlyDisplayName(oListItem, fieldName);
+      },
+      BindHandlerResponseDoc: m_fnBindHandlerResponseDoc,
+      PrintStatusReport: function(pageTitle, divTbl) {
+        m_fnPrintPage(pageTitle, divTbl);
+      },
+      ExportToCsv: function(fileName, tableName, removeHeader) {
+        m_fnExportToCsv(fileName, tableName, removeHeader);
+      },
+      ViewUserManuals: function(docType) {
+        m_fnViewUserManuals(docType);
+      },
+      //GetLookupFieldText: function( fieldName ){ return m_fnGetLookupFieldText( fieldName); },
+      GetLookupDisplayText: function(fieldName) {
+        return m_fnGetLookupDisplayText(fieldName);
+      },
+      GetLookupFormField: function(fieldName) {
+        return m_fnGetLookupFormField(fieldName);
+      },
+      SetLookupFromFieldNameByText: function(fieldName, text) {
+        return m_fnSetLookupFromFieldNameByText(fieldName, text);
+      },
+      SortResponseObjects: function(a, b) {
+        return m_fnSortResponseObjectNoCase(a, b);
+      },
+      SortResponseTitles: m_fnSortResponseTitleNoCase
+    };
+    return publicMembers;
+  };
+  InitReport();
+
+  // src/pages/qa_db/qa_db.js
+  document.getElementById("app").innerHTML = qaDbTemplate;
+  window.Audit = window.Audit || {};
+  Audit.QAReport = Audit.QAReport || {};
+  var responseParam = "ResNum";
+  var paramShowSiteActionsToAnyone = GetUrlKeyValue("ShowSiteActions");
+  if (paramShowSiteActionsToAnyone != true) {
+    $("#RibbonContainer-TabRowLeft").hide();
+    $(".ms-siteactionsmenu").hide();
+  }
+  if (document.readyState === "ready" || document.readyState === "complete") {
+    InitReport2();
+  } else {
+    document.onreadystatechange = () => {
+      if (document.readyState === "complete" || document.readyState === "ready") {
+        ExecuteOrDelayUntilScriptLoaded(function() {
+          SP.SOD.executeFunc("sp.js", "SP.ClientContext", InitReport2);
+        }, "sp.js");
+      }
+    };
+  }
+  function InitReport2() {
+    Audit.QAReport.Report = new Audit.QAReport.NewReportPage();
+    Audit.QAReport.Init();
+  }
+  Audit.QAReport.Init = function() {
+    var paramShowSiteActionsToAnyone2 = GetUrlKeyValue("ShowSiteActions");
+    if (paramShowSiteActionsToAnyone2 != true) {
+      $("#RibbonContainer-TabRowLeft").hide();
+      $(".ms-siteactionsmenu").hide();
+    }
+    function SetTimer() {
+      var intervalRefreshID = setInterval(function() {
+        var divVal = $("#divCounter").text();
+        var count = divVal * 1 - 1;
+        $("#divCounter").text(count);
+        if (count <= 0) {
+          if (!Audit.QAReport.Report.IsTransactionExecuting())
+            Audit.Common.Utilities.Refresh();
+          else {
+            clearInterval(intervalRefreshID);
+            $("#divCounter").text("1200");
+            SetTimer();
+          }
+        }
+      }, 1e3);
+    }
+    SetTimer();
+  };
+  Audit.QAReport.NewReportPage = function() {
+    var m_arrRequests = new Array();
+    var m_arrResponses = new Array();
+    var m_bigMap = new Object();
+    var m_IA_SPGroupName = null;
+    var m_IA_ActionOffice = null;
+    var m_itemID = null;
+    var m_RejectReason = "";
+    var m_resStatusToFilterOn = "";
+    var m_bIsTransactionExecuting = false;
+    var memberGroup2 = null;
+    var statusId2 = null;
+    var notifyId2 = null;
+    let m_waitDialog = null;
+    var m_requestItems = null;
+    var m_requestInternalItems = null;
+    var m_responseItems = null;
+    var m_ResponseDocsItems = null;
+    var m_aoItems = null;
+    let eaReponseDocsFolderItems = null;
+    let eaEmailLogListItems = null;
+    function CommentChainField(requestId, props) {
+      var requestListTitle = props.requestListTitle;
+      var columnName = props.columnName;
+      var initialValue = props.initialValue;
+      var showHistoryBool = ko.observable(false);
+      var toggleShowHistory = function() {
+        showHistoryBool(!showHistoryBool());
+      };
+      var arrInitialComments = [];
+      if (initialValue) {
+        try {
+          arrInitialComments = JSON.parse(initialValue);
+          arrInitialComments.forEach(function(comment) {
+            comment.timestamp = new Date(comment.timestamp);
+          });
+        } catch (e) {
+          console.error("could not parse internal status comments.");
+        }
+      }
+      var comments = ko.observableArray(arrInitialComments);
+      var newCommentText = ko.observable();
+      function onSubmit() {
+        var comment = {
+          id: Math.ceil(Math.random() * 1e6).toString(16),
+          text: newCommentText(),
+          author: _spPageContextInfo.userLoginName,
+          timestamp: /* @__PURE__ */ new Date()
+        };
+        comments.push(comment);
+        commitChanges();
+      }
+      function onRemove(commentToRemove) {
+        if (confirm("Are you sure you want to delete this item?")) {
+          var commentIndex = comments.indexOf(commentToRemove);
+          comments.splice(commentIndex, 1);
+          commitChanges();
+        }
+      }
+      function commitChanges() {
+        var currCtx = new SP.ClientContext.get_current();
+        var web = currCtx.get_web();
+        var requestList = web.get_lists().getByTitle(requestListTitle);
+        const oListItem = requestList.getItemById(requestId);
+        oListItem.set_item(columnName, JSON.stringify(comments()));
+        oListItem.update();
+        currCtx.load(oListItem);
+        currCtx.executeQueryAsync(
+          function onSuccess() {
+            newCommentText("");
+          },
+          function onFailure(args, sender) {
+            console.error("Failed to commit changes.", args);
+          }
+        );
+      }
+      var publicMembers2 = {
+        comments,
+        newCommentText,
+        onSubmit,
+        onRemove,
+        toggleShowHistory,
+        showHistoryBool
+      };
+      return publicMembers2;
+    }
+    function ViewModel() {
+      var self = this;
+      self.debugMode = ko.observable(false);
+      self.siteUrl = Audit.Common.Utilities.GetSiteUrl();
+      self.arrResponses = ko.observableArray(null);
+      self.cntPendingReview = ko.observable(0);
+      self.ddOptionsResponseTabRequestID = ko.observableArray();
+      self.ddOptionsResponseTabRequestStatus = ko.observableArray();
+      self.ddOptionsResponseTabRequestInternalDueDate = ko.observableArray();
+      self.ddOptionsResponseTabRequestSample = ko.observableArray();
+      self.ddOptionsResponseTabResponseTitle = ko.observableArray();
+      self.ddOptionsResponseTabResponseStatus = ko.observableArray();
+      self.filterResponseTabRequestID = ko.observable();
+      self.filterResponseTabRequestStatus = ko.observable();
+      self.filterResponseTabRequestIntDueDate = ko.observable();
+      self.filterResponseTabSampleNum = ko.observable();
+      self.filterResponseTabResponseName = ko.observable();
+      self.filterResponseTabResponseStatus = ko.observable();
+      self.doSort = ko.observable(false);
+      self.ddOptionsResponseInfoTabResponseNameOpen2 = ko.observableArray();
+      self.ddOptionsResponseInfoTabResponseNameProcessed2 = ko.observableArray();
+      self.filterResponseInfoTabResponseNameOpen2 = ko.observable("");
+      self.filterResponseInfoTabResponseNameProcessed2 = ko.observable("");
+      self.currentResponse = ko.observable();
+      self.arrCoverSheets = ko.observableArray(null);
+      self.arrResponseDocs = ko.observable();
+      self.cntResponseDocs = ko.observable(0);
+      self.showBulkApprove = ko.observable(false);
+      self.showCloseResponse = ko.observable(false);
+      self.showReturnToCGFS = ko.observable(false);
+      self.tabOpts = {
+        Responses: new Tab("response-report", "Status Report", {
+          id: "responseStatusReportTemplate",
+          data: self
+        }),
+        ResponseDetail: new Tab("response-detail", "Responses", {
+          id: "responseDetailTemplate",
+          data: self
+        })
+      };
+      self.tabs = new TabsModule(Object.values(self.tabOpts));
+      self.ClearFiltersResponseTab = function() {
+        self.filterResponseTabRequestID("");
+        self.filterResponseTabRequestStatus("");
+        self.filterResponseTabRequestIntDueDate("");
+        self.filterResponseTabSampleNum("");
+        self.filterResponseTabResponseName("");
+        self.filterResponseTabResponseStatus("");
+      };
+      self.filteredResponses = ko.pureComputed(() => {
+        const responses = ko.unwrap(self.arrResponses);
+        var requestID = self.filterResponseTabRequestID();
+        var requestStatus = self.filterResponseTabRequestStatus();
+        var requestIntDueDate = self.filterResponseTabRequestIntDueDate();
+        var sampleNum = self.filterResponseTabSampleNum();
+        var responseName = self.filterResponseTabResponseName();
+        var responseStatus = self.filterResponseTabResponseStatus();
+        if (!requestID && !requestStatus && !requestIntDueDate && !sampleNum && !responseName && !responseStatus) {
+          document.body.style.cursor = "default";
+          return responses;
+        }
+        const filteredResponses = responses.filter((response) => {
+          if (responseStatus && response.status != responseStatus)
+            return false;
+          if (requestID && response.reqNumber != requestID)
+            return false;
+          if (requestStatus && response.requestStatus != requestStatus)
+            return false;
+          if (requestIntDueDate && response.internalDueDate != requestIntDueDate)
+            return false;
+          if (responseName && response.title != responseName)
+            return false;
+          if (sampleNum && response.sample != sampleNum)
+            return false;
+          return true;
+        });
+        return filteredResponses;
+      });
+      self.arrFilteredResponsesCount = ko.pureComputed(() => {
+        return self.filteredResponses().length;
+      });
+      self.FilterChangedResponseTab = function() {
+        document.body.style.cursor = "wait";
+        setTimeout(function() {
+          var requestID = self.filterResponseTabRequestID();
+          var requestStatus = self.filterResponseTabRequestStatus();
+          var requestIntDueDate = self.filterResponseTabRequestIntDueDate();
+          var sampleNum = self.filterResponseTabSampleNum();
+          var responseName = self.filterResponseTabResponseName();
+          var responseStatus = self.filterResponseTabResponseStatus();
+          if (!requestID && !requestStatus && !requestIntDueDate && !sampleNum && !responseName && !responseStatus) {
+            $(".sr-response-item").show();
+            document.body.style.cursor = "default";
+            return;
+          }
+          requestID = !requestID ? "" : requestID;
+          requestStatus = !requestStatus ? "" : requestStatus;
+          requestIntDueDate = !requestIntDueDate ? "" : requestIntDueDate;
+          sampleNum = !sampleNum ? "" : sampleNum;
+          responseName = !responseName ? "" : responseName;
+          responseStatus = !responseStatus ? "" : responseStatus;
+          var count = 0;
+          var eacher = $(".sr-response-item");
+          eacher.each(function() {
+            var hide = false;
+            if (!hide && requestID != "" && $.trim($(this).find(".sr-response-requestNum").text()) != requestID)
+              hide = true;
+            if (!hide && requestStatus != "" && $.trim($(this).find(".sr-response-requestStatus").text()) != requestStatus)
+              hide = true;
+            if (!hide && requestIntDueDate != "" && $.trim($(this).find(".sr-response-internalDueDate").text()) != requestIntDueDate)
+              hide = true;
+            if (!hide && responseName != "" && $.trim($(this).find(".sr-response-title").text()) != responseName)
+              hide = true;
+            if (!hide && sampleNum != "" && $.trim($(this).find(".sr-response-sample").text()) != sampleNum)
+              hide = true;
+            if (!hide && responseStatus != "" && $.trim($(this).find(".sr-response-status").text()) != responseStatus)
+              hide = true;
+            if (hide)
+              $(this).hide();
+            else {
+              $(this).show();
+              count++;
+            }
+          });
+          document.body.style.cursor = "default";
+        }, 100);
+      };
+      self.ClickHelpResponseDocs = function() {
+        m_fnDisplayHelpResponseDocs();
+      };
+      self.ClickCloseResponse = function() {
+        m_fnCloseResponse();
+      };
+      self.ClickReturnToCGFS = function() {
+        m_fnReturnToCGFS();
+      };
+      self.ClickBulkApprove = function() {
+        m_fnApproveAll();
+      };
+      self.ClickApproveResponseDoc = function(oResponseDoc) {
+        if (oResponseDoc && oResponseDoc.ID && oResponseDoc.fileName)
+          m_fnApproveResponseDoc(oResponseDoc.ID, oResponseDoc.fileName);
+      };
+      self.ClickRejectResponseDoc = function(oResponseDoc) {
+        if (oResponseDoc && oResponseDoc.ID && oResponseDoc.fileName)
+          m_fnRejectResponseDoc(oResponseDoc.ID, oResponseDoc.fileName);
+      };
+      self.currentResponse.subscribe((response) => {
+        if (response)
+          setUrlParam(responseParam, response.title);
+      });
+      self.doSort.subscribe(function(newValue) {
+        Audit.Common.Utilities.OnLoadDisplayTimeStamp();
+        if (self.arrResponses().length > 0 && newValue) {
+          ko.utils.arrayPushAll(
+            self.ddOptionsResponseTabResponseStatus(),
+            self.GetDDVals("status")
+          );
+          self.ddOptionsResponseTabResponseStatus.valueHasMutated();
+          ko.utils.arrayPushAll(
+            self.ddOptionsResponseInfoTabResponseNameOpen2(),
+            self.GetDDVals2("1", true)
+          );
+          self.ddOptionsResponseInfoTabResponseNameOpen2.valueHasMutated();
+          ko.utils.arrayPushAll(
+            self.ddOptionsResponseInfoTabResponseNameProcessed2(),
+            self.GetDDVals2("0", true)
+          );
+          self.ddOptionsResponseInfoTabResponseNameProcessed2.valueHasMutated();
+          ko.utils.arrayPushAll(
+            self.ddOptionsResponseTabRequestID(),
+            self.GetDDVals("reqNumber")
+          );
+          self.ddOptionsResponseTabRequestID.valueHasMutated();
+          ko.utils.arrayPushAll(
+            self.ddOptionsResponseTabRequestStatus(),
+            self.GetDDVals("requestStatus")
+          );
+          self.ddOptionsResponseTabRequestStatus.valueHasMutated();
+          ko.utils.arrayPushAll(
+            self.ddOptionsResponseTabRequestInternalDueDate(),
+            self.GetDDVals("internalDueDate")
+          );
+          self.ddOptionsResponseTabRequestInternalDueDate.valueHasMutated();
+          ko.utils.arrayPushAll(
+            self.ddOptionsResponseTabRequestSample(),
+            self.GetDDVals("sample")
+          );
+          self.ddOptionsResponseTabRequestSample.valueHasMutated();
+          ko.utils.arrayPushAll(
+            self.ddOptionsResponseTabResponseTitle(),
+            self.GetDDVals("title", true)
+          );
+          self.ddOptionsResponseTabResponseTitle.valueHasMutated();
+          setTimeout(function() {
+            var paramTabIndex = GetUrlKeyValue("Tab");
+            if (paramTabIndex != null && paramTabIndex != "") {
+              _myViewModel.tabs.selectById(paramTabIndex);
+            } else {
+              _myViewModel.tabs.selectTab(_myViewModel.tabOpts.Responses);
+            }
+            var paramResponseNum = GetUrlKeyValue("ResNum");
+            if (paramResponseNum != null && paramResponseNum != "") {
+              if (paramTabIndex == _myViewModel.tabOpts.Responses.id) {
+                if ($("#ddlResponseName option[value='" + paramResponseNum + "']").length > 0)
+                  _myViewModel.filterResponseTabResponseName(paramResponseNum);
+              } else {
+                if ($("#ddlResponsesOpen option[value='" + paramResponseNum + "']").length > 0)
+                  _myViewModel.filterResponseInfoTabResponseNameOpen2(
+                    paramResponseNum
+                  );
+                else if ($(
+                  "#ddlResponsesProcessed option[value='" + paramResponseNum + "']"
+                ).length > 0)
+                  _myViewModel.filterResponseInfoTabResponseNameProcessed2(
+                    paramResponseNum
+                  );
+              }
+            }
+            BindHandlersOnLoad();
+            if (m_resStatusToFilterOn != "")
+              self.filterResponseTabResponseStatus(m_resStatusToFilterOn);
+            else
+              self.filterResponseTabRequestStatus("Open");
+            $("#tblStatusReportResponses").tablesorter({
+              sortList: [[3, 0]],
+              selectorHeaders: ".sorter-true"
+            });
+          }, 200);
+        }
+      });
+      self.filterResponseInfoTabResponseNameOpen2.subscribe(function(newValue) {
+        self.filterResponseInfoTabResponseName(newValue, true);
+      });
+      self.filterResponseInfoTabResponseNameProcessed2.subscribe(function(newValue) {
+        self.filterResponseInfoTabResponseName(newValue, false);
+      });
+      self.filterResponseInfoTabResponseName = function(newValue, bOpenResponses) {
+        self.currentResponse(null);
+        self.arrCoverSheets([]);
+        self.arrResponseDocs(null);
+        self.cntResponseDocs(0);
+        self.showBulkApprove(false);
+        self.showCloseResponse(false);
+        self.showReturnToCGFS(false);
+        var oResponse = m_bigMap["response-" + newValue];
+        if (oResponse) {
+          if (bOpenResponses)
+            self.filterResponseInfoTabResponseNameProcessed2("");
+          else
+            self.filterResponseInfoTabResponseNameOpen2("");
+          self.currentResponse(oResponse);
+          LoadTabResponseInfoCoverSheets(oResponse);
+          LoadTabResponseInfoResponseDocs(oResponse);
+          setTimeout(function() {
+            const notifyId3 = SP.UI.Notify.addNotification(
+              "Displaying Response (" + oResponse.title + ")",
+              false
+            );
+          });
+        }
+      };
+      self.GetDDVals = function(fieldName, sortAsResponse) {
+        var types = ko.utils.arrayMap(self.arrResponses(), function(item) {
+          return item[fieldName];
+        });
+        var ddArr = ko.utils.arrayGetDistinctValues(types).sort();
+        if (sortAsResponse)
+          ddArr.sort(Audit.Common.Utilities.SortResponseTitles);
+        if (ddArr[0] == "")
+          ddArr.shift();
+        return ddArr;
+      };
+      self.GetDDVals2 = function(responseStatusType, sortAsResponse) {
+        var types = ko.utils.arrayMap(self.arrResponses(), function(item) {
+          var requestStatus = item.requestStatus;
+          var responseStatus = item.status;
+          if (responseStatusType == 0) {
+            if (responseStatus != "4-Approved for QA" && responseStatus != "6-Reposted After Rejection")
+              return item["title"];
+            else
+              return "";
+          } else if (responseStatusType == 1) {
+            if ((responseStatus == "4-Approved for QA" || responseStatus == "6-Reposted After Rejection") && (requestStatus == "Open" || requestStatus == "ReOpened"))
+              return item["title"];
+            else
+              return "";
+          }
+        });
+        var ddArr = ko.utils.arrayGetDistinctValues(types).sort();
+        if (sortAsResponse)
+          ddArr.sort(Audit.Common.Utilities.SortResponseTitles);
+        if (ddArr[0] == "")
+          ddArr.shift();
+        return ddArr;
+      };
+    }
+    var _myViewModel = new ViewModel();
+    ko.applyBindings(_myViewModel);
+    LoadInfo();
+    function LoadInfo() {
+      var currCtx = new SP.ClientContext.get_current();
+      var web = currCtx.get_web();
+      const m_currentUser = web.get_currentUser();
+      currCtx.load(m_currentUser);
+      var requestList = web.get_lists().getByTitle(Audit.Common.Utilities.GetListTitleRequests());
+      var requestQuery = new SP.CamlQuery();
+      requestQuery.set_viewXml(
+        '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
+      );
+      m_requestItems = requestList.getItems(requestQuery);
+      currCtx.load(
+        m_requestItems,
+        "Include(ID, Title, ReqSubject, ReqStatus, IsSample, InternalDueDate, ActionOffice, Comments, RelatedAudit, ActionItems, EmailSent, ClosedDate, Modified)"
+      );
+      var requestInternalList = web.get_lists().getByTitle(Audit.Common.Utilities.GetListTitleRequestsInternal());
+      var requestInternalQuery = new SP.CamlQuery();
+      requestInternalQuery.set_viewXml(
+        '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
+      );
+      m_requestInternalItems = requestInternalList.getItems(requestInternalQuery);
+      currCtx.load(
+        m_requestInternalItems,
+        "Include(ID, Title, ReqNum, InternalStatus)"
+      );
+      var responseList = web.get_lists().getByTitle(Audit.Common.Utilities.GetListTitleResponses());
+      var responseQuery = new SP.CamlQuery();
+      responseQuery.set_viewXml(
+        '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="ReqNum"/></OrderBy></Query></View>'
+      );
+      m_responseItems = responseList.getItems(responseQuery);
+      currCtx.load(
+        m_responseItems,
+        "Include(ID, Title, ReqNum, ActionOffice, SampleNumber, ResStatus, Comments, Modified, ClosedDate, ClosedBy)"
+      );
+      var responseDocsLib = web.get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
+      var responseDocsQuery = new SP.CamlQuery();
+      responseDocsQuery.set_viewXml(
+        '<View Scope="RecursiveAll"><Query><Where><Eq><FieldRef Name="ContentType"/><Value Type="Text">Document</Value></Eq></Where></Query></View>'
+      );
+      m_ResponseDocsItems = responseDocsLib.getItems(responseDocsQuery);
+      currCtx.load(
+        m_ResponseDocsItems,
+        "Include(ID, Title, ReqNum, ResID, DocumentStatus, RejectReason, ReceiptDate, FileLeafRef, FileDirRef, File_x0020_Size, Modified, Editor)"
+      );
+      var aoList = web.get_lists().getByTitle(Audit.Common.Utilities.GetListTitleActionOffices());
+      var aoQuery = new SP.CamlQuery();
+      aoQuery.set_viewXml(
+        '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
+      );
+      m_aoItems = aoList.getItems(aoQuery);
+      currCtx.load(m_aoItems, "Include(ID, Title, UserGroup)");
+      memberGroup2 = web.get_associatedMemberGroup();
+      currCtx.load(memberGroup2);
+      currCtx.executeQueryAsync(OnSuccess, OnFailure);
+      function OnSuccess(sender, args) {
+        $("#divRefresh").show();
+        m_fnLoadData();
+      }
+      function OnFailure(sender, args) {
+        $("#divRefresh").hide();
+        $("#divLoading").hide();
+        const statusId3 = SP.UI.Status.addStatus(
+          "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
+        );
+        SP.UI.Status.setStatusPriColor(statusId3, "red");
+      }
+    }
+    function m_fnLoadData() {
+      Audit.Common.Utilities.LoadActionOffices(m_aoItems);
+      if (memberGroup2 != null)
+        m_IA_SPGroupName = memberGroup2.get_title();
+      if (m_IA_SPGroupName == null || m_IA_SPGroupName == "") {
+        const statusId3 = SP.UI.Status.addStatus(
+          "Unable to retrieve the IA SharePoint Group. Please contact the Administrator"
+        );
+        SP.UI.Status.setStatusPriColor(statusId3, "red");
+        return;
+      }
+      m_IA_ActionOffice = Audit.Common.Utilities.GetActionOffices()?.find(
+        (ao) => ao.userGroup == m_IA_SPGroupName
+      );
+      LoadRequests();
+      LoadResponses();
+      LoadResponseDocs();
+      LoadTabStatusReport(m_arrResponses, "fbody");
+    }
+    function LoadRequests() {
+      m_bigMap = new Object();
+      m_arrRequests = new Array();
+      var cnt = 0;
+      var listItemEnumerator = m_requestItems.getEnumerator();
+      while (listItemEnumerator.moveNext()) {
+        var oListItem = listItemEnumerator.get_current();
+        var id2 = oListItem.get_item("ID");
+        var number = oListItem.get_item("Title");
+        var status = oListItem.get_item("ReqStatus");
+        var sample = oListItem.get_item("IsSample");
+        var emailSent = oListItem.get_item("EmailSent");
+        var subject = oListItem.get_item("ReqSubject");
+        if (subject == null)
+          subject = "";
+        var arrActionOffice = oListItem.get_item("ActionOffice");
+        var actionOffice = "";
+        for (var x = 0; x < arrActionOffice.length; x++) {
+          actionOffice += "<div>" + arrActionOffice[x].get_lookupValue() + "</div>";
+        }
+        var internalDueDate = oListItem.get_item("InternalDueDate");
+        var closedDate = oListItem.get_item("ClosedDate");
+        internalDueDate != null ? internalDueDate = internalDueDate.format("MM/dd/yyyy") : internalDueDate = "";
+        closedDate != null ? closedDate = closedDate.format("MM/dd/yyyy") : closedDate = "";
+        var comments = oListItem.get_item("Comments");
+        var relatedAudit = oListItem.get_item("RelatedAudit");
+        var actionItems = oListItem.get_item("ActionItems");
+        if (comments == null)
+          comments = "";
+        if (relatedAudit == null)
+          relatedAudit = "";
+        if (actionItems == null)
+          actionItems = "";
+        var requestObject = new Object();
+        requestObject["ID"] = id2;
+        requestObject["number"] = number;
+        requestObject["subject"] = subject;
+        requestObject["status"] = status;
+        requestObject["internalDueDate"] = internalDueDate;
+        requestObject["sample"] = sample;
+        requestObject["actionOffice"] = actionOffice;
+        requestObject["comments"] = comments;
+        requestObject["emailSent"] = emailSent;
+        requestObject["closedDate"] = closedDate;
+        requestObject["relatedAudit"] = relatedAudit;
+        requestObject["actionItems"] = actionItems;
+        requestObject["arrIndex"] = cnt;
+        m_arrRequests.push(requestObject);
+        m_bigMap[number] = requestObject;
+        cnt++;
+      }
+      try {
+        var listItemEnumerator = m_requestInternalItems.getEnumerator();
+        while (listItemEnumerator.moveNext()) {
+          var oListItem = listItemEnumerator.get_current();
+          var id2 = oListItem.get_item("ID");
+          var reqNum = oListItem.get_item("ReqNum");
+          if (!reqNum || !reqNum.get_lookupValue()) {
+            console.warn("Unaffiliated Internal Status ID:", id2);
+            continue;
+          }
+          var requestObject = m_bigMap[reqNum.get_lookupValue()];
+          requestObject.internalStatus = new CommentChainField(id2, {
+            requestListTitle: Audit.Common.Utilities.GetListTitleRequestsInternal(),
+            columnName: "InternalStatus",
+            initialValue: oListItem.get_item("InternalStatus")
+          });
+        }
+      } catch (err) {
+        alert(err);
+      }
+    }
+    function LoadResponses() {
+      m_arrResponses = new Array();
+      var cnt = 0;
+      var listItemEnumerator = m_responseItems.getEnumerator();
+      while (listItemEnumerator.moveNext()) {
+        var oListItem = listItemEnumerator.get_current();
+        var number = oListItem.get_item("ReqNum");
+        if (number != null) {
+          number = number.get_lookupValue();
+          var responseObject = new Object();
+          responseObject["request"] = m_bigMap[number];
+          if (!responseObject.request || !responseObject.request.emailSent)
+            continue;
+          responseObject["item"] = oListItem;
+          responseObject["resStatus"] = oListItem.get_item("ResStatus");
+          responseObject["actionOffice"] = oListItem.get_item("ActionOffice");
+          if (responseObject["actionOffice"] == null)
+            responseObject["actionOffice"] = "";
+          else
+            responseObject["actionOffice"] = responseObject["actionOffice"].get_lookupValue();
+          if (responseObject["actionOffice"] == "")
+            continue;
+          responseObject["ID"] = oListItem.get_item("ID");
+          responseObject["number"] = number;
+          var title = oListItem.get_item("Title");
+          responseObject["title"] = title;
+          var modifiedDate = oListItem.get_item("Modified");
+          modifiedDate != null ? modifiedDate = modifiedDate.format("MM/dd/yyyy hh:mm tt") : modifiedDate = "";
+          responseObject["modified"] = modifiedDate;
+          var closedDate = oListItem.get_item("ClosedDate");
+          closedDate != null ? closedDate = closedDate.format("MM/dd/yyyy") : closedDate = "";
+          responseObject["closedDate"] = closedDate;
+          responseObject["sample"] = oListItem.get_item("SampleNumber");
+          if (responseObject["sample"] == null)
+            responseObject["sample"] = "";
+          responseObject["coversheets"] = new Array();
+          responseObject["responseDocs"] = new Array();
+          var responseComments = oListItem.get_item("Comments");
+          if (responseComments == null)
+            responseComments = "";
+          responseObject["comments"] = responseComments;
+          responseObject["closedBy"] = Audit.Common.Utilities.GetFriendlyDisplayName(oListItem, "ClosedBy");
+          responseObject["arrIndex"] = cnt;
+          m_arrResponses.push(responseObject);
+          m_bigMap["response-" + title] = responseObject;
+          cnt++;
+        }
+      }
+    }
+    function LoadResponseDocs() {
+      var listItemEnumerator = m_ResponseDocsItems.getEnumerator();
+      while (listItemEnumerator.moveNext()) {
+        var oListItem = listItemEnumerator.get_current();
+        if (oListItem.get_item("DocumentStatus") == "Open" || oListItem.get_item("DocumentStatus") == "Marked for Deletion" || oListItem.get_item("DocumentStatus") == "Submitted")
+          continue;
+        var requestNumber = oListItem.get_item("ReqNum");
+        if (requestNumber != null)
+          requestNumber = requestNumber.get_lookupValue();
+        var responseID = oListItem.get_item("ResID");
+        if (responseID != null)
+          responseID = responseID.get_lookupValue();
+        if (requestNumber == null || responseID == null)
+          continue;
+        try {
+          var bigMapItem = m_bigMap["response-" + responseID];
+          var indexOfArrResponses = bigMapItem.arrIndex;
+          var oResponse = m_arrResponses[indexOfArrResponses];
+          if (oResponse) {
+            var responseDocObject = new Object();
+            responseDocObject["ID"] = oListItem.get_item("ID");
+            responseDocObject["title"] = oListItem.get_item("Title");
+            if (responseDocObject["title"] == null)
+              responseDocObject["title"] = "";
+            responseDocObject["fileName"] = oListItem.get_item("FileLeafRef");
+            responseDocObject["title"] = oListItem.get_item("FileLeafRef");
+            responseDocObject["folder"] = oListItem.get_item("FileDirRef");
+            responseDocObject["documentStatus"] = oListItem.get_item("DocumentStatus");
+            responseDocObject["rejectReason"] = oListItem.get_item("RejectReason");
+            if (responseDocObject["rejectReason"] == null)
+              responseDocObject["rejectReason"] = "";
+            else
+              responseDocObject["rejectReason"] = responseDocObject["rejectReason"].replace(/(\r\n|\n|\r)/gm, "<br/>");
+            var fileSize = oListItem.get_item("File_x0020_Size");
+            fileSize = Audit.Common.Utilities.GetFriendlyFileSize(fileSize);
+            responseDocObject["fileSize"] = fileSize;
+            var receiptDate = "";
+            if (oListItem.get_item("ReceiptDate") != null && oListItem.get_item("ReceiptDate") != "")
+              receiptDate = oListItem.get_item("ReceiptDate").format("MM/dd/yyyy");
+            responseDocObject["receiptDate"] = receiptDate;
+            var modifiedDate = "";
+            if (oListItem.get_item("Modified") != null && oListItem.get_item("Modified") != "")
+              modifiedDate = oListItem.get_item("Modified").format("MM/dd/yyyy hh:mm tt");
+            responseDocObject["modifiedDate"] = modifiedDate;
+            responseDocObject["modifiedBy"] = Audit.Common.Utilities.GetFriendlyDisplayName(oListItem, "Editor");
+            responseDocObject["item"] = oListItem;
+            oResponse["responseDocs"].push(responseDocObject);
+          }
+        } catch (err) {
+        }
+      }
+    }
+    function LoadTabStatusReport(arr, fbody) {
+      if (arr == null)
+        return;
+      var responseArr = new Array();
+      var responseStatus1 = "4-Approved for QA";
+      var responseStatus2 = "6-Reposted After Rejection";
+      var count = 0;
+      var resStatus1 = 0;
+      var resStatus2 = 0;
+      var arrlength = arr.length;
+      while (arrlength--) {
+        var oResponse = arr[arrlength];
+        var responseTitle = oResponse.title;
+        var requestStatus = oResponse.request.status;
+        var responseStatus = oResponse.resStatus;
+        var highlight = false;
+        if ((responseStatus == responseStatus1 || responseStatus == responseStatus2) && (requestStatus == "Open" || requestStatus == "ReOpened")) {
+          count++;
+          if (responseStatus == responseStatus1)
+            resStatus1++;
+          else
+            resStatus2++;
+          highlight = true;
+        }
+        var responseTitle = oResponse.title;
+        var requestStatus = oResponse.request.status;
+        var responseStatus = oResponse.resStatus;
+        var aResponse = {
+          reqNumber: oResponse.request.number,
+          requestSubject: oResponse.request.subject,
+          requestStatus,
+          internalDueDate: oResponse.request.internalDueDate,
+          sample: oResponse.sample,
+          title: responseTitle,
+          status: responseStatus,
+          docCount: oResponse.responseDocs.length,
+          modified: oResponse.modified,
+          comments: oResponse.comments,
+          highlight,
+          visibleRow: ko.observable(true)
+        };
+        responseArr.push(aResponse);
+      }
+      if (responseArr.length > 0) {
+        m_resStatusToFilterOn = "";
+        if (resStatus1 > 0 && resStatus2 == 0)
+          m_resStatusToFilterOn = responseStatus1;
+        else if (resStatus2 > 0 && resStatus1 == 0)
+          m_resStatusToFilterOn = responseStatus2;
+        _myViewModel.cntPendingReview(count);
+        ko.utils.arrayPushAll(_myViewModel.arrResponses, responseArr);
+      }
+      _myViewModel.doSort(true);
+    }
+    function DoUpdateModel(arrResponsesToAdd, initialTrip) {
+      var subArr = [];
+      var bContinue = true;
+      var batchSize = 100;
+      if (initialTrip)
+        batchSize = 100;
+      if (arrResponsesToAdd.length >= batchSize) {
+        subArr = arrResponsesToAdd.slice(0, batchSize);
+        arrResponsesToAdd.splice(0, batchSize);
+      } else if (arrResponsesToAdd.length > 0) {
+        subArr = arrResponsesToAdd.slice(0, arrResponsesToAdd.length);
+        arrResponsesToAdd.splice(0, arrResponsesToAdd.length);
+      }
+      if (bContinue) {
+        ko.utils.arrayPushAll(_myViewModel.arrResponses(), subArr);
+        var updatedMutated = false;
+        if (initialTrip) {
+          updatedMutated = true;
+        }
+        _myViewModel.arrResponses.valueHasMutated();
+        if (arrResponsesToAdd.length == 0) {
+          _myViewModel.doSort(true);
+        }
+        if (arrResponsesToAdd.length > 0) {
+          setTimeout(function() {
+            DoUpdateModel(arrResponsesToAdd, false);
+          }, 100);
+        }
+      }
+    }
+    function LoadTabResponseInfoCoverSheets(oResponse) {
+      _myViewModel.arrCoverSheets([]);
+      var currCtx = new SP.ClientContext.get_current();
+      var web = currCtx.get_web();
+      var coverSheetLib = web.get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleCoverSheets());
+      var coverSheetQuery = new SP.CamlQuery();
+      coverSheetQuery.set_viewXml(
+        '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><Eq><FieldRef Name="ReqNum"/><Value Type="Text">' + oResponse.request.number + "</Value></Eq></Where></Query></View>"
+      );
+      const m_subsetCoverSheetItems = coverSheetLib.getItems(coverSheetQuery);
+      currCtx.load(
+        m_subsetCoverSheetItems,
+        "Include(ID, Title, ReqNum, ActionOffice, FileLeafRef, FileDirRef)"
+      );
+      var data2 = { oResponse };
+      function OnSuccess(sender, args) {
+        var arrCS = new Array();
+        var listItemEnumerator = m_subsetCoverSheetItems.getEnumerator();
+        while (listItemEnumerator.moveNext()) {
+          var oListItem = listItemEnumerator.get_current();
+          if (oListItem.get_item("ActionOffice") != null) {
+            var arrActionOffice = oListItem.get_item("ActionOffice");
+            if (arrActionOffice.length > 0) {
+              for (var y = 0; y < arrActionOffice.length; y++) {
+                var curActionOffice = arrActionOffice[y].get_lookupValue();
+                if (curActionOffice == this.oResponse.actionOffice) {
+                  var csFolder = oListItem.get_item("FileDirRef");
+                  var csTitle = oListItem.get_item("FileLeafRef");
+                  arrCS.push({
+                    folder: csFolder,
+                    fileName: csTitle
+                  });
+                  break;
+                }
+              }
+            }
+          }
+        }
+        ko.utils.arrayPushAll(_myViewModel.arrCoverSheets(), arrCS);
+        _myViewModel.arrCoverSheets.valueHasMutated();
+      }
+      function OnFailure(sender, args) {
+        $("#tblCoverSheets").hide();
+        $("#divEmptyCoversheetsMsg").show();
+      }
+      currCtx.executeQueryAsync(
+        Function.createDelegate(data2, OnSuccess),
+        Function.createDelegate(data2, OnFailure)
+      );
+    }
+    function LoadTabResponseInfoResponseDocs(oResponse) {
+      _myViewModel.arrResponseDocs(null);
+      _myViewModel.cntResponseDocs(0);
+      _myViewModel.showBulkApprove(false);
+      _myViewModel.showCloseResponse(false);
+      _myViewModel.showReturnToCGFS(false);
+      if ((oResponse == null || oResponse.responseDocs.length == 0) && $("#ddlResponsesOpen").val() != "") {
+        notifyId2 = SP.UI.Notify.addNotification(
+          "There are 0 documents to review for " + $("#ddlResponsesOpen").val(),
+          false
+        );
+        _myViewModel.showReturnToCGFS(true);
+        return;
+      }
+      var currCtx = new SP.ClientContext.get_current();
+      var web = currCtx.get_web();
+      for (var z = 0; z < oResponse.responseDocs.length; z++) {
+        var oResponseDoc = oResponse.responseDocs[z];
+        oResponseDoc["docIcon"] = web.mapToIcon(
+          oResponseDoc.fileName,
+          "",
+          SP.Utilities.IconSize.Size16
+        );
+      }
+      function OnSuccess(sender, args) {
+        RenderResponses(oResponse);
+      }
+      function OnFailure(sender, args) {
+        statusId2 = SP.UI.Status.addStatus(
+          "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
+        );
+        SP.UI.Status.setStatusPriColor(statusId2, "red");
+      }
+      currCtx.executeQueryAsync(OnSuccess, OnFailure);
+      function RenderResponses(oResponse2) {
+        if (oResponse2 == null)
+          return;
+        var rowCount = 0;
+        var cntCanBeApprovedOrRejected = 0;
+        var cntApprovedOrArchived = 0;
+        var bDisplayingCloseBtn = false;
+        var arrResponseDocs = new Array();
+        for (var z2 = 0; z2 < oResponse2.responseDocs.length; z2++) {
+          var oResponseDoc2 = oResponse2.responseDocs[z2];
+          oResponseDoc2.docIcon = oResponseDoc2.docIcon.get_value();
+          oResponseDoc2.styleTag = Audit.Common.Utilities.GetResponseDocStyleTag2(
+            oResponseDoc2.documentStatus
+          );
+          oResponseDoc2.responseTitle = oResponse2.title;
+          if ((oResponse2.resStatus == "4-Approved for QA" || oResponse2.resStatus == "6-Reposted After Rejection") && oResponseDoc2.documentStatus == "Sent to QA") {
+            cntCanBeApprovedOrRejected++;
+            _myViewModel.showBulkApprove(true);
+          } else if ((oResponse2.resStatus == "4-Approved for QA" || oResponse2.resStatus == "6-Reposted After Rejection") && oResponseDoc2.documentStatus == "Rejected") {
+            _myViewModel.showReturnToCGFS(true);
+          } else if ((oResponse2.resStatus == "4-Approved for QA" || oResponse2.resStatus == "6-Reposted After Rejection") && (oResponseDoc2.documentStatus == "Archived" || oResponseDoc2.documentStatus == "Approved")) {
+            cntApprovedOrArchived++;
+          }
+          arrResponseDocs.push(oResponseDoc2);
+        }
+        var arrResponseSummary = {
+          responseTitle: oResponse2.title,
+          responseDocs: arrResponseDocs,
+          responseStatus: oResponse2.resStatus
+        };
+        if (cntApprovedOrArchived == arrResponseDocs.length && $("#ddlResponsesOpen").val() != "") {
+          _myViewModel.showCloseResponse(true);
+          SP.UI.Notify.addNotification(
+            "This Response did not automatically close. Please close this response.",
+            false
+          );
+        }
+        if (!bDisplayingCloseBtn && cntCanBeApprovedOrRejected == 0 && $("#ddlResponsesOpen").val() != "") {
+          _myViewModel.showReturnToCGFS(true);
+        }
+        _myViewModel.arrResponseDocs(arrResponseSummary);
+        _myViewModel.arrResponseDocs.valueHasMutated();
+        _myViewModel.cntResponseDocs(oResponse2.responseDocs.length);
+      }
+    }
+    function m_fnDisplayHelpResponseDocs() {
+      var helpDlg = "<div id='helpDlg' style='padding:20px; height:100px; width:700px'><div style='padding:20px;'><fieldset><legend>Response Document Status</legend> <ul style='padding-top:10px;'><li style='padding-top:5px;'><b>Submitted</b> - Submitted to the Internal Auditor by the Action Office</li><li style='padding-top:5px;'><b>Sent to QA</b> - Submitted to the Quality Assurance team by the Internal Auditor</li><li style='padding-top:5px;'><b>Approved</b> - Approved by the Quality Assurance team and submitted to the External Auditor</li><li style='padding-top:5px;'><b>Rejected</b> - Rejected by the Quality Assurance team and returned to the Internal Auditor</li><li style='padding-top:5px;'><b>Archived</b> - Previously Rejected by the Quality Assurance team and is now read-only for record keeping</li></ul></fieldset></div><div style='padding:20px; padding-top:10px;'><fieldset style='padding-top:10px;'><legend>Actions</legend> If the Response Status is <b>4-Approved for QA</b> or <b>6-Reposted After Rejection</b>, then the documents can be <b>Approved</b> or <b>Rejected</b><ul style='padding-top:10px;'><li style='padding-top:5px;'><b>Approve</b> - Submit the document to the External Auditor</li><li style='padding-top:5px;'><b>Reject</b> - Reject the document and return to the Internal Auditor</li></ul></fieldset></div><table style='padding-top:10px; width:200px; float:right'><tr><td class='ms-separator'>&#160;</td><td><input id='btnCancel' type='button' class='ms-ButtonHeightWidth' value='Close' title='Close Help' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)'/></td></tr></table></div>";
+      $("body").append(helpDlg);
+      var options = SP.UI.$create_DialogOptions();
+      options.title = "Response Documents Help";
+      options.dialogReturnValueCallback = OnCallbackForm;
+      options.html = document.getElementById("helpDlg");
+      options.height = 450;
+      SP.UI.ModalDialog.showModalDialog(options);
+    }
+    let m_cntToApprove = 0;
+    let m_cntApproved = 0;
+    function m_fnApproveAll() {
+      m_bIsTransactionExecuting = true;
+      var approveResponseDocDlg = "<div id='approveResponseDocDlg' style='padding:20px; height:100px'><div style='padding:20px;'>Are you sure you would like to <span style='font-weight:bold; color:green'>Approve</span> all remaining documents?</span></div><table style='padding-top:10px; width:200px; margin:0px auto'><tr><td><input id='btnClientOk1' type='button' class='ms-ButtonHeightWidth' value='Send to Auditor' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.OK)'/></td><td class='ms-separator'>&#160;</td><td><input id='btnCancel' type='button' class='ms-ButtonHeightWidth' value='Close' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)'/></td></tr></table></div>";
+      $("body").append(approveResponseDocDlg);
+      var options = SP.UI.$create_DialogOptions();
+      options.title = "Approve Response Documents";
+      options.dialogReturnValueCallback = OnCallbackApproveAllResponseDoc;
+      options.html = document.getElementById("approveResponseDocDlg");
+      SP.UI.ModalDialog.showModalDialog(options);
+    }
+    function m_fnApproveResponseDoc(id2, responseDocFileName) {
+      m_bIsTransactionExecuting = true;
+      m_itemID = id2;
+      m_RejectReason = "";
+      var approveResponseDocDlg = "<div id='approveResponseDocDlg' style='padding:20px; height:100px'><div style='padding:20px;'>Are you sure you would like to <span style='font-weight:bold; color:green'>Approve</span> the Response Document? <p style='padding-top:10px; font-weight:bold; color:green'>" + responseDocFileName + "</p></span></div><table style='padding-top:10px; width:200px; margin:0px auto'><tr><td><input id='btnClientOk1' type='button' class='ms-ButtonHeightWidth' value='Send to Auditor' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.OK)'/></td><td class='ms-separator'>&#160;</td><td><input id='btnCancel' type='button' class='ms-ButtonHeightWidth' value='Close' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)'/></td></tr></table></div>";
+      $("body").append(approveResponseDocDlg);
+      var options = SP.UI.$create_DialogOptions();
+      options.title = "Approve Response Document";
+      options.dialogReturnValueCallback = OnCallbackApproveResponseDoc;
+      options.html = document.getElementById("approveResponseDocDlg");
+      SP.UI.ModalDialog.showModalDialog(options);
+    }
+    function m_fnRejectResponseDoc(id2, responseDocFileName) {
+      m_bIsTransactionExecuting = true;
+      m_itemID = id2;
+      m_RejectReason = "";
+      var rejectResponseDocDlg = "<div id='rejectResponseDocDlg' style='padding:20px; height:100px'><div style='padding:20px;'>Are you sure you would like to <span style='font-weight:bold; color:DarkRed'>Reject</span> the Response Document? <p style='padding-top:10px; font-weight:bold; color:DarkRed'>" + responseDocFileName + "</p><p style='padding-top:10px'>If so, please specify the reason: </p><p><textarea id='txtRejectReason' cols='50' rows='3' onkeyup='Audit.QAReport.Report.GetCancelReason()'></textarea></p></span></div><table style='padding-top:10px; width:200px; margin:0px auto'><tr><td><input id='btnClientOk1' type='button' class='ms-ButtonHeightWidth' value='Yes, Reject Document' disabled='disabled' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.OK)'/></td><td class='ms-separator'>&#160;</td><td><input id='btnCancel' type='button' class='ms-ButtonHeightWidth' value='Close' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)'/></td></tr></table></div>";
+      $("body").append(rejectResponseDocDlg);
+      var options = SP.UI.$create_DialogOptions();
+      options.title = "Reject Response Document";
+      options.dialogReturnValueCallback = OnCallbackRejectResponseDoc;
+      options.html = document.getElementById("rejectResponseDocDlg");
+      SP.UI.ModalDialog.showModalDialog(options);
+      $("#txtRejectReason").focus();
+    }
+    function m_fnCloseResponse() {
+      m_bIsTransactionExecuting = true;
+      var responseDocDlg = "<div id='responseDocDlg' style='padding:20px; height:100px'><div style='padding:20px;'>All documents in this response are Approved. Are you sure you would like to <span style='font-weight:bold; color:green'>Close this Response</span>? </span></div><table style='padding-top:10px; width:200px; margin:0px auto'><tr><td><input id='btnClientOk1' type='button' class='ms-ButtonHeightWidth' value='Close Response' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.OK)'/></td><td class='ms-separator'>&#160;</td><td><input id='btnCancel' type='button' class='ms-ButtonHeightWidth' value='Close' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)'/></td></tr></table></div>";
+      $("body").append(responseDocDlg);
+      var options = SP.UI.$create_DialogOptions();
+      options.title = "Close Response";
+      options.dialogReturnValueCallback = OnCallbackCloseResponse;
+      options.html = document.getElementById("responseDocDlg");
+      SP.UI.ModalDialog.showModalDialog(options);
+    }
+    function m_fnReturnToCGFS() {
+      m_bIsTransactionExecuting = true;
+      var responseDocDlg = "<div id='responseDocDlg' style='padding:20px; height:100px'><div style='padding:20px;'>Are you sure you would like to <span style='font-weight:bold; color:darkred'>Return this Response to CGFS</span>? <p style='padding-top:10px;'><b>Note</b>: If you return it, you will no longer be able to Approve or Reject the Remaining Response Documents</p></span></div><table style='padding-top:10px; width:200px; margin:0px auto'><tr><td><input id='btnClientOk1' type='button' class='ms-ButtonHeightWidth' value='Return to CGFS' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.OK)'/></td><td class='ms-separator'>&#160;</td><td><input id='btnCancel' type='button' class='ms-ButtonHeightWidth' value='Close' onclick='SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.cancel)'/></td></tr></table></div>";
+      $("body").append(responseDocDlg);
+      var options = SP.UI.$create_DialogOptions();
+      options.title = "Return to CGFS";
+      options.dialogReturnValueCallback = OnCallbackReturnToCGFS;
+      options.html = document.getElementById("responseDocDlg");
+      SP.UI.ModalDialog.showModalDialog(options);
+    }
+    function m_fnFormatEmailBodyToIAFromQA(oRequest, responseTitle) {
+      var emailText = "<div>Audit Request Reference: <b>REQUEST_NUMBER</b></div><div>Audit Request Subject: <b>REQUEST_SUBJECT</b></div><div>Audit Request Due Date: <b>REQUEST_DUEDATE</b></div><br/><div>Below is the Response that was updated: </div><div>RESPONSE_TITLE</div>";
+      emailText = emailText.replace("REQUEST_NUMBER", oRequest.number);
+      emailText = emailText.replace("REQUEST_SUBJECT", oRequest.subject);
+      emailText = emailText.replace("REQUEST_DUEDATE", oRequest.internalDueDate);
+      emailText = emailText.replace("REQUEST_ACTIONITEMS", oRequest.actionItems);
+      var responseTitleBody = "<ul><li>" + responseTitle + "</li></ul>";
+      emailText = emailText.replace("RESPONSE_TITLE", responseTitleBody);
+      return emailText;
+    }
+    function m_fnGetResponseByTitle(title) {
+      var oResponse = null;
+      try {
+        oResponse = m_bigMap["response-" + title];
+      } catch (err) {
+      }
+      return oResponse;
+    }
+    function m_fnCreateEAFolder(requestNumber) {
+      var ctx2 = new SP.ClientContext.get_current();
+      var bFolderExists = false;
+      var listItemEnumerator = eaReponseDocsFolderItems.getEnumerator();
+      while (listItemEnumerator.moveNext()) {
+        var folderItem = listItemEnumerator.get_current();
+        var itemName = folderItem.get_displayName();
+        if (itemName == requestNumber) {
+          bFolderExists = true;
+          break;
+        }
+      }
+      if (!bFolderExists) {
+        let OnSuccess = function(sender, args) {
+        }, OnFailure = function(sender, args) {
+        };
+        var earesponseDocLib = ctx2.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocsEA());
+        var itemCreateInfo = new SP.ListItemCreationInformation();
+        itemCreateInfo.set_underlyingObjectType(SP.FileSystemObjectType.folder);
+        itemCreateInfo.set_leafName(requestNumber);
+        const oNewEAFolder = earesponseDocLib.addItem(itemCreateInfo);
+        oNewEAFolder.set_item("Title", requestNumber);
+        oNewEAFolder.update();
+        ctx2.executeQueryAsync(OnSuccess, OnFailure);
+      }
+    }
+    function m_fnCreateEAEmailLogItem() {
+      var ctx2 = new SP.ClientContext.get_current();
+      var bExists = false;
+      var listItemEnumerator = eaEmailLogListItems.getEnumerator();
+      while (listItemEnumerator.moveNext()) {
+        var emailLogItems = listItemEnumerator.get_current();
+        var bExists = true;
+        break;
+      }
+      if (!bExists) {
+        let OnSuccess = function(sender, args) {
+        }, OnFailure = function(sender, args) {
+        };
+        var eaEmailLogList = ctx2.get_web().get_lists().getByTitle("AuditEAEmailLog");
+        var date = /* @__PURE__ */ new Date();
+        var friendlyName = date.format("MM/dd/yyyy");
+        var itemCreateInfo = new SP.ListItemCreationInformation();
+        const oNewEmailLogItem = eaEmailLogList.addItem(itemCreateInfo);
+        oNewEmailLogItem.set_item("Title", friendlyName);
+        oNewEmailLogItem.update();
+        ctx2.executeQueryAsync(OnSuccess, OnFailure);
+      }
+    }
+    function m_fnGetRequestByResponseTitle(responseTitle) {
+      var oRequest = null;
+      try {
+        var response = m_bigMap["response-" + responseTitle];
+        if (response)
+          oRequest = response.request;
+      } catch (err) {
+      }
+      return oRequest;
+    }
+    function m_fnCreateEmailToIAFromQA(emailList, oRequest, responseTitle, emailSubject) {
+      if (!oRequest || !emailList)
+        return;
+      var emailText = m_fnFormatEmailBodyToIAFromQA(oRequest, responseTitle);
+      var itemCreateInfo = new SP.ListItemCreationInformation();
+      itemCreateInfo.set_folderUrl(
+        location.protocol + "//" + location.host + Audit.Common.Utilities.GetSiteUrl() + "/Lists/" + Audit.Common.Utilities.GetListNameEmailHistory() + "/" + oRequest.number
+      );
+      const oListItem = emailList.addItem(itemCreateInfo);
+      oListItem.set_item("Title", emailSubject);
+      oListItem.set_item("Body", emailText);
+      oListItem.set_item("To", m_IA_ActionOffice.title);
+      oListItem.set_item("ReqNum", oRequest.number);
+      oListItem.set_item("ResID", responseTitle);
+      oListItem.set_item("NotificationType", "IA Notification");
+      oListItem.update();
+    }
+    function OnCallbackForm(result, value) {
+      if (result === SP.UI.DialogResult.OK) {
+      }
+    }
+    function OnCallbackCloseResponse(result, value) {
+      if (result === SP.UI.DialogResult.OK) {
+        let OnSuccess = function(sender, args) {
+          var listItemEnumerator = aresponseItems.getEnumerator();
+          while (listItemEnumerator.moveNext()) {
+            var oListItemResponse = listItemEnumerator.get_current();
+            var responseTitle2 = oListItemResponse.get_item("Title");
+            var curDate = /* @__PURE__ */ new Date();
+            oListItemResponse.set_item("ResStatus", "7-Closed");
+            var newClosedTime = new Date(
+              curDate.getFullYear(),
+              curDate.getMonth(),
+              curDate.getDate(),
+              curDate.getHours(),
+              curDate.getMinutes(),
+              curDate.getSeconds(),
+              curDate.getMilliseconds()
+            );
+            oListItemResponse.set_item("ClosedDate", newClosedTime);
+            oListItemResponse.set_item("ClosedBy", _spPageContextInfo.userId);
+            oListItemResponse.update();
+            var oRequest = null;
+            try {
+              var mapResponse = m_bigMap["response-" + responseTitle2];
+              if (mapResponse)
+                oRequest = mapResponse.request;
+            } catch (err) {
+            }
+            if (oRequest) {
+              m_fnCreateEmailToIAFromQA(
+                emailList,
+                oRequest,
+                responseTitle2,
+                "An Audit Response has been Closed by the Quality Assurance Team: " + responseTitle2
+              );
+            } else
+              m_waitDialog.close();
+            ctx2.executeQueryAsync(
+              function() {
+                m_waitDialog.close();
+                Audit.Common.Utilities.Refresh();
+              },
+              function() {
+                m_waitDialog.close();
+                Audit.Common.Utilities.Refresh();
+              }
+            );
+            break;
+          }
+        }, OnFailure = function(sender, args) {
+          m_waitDialog.close();
+          alert(
+            "Request failed. " + args.get_message() + "\n" + args.get_stackTrace()
+          );
+        };
+        m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+          "Closing Response",
+          "Please wait... Closing Response",
+          200,
+          400
+        );
+        var responseTitle = $("#ddlResponsesOpen").val();
+        var ctx2 = SP.ClientContext.get_current();
+        var aresponseList = ctx2.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetListTitleResponses());
+        var aresponseQuery = new SP.CamlQuery();
+        aresponseQuery.set_viewXml(
+          '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><Eq><FieldRef Name="Title"/><Value Type="Text">' + responseTitle + "</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>"
+        );
+        const aresponseItems = aresponseList.getItems(aresponseQuery);
+        ctx2.load(aresponseItems);
+        var emailList = ctx2.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory());
+        var emailListQuery = new SP.CamlQuery();
+        emailListQuery.set_viewXml(
+          '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
+        );
+        const emailListFolderItems = emailList.getItems(emailListQuery);
+        ctx2.load(
+          emailListFolderItems,
+          "Include(ID, FSObjType, Title, DisplayName)"
+        );
+        ctx2.executeQueryAsync(OnSuccess, OnFailure);
+      } else
+        m_bIsTransactionExecuting = false;
+    }
+    function OnCallbackReturnToCGFS(result, value) {
+      if (result === SP.UI.DialogResult.OK) {
+        let OnSuccess = function(sender, args) {
+          var listItemEnumerator = aresponseItems.getEnumerator();
+          while (listItemEnumerator.moveNext()) {
+            var oListItemResponse = listItemEnumerator.get_current();
+            var responseTitle2 = oListItemResponse.get_item("Title");
+            var curDate = /* @__PURE__ */ new Date();
+            oListItemResponse.set_item("ResStatus", "5-Returned to GFS");
+            oListItemResponse.update();
+            var oRequest = null;
+            try {
+              var mapResponse = m_bigMap["response-" + responseTitle2];
+              if (mapResponse)
+                oRequest = mapResponse.request;
+            } catch (err) {
+            }
+            if (oRequest) {
+              m_fnCreateEmailToIAFromQA(
+                emailList,
+                oRequest,
+                responseTitle2,
+                "An Audit Response has been Returned by the Quality Assurance Team: " + responseTitle2
+              );
+            } else
+              m_waitDialog.close();
+            ctx2.executeQueryAsync(
+              function() {
+                m_waitDialog.close();
+                Audit.Common.Utilities.Refresh();
+              },
+              function() {
+                m_waitDialog.close();
+                Audit.Common.Utilities.Refresh();
+              }
+            );
+            break;
+          }
+        }, OnFailure = function(sender, args) {
+          m_waitDialog.close();
+          alert(
+            "Request failed. " + args.get_message() + "\n" + args.get_stackTrace()
+          );
+        };
+        m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+          "Returning to CGFS",
+          "Please wait... Returning to CGFS",
+          200,
+          400
+        );
+        var responseTitle = $("#ddlResponsesOpen").val();
+        var ctx2 = SP.ClientContext.get_current();
+        var aresponseList = ctx2.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetListTitleResponses());
+        var aresponseQuery = new SP.CamlQuery();
+        aresponseQuery.set_viewXml(
+          '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><Eq><FieldRef Name="Title"/><Value Type="Text">' + responseTitle + "</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>"
+        );
+        const aresponseItems = aresponseList.getItems(aresponseQuery);
+        ctx2.load(aresponseItems);
+        var emailList = ctx2.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory());
+        var emailListQuery = new SP.CamlQuery();
+        emailListQuery.set_viewXml(
+          '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
+        );
+        let emailListFolderItems = emailList.getItems(emailListQuery);
+        ctx2.load(
+          emailListFolderItems,
+          "Include(ID, FSObjType, Title, DisplayName)"
+        );
+        ctx2.executeQueryAsync(OnSuccess, OnFailure);
+      } else
+        m_bIsTransactionExecuting = false;
+    }
+    function OnCallbackApproveResponseDoc(result, value) {
+      if (result === SP.UI.DialogResult.OK) {
+        let OnSuccess = function(sender, args) {
+          var oResponse = m_fnGetResponseByTitle($("#ddlResponsesOpen").val());
+          if (oResponse == null || oResponse.request == null) {
+            m_waitDialog.close();
+            return;
+          }
+          const oRequest = oResponse.request;
+          const folderPath = oRequest.number;
+          m_fnCreateEAFolder(folderPath);
+          m_fnCreateEAEmailLogItem();
+          var requestId = oRequest.number;
+          var responseNumber = oResponse.title;
+          var fileName = oListItem.get_item("FileLeafRef");
+          var ctx2 = new SP.ClientContext.get_current();
+          var oList2 = ctx2.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
+          oListItem = oList2.getItemById(m_itemID);
+          var file = oListItem.get_file();
+          var absoluteSiteUrl = location.protocol + "//" + location.host + _spPageContextInfo.webServerRelativeUrl + "/";
+          var destinationFileNameUrl = absoluteSiteUrl + Audit.Common.Utilities.GetLibTitleResponseDocsEA() + "/" + folderPath + "/" + fileName;
+          file.copyTo(destinationFileNameUrl, 1);
+          oListItem.set_item("DocumentStatus", "Approved");
+          oListItem.set_item("RejectReason", "");
+          oListItem.update();
+          var siteUrl = location.protocol + "//" + location.host;
+          var urlOfNewFile = destinationFileNameUrl.replace(siteUrl, "");
+          const newFile = ctx2.get_web().getFileByServerRelativeUrl(urlOfNewFile);
+          ctx2.load(newFile, "ListItemAllFields");
+          var data2 = {
+            responseTitle: responseNumber,
+            copiedFileName: destinationFileNameUrl,
+            requestId,
+            responseNumber
+          };
+          function onUpdateResFolderSuccess() {
+            if (this.responseTitle == null || this.responseTitle == void 0 || this.responseTitle == "") {
+              m_waitDialog.close();
+              alert("Error: empty response title ");
+              return;
+            }
+            var ctx3 = SP.ClientContext.get_current();
+            var idOfCopiedFile = newFile.get_listItemAllFields().get_id();
+            var oEADocLib = ctx3.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocsEA());
+            const oListFileItem = oEADocLib.getItemById(idOfCopiedFile);
+            oListFileItem.set_item("RequestNumber", this.requestId);
+            oListFileItem.set_item("ResponseID", this.responseNumber);
+            oListFileItem.update();
+            var aresponseList = ctx3.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetListTitleResponses());
+            var aresponseQuery = new SP.CamlQuery();
+            aresponseQuery.set_viewXml(
+              '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><Eq><FieldRef Name="Title"/><Value Type="Text">' + this.responseTitle + "</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>"
+            );
+            const aresponseItems = aresponseList.getItems(aresponseQuery);
+            ctx3.load(aresponseItems);
+            var folderPath2 = Audit.Common.Utilities.GetSiteUrl() + "/" + Audit.Common.Utilities.GetLibNameResponseDocs() + "/" + this.responseTitle;
+            var aresponseDocList = ctx3.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
+            var aresponseDocQuery = new SP.CamlQuery();
+            aresponseDocQuery.set_viewXml(
+              '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><And><Eq><FieldRef Name="FSObjType"/><Value Type="Text">0</Value></Eq><Eq><FieldRef Name="FileDirRef"/><Value Type="Text">' + folderPath2 + "</Value></Eq></And></Where></Query></View>"
+            );
+            const aresponseDocItems = aresponseDocList.getItems(aresponseDocQuery);
+            ctx3.load(aresponseDocItems);
+            var emailList = ctx3.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory());
+            var emailListQuery = new SP.CamlQuery();
+            emailListQuery.set_viewXml(
+              '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
+            );
+            let emailListFolderItems = emailList.getItems(emailListQuery);
+            ctx3.load(
+              emailListFolderItems,
+              "Include(ID, FSObjType, Title, DisplayName)"
+            );
+            function onUpdateSucceededZZ() {
+              notifyId2 = SP.UI.Notify.addNotification(
+                "Approved Response Document",
+                false
+              );
+              let bUpdateResponseStatus = true;
+              var listxItemEnumerator = aresponseDocItems.getEnumerator();
+              var bRejected = false;
+              while (listxItemEnumerator.moveNext()) {
+                var oListItemResponseDoc = listxItemEnumerator.get_current();
+                var oListItemResponseDocStatus = oListItemResponseDoc.get_item("DocumentStatus");
+                if (oListItemResponseDocStatus == "Open" || oListItemResponseDocStatus == "Submitted" || oListItemResponseDocStatus == "Sent to QA") {
+                  bUpdateResponseStatus = false;
+                } else if (oListItemResponseDocStatus == "Rejected") {
+                  bRejected = true;
+                }
+              }
+              if (bUpdateResponseStatus) {
+                var oRequest2 = m_fnGetRequestByResponseTitle(this.responseTitle);
+                var listxxItemEnumerator = aresponseItems.getEnumerator();
+                while (listxxItemEnumerator.moveNext()) {
+                  var oListItemResponse = listxxItemEnumerator.get_current();
+                  if (!bRejected) {
+                    var curDate = /* @__PURE__ */ new Date();
+                    oListItemResponse.set_item("ResStatus", "7-Closed");
+                    var newClosedTime = new Date(
+                      curDate.getFullYear(),
+                      curDate.getMonth(),
+                      curDate.getDate(),
+                      curDate.getHours(),
+                      curDate.getMinutes(),
+                      curDate.getSeconds(),
+                      curDate.getMilliseconds()
+                    );
+                    oListItemResponse.set_item("ClosedDate", newClosedTime);
+                    oListItemResponse.set_item(
+                      "ClosedBy",
+                      _spPageContextInfo.userId
+                    );
+                    m_fnCreateEmailToIAFromQA(
+                      emailList,
+                      oRequest2,
+                      this.responseTitle,
+                      "An Audit Response has been Closed by the Quality Assurance Team: " + this.responseTitle
+                    );
+                  } else {
+                    oListItemResponse.set_item("ResStatus", "5-Returned to GFS");
+                    m_fnCreateEmailToIAFromQA(
+                      emailList,
+                      oRequest2,
+                      this.responseTitle,
+                      "An Audit Response has been Returned by the Quality Assurance Team: " + this.responseTitle
+                    );
+                  }
+                  oListItemResponse.update();
+                  ctx3.executeQueryAsync(function() {
+                    m_waitDialog.close();
+                    Audit.Common.Utilities.Refresh();
+                  });
+                  break;
+                }
+              } else {
+                m_waitDialog.close();
+                Audit.Common.Utilities.Refresh();
+              }
+            }
+            function onUpdateFailedZZ() {
+              m_waitDialog.close();
+            }
+            var data3 = { responseTitle: this.responseTitle };
+            ctx3.executeQueryAsync(
+              Function.createDelegate(data3, onUpdateSucceededZZ),
+              Function.createDelegate(data3, onUpdateFailedZZ)
+            );
+          }
+          function onUpdateResFolderFail(sender2, args2) {
+            m_waitDialog.close();
+            alert(
+              "Request failed. " + args2.get_message() + "\n" + args2.get_stackTrace()
+            );
+            Audit.Common.Utilities.Refresh();
+          }
+          ctx2.executeQueryAsync(
+            Function.createDelegate(data2, onUpdateResFolderSuccess),
+            Function.createDelegate(data2, onUpdateResFolderFail)
+          );
+        }, OnFailure = function(sender, args) {
+          m_waitDialog.close();
+          alert(
+            "Request failed. " + args.get_message() + "\n" + args.get_stackTrace()
+          );
+        };
+        m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+          "Approving Response Document",
+          "Please wait... Approving Response Document",
+          200,
+          400
+        );
+        var clientContext2 = SP.ClientContext.get_current();
+        var oList = clientContext2.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
+        let oListItem = oList.getItemById(m_itemID);
+        clientContext2.load(oListItem);
+        var eaResponseDocsLib = clientContext2.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocsEA());
+        var earesponseDocsQuery = new SP.CamlQuery();
+        earesponseDocsQuery.set_viewXml(
+          '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
+        );
+        eaReponseDocsFolderItems = eaResponseDocsLib.getItems(earesponseDocsQuery);
+        clientContext2.load(
+          eaReponseDocsFolderItems,
+          "Include(ID, FSObjType, Title, DisplayName)"
+        );
+        var eaEmailLogList = clientContext2.get_web().get_lists().getByTitle("AuditEAEmailLog");
+        var eaEmailLogListQuery = new SP.CamlQuery();
+        eaEmailLogListQuery.set_viewXml(
+          '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="Created"/><Value IncludeTimeValue="FALSE" Type="DateTime"><Today/></Value></Eq></Where></Query></View>'
+        );
+        eaEmailLogListItems = eaEmailLogList.getItems(eaEmailLogListQuery);
+        clientContext2.load(eaEmailLogListItems, "Include(ID)");
+        clientContext2.executeQueryAsync(OnSuccess, OnFailure);
+      } else
+        m_bIsTransactionExecuting = false;
+    }
+    function OnCallbackRejectResponseDoc(result, value) {
+      if (result === SP.UI.DialogResult.OK) {
+        let OnSuccess = function(sender, args) {
+          var ctx2 = new SP.ClientContext.get_current();
+          var oList2 = ctx2.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
+          oListItem = oList2.getItemById(m_itemID);
+          oListItem.set_item("DocumentStatus", "Rejected");
+          oListItem.set_item("RejectReason", m_RejectReason);
+          oListItem.update();
+          var siteUrl = location.protocol + "//" + location.host + _spPageContextInfo.webServerRelativeUrl + "/";
+          const filePath = oListItem.get_item("FileDirRef");
+          const fileName = oListItem.get_item("FileLeafRef");
+          var lastInd = filePath.lastIndexOf("/");
+          var urlpath = filePath.substring(0, lastInd + 1);
+          var responseTitle = filePath.replace(urlpath, "");
+          var folderPath = Audit.Common.Utilities.GetSiteUrl() + "/" + Audit.Common.Utilities.GetLibNameResponseDocs() + "/" + responseTitle;
+          var aresponseDocList = ctx2.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
+          var aresponseDocQuery = new SP.CamlQuery();
+          aresponseDocQuery.set_viewXml(
+            '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><And><Eq><FieldRef Name="FSObjType"/><Value Type="Text">0</Value></Eq><Eq><FieldRef Name="FileDirRef"/><Value Type="Text">' + folderPath + "</Value></Eq></And></Where></Query></View>"
+          );
+          const aresponseDocItems = aresponseDocList.getItems(aresponseDocQuery);
+          ctx2.load(aresponseDocItems);
+          var aresponseList = ctx2.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetListTitleResponses());
+          var aresponseQuery = new SP.CamlQuery();
+          aresponseQuery.set_viewXml(
+            '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><Eq><FieldRef Name="Title"/><Value Type="Text">' + responseTitle + "</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>"
+          );
+          const aresponseItems = aresponseList.getItems(aresponseQuery);
+          ctx2.load(aresponseItems);
+          var emailList = ctx2.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory());
+          var emailListQuery = new SP.CamlQuery();
+          emailListQuery.set_viewXml(
+            '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
+          );
+          const emailListFolderItems = emailList.getItems(emailListQuery);
+          ctx2.load(
+            emailListFolderItems,
+            "Include(ID, FSObjType, Title, DisplayName)"
+          );
+          function onUpdateSucceededZZ() {
+            notifyId2 = SP.UI.Notify.addNotification(
+              "Rejected Response Document",
+              false
+            );
+            let bUpdateResponseStatus = true;
+            var listxItemEnumerator = aresponseDocItems.getEnumerator();
+            while (listxItemEnumerator.moveNext()) {
+              var oListItemResponseDoc = listxItemEnumerator.get_current();
+              var oListItemResponseDocStatus = oListItemResponseDoc.get_item("DocumentStatus");
+              if (oListItemResponseDocStatus == "Open" || oListItemResponseDocStatus == "Submitted" || oListItemResponseDocStatus == "Sent to QA") {
+                bUpdateResponseStatus = false;
+              }
+            }
+            if (bUpdateResponseStatus) {
+              var oRequest = m_fnGetRequestByResponseTitle(this.responseTitle);
+              var listxxItemEnumerator = aresponseItems.getEnumerator();
+              while (listxxItemEnumerator.moveNext()) {
+                var oListItemResponse = listxxItemEnumerator.get_current();
+                var curDate = /* @__PURE__ */ new Date();
+                oListItemResponse.set_item("ResStatus", "5-Returned to GFS");
+                oListItemResponse.update();
+                m_fnCreateEmailToIAFromQA(
+                  emailList,
+                  oRequest,
+                  this.responseTitle,
+                  "An Audit Response has been Returned by the Quality Assurance Team: " + this.responseTitle
+                );
+                ctx2.executeQueryAsync(function() {
+                  m_waitDialog.close();
+                  Audit.Common.Utilities.Refresh();
+                });
+                break;
+              }
+            } else {
+              m_waitDialog.close();
+              Audit.Common.Utilities.Refresh();
+            }
+          }
+          function onUpdateFailedZZ() {
+            m_waitDialog.close();
+          }
+          var data2 = { responseTitle };
+          ctx2.executeQueryAsync(
+            Function.createDelegate(data2, onUpdateSucceededZZ),
+            Function.createDelegate(data2, onUpdateFailedZZ)
+          );
+        }, OnFailure = function(sender, args) {
+          m_waitDialog.close();
+          alert(
+            "Request failed. " + args.get_message() + "\n" + args.get_stackTrace()
+          );
+        };
+        m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+          "Rejecting Response Document",
+          "Please wait... Rejecting Response Document",
+          200,
+          400
+        );
+        var clientContext2 = SP.ClientContext.get_current();
+        var oList = clientContext2.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
+        let oListItem = oList.getItemById(m_itemID);
+        clientContext2.load(oListItem);
+        clientContext2.executeQueryAsync(OnSuccess, OnFailure);
+      } else
+        m_bIsTransactionExecuting = false;
+    }
+    function OnCallbackApproveAllResponseDoc(result, value) {
+      if (result === SP.UI.DialogResult.OK) {
+        let OnSuccess = function(sender, args) {
+          var oRequest = null;
+          var oResponse = null;
+          oResponse = m_fnGetResponseByTitle($("#ddlResponsesOpen").val());
+          if (oResponse == null || oResponse.request == null)
+            return;
+          oRequest = oResponse.request;
+          const folderPath = oRequest.number;
+          m_fnCreateEAFolder(oRequest.number);
+          m_fnCreateEAEmailLogItem();
+          var requestId = oRequest.number;
+          var responseNumber = oResponse.title;
+          m_cntToApprove = 0;
+          m_cntApproved = 0;
+          for (var x = 0; x < oResponse.responseDocs.length; x++) {
+            let onUpdateResFolderSuccess = function() {
+              if (this.responseTitle == null || this.responseTitle == void 0 || this.responseTitle == "") {
+                document.body.style.cursor = "default";
+                notifyId2 = SP.UI.Notify.addNotification(
+                  "Error: empty response title ",
+                  false
+                );
+                m_waitDialog.close();
+                return;
+              }
+              var ctx3 = SP.ClientContext.get_current();
+              var idOfCopiedFile = this.newFile.get_listItemAllFields().get_id();
+              var oEADocLib = ctx3.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocsEA());
+              const oListFileItem = oEADocLib.getItemById(idOfCopiedFile);
+              oListFileItem.set_item("RequestNumber", this.requestId);
+              oListFileItem.set_item("ResponseID", this.responseNumber);
+              oListFileItem.update();
+              var aresponseList = ctx3.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetListTitleResponses());
+              var aresponseQuery = new SP.CamlQuery();
+              aresponseQuery.set_viewXml(
+                '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><Eq><FieldRef Name="Title"/><Value Type="Text">' + this.responseTitle + "</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>"
+              );
+              const aresponseItems = aresponseList.getItems(aresponseQuery);
+              ctx3.load(aresponseItems);
+              var folderPath2 = Audit.Common.Utilities.GetSiteUrl() + "/" + Audit.Common.Utilities.GetLibNameResponseDocs() + "/" + this.responseTitle;
+              var aresponseDocList = ctx3.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
+              var aresponseDocQuery = new SP.CamlQuery();
+              aresponseDocQuery.set_viewXml(
+                '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="Title"/></OrderBy><Where><And><Eq><FieldRef Name="FSObjType"/><Value Type="Text">0</Value></Eq><Eq><FieldRef Name="FileDirRef"/><Value Type="Text">' + folderPath2 + "</Value></Eq></And></Where></Query></View>"
+              );
+              const aresponseDocItems = aresponseDocList.getItems(aresponseDocQuery);
+              ctx3.load(aresponseDocItems);
+              var emailList = ctx3.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory());
+              var emailListQuery = new SP.CamlQuery();
+              emailListQuery.set_viewXml(
+                '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
+              );
+              const emailListFolderItems = emailList.getItems(emailListQuery);
+              ctx3.load(
+                emailListFolderItems,
+                "Include(ID, FSObjType, Title, DisplayName)"
+              );
+              function onUpdateSucceededZZ() {
+                m_cntApproved++;
+                if (m_cntApproved != m_cntToApprove) {
+                  return;
+                }
+                notifyId2 = SP.UI.Notify.addNotification(
+                  "Approved Response Documents",
+                  false
+                );
+                let bUpdateResponseStatus = true;
+                var listxItemEnumerator = this.aresponseDocItems.getEnumerator();
+                var bRejected = false;
+                while (listxItemEnumerator.moveNext()) {
+                  var oListItemResponseDoc = listxItemEnumerator.get_current();
+                  var oListItemResponseDocStatus = oListItemResponseDoc.get_item("DocumentStatus");
+                  if (oListItemResponseDocStatus == "Open" || oListItemResponseDocStatus == "Submitted" || oListItemResponseDocStatus == "Sent to QA") {
+                    bUpdateResponseStatus = false;
+                  } else if (oListItemResponseDocStatus == "Rejected") {
+                    bRejected = true;
+                  }
+                }
+                if (bUpdateResponseStatus) {
+                  var oRequest2 = m_fnGetRequestByResponseTitle(
+                    this.responseTitle
+                  );
+                  var listxxItemEnumerator = this.aresponseItems.getEnumerator();
+                  while (listxxItemEnumerator.moveNext()) {
+                    var oListItemResponse = listxxItemEnumerator.get_current();
+                    if (!bRejected) {
+                      var curDate = /* @__PURE__ */ new Date();
+                      oListItemResponse.set_item("ResStatus", "7-Closed");
+                      var newClosedTime = new Date(
+                        curDate.getFullYear(),
+                        curDate.getMonth(),
+                        curDate.getDate(),
+                        curDate.getHours(),
+                        curDate.getMinutes(),
+                        curDate.getSeconds(),
+                        curDate.getMilliseconds()
+                      );
+                      oListItemResponse.set_item("ClosedDate", newClosedTime);
+                      oListItemResponse.set_item(
+                        "ClosedBy",
+                        _spPageContextInfo.userId
+                      );
+                      m_fnCreateEmailToIAFromQA(
+                        this.emailList,
+                        oRequest2,
+                        this.responseTitle,
+                        "An Audit Response has been Closed by the Quality Assurance Team: " + this.responseTitle
+                      );
+                    } else {
+                      oListItemResponse.set_item(
+                        "ResStatus",
+                        "5-Returned to GFS"
+                      );
+                      m_fnCreateEmailToIAFromQA(
+                        this.emailList,
+                        oRequest2,
+                        this.responseTitle,
+                        "An Audit Response has been Returned by the Quality Assurance Team: " + this.responseTitle
+                      );
+                    }
+                    oListItemResponse.update();
+                    ctx3.executeQueryAsync(function() {
+                      m_waitDialog.close();
+                      Audit.Common.Utilities.Refresh();
+                    });
+                    break;
+                  }
+                } else {
+                  m_waitDialog.close();
+                  Audit.Common.Utilities.Refresh();
+                }
+              }
+              function onUpdateFailedZZ() {
+                m_waitDialog.close();
+              }
+              var data3 = {
+                responseTitle: this.responseTitle,
+                emailList,
+                aresponseItems,
+                aresponseDocItems,
+                emailListFolderItems
+              };
+              ctx3.executeQueryAsync(
+                Function.createDelegate(data3, onUpdateSucceededZZ),
+                Function.createDelegate(data3, onUpdateFailedZZ)
+              );
+            }, onUpdateResFolderFail = function(sender2, args2) {
+              m_waitDialog.close();
+              notifyId2 = SP.UI.Notify.addNotification(
+                "Request failed. " + args2.get_message() + "\n" + args2.get_stackTrace(),
+                false
+              );
+              alert(
+                "Request failed. " + args2.get_message() + "\n" + args2.get_stackTrace()
+              );
+              Audit.Common.Utilities.Refresh();
+            };
+            if (oResponse.responseDocs[x].documentStatus != "Sent to QA")
+              continue;
+            m_cntToApprove++;
+            var ctx2 = new SP.ClientContext.get_current();
+            var oList = ctx2.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
+            let oListItem = oResponse.responseDocs[x].item;
+            const fileName = oListItem.get_item("FileLeafRef");
+            oListItem = oList.getItemById(oListItem.get_item("ID"));
+            var file = oListItem.get_file();
+            var absoluteSiteUrl = location.protocol + "//" + location.host + _spPageContextInfo.webServerRelativeUrl + "/";
+            var destinationFileNameUrl = absoluteSiteUrl + Audit.Common.Utilities.GetLibTitleResponseDocsEA() + "/" + folderPath + "/" + fileName;
+            file.copyTo(destinationFileNameUrl, 1);
+            oListItem.set_item("DocumentStatus", "Approved");
+            oListItem.set_item("RejectReason", "");
+            oListItem.update();
+            var siteUrl = location.protocol + "//" + location.host;
+            var urlOfNewFile = destinationFileNameUrl.replace(siteUrl, "");
+            const newFile = ctx2.get_web().getFileByServerRelativeUrl(urlOfNewFile);
+            ctx2.load(newFile, "ListItemAllFields");
+            var data2 = {
+              responseTitle: responseNumber,
+              copiedFileName: destinationFileNameUrl,
+              requestId,
+              responseNumber,
+              newFile
+            };
+            ctx2.executeQueryAsync(
+              Function.createDelegate(data2, onUpdateResFolderSuccess),
+              Function.createDelegate(data2, onUpdateResFolderFail)
+            );
+          }
+        }, OnFailure = function(sender, args) {
+          m_waitDialog.close();
+          alert(
+            "Request failed. " + args.get_message() + "\n" + args.get_stackTrace()
+          );
+        };
+        m_waitDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(
+          "Approving Response Documents",
+          "Please wait... Approving Response Documents",
+          200,
+          400
+        );
+        var responseTitle = $("#ddlResponsesOpen").val();
+        var clientContext2 = SP.ClientContext.get_current();
+        var eaResponseDocsLib = clientContext2.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocsEA());
+        var earesponseDocsQuery = new SP.CamlQuery();
+        earesponseDocsQuery.set_viewXml(
+          '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
+        );
+        eaReponseDocsFolderItems = eaResponseDocsLib.getItems(earesponseDocsQuery);
+        clientContext2.load(
+          eaReponseDocsFolderItems,
+          "Include(ID, FSObjType, Title, DisplayName)"
+        );
+        var eaEmailLogList = clientContext2.get_web().get_lists().getByTitle("AuditEAEmailLog");
+        var eaEmailLogListQuery = new SP.CamlQuery();
+        eaEmailLogListQuery.set_viewXml(
+          '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="Created"/><Value IncludeTimeValue="FALSE" Type="DateTime"><Today/></Value></Eq></Where></Query></View>'
+        );
+        eaEmailLogListItems = eaEmailLogList.getItems(eaEmailLogListQuery);
+        clientContext2.load(eaEmailLogListItems, "Include(ID)");
+        clientContext2.executeQueryAsync(OnSuccess, OnFailure);
+      } else
+        m_bIsTransactionExecuting = false;
+    }
+    function BindHandlersOnLoad() {
+      BindPrintButton(
+        "#btnPrint1",
+        "#divStatusReportRespones",
+        "QA Response Status Report"
+      );
+      BindExportButton(
+        ".export1",
+        "QAResponseStatusReport_",
+        "tblStatusReportResponses"
+      );
+    }
+    function BindPrintButton(btnPrint, divTbl, pageTitle) {
+      $(btnPrint).on("click", function() {
+        Audit.Common.Utilities.PrintStatusReport(pageTitle, divTbl);
+      });
+    }
+    function BindExportButton(btnExport, fileNamePrefix, tbl) {
+      $(btnExport).on("click", function(event) {
+        var curDate = (/* @__PURE__ */ new Date()).format("yyyyMMdd_hhmmtt");
+        Audit.Common.Utilities.ExportToCsv(fileNamePrefix + curDate, tbl);
+      });
+    }
+    function GoToResponse(response) {
+      _myViewModel.tabs.selectTab(_myViewModel.tabOpts.ResponseDetail);
+      if (response) {
+        response = m_bigMap["response-" + response];
+        var requestStatus = response.request.status;
+        var responseStatus = response.resStatus;
+        if ((responseStatus == "4-Approved for QA" || responseStatus == "6-Reposted After Rejection") && (requestStatus == "Open" || requestStatus == "ReOpened"))
+          _myViewModel.filterResponseInfoTabResponseNameOpen2(response.title);
+        else
+          _myViewModel.filterResponseInfoTabResponseNameProcessed2(
+            response.title
+          );
+      }
+    }
+    var publicMembers = {
+      Load: m_fnLoadData,
+      IsTransactionExecuting: function() {
+        return m_bIsTransactionExecuting;
+      },
+      GoToResponse,
+      GetCancelReason: function() {
+        m_RejectReason = $("#txtRejectReason").val();
+        if ($.trim(m_RejectReason) == "")
+          $("#btnClientOk1").attr("disabled", "disabled");
+        else
+          $("#btnClientOk1").removeAttr("disabled");
+        return m_RejectReason;
+      }
+    };
+    return publicMembers;
+  };
+})();
 //# sourceMappingURL=qa_db.js.map

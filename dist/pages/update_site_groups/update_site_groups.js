@@ -1,17 +1,941 @@
-(()=>{window.Audit=window.Audit||{};Audit.Common=Audit.Common||{};function He(){Audit.Common.Utilities=new Audit.Common.NewUtilities,Audit.Common.Init()}Audit.Common.Init=function(){};Audit.Common.NewUtilities=function(){var z=_spPageContextInfo.webServerRelativeUrl,B="AuditRequests",ge="AuditRequests",he="AuditRequestsInternal",_e="AuditRequestsInternal",A="AuditResponses",j="AuditResponses",M="AuditRequestDocs",ae="AuditRequestDocs",re="AuditCoverSheets",oe="AuditCoverSheets",le="AuditResponseDocs",K="AuditResponseDocs",V="AuditResponseDocsEA",F="AuditResponseDocsEA",H="AuditOrganizations",ie="AuditOrganizations",ue="AuditEmails",se="AuditEmails",Y="AuditBulkResponses",k="AuditBulkResponses",I="AuditBulkPermissions",de="AuditBulkPermissions",ce="CGFS Special Access1",fe="CGFS Special Access2",me="Quality Assurance",o="External Auditors",l=null,d=null,u=null;function p(e=!1){if(e){location.href=location.pathname;return}var t=location.pathname;if($("#tabs").html()!=null&&$("#tabs").html()!=""){var n=0;try{n=$("#tabs").tabs("option","active")}catch{}if(t+="?Tab="+n,n==0&&$("#ddlResponseName").val()!="")t+="&ResNum="+$("#ddlResponseName").val();else if(n==1){var r=$("#ddlResponsesOpen").val(),i=$("#ddlResponsesProcessed").val();r!=null&&r!=""?t+="&ResNum="+r:i!=null&&i!=""&&(t+="&ResNum="+i)}location.href=t}else location.reload()}function R(){var e=new Date;$("#divLoading").text("Loaded at "+e.format("MM/dd/yyyy hh:mm tt"))}function g(){var e=GetUrlKeyValue("Tab");e!=null&&e!=""&&$("#tabs").tabs("option","active",e);var t=!1,n=GetUrlKeyValue("ResNum");n!=null&&n!=""&&(e==0?$("#ddlResponseName option[value='"+n+"']").length>0&&($("#ddlResponseName").val(n).change(),t=!0):$("#ddlResponsesOpen option[value='"+n+"']").length>0?$("#ddlResponsesOpen").val(n).change():$("#ddlResponsesProcessed option[value='"+n+"']").length>0&&$("#ddlResponsesProcessed").val(n).change()),t||$(".sr-response-item").show()}function h(e,t){var n=0,r=0,i=0,a=0,s=0,f=$(".sr-response-item");f.each(function(){var v=$.trim($(this).find(".sr-response-requestStatus").text()),w=$.trim($(this).find(".sr-response-status").text());(w==e||w==t)&&(v=="Open"||v=="ReOpened")&&($(this).addClass("highlighted"),n++,w==e?a++:w==t&&s++,v=="Open"?r++:v=="ReOpened"&&i++)}),n>0?($("#lblStatusReportResponsesMsg").html("<span class='ui-icon ui-icon-alert'></span>There are "+n+" Responses pending your review"),a>0&&s==0?$("#ddlResponseStatus").val(e).change():s>0&&a==0&&$("#ddlResponseStatus").val(t).change()):$("#lblStatusReportResponsesMsg").html("<span class='ui-icon ui-icon-circle-check'></span>There are 0 Responses pending your review")}function C(e){d=new Array;for(var t=e.getEnumerator();t.moveNext();){var n=t.get_current(),r=n.get_id(),i=n.get_loginName(),a=n.get_title(),s=new Object;s.ID=r,s.loginName=i,s.title=a,s.group=n,d.push(s)}}function S(e){var t=null;if(d!=null){for(var n=0;n<d.length;n++)if(d[n].title==e){t=d[n].group;break}}return t}function _(e){u=new Array;for(var t=e.getEnumerator();t.moveNext();){var n=t.get_current(),r=n.get_item("ID"),i=n.get_item("Title"),a=n.get_item("UserGroup");a!=null?a=a.get_lookupValue():a="";var s=new Object;s.ID=r,s.title=i,s.userGroup=a,u.push(s)}}function m(e){var t=null;if(u!=null)for(var n=0;n<u.length;n++){var r=u[n];if(r.title==e){t=r.userGroup;break}}return t}function y(e,t,n){if(e==null||t==""||t==null||n==null)return!1;var r=!1,i=e.get_roleAssignments();if(i==null)return alert("Error retrieving role assignments"),!1;for(var a=i.getEnumerator();a.moveNext();){var s=a.get_current();if(s!=null){var f=s.get_member();if(f.isPropertyAvailable("Title")){var v=f.get_title(),w=s.get_roleDefinitionBindings();if(w!=null)for(var T=w.getEnumerator();T.moveNext();){var D=T.get_current(),L=D.get_name();if(v==t&&D.get_basePermissions().has(n)){r=!0;break}}}}}return r}function G(e,t){if(!t){var n=!1;$("#ddlResponsesOpen > option").each(function(){if($(this).text()==e)return n=!0,notifyId=SP.UI.Notify.addNotification("Displaying Response ("+e+")",!1),$("#ddlResponsesOpen").val(e).change(),!1}),n||$("#ddlResponsesProcessed > option").each(function(){if($(this).text()==e)return n=!0,notifyId=SP.UI.Notify.addNotification("Displaying Response ("+e+")",!1),$("#ddlResponsesProcessed").val(e).change(),!1}),$("#tabs").tabs({active:1})}}function U(e){var t={};return e=="Archived"?t={"background-color":"Gainsboro"}:e=="Approved"?t={"background-color":"PaleGreen"}:e=="Rejected"?t={"background-color":"LightSalmon"}:e=="Sent to QA"?t={"background-color":"LightCyan"}:e=="Submitted"?t={"background-color":"LemonChiffon"}:e=="Marked for Deletion"&&(t={"background-color":"Gainsboro","font-style":"italic"}),t}function Q(e){var t="";return e=="Archived"?t=" style='background-color:Gainsboro;' ":e=="Approved"?t=" style='background-color:PaleGreen;' ":e=="Rejected"?t=" style='background-color:LightSalmon;' ":e=="Sent to QA"?t=" style='background-color:LightCyan;' ":e=="Submitted"?t=" style='background-color:LemonChiffon;' ":e=="Marked for Deletion"&&(t=" style='background-color:Gainsboro; font-style:italic' title='Marked for Deletion by the Action Office' "),t}function W(e,t){for(var n=!1,r=e.getEnumerator();r.moveNext();){var i=r.get_current(),a=i.get_displayName();if(a==t){var n=!0;break}}return n}var P=0,c=0;function E(e,t,n,r){P=0,c=0;var i=new SP.ClientContext.get_current,a=i.get_web(),s=new SP.ListItemCreationInformation;s.set_underlyingObjectType(SP.FileSystemObjectType.folder),s.set_leafName(t),oNewEmailFolder=e.addItem(s),oNewEmailFolder.set_item("Title",t),oNewEmailFolder.update(),this.currentUser=a.get_currentUser(),this.ownerGroup=a.get_associatedOwnerGroup(),this.memberGroup=a.get_associatedMemberGroup(),this.visitorGroup=a.get_associatedVisitorGroup(),oNewEmailFolder.resetRoleInheritance(),oNewEmailFolder.breakRoleInheritance(!1,!1);var f=SP.RoleDefinitionBindingCollection.newObject(i);f.add(a.get_roleDefinitions().getByType(SP.RoleType.administrator));var v=SP.RoleDefinitionBindingCollection.newObject(i);v.add(a.get_roleDefinitions().getByType(SP.RoleType.contributor));var w=SP.RoleDefinitionBindingCollection.newObject(i);w.add(a.get_roleDefinitions().getByName("Restricted Read"));var T=SP.RoleDefinitionBindingCollection.newObject(i);T.add(a.get_roleDefinitions().getByName("Restricted Contribute")),oNewEmailFolder.get_roleAssignments().add(ownerGroup,f),oNewEmailFolder.get_roleAssignments().add(memberGroup,v),oNewEmailFolder.get_roleAssignments().add(visitorGroup,w);var D=Audit.Common.Utilities.GetSPSiteGroup(Audit.Common.Utilities.GetGroupNameQA());D!=null&&oNewEmailFolder.get_roleAssignments().add(D,T),oNewEmailFolder.get_roleAssignments().getByPrincipal(currentUser).deleteObject();function L(){if(this.requestItem){var N=this.requestItem.get_item("ActionOffice");if(N==null||N.length==0){this.OnComplete&&this.OnComplete(!0);return}for(var Z=0;Z<N.length;Z++){var Me=N[Z].get_lookupValue(),qe=Audit.Common.Utilities.GetAOSPGroupName(Me),be=Audit.Common.Utilities.GetSPSiteGroup(qe);if(be!=null){let Ce=function(){c++,c==P&&this.OnComplete&&this.OnComplete(!0)},Se=function(Ye,We){c++,c==P&&this.OnComplete&&this.OnComplete(!0)};var je=Ce,Ke=Se;P++;var pe=new SP.ClientContext.get_current,Ve=pe.get_web(),Ue=SP.RoleDefinitionBindingCollection.newObject(pe);Ue.add(Ve.get_roleDefinitions().getByName("Restricted Contribute")),this.oNewEmailFolder.get_roleAssignments().add(be,Ue);var Re={OnComplete:this.OnComplete};pe.executeQueryAsync(Function.createDelegate(Re,Ce),Function.createDelegate(Re,Se))}}}else this.OnComplete&&this.OnComplete(!0)}function x(N,Z){statusId=SP.UI.Status.addStatus("Request failed: "+Z.get_message()+`
-`+Z.get_stackTrace())}var q={requestItem:n,oNewEmailFolder,OnComplete:r};i.executeQueryAsync(Function.createDelegate(q,L),Function.createDelegate(q,x))}function O(e,t){var n=e,r=t;let i,a;n==null&&(n=""),r==null&&(r="");var s=n.lastIndexOf("-");if(s>=0){var f=n.substring(0,s+1),v=n.replace(f,""),w=parseInt(v,10),T=Audit.Common.Utilities.PadDigits(w,5);i=f+T}else i=n;var D=r.lastIndexOf("-");if(D>=0){var L=r.substring(0,D+1),x=r.replace(L,""),q=parseInt(x,10),N=Audit.Common.Utilities.PadDigits(q,5);a=L+N}else a=r;return i.toLowerCase().localeCompare(a.toLowerCase())}function b(e,t){var n=e.title,r=t.title,i,a;n==null&&(n=""),r==null&&(r="");var s=n.lastIndexOf("-");if(s>=0){var f=n.substring(0,s+1),v=n.replace(f,""),w=parseInt(v,10),T=Audit.Common.Utilities.PadDigits(w,5);i=f+T}else i=n;var D=r.lastIndexOf("-");if(D>=0){var L=r.substring(0,D+1),x=r.replace(L,""),q=parseInt(x,10),N=Audit.Common.Utilities.PadDigits(q,5);a=L+N}else a=r;return i.toLowerCase().localeCompare(a.toLowerCase())}function J(e,t){return e.toLowerCase().localeCompare(t.toLowerCase())}function ee(e,t){return e==""?-1:t==""?1:new Date(e).getTime()-new Date(t).getTime()}function te(e,t,n,r){if(e!=null){r?e.sort(O):n?e.sort(ee):e.sort(J);var i=new Array,a=-1;i[++a]="<option value=''>-Select-</option>";for(var s=e.length,f=0;f<s;f++){var v=$.trim(e[f]);i[++a]="<option value='"+v+"'>"+v+"</option>"}var w=$(t);w.empty().append(i.join(""))}}function X(e,t){if(e==null)return!1;for(var n=e.length,r=0;r<n;r++)if(e[r]==t)return!0;return!1}function ve(e){return e==!0?"<span class='ui-icon ui-icon-check'>"+e+"</span>":"<span class='ui-icon ui-icon-close'>"+e+"</span>"}function ne(e,t){var n=e.get_item(t);return n==null?"":n.get_lookupValue()}function Ge(e,t){e=e.toString();var n="";if(t>e.length)for(let r=0;r<t-e.length;r++)n+="0";return n+e.toString()}function De(e,t){var n=e>=0?1:-1;return(Math.round(e*Math.pow(10,t)+n*.001)/Math.pow(10,t)).toFixed(t)}function Ne(e){return e==null||e==""?"":(e>1048576?e=Audit.Common.Utilities.PreciseRound(e/1048576,2)+" MB":e>1024?e=Audit.Common.Utilities.PreciseRound(e/1024,2)+" KB":e+=" B",e)}function Pe(e){function t(n){return n<10?"0"+n:n}return e.getUTCFullYear()+"-"+t(e.getUTCMonth()+1)+"-"+t(e.getUTCDate())+"T"+t(e.getUTCHours())+":"+t(e.getUTCMinutes())+":"+t(e.getUTCSeconds())+"Z"}function $e(){$(".requestInfo-response-doc img").click(function(e){e.preventDefault();var t=$(this).attr("src");t=="/_layouts/images/minus.gif"?$(this).attr("src","/_layouts/images/plus.gif"):$(this).attr("src","/_layouts/images/minus.gif"),$(this).parent().parent().nextUntil("tr.requestInfo-response-doc").each(function(){$(this).toggleClass("collapsed")})})}function Ie(e){return $("select[title='"+e+"']").html()!==null?$("select[title='"+e+"']"):$("input[title='"+e+"']")}function Te(e){return $("select[title='"+e+"']").html()!==null?$("select[title='"+e+"'] option:selected").text():$("input[title='"+e+"']").val()}function Le(e,t){try{if(t==null)return;var n=ye("select","",e);if(n==null){var r=ye("input","",e);ShowDropdown(r.id);var i=document.getElementById(r.opt);we(i,t),OptLoseFocus(i)}else we(n,t)}catch{}}function we(e,t){var n=e.options,r=n.length;if(e!=null){for(var i=0;i<r;i++)if(n[i].text==t)return e.selectedIndex=i,!0;return!1}}function ye(e,t,n){for(var r=t.length,i=document.getElementsByTagName(e),a=0;a<i.length;a++){var s=i[a].id;if(i[a].title==n&&(t==""||s.indexOf(t)==s.length-r))return i[a]}return null}function Oe(e){var t=SP.UI.$create_DialogOptions();t.title="User Manual",t.height=250,e!=null?t.url=Audit.Common.Utilities.GetSiteUrl()+"/pages/AuditUserManuals.aspx?FilterField1=DocType&FilterValue1="+e:t.url=Audit.Common.Utilities.GetSiteUrl()+"/pages/AuditUserManuals.aspx",SP.UI.ModalDialog.showModalDialog(t)}function Fe(e,t){var n=new Date,r=Audit.Common.Utilities.GetSiteUrl(),i=r+"/siteassets/css/tablesorter/style.css?v="+n.format("MM_dd_yyyy"),a=r+"/siteAssets/css/audit_styles.css?v="+n.format("MM_dd_yyyy"),s=$(t).html(),f=$("<div>").append(s);f.find(".sr-response-title a").each(function(){$(this).removeAttr("onclick"),$(this).removeAttr("href")}),s=f.html();var v=n.format("MM/dd/yyyy hh:mm tt");v="<div style='padding-bottom:10px;'>"+v+"</div>",s=v+s;var w=$("<div></div>"),T=$("<div></div>"),D=$.Deferred(),L=$.Deferred(),x="";w.load(i,function(){x+="<style>"+w.html()+"</style>",D.resolve()}),T.load(a,function(){x+="<style>"+T.html()+"</style>",L.resolve()}),$.when(D,L).done(function(){var q=`<HTML>
-<HEAD>
+(() => {
+  // src/common/utilities.js
+  window.Audit = window.Audit || {};
+  Audit.Common = Audit.Common || {};
+  function InitReport() {
+    Audit.Common.Utilities = new Audit.Common.NewUtilities();
+    Audit.Common.Init();
+  }
+  Audit.Common.Init = function() {
+  };
+  Audit.Common.NewUtilities = function() {
+    var m_siteUrl = _spPageContextInfo.webServerRelativeUrl;
+    var m_listTitleRequests = "AuditRequests";
+    var m_listNameRequests = "AuditRequests";
+    var m_listTitleRequestsInternal = "AuditRequestsInternal";
+    var m_listNameRequestsInternal = "AuditRequestsInternal";
+    var m_listTitleResponses = "AuditResponses";
+    var m_listNameResponses = "AuditResponses";
+    var m_libTitleRequestDocs = "AuditRequestDocs";
+    var m_libNameRequestDocs = "AuditRequestDocs";
+    var m_libTitleCoverSheet = "AuditCoverSheets";
+    var m_libNameCoverSheet = "AuditCoverSheets";
+    var m_libTitleResponseDocs = "AuditResponseDocs";
+    var m_libNameResponseDocs = "AuditResponseDocs";
+    var m_libTitleResponseDocsEA = "AuditResponseDocsEA";
+    var m_libNameResponseDocsEA = "AuditResponseDocsEA";
+    var m_listTitleActionOffices = "AuditOrganizations";
+    var m_listNameActionOffices = "AuditOrganizations";
+    var m_listTitleEmailHistory = "AuditEmails";
+    var m_listNameEmailHistory = "AuditEmails";
+    var m_listTitleBulkResponses = "AuditBulkResponses";
+    var m_listNameBulkResponses = "AuditBulkResponses";
+    var m_listTitleBulkPermissions = "AuditBulkPermissions";
+    var m_listNameBulkPermissions = "AuditBulkPermissions";
+    var m_groupNameSpecialPermName1 = "CGFS Special Access1";
+    var m_groupNameSpecialPermName2 = "CGFS Special Access2";
+    var m_groupNameQA = "Quality Assurance";
+    var m_groupNameEA = "External Auditors";
+    var m_libResponseDocsLibraryGUID = null;
+    var m_arrSiteGroups = null;
+    var m_arrAOs = null;
+    function m_fnRefresh(hard = false) {
+      if (hard) {
+        location.href = location.pathname;
+        return;
+      }
+      var curPath = location.pathname;
+      if ($("#tabs").html() != null && $("#tabs").html() != "") {
+        var tabIndex = 0;
+        try {
+          tabIndex = $("#tabs").tabs("option", "active");
+        } catch (ex) {
+        }
+        curPath += "?Tab=" + tabIndex;
+        if (tabIndex == 0 && $("#ddlResponseName").val() != "") {
+          curPath += "&ResNum=" + $("#ddlResponseName").val();
+        } else if (tabIndex == 1) {
+          var responseNumOpen = $("#ddlResponsesOpen").val();
+          var responseNumProcessed = $("#ddlResponsesProcessed").val();
+          if (responseNumOpen != null && responseNumOpen != "")
+            curPath += "&ResNum=" + responseNumOpen;
+          else if (responseNumProcessed != null && responseNumProcessed != "")
+            curPath += "&ResNum=" + responseNumProcessed;
+        }
+        location.href = curPath;
+      } else {
+        location.reload();
+      }
+    }
+    function m_fnOnLoadDisplayTimeStamp() {
+      var curDate = /* @__PURE__ */ new Date();
+      $("#divLoading").text("Loaded at " + curDate.format("MM/dd/yyyy hh:mm tt"));
+    }
+    function m_fnOnLoadDisplayTabAndResponse() {
+      var paramTabIndex = GetUrlKeyValue("Tab");
+      if (paramTabIndex != null && paramTabIndex != "") {
+        $("#tabs").tabs("option", "active", paramTabIndex);
+      }
+      var bFiltered = false;
+      var paramResponseNum = GetUrlKeyValue("ResNum");
+      if (paramResponseNum != null && paramResponseNum != "") {
+        if (paramTabIndex == 0) {
+          if ($("#ddlResponseName option[value='" + paramResponseNum + "']").length > 0) {
+            $("#ddlResponseName").val(paramResponseNum).change();
+            bFiltered = true;
+          }
+        } else {
+          if ($("#ddlResponsesOpen option[value='" + paramResponseNum + "']").length > 0) {
+            $("#ddlResponsesOpen").val(paramResponseNum).change();
+          } else if ($("#ddlResponsesProcessed option[value='" + paramResponseNum + "']").length > 0) {
+            $("#ddlResponsesProcessed").val(paramResponseNum).change();
+          }
+        }
+      }
+      if (!bFiltered) {
+        $(".sr-response-item").show();
+      }
+    }
+    function m_fnOnLoadFilterResponses(responseStatus1, responseStatus2) {
+      var count = 0;
+      var cntOpen = 0;
+      var cntReOpened = 0;
+      var resStatus1 = 0;
+      var resStatus2 = 0;
+      var eacher = $(".sr-response-item");
+      eacher.each(function() {
+        var reqStatus = $.trim($(this).find(".sr-response-requestStatus").text());
+        var resStatus = $.trim($(this).find(".sr-response-status").text());
+        if ((resStatus == responseStatus1 || resStatus == responseStatus2) && (reqStatus == "Open" || reqStatus == "ReOpened")) {
+          $(this).addClass("highlighted");
+          count++;
+          if (resStatus == responseStatus1)
+            resStatus1++;
+          else if (resStatus == responseStatus2)
+            resStatus2++;
+          if (reqStatus == "Open")
+            cntOpen++;
+          else if (reqStatus == "ReOpened")
+            cntReOpened++;
+        }
+      });
+      if (count > 0) {
+        $("#lblStatusReportResponsesMsg").html(
+          "<span class='ui-icon ui-icon-alert'></span>There are " + count + " Responses pending your review"
+        );
+        if (resStatus1 > 0 && resStatus2 == 0)
+          $("#ddlResponseStatus").val(responseStatus1).change();
+        else if (resStatus2 > 0 && resStatus1 == 0)
+          $("#ddlResponseStatus").val(responseStatus2).change();
+      } else
+        $("#lblStatusReportResponsesMsg").html(
+          "<span class='ui-icon ui-icon-circle-check'></span>There are 0 Responses pending your review"
+        );
+    }
+    function m_fnLoadSiteGroups(itemColl) {
+      m_arrSiteGroups = new Array();
+      var listItemEnumerator = itemColl.getEnumerator();
+      while (listItemEnumerator.moveNext()) {
+        var oListItem = listItemEnumerator.get_current();
+        var id = oListItem.get_id();
+        var loginName = oListItem.get_loginName();
+        var title = oListItem.get_title();
+        var groupObject = new Object();
+        groupObject["ID"] = id;
+        groupObject["loginName"] = loginName;
+        groupObject["title"] = title;
+        groupObject["group"] = oListItem;
+        m_arrSiteGroups.push(groupObject);
+      }
+    }
+    function m_fnGetSPSiteGroup(groupName) {
+      var userGroup = null;
+      if (m_arrSiteGroups != null) {
+        for (var x = 0; x < m_arrSiteGroups.length; x++) {
+          if (m_arrSiteGroups[x].title == groupName) {
+            userGroup = m_arrSiteGroups[x].group;
+            break;
+          }
+        }
+      }
+      return userGroup;
+    }
+    function m_fnLoadActionOffices(itemColl) {
+      m_arrAOs = new Array();
+      var listItemEnumerator = itemColl.getEnumerator();
+      while (listItemEnumerator.moveNext()) {
+        var oListItem = listItemEnumerator.get_current();
+        var id = oListItem.get_item("ID");
+        var title = oListItem.get_item("Title");
+        var userGroup = oListItem.get_item("UserGroup");
+        if (userGroup != null) {
+          userGroup = userGroup.get_lookupValue();
+        } else
+          userGroup = "";
+        var aoObject = new Object();
+        aoObject["ID"] = id;
+        aoObject["title"] = title;
+        aoObject["userGroup"] = userGroup;
+        m_arrAOs.push(aoObject);
+      }
+    }
+    function m_fnGetAOSPGroupName(groupName) {
+      var userGroup = null;
+      if (m_arrAOs != null) {
+        for (var x = 0; x < m_arrAOs.length; x++) {
+          var oGroup = m_arrAOs[x];
+          if (oGroup.title == groupName) {
+            userGroup = oGroup.userGroup;
+            break;
+          }
+        }
+      }
+      return userGroup;
+    }
+    function m_fnCheckSPItemHasGroupPermission(item, groupName, permissionLevel) {
+      if (item == null || groupName == "" || groupName == null || permissionLevel == null)
+        return false;
+      var match = false;
+      var roleAssignments = item.get_roleAssignments();
+      if (roleAssignments == null) {
+        alert("Error retrieving role assignments");
+        return false;
+      }
+      var rolesEnumerator = roleAssignments.getEnumerator();
+      while (rolesEnumerator.moveNext()) {
+        var role = rolesEnumerator.get_current();
+        if (role != null) {
+          var roleMember = role.get_member();
+          if (roleMember.isPropertyAvailable("Title")) {
+            var memberTitleName = roleMember.get_title();
+            var roleDefs = role.get_roleDefinitionBindings();
+            if (roleDefs != null) {
+              var roleDefsEnumerator = roleDefs.getEnumerator();
+              while (roleDefsEnumerator.moveNext()) {
+                var rd = roleDefsEnumerator.get_current();
+                var rdName = rd.get_name();
+                if (memberTitleName == groupName && rd.get_basePermissions().has(permissionLevel)) {
+                  match = true;
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+      return match;
+    }
+    function m_fnGoToResponse(responseTitle, isIA) {
+      if (!isIA) {
+        var bFound = false;
+        $("#ddlResponsesOpen > option").each(function() {
+          if ($(this).text() == responseTitle) {
+            bFound = true;
+            notifyId = SP.UI.Notify.addNotification(
+              "Displaying Response (" + responseTitle + ")",
+              false
+            );
+            $("#ddlResponsesOpen").val(responseTitle).change();
+            return false;
+          }
+        });
+        if (!bFound) {
+          $("#ddlResponsesProcessed > option").each(function() {
+            if ($(this).text() == responseTitle) {
+              bFound = true;
+              notifyId = SP.UI.Notify.addNotification(
+                "Displaying Response (" + responseTitle + ")",
+                false
+              );
+              $("#ddlResponsesProcessed").val(responseTitle).change();
+              return false;
+            }
+          });
+        }
+        $("#tabs").tabs({ active: 1 });
+      }
+    }
+    function m_fnGetResponseDocStyleTag2(documentStatus) {
+      var styleTag = {};
+      if (documentStatus == "Archived")
+        styleTag = { "background-color": "Gainsboro" };
+      else if (documentStatus == "Approved")
+        styleTag = { "background-color": "PaleGreen" };
+      else if (documentStatus == "Rejected")
+        styleTag = { "background-color": "LightSalmon" };
+      else if (documentStatus == "Sent to QA")
+        styleTag = { "background-color": "LightCyan" };
+      else if (documentStatus == "Submitted")
+        styleTag = { "background-color": "LemonChiffon" };
+      else if (documentStatus == "Marked for Deletion")
+        styleTag = {
+          "background-color": "Gainsboro",
+          "font-style": "italic"
+        };
+      return styleTag;
+    }
+    function m_fnGetResponseDocStyleTag(documentStatus) {
+      var styleTag = "";
+      if (documentStatus == "Archived")
+        styleTag = " style='background-color:Gainsboro;' ";
+      else if (documentStatus == "Approved")
+        styleTag = " style='background-color:PaleGreen;' ";
+      else if (documentStatus == "Rejected")
+        styleTag = " style='background-color:LightSalmon;' ";
+      else if (documentStatus == "Sent to QA")
+        styleTag = " style='background-color:LightCyan;' ";
+      else if (documentStatus == "Submitted")
+        styleTag = " style='background-color:LemonChiffon;' ";
+      else if (documentStatus == "Marked for Deletion")
+        styleTag = " style='background-color:Gainsboro; font-style:italic' title='Marked for Deletion by the Action Office' ";
+      return styleTag;
+    }
+    function m_fnCheckIfEmailFolderExists(items, requestNumber) {
+      var bFolderExists = false;
+      var listItemEnumerator = items.getEnumerator();
+      while (listItemEnumerator.moveNext()) {
+        var folderItem = listItemEnumerator.get_current();
+        var itemName = folderItem.get_displayName();
+        if (itemName == requestNumber) {
+          var bFolderExists = true;
+          break;
+        }
+      }
+      return bFolderExists;
+    }
+    var m_cntAddToEmailFolder = 0;
+    var m_cntAddedToEmailFolder = 0;
+    function m_fnCreateEmailFolder(list, requestNumber, requestItem, OnComplete) {
+      m_cntAddToEmailFolder = 0;
+      m_cntAddedToEmailFolder = 0;
+      var currCtx = new SP.ClientContext.get_current();
+      var web = currCtx.get_web();
+      var itemCreateInfo = new SP.ListItemCreationInformation();
+      itemCreateInfo.set_underlyingObjectType(SP.FileSystemObjectType.folder);
+      itemCreateInfo.set_leafName(requestNumber);
+      oNewEmailFolder = list.addItem(itemCreateInfo);
+      oNewEmailFolder.set_item("Title", requestNumber);
+      oNewEmailFolder.update();
+      this.currentUser = web.get_currentUser();
+      this.ownerGroup = web.get_associatedOwnerGroup();
+      this.memberGroup = web.get_associatedMemberGroup();
+      this.visitorGroup = web.get_associatedVisitorGroup();
+      oNewEmailFolder.resetRoleInheritance();
+      oNewEmailFolder.breakRoleInheritance(false, false);
+      var roleDefBindingCollAdmin = SP.RoleDefinitionBindingCollection.newObject(currCtx);
+      roleDefBindingCollAdmin.add(
+        web.get_roleDefinitions().getByType(SP.RoleType.administrator)
+      );
+      var roleDefBindingCollContribute = SP.RoleDefinitionBindingCollection.newObject(currCtx);
+      roleDefBindingCollContribute.add(
+        web.get_roleDefinitions().getByType(SP.RoleType.contributor)
+      );
+      var roleDefBindingCollRestrictedRead = SP.RoleDefinitionBindingCollection.newObject(currCtx);
+      roleDefBindingCollRestrictedRead.add(
+        web.get_roleDefinitions().getByName("Restricted Read")
+      );
+      var roleDefBindingCollRestrictedContribute = SP.RoleDefinitionBindingCollection.newObject(currCtx);
+      roleDefBindingCollRestrictedContribute.add(
+        web.get_roleDefinitions().getByName("Restricted Contribute")
+      );
+      oNewEmailFolder.get_roleAssignments().add(ownerGroup, roleDefBindingCollAdmin);
+      oNewEmailFolder.get_roleAssignments().add(memberGroup, roleDefBindingCollContribute);
+      oNewEmailFolder.get_roleAssignments().add(visitorGroup, roleDefBindingCollRestrictedRead);
+      var spGroupQA = Audit.Common.Utilities.GetSPSiteGroup(
+        Audit.Common.Utilities.GetGroupNameQA()
+      );
+      if (spGroupQA != null)
+        oNewEmailFolder.get_roleAssignments().add(spGroupQA, roleDefBindingCollRestrictedContribute);
+      oNewEmailFolder.get_roleAssignments().getByPrincipal(currentUser).deleteObject();
+      function onUpdatePermsSucceeded() {
+        if (this.requestItem) {
+          var arrActionOffice = this.requestItem.get_item("ActionOffice");
+          if (arrActionOffice == null || arrActionOffice.length == 0) {
+            if (this.OnComplete)
+              this.OnComplete(true);
+            return;
+          }
+          for (var x = 0; x < arrActionOffice.length; x++) {
+            var actionOfficeName = arrActionOffice[x].get_lookupValue();
+            var actionOfficeGroupName = Audit.Common.Utilities.GetAOSPGroupName(actionOfficeName);
+            var actionOfficeGroup = Audit.Common.Utilities.GetSPSiteGroup(
+              actionOfficeGroupName
+            );
+            if (actionOfficeGroup != null) {
+              let onUpdateAOPermsSucceeded2 = function() {
+                m_cntAddedToEmailFolder++;
+                if (m_cntAddedToEmailFolder == m_cntAddToEmailFolder) {
+                  if (this.OnComplete)
+                    this.OnComplete(true);
+                }
+              }, onUpdateAOPermsFailed2 = function(sender, args) {
+                m_cntAddedToEmailFolder++;
+                if (m_cntAddedToEmailFolder == m_cntAddToEmailFolder) {
+                  if (this.OnComplete)
+                    this.OnComplete(true);
+                }
+              };
+              var onUpdateAOPermsSucceeded = onUpdateAOPermsSucceeded2, onUpdateAOPermsFailed = onUpdateAOPermsFailed2;
+              m_cntAddToEmailFolder++;
+              var currCtx2 = new SP.ClientContext.get_current();
+              var web2 = currCtx2.get_web();
+              var roleDefBindingCollRestrictedContribute2 = SP.RoleDefinitionBindingCollection.newObject(currCtx2);
+              roleDefBindingCollRestrictedContribute2.add(
+                web2.get_roleDefinitions().getByName("Restricted Contribute")
+              );
+              this.oNewEmailFolder.get_roleAssignments().add(actionOfficeGroup, roleDefBindingCollRestrictedContribute2);
+              var data2 = { OnComplete: this.OnComplete };
+              currCtx2.executeQueryAsync(
+                Function.createDelegate(data2, onUpdateAOPermsSucceeded2),
+                Function.createDelegate(data2, onUpdateAOPermsFailed2)
+              );
+            }
+          }
+        } else {
+          if (this.OnComplete)
+            this.OnComplete(true);
+        }
+      }
+      function onUpdatePermsFailed(sender, args) {
+        statusId = SP.UI.Status.addStatus(
+          "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
+        );
+      }
+      var data = {
+        /*item: oListItem, */
+        requestItem,
+        oNewEmailFolder,
+        OnComplete
+      };
+      currCtx.executeQueryAsync(
+        Function.createDelegate(data, onUpdatePermsSucceeded),
+        Function.createDelegate(data, onUpdatePermsFailed)
+      );
+    }
+    function m_fnSortResponseTitleNoCase(a, b) {
+      var aTitle = a;
+      var bTitle = b;
+      let newA, newB;
+      if (aTitle == null)
+        aTitle = "";
+      if (bTitle == null)
+        bTitle = "";
+      var aIndex = aTitle.lastIndexOf("-");
+      if (aIndex >= 0) {
+        var subA = aTitle.substring(0, aIndex + 1);
+        var lastA = aTitle.replace(subA, "");
+        var intA = parseInt(lastA, 10);
+        var newIntA = Audit.Common.Utilities.PadDigits(intA, 5);
+        newA = subA + newIntA;
+      } else
+        newA = aTitle;
+      var bIndex = bTitle.lastIndexOf("-");
+      if (bIndex >= 0) {
+        var subB = bTitle.substring(0, bIndex + 1);
+        var lastB = bTitle.replace(subB, "");
+        var intB = parseInt(lastB, 10);
+        var newIntB = Audit.Common.Utilities.PadDigits(intB, 5);
+        newB = subB + newIntB;
+      } else
+        newB = bTitle;
+      return newA.toLowerCase().localeCompare(newB.toLowerCase());
+    }
+    function m_fnSortResponseObjectNoCase(a, b) {
+      var aTitle = a.title;
+      var bTitle = b.title;
+      var newA;
+      var newB;
+      if (aTitle == null)
+        aTitle = "";
+      if (bTitle == null)
+        bTitle = "";
+      var aIndex = aTitle.lastIndexOf("-");
+      if (aIndex >= 0) {
+        var subA = aTitle.substring(0, aIndex + 1);
+        var lastA = aTitle.replace(subA, "");
+        var intA = parseInt(lastA, 10);
+        var newIntA = Audit.Common.Utilities.PadDigits(intA, 5);
+        newA = subA + newIntA;
+      } else
+        newA = aTitle;
+      var bIndex = bTitle.lastIndexOf("-");
+      if (bIndex >= 0) {
+        var subB = bTitle.substring(0, bIndex + 1);
+        var lastB = bTitle.replace(subB, "");
+        var intB = parseInt(lastB, 10);
+        var newIntB = Audit.Common.Utilities.PadDigits(intB, 5);
+        newB = subB + newIntB;
+      } else
+        newB = bTitle;
+      return newA.toLowerCase().localeCompare(newB.toLowerCase());
+    }
+    function m_fnSortNoCase(a, b) {
+      return a.toLowerCase().localeCompare(b.toLowerCase());
+    }
+    function m_fnSortDate(a, b) {
+      if (a == "")
+        return -1;
+      if (b == "")
+        return 1;
+      return new Date(a).getTime() - new Date(b).getTime();
+    }
+    function m_fnAddOptions(arr, ddlID, dateSort, responseSort) {
+      if (arr == null)
+        return;
+      if (responseSort)
+        arr.sort(m_fnSortResponseTitleNoCase);
+      else if (!dateSort)
+        arr.sort(m_fnSortNoCase);
+      else
+        arr.sort(m_fnSortDate);
+      var rOptions = new Array(), j = -1;
+      rOptions[++j] = "<option value=''>-Select-</option>";
+      var arrLength = arr.length;
+      for (var x = 0; x < arrLength; x++) {
+        var option = $.trim(arr[x]);
+        rOptions[++j] = "<option value='" + option + "'>" + option + "</option>";
+      }
+      var thisDDL = $(ddlID);
+      thisDDL.empty().append(rOptions.join(""));
+    }
+    function m_fnExistsInArr(arr, val) {
+      if (arr == null)
+        return false;
+      var arrLength = arr.length;
+      for (var x = 0; x < arrLength; x++) {
+        if (arr[x] == val)
+          return true;
+      }
+      return false;
+    }
+    function m_fnGetTrueFalseIcon(val) {
+      if (val == true)
+        return "<span class='ui-icon ui-icon-check'>" + val + "</span>";
+      else
+        return "<span class='ui-icon ui-icon-close'>" + val + "</span>";
+    }
+    function m_fnGetFriendlyDisplayName(oListItem, fieldName) {
+      var user = oListItem.get_item(fieldName);
+      if (user == null)
+        return "";
+      else
+        return user.get_lookupValue();
+    }
+    function m_fnPadDigits(n, totalDigits) {
+      n = n.toString();
+      var pd = "";
+      if (totalDigits > n.length) {
+        for (let i = 0; i < totalDigits - n.length; i++) {
+          pd += "0";
+        }
+      }
+      return pd + n.toString();
+    }
+    function m_fnPreciseRound(num, decimals) {
+      var sign = num >= 0 ? 1 : -1;
+      return (Math.round(num * Math.pow(10, decimals) + sign * 1e-3) / Math.pow(10, decimals)).toFixed(decimals);
+    }
+    function m_fnGetFriendlyFileSize(fileSize) {
+      if (fileSize == null || fileSize == "")
+        return "";
+      if (fileSize > 1048576) {
+        fileSize = Audit.Common.Utilities.PreciseRound(fileSize / 1048576, 2) + " MB";
+      } else if (fileSize > 1024) {
+        fileSize = Audit.Common.Utilities.PreciseRound(fileSize / 1024, 2) + " KB";
+      } else {
+        fileSize += " B";
+      }
+      return fileSize;
+    }
+    function m_fnISODateString(d) {
+      function pad(n) {
+        return n < 10 ? "0" + n : n;
+      }
+      return d.getUTCFullYear() + "-" + pad(d.getUTCMonth() + 1) + "-" + pad(d.getUTCDate()) + "T" + pad(d.getUTCHours()) + ":" + pad(d.getUTCMinutes()) + ":" + pad(d.getUTCSeconds()) + "Z";
+    }
+    function m_fnBindHandlerResponseDoc() {
+      $(".requestInfo-response-doc img").click(function(event) {
+        event.preventDefault();
+        var curIcon = $(this).attr("src");
+        if (curIcon == "/_layouts/images/minus.gif")
+          $(this).attr("src", "/_layouts/images/plus.gif");
+        else
+          $(this).attr("src", "/_layouts/images/minus.gif");
+        $(this).parent().parent().nextUntil("tr.requestInfo-response-doc").each(function() {
+          $(this).toggleClass("collapsed");
+        });
+      });
+    }
+    function m_fnGetLookupFormField(fieldTitle) {
+      if ($("select[title='" + fieldTitle + "']").html() !== null) {
+        return $("select[title='" + fieldTitle + "']");
+      } else {
+        return $("input[title='" + fieldTitle + "']");
+      }
+    }
+    function m_fnGetLookupDisplayText(fieldTitle) {
+      if ($("select[title='" + fieldTitle + "']").html() !== null) {
+        return $("select[title='" + fieldTitle + "'] option:selected").text();
+      } else {
+        return $("input[title='" + fieldTitle + "']").val();
+      }
+    }
+    function m_fnSetLookupFromFieldNameByText(fieldName, text) {
+      try {
+        if (text == void 0)
+          return;
+        var theSelect = m_fnGetTagFromIdentifierAndTitle("select", "", fieldName);
+        if (theSelect == null) {
+          var theInput = m_fnGetTagFromIdentifierAndTitle("input", "", fieldName);
+          ShowDropdown(theInput.id);
+          var opt = document.getElementById(theInput.opt);
+          m_fnSetSelectedOptionByText(opt, text);
+          OptLoseFocus(opt);
+        } else {
+          m_fnSetSelectedOptionByText(theSelect, text);
+        }
+      } catch (ex) {
+      }
+    }
+    function m_fnSetSelectedOptionByText(select, text) {
+      var opts = select.options;
+      var optLength = opts.length;
+      if (select == null)
+        return;
+      for (var i = 0; i < optLength; i++) {
+        if (opts[i].text == text) {
+          select.selectedIndex = i;
+          return true;
+        }
+      }
+      return false;
+    }
+    function m_fnGetTagFromIdentifierAndTitle(tagName, identifier, title) {
+      var idLength = identifier.length;
+      var tags = document.getElementsByTagName(tagName);
+      for (var i = 0; i < tags.length; i++) {
+        var tagID = tags[i].id;
+        if (tags[i].title == title && (identifier == "" || tagID.indexOf(identifier) == tagID.length - idLength)) {
+          return tags[i];
+        }
+      }
+      return null;
+    }
+    function m_fnViewUserManuals(docType) {
+      var options = SP.UI.$create_DialogOptions();
+      options.title = "User Manual";
+      options.height = 250;
+      if (docType != null)
+        options.url = Audit.Common.Utilities.GetSiteUrl() + "/pages/AuditUserManuals.aspx?FilterField1=DocType&FilterValue1=" + docType;
+      else
+        options.url = Audit.Common.Utilities.GetSiteUrl() + "/pages/AuditUserManuals.aspx";
+      SP.UI.ModalDialog.showModalDialog(options);
+    }
+    function m_fnPrintPage(pageTitle, divTbl) {
+      var curDate = /* @__PURE__ */ new Date();
+      var siteUrl = Audit.Common.Utilities.GetSiteUrl();
+      var cssLink1 = siteUrl + "/siteassets/css/tablesorter/style.css?v=" + curDate.format("MM_dd_yyyy");
+      var cssLink2 = siteUrl + "/siteAssets/css/audit_styles.css?v=" + curDate.format("MM_dd_yyyy");
+      var divOutput = $(divTbl).html();
+      var updatedDivOutput = $("<div>").append(divOutput);
+      updatedDivOutput.find(".sr-response-title a").each(function() {
+        $(this).removeAttr("onclick");
+        $(this).removeAttr("href");
+      });
+      divOutput = updatedDivOutput.html();
+      var printDateString = curDate.format("MM/dd/yyyy hh:mm tt");
+      printDateString = "<div style='padding-bottom:10px;'>" + printDateString + "</div>";
+      divOutput = printDateString + divOutput;
+      var cssFile1 = $("<div></div>");
+      var cssFile2 = $("<div></div>");
+      var def1 = $.Deferred();
+      var def2 = $.Deferred();
+      var cssFileText = "";
+      cssFile1.load(cssLink1, function() {
+        cssFileText += "<style>" + cssFile1.html() + "</style>";
+        def1.resolve();
+      });
+      cssFile2.load(cssLink2, function() {
+        cssFileText += "<style>" + cssFile2.html() + "</style>";
+        def2.resolve();
+      });
+      $.when(def1, def2).done(function() {
+        var html2 = "<HTML>\n<HEAD>\n\n<Title>" + pageTitle + "</Title>\n" + cssFileText + "\n<style>.hideOnPrint, .rowFilters {display:none}</style>\n</HEAD>\n<BODY>\n" + divOutput + "\n</BODY>\n</HTML>";
+        var printWP = window.open("", "printWebPart");
+        printWP.document.open();
+        printWP.document.write(html2);
+        printWP.document.close();
+        printWP.print();
+      });
+    }
+    function m_fnExportToCsv(fileName, tableName, removeHeader) {
+      var data = m_fnGetCellValues(tableName);
+      if (removeHeader == true)
+        data = data.slice(1);
+      var csv = m_fnConvertToCsv(data);
+      if (navigator.userAgent.search("Trident") >= 0) {
+        window.CsvExpFrame.document.open("text/html", "replace");
+        window.CsvExpFrame.document.write(csv);
+        window.CsvExpFrame.document.close();
+        window.CsvExpFrame.focus();
+        window.CsvExpFrame.document.execCommand(
+          "SaveAs",
+          true,
+          fileName + ".csv"
+        );
+      } else {
+        var uri = "data:text/csv;charset=utf-8," + escape(csv);
+        var downloadLink = document.createElement("a");
+        downloadLink.href = uri;
+        downloadLink.download = fileName + ".csv";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      }
+    }
+    function m_fnGetCellValues(tableName) {
+      var table = document.getElementById(tableName);
+      if (table.innerHTML.indexOf("rowFilters") >= 0) {
+        var deets = $("<div>").append(table.outerHTML);
+        deets.find(".rowFilters").each(function() {
+          $(this).remove();
+        });
+        table = deets.find("table")[0];
+      }
+      if (table.innerHTML.indexOf("footer") >= 0) {
+        var deets = $("<div>").append(table.outerHTML);
+        deets.find(".footer").each(function() {
+          $(this).remove();
+        });
+        table = deets.find("table")[0];
+      }
+      var tableArray = [];
+      for (var r = 0, n = table.rows.length; r < n; r++) {
+        tableArray[r] = [];
+        for (var c = 0, m = table.rows[r].cells.length; c < m; c++) {
+          var text = table.rows[r].cells[c].textContent || table.rows[r].cells[c].innerText;
+          tableArray[r][c] = text.trim();
+        }
+      }
+      return tableArray;
+    }
+    function m_fnConvertToCsv(objArray) {
+      var array = typeof objArray != "object" ? JSON.parse(objArray) : objArray;
+      var str = "sep=,\r\n";
+      var line = "";
+      var index;
+      var value;
+      for (var i = 0; i < array.length; i++) {
+        line = "";
+        var array1 = array[i];
+        for (index in array1) {
+          if (array1.hasOwnProperty(index)) {
+            value = array1[index] + "";
+            line += '"' + value.replace(/"/g, '""') + '",';
+          }
+        }
+        line = line.slice(0, -1);
+        str += line + "\r\n";
+      }
+      return str;
+    }
+    var publicMembers = {
+      GetSiteUrl: function() {
+        if (m_siteUrl == "/")
+          return "";
+        else
+          return m_siteUrl;
+      },
+      GetListTitleRequests: function() {
+        return m_listTitleRequests;
+      },
+      GetListNameRequests: function() {
+        return m_listNameRequests;
+      },
+      GetListTitleRequestsInternal: function() {
+        return m_listTitleRequestsInternal;
+      },
+      GetListNameRequestsInternal: function() {
+        return m_listNameRequestsInternal;
+      },
+      GetListTitleResponses: function() {
+        return m_listTitleResponses;
+      },
+      GetListNameResponses: function() {
+        return m_listNameResponses;
+      },
+      GetLibTitleRequestDocs: function() {
+        return m_libTitleRequestDocs;
+      },
+      GetLibNameRequestDocs: function() {
+        return m_libNameRequestDocs;
+      },
+      GetLibTitleCoverSheets: function() {
+        return m_libTitleCoverSheet;
+      },
+      GetLibNameCoverSheets: function() {
+        return m_libNameCoverSheet;
+      },
+      GetLibTitleResponseDocs: function() {
+        return m_libTitleResponseDocs;
+      },
+      GetLibNameResponseDocs: function() {
+        return m_libNameResponseDocs;
+      },
+      GetLibTitleResponseDocsEA: function() {
+        return m_libTitleResponseDocsEA;
+      },
+      GetLibNameResponseDocsEA: function() {
+        return m_libNameResponseDocsEA;
+      },
+      GetListTitleActionOffices: function() {
+        return m_listTitleActionOffices;
+      },
+      GetListNameActionOffices: function() {
+        return m_listNameActionOffices;
+      },
+      GetListTitleEmailHistory: function() {
+        return m_listTitleEmailHistory;
+      },
+      GetListNameEmailHistory: function() {
+        return m_listNameEmailHistory;
+      },
+      GetListTitleBulkResponses: function() {
+        return m_listTitleBulkResponses;
+      },
+      GetListNameBulkResponses: function() {
+        return m_listNameBulkResponses;
+      },
+      GetListTitleBulkPermissions: function() {
+        return m_listTitleBulkPermissions;
+      },
+      GetListNameBulkPermissions: function() {
+        return m_listNameBulkPermissions;
+      },
+      GetGroupNameSpecialPerm1: function() {
+        return m_groupNameSpecialPermName1;
+      },
+      GetGroupNameSpecialPerm2: function() {
+        return m_groupNameSpecialPermName2;
+      },
+      GetGroupNameQA: function() {
+        return m_groupNameQA;
+      },
+      GetGroupNameEA: function() {
+        return m_groupNameEA;
+      },
+      Refresh: m_fnRefresh,
+      OnLoadDisplayTimeStamp: m_fnOnLoadDisplayTimeStamp,
+      OnLoadDisplayTabAndResponse: m_fnOnLoadDisplayTabAndResponse,
+      OnLoadFilterResponses: function(responseStatus1, responseStatus2) {
+        m_fnOnLoadFilterResponses(responseStatus1, responseStatus2);
+      },
+      SetResponseDocLibGUID: function(libGUID) {
+        m_libResponseDocsLibraryGUID = libGUID;
+      },
+      GetResponseDocLibGUID: function() {
+        return m_libResponseDocsLibraryGUID;
+      },
+      LoadSiteGroups: function(itemColl) {
+        m_fnLoadSiteGroups(itemColl);
+      },
+      GetSPSiteGroup: function(groupName) {
+        return m_fnGetSPSiteGroup(groupName);
+      },
+      LoadActionOffices: function(itemColl) {
+        m_fnLoadActionOffices(itemColl);
+      },
+      GetActionOffices: function() {
+        return m_arrAOs;
+      },
+      GetAOSPGroupName: function(groupName) {
+        return m_fnGetAOSPGroupName(groupName);
+      },
+      CheckSPItemHasGroupPermission: function(item, groupName, permissionLevel) {
+        return m_fnCheckSPItemHasGroupPermission(
+          item,
+          groupName,
+          permissionLevel
+        );
+      },
+      GoToResponse: function(responseTitle, isIA) {
+        m_fnGoToResponse(responseTitle, isIA);
+      },
+      GetResponseDocStyleTag: function(documentStatus) {
+        return m_fnGetResponseDocStyleTag(documentStatus);
+      },
+      GetResponseDocStyleTag2: function(documentStatus) {
+        return m_fnGetResponseDocStyleTag2(documentStatus);
+      },
+      CheckIfEmailFolderExists: function(items, requestNumber) {
+        return m_fnCheckIfEmailFolderExists(items, requestNumber);
+      },
+      CreateEmailFolder: function(list, requestNumber, requestItem, OnComplete) {
+        return m_fnCreateEmailFolder(
+          list,
+          requestNumber,
+          requestItem,
+          OnComplete
+        );
+      },
+      AddOptions: function(arr, ddlID, dateSort, responseSort) {
+        m_fnAddOptions(arr, ddlID, dateSort, responseSort);
+      },
+      ExistsInArr: function(arr, val) {
+        return m_fnExistsInArr(arr, val);
+      },
+      GetTrueFalseIcon: function(val) {
+        return m_fnGetTrueFalseIcon(val);
+      },
+      PadDigits: function(n, totalDigits) {
+        return m_fnPadDigits(n, totalDigits);
+      },
+      PreciseRound: function(num, decimals) {
+        return m_fnPreciseRound(num, decimals);
+      },
+      GetFriendlyFileSize: function(fileSize) {
+        return m_fnGetFriendlyFileSize(fileSize);
+      },
+      GetISODateString: function(d) {
+        return m_fnISODateString(d);
+      },
+      GetFriendlyDisplayName: function(oListItem, fieldName) {
+        return m_fnGetFriendlyDisplayName(oListItem, fieldName);
+      },
+      BindHandlerResponseDoc: m_fnBindHandlerResponseDoc,
+      PrintStatusReport: function(pageTitle, divTbl) {
+        m_fnPrintPage(pageTitle, divTbl);
+      },
+      ExportToCsv: function(fileName, tableName, removeHeader) {
+        m_fnExportToCsv(fileName, tableName, removeHeader);
+      },
+      ViewUserManuals: function(docType) {
+        m_fnViewUserManuals(docType);
+      },
+      //GetLookupFieldText: function( fieldName ){ return m_fnGetLookupFieldText( fieldName); },
+      GetLookupDisplayText: function(fieldName) {
+        return m_fnGetLookupDisplayText(fieldName);
+      },
+      GetLookupFormField: function(fieldName) {
+        return m_fnGetLookupFormField(fieldName);
+      },
+      SetLookupFromFieldNameByText: function(fieldName, text) {
+        return m_fnSetLookupFromFieldNameByText(fieldName, text);
+      },
+      SortResponseObjects: function(a, b) {
+        return m_fnSortResponseObjectNoCase(a, b);
+      },
+      SortResponseTitles: m_fnSortResponseTitleNoCase
+    };
+    return publicMembers;
+  };
+  InitReport();
 
-<Title>`+e+`</Title>
-`+x+`
-<style>.hideOnPrint, .rowFilters {display:none}</style>
-</HEAD>
-<BODY>
-`+s+`
-</BODY>
-</HTML>`,N=window.open("","printWebPart");N.document.open(),N.document.write(q),N.document.close(),N.print()})}function ke(e,t,n){var r=Ee(t);n==!0&&(r=r.slice(1));var i=xe(r);if(navigator.userAgent.search("Trident")>=0)window.CsvExpFrame.document.open("text/html","replace"),window.CsvExpFrame.document.write(i),window.CsvExpFrame.document.close(),window.CsvExpFrame.focus(),window.CsvExpFrame.document.execCommand("SaveAs",!0,e+".csv");else{var a="data:text/csv;charset=utf-8,"+escape(i),s=document.createElement("a");s.href=a,s.download=e+".csv",document.body.appendChild(s),s.click(),document.body.removeChild(s)}}function Ee(e){var t=document.getElementById(e);if(t.innerHTML.indexOf("rowFilters")>=0){var n=$("<div>").append(t.outerHTML);n.find(".rowFilters").each(function(){$(this).remove()}),t=n.find("table")[0]}if(t.innerHTML.indexOf("footer")>=0){var n=$("<div>").append(t.outerHTML);n.find(".footer").each(function(){$(this).remove()}),t=n.find("table")[0]}for(var r=[],i=0,a=t.rows.length;i<a;i++){r[i]=[];for(var s=0,f=t.rows[i].cells.length;s<f;s++){var v=t.rows[i].cells[s].textContent||t.rows[i].cells[s].innerText;r[i][s]=v.trim()}}return r}function xe(e){for(var t=typeof e!="object"?JSON.parse(e):e,n=`sep=,\r
-`,r="",i,a,s=0;s<t.length;s++){r="";var f=t[s];for(i in f)f.hasOwnProperty(i)&&(a=f[i]+"",r+='"'+a.replace(/"/g,'""')+'",');r=r.slice(0,-1),n+=r+`\r
-`}return n}var Be={GetSiteUrl:function(){return z=="/"?"":z},GetListTitleRequests:function(){return B},GetListNameRequests:function(){return ge},GetListTitleRequestsInternal:function(){return he},GetListNameRequestsInternal:function(){return _e},GetListTitleResponses:function(){return A},GetListNameResponses:function(){return j},GetLibTitleRequestDocs:function(){return M},GetLibNameRequestDocs:function(){return ae},GetLibTitleCoverSheets:function(){return re},GetLibNameCoverSheets:function(){return oe},GetLibTitleResponseDocs:function(){return le},GetLibNameResponseDocs:function(){return K},GetLibTitleResponseDocsEA:function(){return V},GetLibNameResponseDocsEA:function(){return F},GetListTitleActionOffices:function(){return H},GetListNameActionOffices:function(){return ie},GetListTitleEmailHistory:function(){return ue},GetListNameEmailHistory:function(){return se},GetListTitleBulkResponses:function(){return Y},GetListNameBulkResponses:function(){return k},GetListTitleBulkPermissions:function(){return I},GetListNameBulkPermissions:function(){return de},GetGroupNameSpecialPerm1:function(){return ce},GetGroupNameSpecialPerm2:function(){return fe},GetGroupNameQA:function(){return me},GetGroupNameEA:function(){return o},Refresh:p,OnLoadDisplayTimeStamp:R,OnLoadDisplayTabAndResponse:g,OnLoadFilterResponses:function(e,t){h(e,t)},SetResponseDocLibGUID:function(e){l=e},GetResponseDocLibGUID:function(){return l},LoadSiteGroups:function(e){C(e)},GetSPSiteGroup:function(e){return S(e)},LoadActionOffices:function(e){_(e)},GetActionOffices:function(){return u},GetAOSPGroupName:function(e){return m(e)},CheckSPItemHasGroupPermission:function(e,t,n){return y(e,t,n)},GoToResponse:function(e,t){G(e,t)},GetResponseDocStyleTag:function(e){return Q(e)},GetResponseDocStyleTag2:function(e){return U(e)},CheckIfEmailFolderExists:function(e,t){return W(e,t)},CreateEmailFolder:function(e,t,n,r){return E(e,t,n,r)},AddOptions:function(e,t,n,r){te(e,t,n,r)},ExistsInArr:function(e,t){return X(e,t)},GetTrueFalseIcon:function(e){return ve(e)},PadDigits:function(e,t){return Ge(e,t)},PreciseRound:function(e,t){return De(e,t)},GetFriendlyFileSize:function(e){return Ne(e)},GetISODateString:function(e){return Pe(e)},GetFriendlyDisplayName:function(e,t){return ne(e,t)},BindHandlerResponseDoc:$e,PrintStatusReport:function(e,t){Fe(e,t)},ExportToCsv:function(e,t,n){ke(e,t,n)},ViewUserManuals:function(e){Oe(e)},GetLookupDisplayText:function(e){return Te(e)},GetLookupFormField:function(e){return Ie(e)},SetLookupFromFieldNameByText:function(e,t){return Le(e,t)},SortResponseObjects:function(e,t){return b(e,t)},SortResponseTitles:O};return Be};He();window.Audit=window.Audit||{};Audit.BulkUpdateUsers=Audit.BulkUpdateUsers||{};var Qe=String.raw;document.getElementById("app").innerHTML=Qe`
+  // src/pages/update_site_groups/update_site_groups.js
+  window.Audit = window.Audit || {};
+  Audit.BulkUpdateUsers = Audit.BulkUpdateUsers || {};
+  var html = String.raw;
+  document.getElementById("app").innerHTML = html`
   <div class="audit">
     <div id="divLoadSettings" style="display: none">
       <fieldset>
@@ -43,7 +967,492 @@
       >
     </div>
   </div>
-`;document.readyState==="ready"||document.readyState==="complete"?Ae():document.onreadystatechange=()=>{(document.readyState==="complete"||document.readyState==="ready")&&ExecuteOrDelayUntilScriptLoaded(function(){SP.SOD.executeFunc("sp.js","SP.ClientContext",Ae)},"sp.js")};function Ae(){Audit.BulkUpdateUsers.Report=new Audit.BulkUpdateUsers.Load,Audit.BulkUpdateUsers.Init()}Audit.BulkUpdateUsers.Init=function(){};Audit.BulkUpdateUsers.Load=function(){var z=null,B=new Array,ge=null,he=null,_e=null,A,j,M;ae();function ae(){$("#divTblOutput").html("");var o=new SP.ClientContext.get_current,l=o.get_web();j=o.get_web().get_siteGroups(),o.load(j),o.load(j,"Include(Users)");var d=o.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetListNameBulkPermissions()),u=d.get_views().getByTitle("All Items");o.load(u),o.executeQueryAsync(p,R);function p(g,h){z=u.get_id(),re(j),$("#divLoadSettings").show(),ce();var C=GetUrlKeyValue("IsDlg");(C==null||C==""||C==!1)&&$("#btnRefresh").show()}function R(g,h){$("#divLoading").hide(),statusId=SP.UI.Status.addStatus("Request failed: "+h.get_message()+`
-`+h.get_stackTrace()),SP.UI.Status.setStatusPriColor(statusId,"red")}}function re(o){B=new Array;for(var l=o.getEnumerator();l.moveNext();){var d=l.get_current(),u=d.get_title();u=$.trim(u);for(var p=d.get_id(),R=new Array,g=d.get_users().getEnumerator();g.moveNext();){var h=g.get_current(),C=h.get_loginName();R.push(C)}R.sort();for(var S="",_=0;_<R.length;_++)S+=R[_]+";";var m=new Object;m.Title=u.toLowerCase(),m.Users=S,m.SPGroupID=p,B.push(m)}}function oe(){var o=location.pathname,l=$("#tabs").tabs("option","active");o+="?Tab="+l,location.href=o}function le(){var o=SP.UI.$create_DialogOptions();o.title="Upload Users",o.dialogReturnValueCallback=fe;var l=z.toString();l=l.replace(/-/g,"%2D"),l=l.toUpperCase(),o.url=Audit.Common.Utilities.GetSiteUrl()+"/Lists/"+Audit.Common.Utilities.GetListNameBulkPermissions()+"/AllItems.aspx?ShowInGrid=True&View=%7B"+l+"%7D",o.height=700,SP.UI.ModalDialog.showModalDialog(o)}var K=0,V=0,F="",H=null;function ie(){A=new Array;var o=new SP.ClientContext.get_current,l=o.get_web(),d=l.get_lists().getByTitle(Audit.Common.Utilities.GetListTitleBulkPermissions()),u=new SP.CamlQuery;u.set_viewXml('<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>');var p=d.getItems(u);o.load(p,"Include(ID, Title, UserNames)");function R(h,C){for(var S=p.getEnumerator();S.moveNext();){var _=S.get_current(),m=_.get_item("ID"),y=_.get_item("Title");y!=null&&(y=$.trim(y));var G=_.get_item("UserNames"),U=new Object;U.ID=m,U.groupName=y,U.newUserNames=G,U.existingUserNames=null;var Q=!0,W=null;if(Q){for(var P=!1,c=0;c<B.length;c++)if(B[c].Title==y.toLowerCase()){U.existingUserNames=B[c].Users,U.SPGroupID=B[c].SPGroupID,P=!0;break}P||(Q=!1,W="SharePoint Group not found. An attempt to create it will be made when clicking save below")}U.isValid=Q,U.invalidReason=W,A.push(U)}for(var E=!1,O="<table class='tablesorter report' id='outputTable'><tr><thead><th>SharePoint Group</th><th>Current User Names</th><th>Replace Users with</th></thead></tr>",c=0;c<A.length;c++){var b=A[c];b.isValid?(O+="<tr id='tableRow"+c+"'><td id='tdGroup"+c+"'>"+b.groupName+"</td><td>"+Y(b.existingUserNames)+"</td><td>"+Y(b.newUserNames)+"</td></tr>",E=!0):O+="<tr id='tableRow"+c+"' style='background-color:lemonchiffon; font-style:italic;' title='"+b.invalidReason+"'><td>"+b.groupName+" - "+b.invalidReason+"</td><td>"+Y(b.existingUserNames)+"</td><td>"+Y(b.newUserNames)+"</td></tr>"}if($("#divLoadBulkUsersOutput").html(O+="</table>"),A.length==0){$("#divLoadBulkUsersOutput").html("");return}$("#btnCreateUsers").show(),$("#tblUnfoundUsers").html(""),ue()}function g(h,C){statusId=SP.UI.Status.addStatus("Unable to load from the Bulk Upload List: "+C.get_message()+`
-`+C.get_stackTrace()),SP.UI.Status.setStatusPriColor(statusId,"red")}o.executeQueryAsync(R,g)}function ue(){K=0,V=0,F=$("#divLoadBulkUsersOutput").html(),H=new Array;for(var o=0;o<A.length;o++){var l=A[o];if(l.isValid){var d=null;if(l.newUserNames&&(d=l.newUserNames.split(";")),d)for(var u=0;u<d.length;u++){let C=function(_,m){if(V++,this.result&&this.result.get_loginName()!=null&&this.result.get_loginName()!="")var y=this.result.get_loginName(),G=this.userDisplayName;else{var G=this.userDisplayName,U=$("#tblUnfoundUsers").html();U+="<div>"+G+"</div>",$("#tblUnfoundUsers").html()==""?$("#tblUnfoundUsers").html("<div>These users were not found and will be skipped:</div>"+U):$("#tblUnfoundUsers").html(U),F=F.split("<LI>"+G+"</LI>").join(""),H.push(G)}K==V&&($("#divLoadBulkUsersOutput").html(F),se())},S=function(_,m){var y=this.userDisplayName,G=$("#tblUnfoundUsers").html();G+="<div>"+y+"</div>",$("#tblUnfoundUsers").html(G),F=F.split("<LI>"+y+"</LI>").join(""),H.push(y),V++,K==V&&($("#divLoadBulkUsersOutput").html(F),se()),alert(error)};K++;var p=new SP.ClientContext.get_current,R=p.get_web(),g=d[u];g=$.trim(g),result=SP.Utilities.Utility.resolvePrincipal(p,R,g,SP.Utilities.PrincipalType.user,SP.Utilities.PrincipalSource.all,null,!1);var h={userDisplayName:g,result};p.executeQueryAsync(Function.createDelegate(h,C),Function.createDelegate(h,S))}}}}function se(){for(var o=0;o<H.length;o++){var l=H[o];if(l=$.trim(l),l!=null&&l!="")for(var d=0;d<A.length;d++){var u=A[d];u.isValid&&(u.newUserNames=u.newUserNames.split(l+";").join(""),u.newUserNames=u.newUserNames.split(l).join(""))}}}function Y(o){if(o==null||o=="")return"";o=o.replace(/; /gi,";");var l=o.split(";");l=l.sort();for(var d="<ul>",u=0;u<l.length;u++)l[u]!=null&&$.trim(l[u])&&(d+="<li>"+l[u]+"</li>");return d+="</ul>",d}var k=0,I=0;function de(){if(confirm("Are you sure you would like to Create or Update the SharePoint Groups? If Creating a Group, please re-run after the operation completed. If updating a Group, this action will replace ALL existing users in the Groups")){$("#btnCreateUsers").hide(),document.body.style.cursor="wait",M=SP.UI.Notify.addNotification("Please wait... ",!1);for(var o=0;o<A.length;o++){var l=A[o];if(!l.isValid){let U=function(W,P){var c=new SP.ClientContext.get_current,E=p.add(this.group),O=u.get_roleDefinitions().getByName("Restricted Read"),b=SP.RoleDefinitionBindingCollection.newObject(c);b.add(O);var J=u.get_roleAssignments();J.add(E,b),E.set_allowMembersEditMembership(!1),E.set_onlyAllowMembersViewMembership(!1),E.set_owner(c.get_web().get_associatedOwnerGroup()),E.update(),p=c.get_web().get_siteGroups(),c.load(p),c.load(p,"Include(Users)");function ee(ve,ne){I++,$("#tableRow"+this.tableRowId).attr("style","background-color:palegreen"),$("#tableRow"+this.tableRowId).attr("title","Created SharePoint Group. Please run again to add users"),$("#tdGroup"+this.tableRowId).html("<span class='ui-icon ui-icon-check'></span> "+$("#tdGroup"+this.tableRowId).text()),k==I&&(document.body.style.cursor="default",M=SP.UI.Notify.addNotification("Completed",!1),re(this.collGroup))}function te(ve,ne){I++,$("#tableRow"+this.tableRowId).attr("style","background-color:salmon"),$("#tableRow"+this.tableRowId).attr("title",ne.get_message()),$("#tdGroup"+this.tableRowId).html($("#tdGroup"+this.tableRowId).text()+" - "+ne.get_message()),k==I&&(document.body.style.cursor="default",M=SP.UI.Notify.addNotification("Error occurred",!1))}var X={tableRowId:this.tableRowId,collGroup:p};c.executeQueryAsync(Function.createDelegate(X,ee),Function.createDelegate(X,te))},Q=function(W,P){$("#tableRow"+this.tableRowId).attr("style","background-color:salmon"),$("#tableRow"+this.tableRowId).attr("title",P.get_message()),$("#tdGroup"+this.tableRowId).html($("#tdGroup"+this.tableRowId).text()+" - "+P.get_message()),I++,k==I&&(document.body.style.cursor="default",M=SP.UI.Notify.addNotification("Completed",!1))};k++;var d=new SP.ClientContext.get_current,u=d.get_web(),p=d.get_web().get_siteGroups(),R=new SP.GroupCreationInformation;R.set_title(l.groupName);var g={tableRowId:o,group:R};d.executeQueryAsync(Function.createDelegate(g,U),Function.createDelegate(g,Q))}if(l.isValid){let P=function(O,b){$("#tableRow"+this.tableRowId).attr("style","background-color:palegreen"),$("#tableRow"+this.tableRowId).attr("title","Created"),$("#tdGroup"+this.tableRowId).html("<span class='ui-icon ui-icon-check'></span> "+$("#tdGroup"+this.tableRowId).text());var J=new SP.ClientContext.get_current,ee=A[this.tableRowId].ID,te=J.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetListNameBulkPermissions()),X=te.getItemById(ee);X.deleteObject(),J.executeQueryAsync(function(){},function(){}),I++,k==I&&(document.body.style.cursor="default",M=SP.UI.Notify.addNotification("Completed",!1))},c=function(O,b){$("#tableRow"+this.tableRowId).attr("style","background-color:salmon"),$("#tableRow"+this.tableRowId).attr("title",b.get_message()),$("#tdGroup"+this.tableRowId).html($("#tdGroup"+this.tableRowId).text()+" - "+b.get_message()),I++,k==I&&(document.body.style.cursor="default",M=SP.UI.Notify.addNotification("Completed",!1))};k++;var d=new SP.ClientContext.get_current,u=d.get_web(),p=u.get_siteGroups(),h=p.getById(l.SPGroupID);h.set_allowMembersEditMembership(!1),h.set_onlyAllowMembersViewMembership(!1),h.set_owner(d.get_web().get_associatedOwnerGroup()),h.update();for(var C=l.existingUserNames,S=C.split(";"),_=0;_<S.length;_++){var m=S[_];if(m!=null&&$.trim(m)!=""){m=$.trim(m);var y=u.ensureUser(m);y&&h.get_users().remove(y)}}var G=l.newUserNames;if(G!=null)for(var S=G.split(";"),_=0;_<S.length;_++){var m=S[_];if(m!=null&&$.trim(m)!=""){m=$.trim(m);var y=u.ensureUser(m);y&&h.get_users().addUser(y)}}var g={tableRowId:o};d.executeQueryAsync(Function.createDelegate(g,P),Function.createDelegate(g,c))}}}}function ce(){$("#btnUploadUsers").click(function(){le()}),$("#btnLoadUsers").click(function(){ie()}),$("#btnCreateUsers").click(function(){de()})}function fe(o,l){ie()}var me={Refresh:oe};return me};})();
+`;
+  if (document.readyState === "ready" || document.readyState === "complete") {
+    InitReport2();
+  } else {
+    document.onreadystatechange = () => {
+      if (document.readyState === "complete" || document.readyState === "ready") {
+        ExecuteOrDelayUntilScriptLoaded(function() {
+          SP.SOD.executeFunc("sp.js", "SP.ClientContext", InitReport2);
+        }, "sp.js");
+      }
+    };
+  }
+  function InitReport2() {
+    Audit.BulkUpdateUsers.Report = new Audit.BulkUpdateUsers.Load();
+    Audit.BulkUpdateUsers.Init();
+  }
+  Audit.BulkUpdateUsers.Init = function() {
+  };
+  Audit.BulkUpdateUsers.Load = function() {
+    var m_listViewId = null;
+    var m_arrGroups = new Array();
+    var m_ownerGroupName = null;
+    var m_memberGroupName = null;
+    var m_visitorGroupName = null;
+    var m_arrBulkUsers;
+    var collGroup;
+    var notifyId2;
+    LoadInfo();
+    function LoadInfo() {
+      $("#divTblOutput").html("");
+      var currCtx = new SP.ClientContext.get_current();
+      var web = currCtx.get_web();
+      collGroup = currCtx.get_web().get_siteGroups();
+      currCtx.load(collGroup);
+      currCtx.load(collGroup, "Include(Users)");
+      var m_bulkPermissionsList = currCtx.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetListNameBulkPermissions());
+      var m_view = m_bulkPermissionsList.get_views().getByTitle("All Items");
+      currCtx.load(m_view);
+      currCtx.executeQueryAsync(OnSuccess, OnFailure);
+      function OnSuccess(sender, args) {
+        m_listViewId = m_view.get_id();
+        m_fnLoadSiteGroups(collGroup);
+        $("#divLoadSettings").show();
+        m_fnBindHandlersOnLoad();
+        var isModalDlg = GetUrlKeyValue("IsDlg");
+        if (isModalDlg == null || isModalDlg == "" || isModalDlg == false) {
+          $("#btnRefresh").show();
+        }
+      }
+      function OnFailure(sender, args) {
+        $("#divLoading").hide();
+        statusId = SP.UI.Status.addStatus(
+          "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
+        );
+        SP.UI.Status.setStatusPriColor(statusId, "red");
+      }
+    }
+    function m_fnLoadSiteGroups(collGroup2) {
+      m_arrGroups = new Array();
+      var listEnumerator = collGroup2.getEnumerator();
+      while (listEnumerator.moveNext()) {
+        var item = listEnumerator.get_current();
+        var groupName = item.get_title();
+        groupName = $.trim(groupName);
+        var groupID = item.get_id();
+        var arrPerms = new Array();
+        var listEnumerator1 = item.get_users().getEnumerator();
+        while (listEnumerator1.moveNext()) {
+          var item1 = listEnumerator1.get_current();
+          var displayName = item1.get_loginName();
+          arrPerms.push(displayName);
+        }
+        arrPerms.sort();
+        var users = "";
+        for (var g = 0; g < arrPerms.length; g++) {
+          users += arrPerms[g] + ";";
+        }
+        var oGroup = new Object();
+        oGroup["Title"] = groupName.toLowerCase();
+        oGroup["Users"] = users;
+        oGroup["SPGroupID"] = groupID;
+        m_arrGroups.push(oGroup);
+      }
+    }
+    function m_fnRefresh() {
+      var curPath = location.pathname;
+      var tabIndex = $("#tabs").tabs("option", "active");
+      curPath += "?Tab=" + tabIndex;
+      location.href = curPath;
+    }
+    function m_fnUploadUsers() {
+      var options = SP.UI.$create_DialogOptions();
+      options.title = "Upload Users";
+      options.dialogReturnValueCallback = OnCallbackForm;
+      var guid = m_listViewId.toString();
+      guid = guid.replace(/-/g, "%2D");
+      guid = guid.toUpperCase();
+      options.url = Audit.Common.Utilities.GetSiteUrl() + "/Lists/" + Audit.Common.Utilities.GetListNameBulkPermissions() + "/AllItems.aspx?ShowInGrid=True&View=%7B" + guid + "%7D";
+      options.height = 700;
+      SP.UI.ModalDialog.showModalDialog(options);
+    }
+    var m_countToRun = 0;
+    var m_countRan = 0;
+    var m_curOutput = "";
+    var m_arrUnfoundUsers = null;
+    function m_fnLoadBulkUsers() {
+      m_arrBulkUsers = new Array();
+      var currCtx = new SP.ClientContext.get_current();
+      var web = currCtx.get_web();
+      var bulkPermissionsList = web.get_lists().getByTitle(Audit.Common.Utilities.GetListTitleBulkPermissions());
+      var bulkPermissionsQuery = new SP.CamlQuery();
+      bulkPermissionsQuery.set_viewXml(
+        '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
+      );
+      var bulkPermissionsItems = bulkPermissionsList.getItems(bulkPermissionsQuery);
+      currCtx.load(bulkPermissionsItems, "Include(ID, Title, UserNames)");
+      function OnSuccess(sender, args) {
+        var listItemEnumerator = bulkPermissionsItems.getEnumerator();
+        while (listItemEnumerator.moveNext()) {
+          var oListItem = listItemEnumerator.get_current();
+          var id = oListItem.get_item("ID");
+          var groupName = oListItem.get_item("Title");
+          if (groupName != null)
+            groupName = $.trim(groupName);
+          var userNames = oListItem.get_item("UserNames");
+          var bulkObject = new Object();
+          bulkObject["ID"] = id;
+          bulkObject["groupName"] = groupName;
+          bulkObject["newUserNames"] = userNames;
+          bulkObject["existingUserNames"] = null;
+          var bIsValid = true;
+          var sInvalidReason = null;
+          if (bIsValid) {
+            var bFound = false;
+            for (var x = 0; x < m_arrGroups.length; x++) {
+              if (m_arrGroups[x].Title == groupName.toLowerCase()) {
+                bulkObject["existingUserNames"] = m_arrGroups[x].Users;
+                bulkObject["SPGroupID"] = m_arrGroups[x].SPGroupID;
+                bFound = true;
+                break;
+              }
+            }
+            if (!bFound) {
+              bIsValid = false;
+              sInvalidReason = "SharePoint Group not found. An attempt to create it will be made when clicking save below";
+            }
+          }
+          bulkObject["isValid"] = bIsValid;
+          bulkObject["invalidReason"] = sInvalidReason;
+          m_arrBulkUsers.push(bulkObject);
+        }
+        var hasOneValid = false;
+        var output = "<table class='tablesorter report' id='outputTable'><tr><thead><th>SharePoint Group</th><th>Current User Names</th><th>Replace Users with</th></thead></tr>";
+        for (var x = 0; x < m_arrBulkUsers.length; x++) {
+          var oBulkItem = m_arrBulkUsers[x];
+          if (oBulkItem.isValid) {
+            output += "<tr id='tableRow" + x + "'><td id='tdGroup" + x + "'>" + oBulkItem.groupName + "</td><td>" + m_fnGetFriendlyUsers(oBulkItem.existingUserNames) + "</td><td>" + m_fnGetFriendlyUsers(oBulkItem.newUserNames) + "</td></tr>";
+            hasOneValid = true;
+          } else {
+            output += "<tr id='tableRow" + x + "' style='background-color:lemonchiffon; font-style:italic;' title='" + oBulkItem.invalidReason + "'><td>" + oBulkItem.groupName + " - " + oBulkItem.invalidReason + "</td><td>" + m_fnGetFriendlyUsers(oBulkItem.existingUserNames) + "</td><td>" + m_fnGetFriendlyUsers(oBulkItem.newUserNames) + "</td></tr>";
+          }
+        }
+        $("#divLoadBulkUsersOutput").html(output += "</table>");
+        if (m_arrBulkUsers.length == 0) {
+          $("#divLoadBulkUsersOutput").html("");
+          return;
+        }
+        $("#btnCreateUsers").show();
+        $("#tblUnfoundUsers").html("");
+        m_fnCheckUsersAreValid();
+      }
+      function OnFailure(sender, args) {
+        statusId = SP.UI.Status.addStatus(
+          "Unable to load from the Bulk Upload List: " + args.get_message() + "\n" + args.get_stackTrace()
+        );
+        SP.UI.Status.setStatusPriColor(statusId, "red");
+      }
+      currCtx.executeQueryAsync(OnSuccess, OnFailure);
+    }
+    function m_fnCheckUsersAreValid() {
+      m_countToRun = 0;
+      m_countRan = 0;
+      m_curOutput = $("#divLoadBulkUsersOutput").html();
+      m_arrUnfoundUsers = new Array();
+      for (var x = 0; x < m_arrBulkUsers.length; x++) {
+        var oBulkItem = m_arrBulkUsers[x];
+        if (oBulkItem.isValid) {
+          var newPermsArr = null;
+          if (oBulkItem.newUserNames)
+            newPermsArr = oBulkItem.newUserNames.split(";");
+          if (newPermsArr) {
+            for (var y = 0; y < newPermsArr.length; y++) {
+              let OnSuccess = function(sender, args) {
+                m_countRan++;
+                if (this.result && this.result.get_loginName() != null && this.result.get_loginName() != "") {
+                  var loginName = this.result.get_loginName();
+                  var userDisplayName2 = this.userDisplayName;
+                } else {
+                  var userDisplayName2 = this.userDisplayName;
+                  var curunfound = $("#tblUnfoundUsers").html();
+                  curunfound += "<div>" + userDisplayName2 + "</div>";
+                  if ($("#tblUnfoundUsers").html() == "") {
+                    $("#tblUnfoundUsers").html(
+                      "<div>These users were not found and will be skipped:</div>" + curunfound
+                    );
+                  } else
+                    $("#tblUnfoundUsers").html(curunfound);
+                  m_curOutput = m_curOutput.split("<LI>" + userDisplayName2 + "</LI>").join("");
+                  m_arrUnfoundUsers.push(userDisplayName2);
+                }
+                if (m_countToRun == m_countRan) {
+                  $("#divLoadBulkUsersOutput").html(m_curOutput);
+                  m_fnUpdatePermsToAdd();
+                }
+              }, OnFailure = function(sender, args) {
+                var userDisplayName2 = this.userDisplayName;
+                var curunfound = $("#tblUnfoundUsers").html();
+                curunfound += "<div>" + userDisplayName2 + "</div>";
+                $("#tblUnfoundUsers").html(curunfound);
+                m_curOutput = m_curOutput.split("<LI>" + userDisplayName2 + "</LI>").join("");
+                m_arrUnfoundUsers.push(userDisplayName2);
+                m_countRan++;
+                if (m_countToRun == m_countRan) {
+                  $("#divLoadBulkUsersOutput").html(m_curOutput);
+                  m_fnUpdatePermsToAdd();
+                }
+                alert(error);
+              };
+              m_countToRun++;
+              var currCtx = new SP.ClientContext.get_current();
+              var web = currCtx.get_web();
+              var userDisplayName = newPermsArr[y];
+              userDisplayName = $.trim(userDisplayName);
+              result = SP.Utilities.Utility.resolvePrincipal(
+                currCtx,
+                web,
+                userDisplayName,
+                SP.Utilities.PrincipalType.user,
+                SP.Utilities.PrincipalSource.all,
+                null,
+                false
+              );
+              var data = { userDisplayName, result };
+              currCtx.executeQueryAsync(
+                Function.createDelegate(data, OnSuccess),
+                Function.createDelegate(data, OnFailure)
+              );
+            }
+          }
+        }
+      }
+    }
+    function m_fnUpdatePermsToAdd() {
+      for (var x = 0; x < m_arrUnfoundUsers.length; x++) {
+        var username = m_arrUnfoundUsers[x];
+        username = $.trim(username);
+        if (username != null && username != "") {
+          for (var z = 0; z < m_arrBulkUsers.length; z++) {
+            var oBulkItem = m_arrBulkUsers[z];
+            if (oBulkItem.isValid) {
+              oBulkItem.newUserNames = oBulkItem.newUserNames.split(username + ";").join("");
+              oBulkItem.newUserNames = oBulkItem.newUserNames.split(username).join("");
+            }
+          }
+        }
+      }
+    }
+    function m_fnGetFriendlyUsers(perms) {
+      if (perms == null || perms == "")
+        return "";
+      perms = perms.replace(/; /gi, ";");
+      var permArr = perms.split(";");
+      permArr = permArr.sort();
+      var output = "<ul>";
+      for (var x = 0; x < permArr.length; x++) {
+        if (permArr[x] != null && $.trim(permArr[x])) {
+          output += "<li>" + permArr[x] + "</li>";
+        }
+      }
+      output += "</ul>";
+      return output;
+    }
+    var m_countToCreate = 0;
+    var m_countCreated = 0;
+    function m_fnCreateUsers() {
+      if (confirm(
+        "Are you sure you would like to Create or Update the SharePoint Groups? If Creating a Group, please re-run after the operation completed. If updating a Group, this action will replace ALL existing users in the Groups"
+      )) {
+        $("#btnCreateUsers").hide();
+        document.body.style.cursor = "wait";
+        notifyId2 = SP.UI.Notify.addNotification("Please wait... ", false);
+        for (var x = 0; x < m_arrBulkUsers.length; x++) {
+          var oBulkItem = m_arrBulkUsers[x];
+          if (!oBulkItem.isValid) {
+            let OnSuccessCreateGroup = function(sender, args) {
+              var currCtx2 = new SP.ClientContext.get_current();
+              var newCreateGroup = collGroup2.add(this.group);
+              var rolDef = web.get_roleDefinitions().getByName("Restricted Read");
+              var rolDefColl = SP.RoleDefinitionBindingCollection.newObject(currCtx2);
+              rolDefColl.add(rolDef);
+              var roleAssignments = web.get_roleAssignments();
+              roleAssignments.add(newCreateGroup, rolDefColl);
+              newCreateGroup.set_allowMembersEditMembership(false);
+              newCreateGroup.set_onlyAllowMembersViewMembership(false);
+              newCreateGroup.set_owner(
+                currCtx2.get_web().get_associatedOwnerGroup()
+              );
+              newCreateGroup.update();
+              collGroup2 = currCtx2.get_web().get_siteGroups();
+              currCtx2.load(collGroup2);
+              currCtx2.load(collGroup2, "Include(Users)");
+              function OnSuccessUpdateGroupProps(sender2, args2) {
+                m_countCreated++;
+                $("#tableRow" + this.tableRowId).attr(
+                  "style",
+                  "background-color:palegreen"
+                );
+                $("#tableRow" + this.tableRowId).attr(
+                  "title",
+                  "Created SharePoint Group. Please run again to add users"
+                );
+                $("#tdGroup" + this.tableRowId).html(
+                  "<span class='ui-icon ui-icon-check'></span> " + $("#tdGroup" + this.tableRowId).text()
+                );
+                if (m_countToCreate == m_countCreated) {
+                  document.body.style.cursor = "default";
+                  notifyId2 = SP.UI.Notify.addNotification("Completed", false);
+                  m_fnLoadSiteGroups(this.collGroup);
+                }
+              }
+              function OnFailureUpdateGroupProps(sender2, args2) {
+                m_countCreated++;
+                $("#tableRow" + this.tableRowId).attr(
+                  "style",
+                  "background-color:salmon"
+                );
+                $("#tableRow" + this.tableRowId).attr(
+                  "title",
+                  args2.get_message()
+                );
+                $("#tdGroup" + this.tableRowId).html(
+                  $("#tdGroup" + this.tableRowId).text() + " - " + args2.get_message()
+                );
+                if (m_countToCreate == m_countCreated) {
+                  document.body.style.cursor = "default";
+                  notifyId2 = SP.UI.Notify.addNotification(
+                    "Error occurred",
+                    false
+                  );
+                }
+              }
+              var data2 = { tableRowId: this.tableRowId, collGroup: collGroup2 };
+              currCtx2.executeQueryAsync(
+                Function.createDelegate(data2, OnSuccessUpdateGroupProps),
+                Function.createDelegate(data2, OnFailureUpdateGroupProps)
+              );
+            }, OnFailureCreateGroup = function(sender, args) {
+              $("#tableRow" + this.tableRowId).attr(
+                "style",
+                "background-color:salmon"
+              );
+              $("#tableRow" + this.tableRowId).attr("title", args.get_message());
+              $("#tdGroup" + this.tableRowId).html(
+                $("#tdGroup" + this.tableRowId).text() + " - " + args.get_message()
+              );
+              m_countCreated++;
+              if (m_countToCreate == m_countCreated) {
+                document.body.style.cursor = "default";
+                notifyId2 = SP.UI.Notify.addNotification("Completed", false);
+              }
+            };
+            m_countToCreate++;
+            var currCtx = new SP.ClientContext.get_current();
+            var web = currCtx.get_web();
+            var collGroup2 = currCtx.get_web().get_siteGroups();
+            var newGRP = new SP.GroupCreationInformation();
+            newGRP.set_title(oBulkItem.groupName);
+            var data = { tableRowId: x, group: newGRP };
+            currCtx.executeQueryAsync(
+              Function.createDelegate(data, OnSuccessCreateGroup),
+              Function.createDelegate(data, OnFailureCreateGroup)
+            );
+          }
+          if (oBulkItem.isValid) {
+            let OnSuccess = function(sender, args) {
+              $("#tableRow" + this.tableRowId).attr(
+                "style",
+                "background-color:palegreen"
+              );
+              $("#tableRow" + this.tableRowId).attr("title", "Created");
+              $("#tdGroup" + this.tableRowId).html(
+                "<span class='ui-icon ui-icon-check'></span> " + $("#tdGroup" + this.tableRowId).text()
+              );
+              var currCtx2 = new SP.ClientContext.get_current();
+              var itemId = m_arrBulkUsers[this.tableRowId].ID;
+              var targetList = currCtx2.get_web().get_lists().getByTitle(Audit.Common.Utilities.GetListNameBulkPermissions());
+              var targetListItem = targetList.getItemById(itemId);
+              targetListItem.deleteObject();
+              currCtx2.executeQueryAsync(
+                function() {
+                },
+                function() {
+                }
+              );
+              m_countCreated++;
+              if (m_countToCreate == m_countCreated) {
+                document.body.style.cursor = "default";
+                notifyId2 = SP.UI.Notify.addNotification("Completed", false);
+              }
+            }, OnFailure = function(sender, args) {
+              $("#tableRow" + this.tableRowId).attr(
+                "style",
+                "background-color:salmon"
+              );
+              $("#tableRow" + this.tableRowId).attr("title", args.get_message());
+              $("#tdGroup" + this.tableRowId).html(
+                $("#tdGroup" + this.tableRowId).text() + " - " + args.get_message()
+              );
+              m_countCreated++;
+              if (m_countToCreate == m_countCreated) {
+                document.body.style.cursor = "default";
+                notifyId2 = SP.UI.Notify.addNotification("Completed", false);
+              }
+            };
+            m_countToCreate++;
+            var currCtx = new SP.ClientContext.get_current();
+            var web = currCtx.get_web();
+            var collGroup2 = web.get_siteGroups();
+            var oGroup = collGroup2.getById(oBulkItem.SPGroupID);
+            oGroup.set_allowMembersEditMembership(false);
+            oGroup.set_onlyAllowMembersViewMembership(false);
+            oGroup.set_owner(currCtx.get_web().get_associatedOwnerGroup());
+            oGroup.update();
+            var curPerms = oBulkItem.existingUserNames;
+            var arrPerm = curPerms.split(";");
+            for (var y = 0; y < arrPerm.length; y++) {
+              var accountName = arrPerm[y];
+              if (accountName != null && $.trim(accountName) != "") {
+                accountName = $.trim(accountName);
+                var oUser = web.ensureUser(accountName);
+                if (oUser) {
+                  oGroup.get_users().remove(oUser);
+                }
+              }
+            }
+            var newPerms = oBulkItem.newUserNames;
+            if (newPerms != null) {
+              var arrPerm = newPerms.split(";");
+              for (var y = 0; y < arrPerm.length; y++) {
+                var accountName = arrPerm[y];
+                if (accountName != null && $.trim(accountName) != "") {
+                  accountName = $.trim(accountName);
+                  var oUser = web.ensureUser(accountName);
+                  if (oUser) {
+                    oGroup.get_users().addUser(oUser);
+                  }
+                }
+              }
+            }
+            var data = { tableRowId: x };
+            currCtx.executeQueryAsync(
+              Function.createDelegate(data, OnSuccess),
+              Function.createDelegate(data, OnFailure)
+            );
+          }
+        }
+      }
+    }
+    function m_fnBindHandlersOnLoad() {
+      $("#btnUploadUsers").click(function() {
+        m_fnUploadUsers();
+      });
+      $("#btnLoadUsers").click(function() {
+        m_fnLoadBulkUsers();
+      });
+      $("#btnCreateUsers").click(function() {
+        m_fnCreateUsers();
+      });
+    }
+    function OnCallbackForm(result2, value) {
+      m_fnLoadBulkUsers();
+    }
+    var publicMembers = {
+      Refresh: m_fnRefresh
+    };
+    return publicMembers;
+  };
+})();
 //# sourceMappingURL=update_site_groups.js.map
