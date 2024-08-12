@@ -1,18 +1,19 @@
-const dialogElementId = "dlgModalDialog";
-const dlgElement = document.getElementById(dialogElementId);
-dragElement(dlgElement);
+import { directRegisterComponent } from "../../infrastructure/index.js";
+import { modalDialogTemplate } from "./ModalDialogTemplate.js";
 
-export const currentDialog = ko.observable();
+const componentName = "modal-dialog-component";
+
+export const currentDialogs = ko.observableArray();
+
+export let toggle;
 
 export function showModalDialog(dialogOptions) {
-  const newDialog = new ModalDialog(dialogOptions);
-  currentDialog(newDialog);
-  resizeDialog(dlgElement);
-  newDialog.showModal();
+  currentDialogs.push(dialogOptions);
 }
 
-class ModalDialog {
+class ModalDialogModule {
   constructor(dialogOpts) {
+    this.dialogOpts = dialogOpts;
     this.title = dialogOpts.title;
     this.dialogReturnValueCallback = dialogOpts.dialogReturnValueCallback;
 
@@ -23,11 +24,19 @@ class ModalDialog {
       return;
     }
     this.form.onComplete = this.close.bind(this);
+
+    toggle = this.toggle;
   }
 
+  toggle = (show = null) => {
+    if (show == null) show = !this.dlgElement.hasAttribute("open");
+
+    show ? this.showModal() : this.hide();
+  };
+
   showModal = () => {
-    dlgElement.showModal();
-    dlgElement.classList.add("active");
+    this.dlgElement.showModal();
+    this.dlgElement.classList.add("active");
   };
 
   clickClose = () => {
@@ -35,29 +44,37 @@ class ModalDialog {
   };
 
   hide = () => {
-    dlgElement.close();
-    dlgElement.classList.remove("active");
+    this.dlgElement.close();
+    this.dlgElement.classList.remove("active");
   };
 
   close(result) {
-    dlgElement.close();
-    dlgElement.classList.remove("active");
+    this.dlgElement.close();
+    this.dlgElement.classList.remove("active");
     if (this.dialogReturnValueCallback) this.dialogReturnValueCallback(result);
-  }
-}
-
-export function toggle(show = null) {
-  const modal = ko.unwrap(currentDialog);
-
-  if (!modal) {
-    console.warn("Attempting to hide non-existant modal.");
-    return;
+    currentDialogs.remove(this.dialogOpts);
   }
 
-  if (show == null) show = !modal.hasAttribute("open");
+  _id;
+  getUniqueId = () => {
+    if (!this._id) {
+      this._id = "field-" + Math.floor(Math.random() * 10000);
+    }
+    return this._id;
+  };
 
-  show ? modal.showModal() : modal.hide();
+  koDescendantsComplete = function (node) {
+    this.dlgElement = node.querySelector("dialog");
+    dragElement(this.dlgElement);
+    resizeDialog(this.dlgElement);
+    this.showModal();
+  };
 }
+
+directRegisterComponent(componentName, {
+  template: modalDialogTemplate,
+  viewModel: ModalDialogModule,
+});
 
 function resizeDialog(elmnt) {
   elmnt.style.width = "550px";

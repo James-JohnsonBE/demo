@@ -1,5 +1,4 @@
-import { BaseForm } from "../index.js";
-import { registerComponent } from "../../../infrastructure/register_components.js";
+import { BaseForm, html } from "../index.js";
 
 const componentName = "default-constrained-entity-form";
 
@@ -25,8 +24,6 @@ export class DefaultForm extends BaseForm {
   componentName = componentName;
 }
 
-const html = String.raw;
-
 const template = html`
   <div class="audit-form bg-dark">
     <div class="form-fields vertical" data-bind="foreach: FormFields">
@@ -34,7 +31,7 @@ const template = html`
         class="form-field-component"
         data-bind="component: {
             name: components[$parent.displayMode()], params: $data}, 
-            class: width"
+            class: classList"
       ></div>
     </div>
   </div>

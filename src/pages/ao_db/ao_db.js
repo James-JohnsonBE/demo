@@ -1,7 +1,10 @@
-﻿import { TabsModule, Tab } from "../../components/tabs/tabs_module.js";
-import { setUrlParam } from "../../common/router.js";
+﻿import "../../common/utilities.js";
+
+import { aoDbTemplate } from "./AO_DB_Template.js";
+import { TabsModule, Tab } from "../../components/tabs/tabs_module.js";
+import { setUrlParam } from "../../common/index.js";
 import { appContext } from "../../infrastructure/application_db_context.js";
-import { uploadResponseDocFile } from "../../services/audit_response_service.js";
+import { uploadResponseDocFile } from "../../services/index.js";
 
 import {
   addTask,
@@ -1402,6 +1405,7 @@ if (document.readyState === "ready" || document.readyState === "complete") {
 }
 
 function InitReport() {
+  document.getElementById("app").innerHTML = aoDbTemplate;
   Audit.AOReport.Report = new Audit.AOReport.NewReportPage();
   Audit.AOReport.Init();
 }

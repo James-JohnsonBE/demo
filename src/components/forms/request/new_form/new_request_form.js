@@ -3,11 +3,12 @@ import {
   AuditRequest,
 } from "../../../../entities/index.js";
 
-import { addNewRequest } from "../../../../services/audit_request_service.js";
+import { addNewRequest } from "../../../../services/index.js";
 
 import { configurationsStore } from "../../../../infrastructure/store.js";
 import { BaseForm } from "../../../../sal/components/forms/index.js";
-import { registerComponent } from "../../../../sal/infrastructure/index.js";
+import { directRegisterComponent } from "../../../../sal/infrastructure/index.js";
+import { newRequestFormTemplate } from "./NewRequestFormTemplate.js";
 
 export const newRequestFormComponentName = "newRequestForm";
 
@@ -82,9 +83,7 @@ export default class NewRequestFormModule extends BaseForm {
   }
 }
 
-registerComponent({
-  name: newRequestFormComponentName,
-  folder: "forms/request/new_form",
-  module: NewRequestFormModule,
-  template: "NewRequestFormTemplate",
+directRegisterComponent(newRequestFormComponentName, {
+  template: newRequestFormTemplate,
+  viewModel: NewRequestFormModule,
 });

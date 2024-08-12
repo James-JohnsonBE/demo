@@ -72,6 +72,23 @@ export function getDefaultGroups() {
   return result;
 }
 
+const siteGroups = {};
+
+export async function getGroupUsers(groupName) {
+  if (siteGroups[groupName]?.Users?.constructor == Array) {
+    return siteGroups[groupName].Users;
+  }
+  const url = `/web/sitegroups/GetByName('${groupName}')?$expand=Users`;
+
+  const groupResult = await fetchSharePointData(url);
+
+  const group = groupResult.d;
+  group.Users = group.Users?.results;
+
+  siteGroups[groupName] = group;
+  return group.Users;
+}
+
 // Used in router
 export const webRoot =
   _spPageContextInfo.webAbsoluteUrl == "/"

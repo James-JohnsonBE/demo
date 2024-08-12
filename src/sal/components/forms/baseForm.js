@@ -1,3 +1,5 @@
+export const html = String.raw;
+
 export class BaseForm {
   constructor({ entity = null, view = null }) {
     this.entity = entity;

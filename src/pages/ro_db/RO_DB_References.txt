@@ -1,23 +1,61 @@
-﻿<div class="audit">
-  <div style="padding-bottom: 10px">
-    <a
-      title="Refresh this page"
-      href="javascript:void(0)"
-      onclick="Audit.Common.Utilities.Refresh()"
-      ><span class="ui-icon ui-icon-refresh"></span>Refresh</a
-    >
-    <span id="lblFilteredOn" style="padding-left: 10px"></span>
-  </div>
+﻿<!-- SharePoint Cruft -->
+<script type="text/javascript" src="../Apps/_layouts/15/sp.js"></script>
+<script type="text/javascript" src="../Apps/_layouts/15/sp.runtime.js"></script>
+<script
+  type="text/javascript"
+  src="/_layouts/15/ScriptResx.ashx?name=sp.res&culture=en-us"
+></script>
+<script type="text/javascript" src="../Apps/_layouts/15/sp.js"></script>
+<script type="text/javascript" src="../Apps/_layouts/15/sp.init.js"></script>
+<script
+  type="text/javascript"
+  src="../Apps/_layouts/15/sp.ui.dialog.js"
+></script>
+<script
+  type="text/javascript"
+  src="../Apps/_layouts/15/clienttemplates.js"
+></script>
+<script
+  type="text/javascript"
+  src="../Apps/_layouts/15/clientforms.js"
+></script>
+<script
+  type="text/javascript"
+  src="../Apps/_layouts/15/clientpeoplepicker.js"
+></script>
+<script type="text/javascript" src="../Apps/_layouts/15/autofill.js"></script>
+<!-- /SharePoint Cruft -->
 
-  <div id="divExplorerView"></div>
-</div>
-<link
-  rel="stylesheet"
-  type="text/css"
-  href="/sites/CGFS/Style Library/apps/audit/src/audit_styles_hide_ribbon.css"
-/>
+<!-- Other Cruft -->
+<script
+  type="text/javascript"
+  src="/sites/CGFS/Style Library/apps/audit/lib/jquery-3.7.1.min.js"
+></script>
 
 <script
   type="text/javascript"
+  src="/sites/CGFS/Style Library/apps/audit/lib/jquery-ui-1.13.2/jquery-ui.min.js"
+></script>
+
+<script
+  type="text/javascript"
+  src="/sites/CGFS/Style Library/apps/audit/lib/tablesorter-2.31.3/js/jquery.tablesorter.min.js"
+></script>
+<script
+  type="text/javascript"
+  src="/sites/CGFS/Style Library/apps/audit/lib/knockout-3.5.1.js"
+></script>
+<!-- /Other Cruft -->
+
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="/sites/CGFS/Style Library/apps/audit/src/audit_styles.css"
+/>
+
+<div id="app"></div>
+
+<script
+  type="module"
   src="/sites/CGFS/Style Library/apps/audit/src/pages/ro_db/ro_db.js"
 ></script>

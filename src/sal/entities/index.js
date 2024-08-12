@@ -1,2 +1,2 @@
-export * from "./people.js";
-export * from "./page.js";
+export * from "./People.js";
+export * from "./Page.js";

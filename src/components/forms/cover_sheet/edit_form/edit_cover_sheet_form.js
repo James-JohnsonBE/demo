@@ -1,6 +1,7 @@
 import { BaseForm } from "../../../../sal/components/forms/index.js";
-import { registerComponent } from "../../../../sal/infrastructure/index.js";
-import { updateRequestCoverSheet } from "../../../../services/coversheet_manager.js";
+import { directRegisterComponent } from "../../../../sal/infrastructure/index.js";
+import { updateRequestCoverSheet } from "../../../../services/index.js";
+import { editCoverSheetFormTemplate } from "./EditCoverSheetFormTemplate.js";
 
 const componentName = "custom-edit-coversheet-form";
 
@@ -40,9 +41,6 @@ export class EditCoverSheetForm extends BaseForm {
   params = this;
   componentName = componentName;
 }
-
-registerComponent({
-  name: componentName,
-  folder: "forms/cover_sheet/edit_form",
-  template: "EditCoverSheetFormTemplate",
+directRegisterComponent(componentName, {
+  template: editCoverSheetFormTemplate,
 });

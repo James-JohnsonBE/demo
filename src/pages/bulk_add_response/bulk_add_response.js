@@ -1,4 +1,5 @@
-﻿var Audit = window.Audit || {};
+﻿import { bulkAddResponseTemplate } from "./BulkAddResponse_Template.js";
+var Audit = window.Audit || {};
 Audit.BulkAddResponse = Audit.BulkAddResponse || {};
 
 if (document.readyState === "ready" || document.readyState === "complete") {
@@ -14,6 +15,8 @@ if (document.readyState === "ready" || document.readyState === "complete") {
 }
 
 function InitBulk() {
+  document.getElementById("app").innerHTML = bulkAddResponseTemplate;
+
   Audit.BulkAddResponse.Report = new Audit.BulkAddResponse.Load();
   Audit.BulkAddResponse.Init();
 }
@@ -24,7 +27,7 @@ Audit.BulkAddResponse.Load = function () {
   var m_reqNum = GetUrlKeyValue("ReqNum");
 
   if (m_reqNum == null || m_reqNum == "" || m_reqNum == undefined) {
-    statusId = SP.UI.Status.addStatus(
+    var statusId = SP.UI.Status.addStatus(
       "Error: Request Number was not specified. Please verify the URL Parameters or Launch from the IA Dashboard"
     );
     SP.UI.Status.setStatusPriColor(statusId, "red");
@@ -39,6 +42,13 @@ Audit.BulkAddResponse.Load = function () {
   var m_arrResponseFolders = new Array();
   var m_arrBulkResponses = new Array();
   var m_listViewId = null;
+
+  var m_requestItems;
+  var m_responseItems;
+  var m_ResponseDocsFoldersItems;
+  var m_aoItems;
+  var m_view;
+  var m_groupColl;
 
   var m_ownerGroupName = null;
   var m_memberGroupName = null;
@@ -109,7 +119,7 @@ Audit.BulkAddResponse.Load = function () {
     m_aoItems = aoList.getItems(aoQuery);
     currCtx.load(m_aoItems, "Include(ID, Title, UserGroup)");
 
-    m_bulkResponsesList = currCtx
+    var m_bulkResponsesList = currCtx
       .get_web()
       .get_lists()
       .getByTitle(Audit.Common.Utilities.GetListNameBulkResponses());
@@ -120,9 +130,9 @@ Audit.BulkAddResponse.Load = function () {
     m_groupColl = web.get_siteGroups();
     currCtx.load(m_groupColl);
 
-    this.ownerGroup = web.get_associatedOwnerGroup();
-    this.memberGroup = web.get_associatedMemberGroup();
-    this.visitorGroup = web.get_associatedVisitorGroup();
+    var ownerGroup = web.get_associatedOwnerGroup();
+    var memberGroup = web.get_associatedMemberGroup();
+    var visitorGroup = web.get_associatedVisitorGroup();
     currCtx.load(ownerGroup);
     currCtx.load(memberGroup);
     currCtx.load(visitorGroup);
@@ -313,7 +323,7 @@ Audit.BulkAddResponse.Load = function () {
     bulkResponseQuery.set_viewXml(
       '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy></Query></View>'
     );
-    bulkResponseItems = bulkResponesList.getItems(bulkResponseQuery);
+    var bulkResponseItems = bulkResponesList.getItems(bulkResponseQuery);
     currCtx.load(
       bulkResponseItems,
       "Include(ID, Title, ActionOffice, Comments, POC, POCCC)"
@@ -551,10 +561,10 @@ Audit.BulkAddResponse.Load = function () {
           m_countToCreate++;
 
           var currCtx = new SP.ClientContext.get_current();
-          currentUser = currCtx.get_web().get_currentUser();
-          ownerGroup = currCtx.get_web().get_associatedOwnerGroup();
-          memberGroup = currCtx.get_web().get_associatedMemberGroup();
-          visitorGroup = currCtx.get_web().get_associatedVisitorGroup();
+          var currentUser = currCtx.get_web().get_currentUser();
+          var ownerGroup = currCtx.get_web().get_associatedOwnerGroup();
+          var memberGroup = currCtx.get_web().get_associatedMemberGroup();
+          var visitorGroup = currCtx.get_web().get_associatedVisitorGroup();
 
           var responseTitle = oBulkItem.responseTitle;
 
@@ -565,7 +575,7 @@ Audit.BulkAddResponse.Load = function () {
             .get_lists()
             .getByTitle(Audit.Common.Utilities.GetListTitleResponses());
           var itemCreateInfo = new SP.ListItemCreationInformation();
-          oListItem = responseList.addItem(itemCreateInfo);
+          var oListItem = responseList.addItem(itemCreateInfo);
           oListItem.set_item("Title", responseTitle);
           oListItem.set_item("ReqNum", m_oRequest.ID);
           oListItem.set_item("SampleNumber", oBulkItem.sampleNumber);
@@ -667,7 +677,7 @@ Audit.BulkAddResponse.Load = function () {
             SP.FileSystemObjectType.folder
           );
           itemCreateInfo.set_leafName(responseTitle);
-          oListFolderItem = responseDocLib.addItem(itemCreateInfo);
+          var oListFolderItem = responseDocLib.addItem(itemCreateInfo);
           oListFolderItem.set_item("Title", responseTitle);
           oListFolderItem.update();
 
@@ -736,7 +746,7 @@ Audit.BulkAddResponse.Load = function () {
             .getByPrincipal(currentUser)
             .deleteObject();
 
-          emailList = currCtx
+          var emailList = currCtx
             .get_web()
             .get_lists()
             .getByTitle(Audit.Common.Utilities.GetListTitleEmailHistory());
@@ -744,7 +754,7 @@ Audit.BulkAddResponse.Load = function () {
           emailListQuery.set_viewXml(
             '<View><Query><OrderBy><FieldRef Name="ID"/></OrderBy><Where><Eq><FieldRef Name="FSObjType"/><Value Type="Text">1</Value></Eq></Where></Query></View>'
           );
-          emailListFolderItems = emailList.getItems(emailListQuery);
+          var emailListFolderItems = emailList.getItems(emailListQuery);
           currCtx.load(
             emailListFolderItems,
             "Include(ID, FSObjType, Title, DisplayName)"
@@ -784,7 +794,7 @@ Audit.BulkAddResponse.Load = function () {
                 .get_web()
                 .get_lists()
                 .getByTitle(Audit.Common.Utilities.GetListTitleBulkResponses());
-              targetListItem = targetList.getItemById(itemId);
+              var targetListItem = targetList.getItemById(itemId);
               targetListItem.deleteObject();
             }
 
@@ -796,7 +806,10 @@ Audit.BulkAddResponse.Load = function () {
                 if (m_countToCreate == m_countCreated) {
                   document.body.style.cursor = "default";
                   m_waitDialog.close();
-                  notifyId = SP.UI.Notify.addNotification("Completed", false);
+                  var notifyId = SP.UI.Notify.addNotification(
+                    "Completed",
+                    false
+                  );
                   $("#btnCancel").show();
                 }
               },
@@ -807,7 +820,10 @@ Audit.BulkAddResponse.Load = function () {
                 if (m_countToCreate == m_countCreated) {
                   document.body.style.cursor = "default";
                   m_waitDialog.close();
-                  notifyId = SP.UI.Notify.addNotification("Completed", false);
+                  var notifyId = SP.UI.Notify.addNotification(
+                    "Completed",
+                    false
+                  );
                   $("#btnCancel").show();
                 }
               }

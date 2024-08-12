@@ -1,4 +1,4 @@
-﻿var Audit = window.Audit || {};
+﻿window.Audit = window.Audit || {};
 Audit.Common = Audit.Common || {};
 
 function InitReport() {
@@ -540,6 +540,7 @@ Audit.Common.NewUtilities = function () {
   function m_fnSortResponseTitleNoCase(a, b) {
     var aTitle = a;
     var bTitle = b;
+    let newA, newB;
 
     if (aTitle == null) aTitle = "";
     if (bTitle == null) bTitle = "";
@@ -568,7 +569,8 @@ Audit.Common.NewUtilities = function () {
   function m_fnSortResponseObjectNoCase(a, b) {
     var aTitle = a.title;
     var bTitle = b.title;
-
+    var newA;
+    var newB;
     if (aTitle == null) aTitle = "";
     if (bTitle == null) bTitle = "";
 
@@ -669,7 +671,7 @@ Audit.Common.NewUtilities = function () {
     n = n.toString();
     var pd = "";
     if (totalDigits > n.length) {
-      for (i = 0; i < totalDigits - n.length; i++) {
+      for (let i = 0; i < totalDigits - n.length; i++) {
         pd += "0";
       }
     }
@@ -1191,4 +1193,5 @@ Audit.Common.NewUtilities = function () {
   return publicMembers;
 };
 
-ExecuteOrDelayUntilScriptLoaded(InitReport, "sp.js");
+// ExecuteOrDelayUntilScriptLoaded(InitReport, "sp.js");
+InitReport();

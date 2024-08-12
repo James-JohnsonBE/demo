@@ -1,5 +1,9 @@
-import { registerComponent } from "../../../../sal/infrastructure/index.js";
-import { deleteRequest } from "../../../../services/audit_request_service.js";
+import {
+  directRegisterComponent,
+  registerComponent,
+} from "../../../../sal/infrastructure/index.js";
+import { deleteRequest } from "../../../../services/index.js";
+import { confirmDeleteRequestFormTemplate } from "./ConfirmDeleteRequestFormTemplate.js";
 
 const componentName = "confirm-delete-request";
 export class ConfirmDeleteRequestForm {
@@ -25,6 +29,10 @@ export class ConfirmDeleteRequestForm {
   componentName = componentName;
   params = this;
 }
+
+directRegisterComponent(componentName, {
+  template: confirmDeleteRequestFormTemplate,
+});
 
 registerComponent({
   name: componentName,

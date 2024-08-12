@@ -1,20 +1,11 @@
-export * from "./baseField.js";
-export * from "./blobField.js";
-export * from "./checkboxField.js";
-export * from "./dateField.js";
-export * from "./lookupField.js";
-export * from "./peopleField.js";
-export * from "./selectField.js";
-export * from "./textAreaField.js";
-export * from "./textField.js";
+export * from "./BaseField.js";
+export * from "./BlobField.js";
+export * from "./CheckboxField.js";
+export * from "./DateField.js";
+export * from "./LookupField.js";
+export * from "./PeopleField.js";
+export * from "./SelectField.js";
+export * from "./TextAreaField.js";
+export * from "./TextField.js";
 
-// export {
-//   BlobField,
-//   CheckboxField,
-//   DateField,
-//   LookupField,
-//   PeopleField,
-//   SelectField,
-//   TextAreaField,
-//   TextField,
-// };
+// export default {BaseField, BlobField}

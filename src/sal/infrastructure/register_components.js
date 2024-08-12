@@ -1,3 +1,5 @@
+export const html = String.raw;
+
 export function registerComponent({
   name,
   folder,
@@ -24,6 +26,13 @@ export function registerComponent({
       },
     });
   }
+}
+
+export function directRegisterComponent(name, { template, viewModel = null }) {
+  ko.components.register(name, {
+    template,
+    viewModel,
+  });
 }
 
 export function registerFieldComponent({

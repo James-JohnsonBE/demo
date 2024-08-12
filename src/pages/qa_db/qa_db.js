@@ -1,12 +1,15 @@
-﻿import { setUrlParam } from "../../common/router.js";
+﻿import { qaDbTemplate } from "./QA_DB_Template.js";
+import { setUrlParam } from "../../common/router.js";
 import { TabsModule, Tab } from "../../components/tabs/tabs_module.js";
 
 import "../../sal/infrastructure/knockout_extensions.js";
+import "../../common/utilities.js";
 
+document.getElementById("app").innerHTML = qaDbTemplate;
 // var SP = window.SP;
 // var ko = window.ko;
 
-var Audit = window.Audit || {};
+window.Audit = window.Audit || {};
 Audit.QAReport = Audit.QAReport || {};
 
 const responseParam = "ResNum";

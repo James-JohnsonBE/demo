@@ -1,4 +1,10 @@
-﻿var Audit = window.Audit || {};
+﻿import { spDbTemplate } from "./SP_DB_Template.js";
+
+import "../../common/utilities.js";
+
+document.getElementById("app").innerHTML = spDbTemplate;
+
+window.Audit = window.Audit || {};
 Audit.SPReport = Audit.SPReport || {};
 
 var paramShowSiteActionsToAnyone = GetUrlKeyValue("ShowSiteActions");
@@ -47,6 +53,12 @@ Audit.SPReport.NewReportPage = function () {
   var m_bigMap = new Object();
   var m_arrRequests = new Array();
   var m_arrResponses = new Array();
+
+  var m_requestItems;
+  var m_responseItems;
+  var m_ResponseDocsItems;
+
+  var statusId;
 
   var m_bHasAccessToViewPerms = false;
 
@@ -316,7 +328,7 @@ Audit.SPReport.NewReportPage = function () {
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
 
-    m_currentUser = web.get_currentUser();
+    const m_currentUser = web.get_currentUser();
     currCtx.load(m_currentUser);
 
     var requestList = web
@@ -368,7 +380,7 @@ Audit.SPReport.NewReportPage = function () {
       requestQuery.set_viewXml(
         '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
       );
-      m_requestItemsWithPerms = requestList.getItems(requestQuery);
+      var m_requestItemsWithPerms = requestList.getItems(requestQuery);
       currCtx.load(
         m_requestItemsWithPerms,
         "Include(ID, Title, ReqSubject, ReqStatus, IsSample, InternalDueDate, ActionOffice, Comments, RelatedAudit, ActionItems, EmailSent, ClosedDate, Modified, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
@@ -482,12 +494,12 @@ Audit.SPReport.NewReportPage = function () {
       if (m_bHasAccessToViewPerms) {
         try {
           var permissionsToCheck = SP.PermissionKind.viewListItems;
-          match1 = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
+          var match1 = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
             oListItem,
             Audit.Common.Utilities.GetGroupNameSpecialPerm1(),
             permissionsToCheck
           );
-          match2 = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
+          var match2 = Audit.Common.Utilities.CheckSPItemHasGroupPermission(
             oListItem,
             Audit.Common.Utilities.GetGroupNameSpecialPerm2(),
             permissionsToCheck
@@ -592,7 +604,7 @@ Audit.SPReport.NewReportPage = function () {
         //shouldn't see any documents that have been uploaded by AO but not sent to them by IA
         continue;
 
-      responseDocID = oListItem.get_item("ID");
+      var responseDocID = oListItem.get_item("ID");
 
       var requestNumber = oListItem.get_item("ReqNum");
       if (requestNumber != null)
@@ -759,7 +771,7 @@ Audit.SPReport.NewReportPage = function () {
         oResponse.request.number +
         "</Value></Eq></Where></Query></View>"
     );
-    m_subsetCoverSheetItems = coverSheetLib.getItems(coverSheetQuery);
+    var m_subsetCoverSheetItems = coverSheetLib.getItems(coverSheetQuery);
     currCtx.load(
       m_subsetCoverSheetItems,
       "Include(ID, Title, ReqNum, ActionOffice, FileLeafRef, FileDirRef)"

@@ -1,8 +1,10 @@
-import { addResponse } from "../../../../services/audit_response_service.js";
-import { AuditResponse } from "../../../../entities/audit_response.js";
+import { addResponse } from "../../../../services/index.js";
+import { AuditResponse } from "../../../../entities/index.js";
 
 import { BaseForm } from "../../../../sal/components/forms/index.js";
-import { registerComponent } from "../../../../sal/infrastructure/index.js";
+import { directRegisterComponent } from "../../../../sal/infrastructure/index.js";
+import { newResponseFormTemplate } from "./NewResponseFormTemplate.js";
+
 const componentName = "custome-new-response-form";
 
 export class NewResponseForm extends BaseForm {
@@ -43,8 +45,6 @@ export class NewResponseForm extends BaseForm {
   componentName = componentName;
 }
 
-registerComponent({
-  name: componentName,
-  folder: "forms/response/new_form",
-  template: "NewResponseFormTemplate",
+directRegisterComponent(componentName, {
+  template: newResponseFormTemplate,
 });
