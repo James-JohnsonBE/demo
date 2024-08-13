@@ -1418,7 +1418,7 @@
   var assetsPath;
   var init_env = __esm({
     "src/env.js"() {
-      assetsPath = "/sites/CGFS/Style Library/apps/audit/src";
+      assetsPath = `${_spPageContextInfo.siteServerRelativeUrl}/Style Library/apps/audit/src`;
     }
   });
 

@@ -1803,7 +1803,7 @@
   var uploadQueue = new JobProcessor(5);
 
   // src/env.js
-  var assetsPath = "/sites/CGFS/Style Library/apps/audit/src";
+  var assetsPath = `${_spPageContextInfo.siteServerRelativeUrl}/Style Library/apps/audit/src`;
 
   // src/sal/infrastructure/knockout_extensions.js
   ko.subscribable.fn.subscribeChanged = function(callback) {

@@ -3454,7 +3454,7 @@
   var assetsPath;
   var init_env = __esm({
     "src/env.js"() {
-      assetsPath = "/sites/CGFS/Style Library/apps/audit/src";
+      assetsPath = `${_spPageContextInfo.siteServerRelativeUrl}/Style Library/apps/audit/src`;
     }
   });
 
@@ -5618,24 +5618,7 @@
   // src/pages/ia_db/IA_DB_Template.js
   var html = String.raw;
   var _a;
-  var iaDbTemplate = html(_a || (_a = __template([`
-  <link
-    href="/sites/CGFS/Style Library/apps/audit/lib/quill@2.0.0-rc.2/dist/quill.snow.css"
-    rel="stylesheet"
-  />
-
-  <link
-    rel="stylesheet"
-    href="/sites/CGFS/Style Library/apps/audit/lib/fontawesome-6.5.1/css/fontawesome.min.css"
-  />
-  <link
-    rel="stylesheet"
-    href="/sites/CGFS/Style Library/apps/audit/lib/fontawesome-6.5.1/css/solid.min.css"
-  />
-  <link
-    rel="stylesheet"
-    type="text/css"
-    href="/sites/CGFS/Style Library/apps/audit/lib/jquery-ui-1.13.2/jquery-ui.theme.min.css"
+  var iaDbTemplate = html(_a || (_a = __template(['\n  <link\n    href="', '/Style Library/apps/audit/lib/quill@2.0.0-rc.2/dist/quill.snow.css"\n    rel="stylesheet"\n  />\n\n  <link\n    rel="stylesheet"\n    href="', '/Style Library/apps/audit/lib/fontawesome-6.5.1/css/fontawesome.min.css"\n  />\n  <link\n    rel="stylesheet"\n    href="', '/Style Library/apps/audit/lib/fontawesome-6.5.1/css/solid.min.css"\n  />\n  <link\n    rel="stylesheet"\n    type="text/css"\n    href="', `/Style Library/apps/audit/lib/jquery-ui-1.13.2/jquery-ui.theme.min.css"
   />
   <style>
     .o365cs-nav-leftAlign {
@@ -6482,7 +6465,7 @@
   <\/script>
 
   <div id="divTest"></div>
-`])));
+`])), _spPageContextInfo.siteServerRelativeUrl, _spPageContextInfo.siteServerRelativeUrl, _spPageContextInfo.siteServerRelativeUrl, _spPageContextInfo.siteServerRelativeUrl);
 
   // src/common/utilities.js
   window.Audit = window.Audit || {};
@@ -7883,18 +7866,18 @@
         this.body = this.table.querySelector("tbody");
       }
       onFilterEventHandler = (e) => {
-        [...this.table.querySelectorAll("tbody tr.hidden")].map(
+        [...this.table.querySelectorAll("tbody > tr.hidden")].map(
           (row) => row.classList.remove("hidden")
         );
         [...this.table.querySelectorAll("tbody td.filtered")].map(
           (cell) => cell.closest("tr").classList.add("hidden")
         );
         this.filteredCntElement.innerText = this.table.querySelectorAll(
-          "tbody tr:not(.hidden)"
+          "tbody > tr:not(.hidden)"
         ).length;
       };
       onSearchEventHandler = (e) => {
-        [...this.table.querySelectorAll("tbody tr:not(.hidden)")].map(
+        [...this.table.querySelectorAll("tbody > tr:not(.hidden)")].map(
           (row) => row.classList.add("hidden")
         );
         [...this.table.querySelectorAll("tbody td.included")].map(
@@ -7925,10 +7908,10 @@
         if (!sortOrder)
           return;
         var collator = new Intl.Collator([], { numeric: true });
-        const rowsArr = [...this.table.querySelectorAll("tbody tr")];
+        const rowsArr = [...this.table.querySelectorAll("tbody > tr")];
         rowsArr.sort((tr1, tr2) => {
-          const tr1Text = tr1.cells[sortIndex].textContent;
-          const tr2Text = tr2.cells[sortIndex].textContent;
+          const tr1Text = tr1.cells[sortIndex]?.textContent;
+          const tr2Text = tr2.cells[sortIndex]?.textContent;
           const comp = collator.compare(tr1Text, tr2Text);
           return comp * sortOrder;
         });
@@ -7968,16 +7951,6 @@
             }
             const event = new Event("sort");
             this.table.dispatchEvent(event);
-            return;
-            var collator = new Intl.Collator([], { numeric: true });
-            const rowsArr = [...this.rows];
-            rowsArr.sort((tr1, tr2) => {
-              const tr1Text = tr1.cells[cellIndex].textContent;
-              const tr2Text = tr2.cells[cellIndex].textContent;
-              const comp = collator.compare(tr1Text, tr2Text);
-              return comp * sortOrder;
-            });
-            this.body.append(...rowsArr);
           });
         }
       };
@@ -8064,7 +8037,7 @@
         tfoot.append(tr);
       };
       updateCounts = () => {
-        const itemCount = this.table.querySelectorAll("tbody tr").length;
+        const itemCount = this.table.querySelectorAll("tbody > tr").length;
         this.totalCntElement.innerText = itemCount;
         this.rowCount = itemCount;
         this.colCount = this.table.querySelectorAll("thead > tr th").length;
@@ -8214,7 +8187,7 @@
     filtersContainer.append(presetsSelect, inputsContainer);
     filtersContainer.classList.add("filter-date-range");
     const cells = [
-      ...tbl.querySelectorAll(`tbody tr td:nth-of-type(${colIndex + 1})`)
+      ...tbl.querySelectorAll(`tbody > tr td:nth-of-type(${colIndex + 1})`)
     ];
     const filter = (dateStart, dateEnd = null) => {
       dateStart = dateStart ? new Date(dateStart) : /* @__PURE__ */ new Date(0);
@@ -8238,7 +8211,7 @@
     };
   }
   function searchElement(tbl, col, text) {
-    const rows = tbl.querySelectorAll("tbody tr");
+    const rows = tbl.querySelectorAll("tbody > tr");
     const inputElem = document.createElement("input");
     inputElem.classList.add(
       "border",
@@ -8269,7 +8242,7 @@
     };
   }
   function checkboxElement(tbl, colIndex, text) {
-    const rows = tbl.querySelectorAll("tbody tr");
+    const rows = tbl.querySelectorAll("tbody > tr");
     const inputElem = document.createElement("input");
     inputElem.classList.add("form-check-input", "small");
     inputElem.setAttribute("type", "checkbox");
@@ -8295,12 +8268,12 @@
     };
   }
   function multiselectElement(tbl, colIndex, text) {
-    const rows = tbl.querySelectorAll("tbody tr");
+    const rows = tbl.querySelectorAll("tbody > tr");
     const selectElem = document.createElement("search-select");
     selectElem.setAttribute("multiple", true);
     selectElem.classList.add("multiple");
     let cells = [
-      ...tbl.querySelectorAll(`tbody tr td:nth-of-type(${colIndex + 1})`)
+      ...tbl.querySelectorAll(`tbody > tr td:nth-of-type(${colIndex + 1})`)
     ];
     const selectVals = /* @__PURE__ */ new Set();
     function populateOptions() {
@@ -12565,6 +12538,7 @@
     let position = new SP.ListItemCollectionPosition();
     position.set_pagingInfo("Paged=TRUE&p_ID=1");
     while (position != null) {
+      console.log("Legacy Helper - getAllItems", listTitle, position);
       camlQuery.set_listItemCollectionPosition(position);
       listItems = list.getItems(camlQuery);
       currCtx.load(listItems);
