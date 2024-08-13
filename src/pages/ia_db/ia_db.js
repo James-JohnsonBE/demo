@@ -48,6 +48,8 @@ import { ensureROEmailFolder } from "../../services/audit_email_service.js";
 import { sortByTitle } from "../../sal/infrastructure/index.js";
 import { BulkAddRequestForm } from "../../components/bulk_add_request/bulk_add_request.js";
 
+import { getAllItems } from "../../services/legacy_helpers.js";
+
 document.getElementById("app").innerHTML = iaDbTemplate;
 
 window.Audit = window.Audit || {};
@@ -583,7 +585,7 @@ function ViewModel() {
   });
 }
 
-function LoadInfo() {
+async function LoadInfo() {
   var currCtx = new SP.ClientContext.get_current();
   var web = currCtx.get_web();
 
@@ -637,6 +639,7 @@ function LoadInfo() {
     "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, ActiveViewers, Comments, Modified, ClosedDate, ClosedBy, POC, POCCC)"
   );
 
+  /*
   //make sure to only pull documents (fsobjtype = 0)
   var responseDocsLib = web
     .get_lists()
@@ -654,6 +657,12 @@ function LoadInfo() {
   currCtx.load(
     m_ResponseDocsItems,
     "Include(ID, Title, ReqNum, ResID, DocumentStatus, RejectReason, ReceiptDate, FileLeafRef, FileDirRef, File_x0020_Size, CheckoutUser, Modified, Editor, Created)"
+  );
+
+  */
+
+  let m_responseDocsItems = await getAllItems(
+    Audit.Common.Utilities.GetLibTitleResponseDocs()
   );
 
   const m_groupColl = web.get_siteGroups();
@@ -714,7 +723,7 @@ function LoadInfo() {
           m_requestItems,
           m_requestInternalItems,
           m_responseItems,
-          m_ResponseDocsItems
+          m_responseDocsItems
         );
         // m_fnResetAODBPerms(m_PageItems);
         ensureROEmailFolder();
@@ -728,7 +737,7 @@ function LoadInfo() {
           m_requestItems,
           m_requestInternalItems,
           m_responseItems,
-          m_ResponseDocsItems
+          m_responseDocsItems
         );
       }
       currCtx.executeQueryAsync(OnSuccessLoadPages, OnFailureLoadPages);
@@ -741,7 +750,7 @@ function LoadInfo() {
         m_requestItems,
         m_requestInternalItems,
         m_responseItems,
-        m_ResponseDocsItems
+        m_responseDocsItems
       );
     }
 
@@ -1647,10 +1656,7 @@ function LoadResponseDocs(m_ResponseDocsItems) {
 
   m_fnMapResponseDocs(m_ResponseDocsItems, m_bigMap);
 
-  var listItemEnumerator = m_ResponseDocsItems.getEnumerator();
-  while (listItemEnumerator.moveNext()) {
-    var oListItem = listItemEnumerator.get_current();
-
+  for (const oListItem of m_ResponseDocsItems) {
     const checkedOutBy = Audit.Common.Utilities.GetFriendlyDisplayName(
       oListItem,
       "CheckoutUser"
@@ -1679,9 +1685,9 @@ function LoadResponseDocs(m_ResponseDocsItems) {
 
 function m_fnMapResponseDocs(responseDocItemsColl, m_bigMap) {
   try {
-    var listItemEnumerator = responseDocItemsColl.getEnumerator();
-    while (listItemEnumerator.moveNext()) {
-      var oListItem = listItemEnumerator.get_current();
+    //var listItemEnumerator = responseDocItemsColl.getEnumerator();
+    for (const oListItem of responseDocItemsColl) {
+      // var oListItem = listItemEnumerator.get_current();
 
       var responseDocID = oListItem.get_item("ID");
 
@@ -2336,9 +2342,14 @@ async function LoadTabRequestInfoResponseDocs(oRequest) {
   await new Promise((resolve, reject) =>
     currCtx.executeQueryAsync(resolve, reject)
   );
+  const responseDocItemsArray = [];
+  const responseDocItemsEnumerator = requestResponseDocsItems.getEnumerator();
+  while (responseDocItemsEnumerator.moveNext()) {
+    responseDocItemsArray.push(responseDocItemsEnumerator.get_current());
+  }
 
   oRequest.responses.map((response) => (response.responseDocs = []));
-  m_fnMapResponseDocs(requestResponseDocsItems, m_bigMap);
+  m_fnMapResponseDocs(responseDocItemsArray, m_bigMap);
 
   currCtx = new SP.ClientContext.get_current();
   web = currCtx.get_web();

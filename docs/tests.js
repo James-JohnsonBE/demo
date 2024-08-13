@@ -36,73 +36,69 @@ currCtx.load(
 
 currCtx.executeQueryAsync(() => console.log("success"), console.log);
 
-
 // UPDATED CODE
-console.log("Executing Script")
+console.log("Executing Script");
 let currCtx = new SP.ClientContext.get_current();
 let web = currCtx.get_web();
 var responseDocsLib = web.get_lists().getByTitle("AuditResponseDocs");
 var responseDocsQuery = new SP.CamlQuery();
-  responseDocsQuery.set_viewXml(
+responseDocsQuery.set_viewXml(
+  '<View Scope="RecursiveAll"><Query></Query><RowLimit>5000</RowLimit></View>'
+);
+
+var position = new SP.ListItemCollectionPosition();
+position.set_pagingInfo("Paged=TRUE&p_ID=1");
+responseDocsQuery.set_listItemCollectionPosition(position);
+
+responseDocsQuery.get_listItemCollectionPosition();
+
+m_ResponseDocsItems = responseDocsLib.getItems(responseDocsQuery);
+currCtx.load(m_ResponseDocsItems);
+
+currCtx.executeQueryAsync(() => {
+  console.log("Response docs success", m_ResponseDocsItems.get_count());
+
+  console.log(
+    "Items Position",
+    m_ResponseDocsItems.get_listItemCollectionPosition()
+  );
+}, console.log);
+
+async function getAllItems(listTitle) {
+  let listItemsResults = [];
+
+  const currCtx = new SP.ClientContext.get_current();
+  const web = currCtx.get_web();
+
+  const list = web.get_lists().getByTitle(listTitle);
+  const camlQuery = new SP.CamlQuery();
+  camlQuery.set_viewXml(
     '<View Scope="RecursiveAll"><Query></Query><RowLimit>5000</RowLimit></View>'
   );
 
-    var position = new SP.ListItemCollectionPosition();
-    position.set_pagingInfo('Paged=TRUE&p_ID=1');
-    responseDocsQuery.set_listItemCollectionPosition(position);
+  let position = new SP.ListItemCollectionPosition();
+  position.set_pagingInfo("Paged=TRUE&p_ID=1");
 
-responseDocsQuery.get_listItemCollectionPosition()
+  while (position != null) {
+    camlQuery.set_listItemCollectionPosition(position);
 
-const m_ResponseDocsItems = responseDocsLib.getItems(responseDocsQuery);
-currCtx.load(
-m_ResponseDocsItems
-);
+    listItems = list.getItems(camlQuery);
 
-currCtx.executeQueryAsync(() => {
-    console.log("Response docs success", m_ResponseDocsItems.get_count());
-               
-    console.log("Items Position", m_ResponseDocsItems.get_listItemCollectionPosition());
-    }, console.log);
+    currCtx.load(listItems);
 
+    await executeQuery(currCtx).catch((sender, args) => {
+      console.warn(sender);
+    });
 
+    const listEnumerator = listItems.getEnumerator();
+    while (listEnumerator.moveNext()) {
+      listItemsResults.push(listEnumerator.get_current());
+    }
 
-async function getAllItems(listTitle) {
-    let listItemsResults = [];
+    position = listItems.get_listItemCollectionPosition();
+  }
 
-    const currCtx = new SP.ClientContext.get_current();
-    const web = currCtx.get_web();
-
-    const list = web.get_lists().getByTitle(listTitle);
-    const camlQuery = new SP.CamlQuery();
-    camlQuery.set_viewXml(
-        '<View Scope="RecursiveAll"><Query></Query><RowLimit>5000</RowLimit></View>'
-      );
-
-    let position = new SP.ListItemCollectionPosition();
-    position.set_pagingInfo('Paged=TRUE&p_ID=1');
-
-
-    while (position != null) {
-
-        camlQuery.set_listItemCollectionPosition(position);
-
-        listItems = list.getItems(camlQuery);
-
-        currCtx.load(listItems)
-        
-        await executeQuery(currCtx).catch((sender, args) => {
-            console.warn(sender)
-        });
-
-        const listEnumerator = listItems.getEnumerator();
-        while (listEnumerator.moveNext()) {
-            listItemsResults.push(listEnumerator.get_current())
-        }
-
-        position = listItems.get_listItemCollectionPosition()
-    } 
-
-    return listItemsResults;
+  return listItemsResults;
 }
 
 /* REFERENCES:
