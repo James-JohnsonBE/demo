@@ -154,13 +154,6 @@ function m_getArrRequests() {
 var m_arrRequestsToClose = new Array();
 var m_arrPermissionsResponseFolders = new Array();
 
-// var m_requestItems = null;
-// var m_requestInternalItems = null;
-
-// var m_responseItems = null;
-// var m_ResponseDocsItems = null;
-// var m_ResponseDocsFoldersItems = null;
-
 var m_userPermissionAccess = null;
 var m_PageItems = null;
 
@@ -618,52 +611,63 @@ async function LoadInfo() {
     "Include(ID, Title, ReqNum, InternalStatus, ActiveViewers)"
   );
 
-  var responseList = web
-    .get_lists()
-    .getByTitle(Audit.Common.Utilities.GetListTitleResponses());
-  var responseQuery = new SP.CamlQuery();
-  responseQuery.set_viewXml(
-    "<View><Query>" +
-      '<Where><Neq><FieldRef Name="ResStatus"/><Value Type="Text">7-Closed</Value></Neq></Where>' +
-      '<OrderBy><FieldRef Name="ReqNum"/></OrderBy>' +
-      "</Query></View>"
-  );
-  const m_responseItems = responseList.getItems(responseQuery);
-  //need to check permissions because of granting/removing special perms
+  // var responseList = web
+  //   .get_lists()
+  //   .getByTitle(Audit.Common.Utilities.GetListTitleResponses());
+  // var responseQuery = new SP.CamlQuery();
+  // responseQuery.set_viewXml(
+  //   "<View><Query>" +
+  //     '<Where><Neq><FieldRef Name="ResStatus"/><Value Type="Text">7-Closed</Value></Neq></Where>' +
+  //     '<OrderBy><FieldRef Name="ReqNum"/></OrderBy>' +
+  //     "</Query></View>"
+  // );
+  // // const m_responseItems = responseList.getItems(responseQuery);
+  // //need to check permissions because of granting/removing special perms
+  // // currCtx.load(
+  // //   m_responseItems,
+  // //   "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, Comments, Modified, ClosedDate, ClosedBy, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+  // // );
   // currCtx.load(
   //   m_responseItems,
-  //   "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, Comments, Modified, ClosedDate, ClosedBy, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+  //   "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, ActiveViewers, Comments, Modified, ClosedDate, ClosedBy, POC, POCCC)"
   // );
-  currCtx.load(
-    m_responseItems,
-    "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, ActiveViewers, Comments, Modified, ClosedDate, ClosedBy, POC, POCCC)"
-  );
 
-  /*
-  //make sure to only pull documents (fsobjtype = 0)
-  var responseDocsLib = web
-    .get_lists()
-    .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
-  var responseDocsQuery = new SP.CamlQuery();
-  responseDocsQuery.set_viewXml(
-    '<View Scope="RecursiveAll"><Query>' +
-      '<OrderBy><FieldRef Name="ReqNum"/><FieldRef Name="ResID"/></OrderBy>' +
-      "<Where>" +
-      '<Neq><FieldRef Name="DocumentStatus"/><Value Type="Text">Approved</Value></Neq>' +
-      // '<Eq><FieldRef Name="ContentType"/><Value Type="Text">Document</Value></Eq>' +
-      "</Where></Query></View>"
-  );
-  const m_ResponseDocsItems = responseDocsLib.getItems(responseDocsQuery);
-  currCtx.load(
-    m_ResponseDocsItems,
-    "Include(ID, Title, ReqNum, ResID, DocumentStatus, RejectReason, ReceiptDate, FileLeafRef, FileDirRef, File_x0020_Size, CheckoutUser, Modified, Editor, Created)"
-  );
+  let m_responseDocsItems, m_responseItems;
 
-  */
-
-  let m_responseDocsItems = await getAllItems(
-    Audit.Common.Utilities.GetLibTitleResponseDocs()
-  );
+  await Promise.all([
+    getAllItems(Audit.Common.Utilities.GetListTitleResponses(), [
+      "ID",
+      "Title",
+      "ReqNum",
+      "ActionOffice",
+      "ReturnReason",
+      "SampleNumber",
+      "ResStatus",
+      "ActiveViewers",
+      "Comments",
+      "Modified",
+      "ClosedDate",
+      "ClosedBy",
+      "POC",
+      "POCCC",
+    ]).then((result) => (m_responseItems = result)),
+    getAllItems(Audit.Common.Utilities.GetLibTitleResponseDocs(), [
+      "ID",
+      "Title",
+      "ReqNum",
+      "ResID",
+      "DocumentStatus",
+      "RejectReason",
+      "ReceiptDate",
+      "FileLeafRef",
+      "FileDirRef",
+      "File_x0020_Size",
+      "CheckoutUser",
+      "Modified",
+      "Editor",
+      "Created",
+    ]).then((result) => (m_responseDocsItems = result)),
+  ]);
 
   const m_groupColl = web.get_siteGroups();
   currCtx.load(m_groupColl);
@@ -771,27 +775,6 @@ async function LoadInfo() {
 function m_fnRefresh(requestNumber) {
   window.location.reload();
 }
-
-// function m_fnLoadInit(
-//   m_requestItems,
-//   m_requestInternalItems,
-//   m_responseItems,
-//   m_ResponseDocsItems
-// ) {
-//   Audit.Common.Utilities.LoadSiteGroups(m_groupColl);
-//   Audit.Common.Utilities.LoadActionOffices(m_aoItems);
-
-//   LoadRequests(m_requestItems);
-//   LoadRequestsInternal(m_requestInternalItems);
-//   LoadResponses(m_responseItems);
-//   LoadResponseDocs(m_ResponseDocsItems);
-//   LoadResponseCounts();
-
-//   DisplayRequestsThatShouldClose();
-
-//   LoadTabStatusReport1();
-//   LoadTabStatusReport2();
-// }
 
 function m_fnLoadInitialData(
   m_aoItems,
@@ -1558,10 +1541,7 @@ function LoadRequestsInternal(m_requestInternalItems) {
 
 function LoadResponses(responseItemsColl) {
   try {
-    var listItemEnumerator = responseItemsColl.getEnumerator();
-    while (listItemEnumerator.moveNext()) {
-      var oListItem = listItemEnumerator.get_current();
-
+    for (const oListItem of responseItemsColl) {
       var number = oListItem.get_item("ReqNum");
       if (number != null) {
         number = number.get_lookupValue();
@@ -2174,7 +2154,13 @@ async function LoadTabRequestInfoResponses(oRequest) {
     return;
   });
 
-  LoadResponses(m_subsetResponseItems);
+  var listItemEnumerator = m_subsetResponseItems.getEnumerator();
+  const m_subsetResponseItemsArr = [];
+  while (listItemEnumerator.moveNext()) {
+    m_subsetResponseItemsArr.push(listItemEnumerator.get_current());
+  }
+
+  LoadResponses(m_subsetResponseItemsArr);
 
   var listItemEnumerator = m_subsetResponseItems.getEnumerator();
   while (listItemEnumerator.moveNext()) {

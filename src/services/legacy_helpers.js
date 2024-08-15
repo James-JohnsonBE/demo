@@ -1,6 +1,6 @@
 import { executeQuery } from "../sal/infrastructure/index.js";
 
-export async function getAllItems(listTitle) {
+export async function getAllItems(listTitle, fields = null) {
   let listItemsResults = [];
   let listItems;
 
@@ -8,9 +8,12 @@ export async function getAllItems(listTitle) {
   const web = currCtx.get_web();
 
   const list = web.get_lists().getByTitle(listTitle);
+
+  const viewFields = viewFieldsStringBuilder(fields);
+
   const camlQuery = new SP.CamlQuery();
   camlQuery.set_viewXml(
-    '<View Scope="RecursiveAll"><Query></Query><RowLimit>5000</RowLimit></View>'
+    `<View Scope="RecursiveAll"><Query></Query><RowLimit>5000</RowLimit>${viewFields}</View>`
   );
 
   let position = new SP.ListItemCollectionPosition();
@@ -37,4 +40,13 @@ export async function getAllItems(listTitle) {
   }
 
   return listItemsResults;
+}
+
+function viewFieldsStringBuilder(fields) {
+  if (!fields) return "";
+  return `
+  <ViewFields>${fields.map(
+    (field) => `<FieldRef Name="${field}"></FieldRef>`
+  )}</ViewFields>
+  `;
 }
