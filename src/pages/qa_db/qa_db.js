@@ -1,6 +1,7 @@
 ﻿import { qaDbTemplate } from "./QA_DB_Template.js";
 import { setUrlParam } from "../../common/router.js";
 import { TabsModule, Tab } from "../../components/tabs/tabs_module.js";
+import { getAllItems } from "../../services/legacy_helpers.js";
 
 import "../../sal/infrastructure/knockout_extensions.js";
 import "../../common/utilities.js";
@@ -636,7 +637,7 @@ Audit.QAReport.NewReportPage = function () {
 
   LoadInfo();
 
-  function LoadInfo() {
+  async function LoadInfo() {
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
 
@@ -668,7 +669,7 @@ Audit.QAReport.NewReportPage = function () {
       m_requestInternalItems,
       "Include(ID, Title, ReqNum, InternalStatus)"
     );
-
+    /*
     var responseList = web
       .get_lists()
       .getByTitle(Audit.Common.Utilities.GetListTitleResponses());
@@ -695,6 +696,36 @@ Audit.QAReport.NewReportPage = function () {
       m_ResponseDocsItems,
       "Include(ID, Title, ReqNum, ResID, DocumentStatus, RejectReason, ReceiptDate, FileLeafRef, FileDirRef, File_x0020_Size, Modified, Editor)"
     );
+*/
+    await Promise.all([
+      getAllItems(Audit.Common.Utilities.GetListTitleResponses(), [
+        "ID",
+        "Title",
+        "ReqNum",
+        "ActionOffice",
+        "ReturnReason",
+        "SampleNumber",
+        "ResStatus",
+        "Comments",
+        "Modified",
+        "ClosedDate",
+        "ClosedBy",
+        "POC",
+      ]).then((result) => (m_responseItems = result)),
+      getAllItems(Audit.Common.Utilities.GetLibTitleResponseDocs(), [
+        "ID",
+        "Title",
+        "ReqNum",
+        "ResID",
+        "DocumentStatus",
+        "ReceiptDate",
+        "FileLeafRef",
+        "FileDirRef",
+        "File_x0020_Size",
+        "Modified",
+        "Editor",
+      ]).then((result) => (m_ResponseDocsItems = result)),
+    ]);
 
     var aoList = web
       .get_lists()
@@ -844,10 +875,8 @@ Audit.QAReport.NewReportPage = function () {
     m_arrResponses = new Array();
 
     var cnt = 0;
-    var listItemEnumerator = m_responseItems.getEnumerator();
-    while (listItemEnumerator.moveNext()) {
-      var oListItem = listItemEnumerator.get_current();
 
+    for (const oListItem of m_responseItems) {
       var number = oListItem.get_item("ReqNum");
       if (number != null) {
         number = number.get_lookupValue();
@@ -911,9 +940,7 @@ Audit.QAReport.NewReportPage = function () {
   }
 
   function LoadResponseDocs() {
-    var listItemEnumerator = m_ResponseDocsItems.getEnumerator();
-    while (listItemEnumerator.moveNext()) {
-      var oListItem = listItemEnumerator.get_current();
+    for (var oListItem of m_ResponseDocsItems) {
       if (
         oListItem.get_item("DocumentStatus") == "Open" ||
         oListItem.get_item("DocumentStatus") == "Marked for Deletion" ||
