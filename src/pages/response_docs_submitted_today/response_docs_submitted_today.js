@@ -120,7 +120,7 @@ Audit.ResponseDocsReport.NewReportPage = function () {
           var responseLink =
             "<a href='" +
             Audit.Common.Utilities.GetSiteUrl() +
-            "/pages/IA_DB.aspx?Tab=request-detail&request-detail-tab=response-docs&ReqNum=" +
+            "/SitePages/IA_DB.aspx?Tab=request-detail&request-detail-tab=response-docs&ReqNum=" +
             oResponse.requestNumber +
             "' target='_blank'>" +
             oResponse.title +

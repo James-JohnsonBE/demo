@@ -1879,7 +1879,7 @@ Audit.Permissions.Load = function () {
 
     options.url =
       Audit.Common.Utilities.GetSiteUrl() +
-      "/pages/AuditEmailHistory.aspx?RootFolder=" +
+      "/SitePages/AuditEmailHistory.aspx?RootFolder=" +
       Audit.Common.Utilities.GetSiteUrl() +
       "/Lists/" +
       Audit.Common.Utilities.GetListNameEmailHistory() +
@@ -1897,7 +1897,8 @@ Audit.Permissions.Load = function () {
     options.dialogReturnValueCallback = OnCallbackForm;
 
     options.url =
-      Audit.Common.Utilities.GetSiteUrl() + "/pages/AuditUpdateSiteGroups.aspx";
+      Audit.Common.Utilities.GetSiteUrl() +
+      "/SitePages/AuditUpdateSiteGroups.aspx";
 
     SP.UI.ModalDialog.showModalDialog(options);
   }

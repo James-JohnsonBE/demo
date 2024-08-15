@@ -833,11 +833,12 @@ Audit.Common.NewUtilities = function () {
     if (docType != null)
       options.url =
         Audit.Common.Utilities.GetSiteUrl() +
-        "/pages/AuditUserManuals.aspx?FilterField1=DocType&FilterValue1=" +
+        "/SitePages/AuditUserManuals.aspx?FilterField1=DocType&FilterValue1=" +
         docType;
     else
       options.url =
-        Audit.Common.Utilities.GetSiteUrl() + "/pages/AuditUserManuals.aspx";
+        Audit.Common.Utilities.GetSiteUrl() +
+        "/SitePages/AuditUserManuals.aspx";
 
     SP.UI.ModalDialog.showModalDialog(options);
   }

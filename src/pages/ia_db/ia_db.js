@@ -2729,14 +2729,14 @@ function LoadTabStatusReport2() {
 function m_fnViewLateRequests() {
   window.open(
     Audit.Common.Utilities.GetSiteUrl() +
-      "/pages/AuditReport_RequestsStatus.aspx",
+      "/SitePages/AuditReport_RequestsStatus.aspx",
     "_blank"
   );
 }
 
 function m_fnViewPermissions() {
   window.open(
-    Audit.Common.Utilities.GetSiteUrl() + "/pages/AuditPermissions.aspx",
+    Audit.Common.Utilities.GetSiteUrl() + "/SitePages/AuditPermissions.aspx",
     "_blank"
   );
 }
@@ -2744,14 +2744,15 @@ function m_fnViewPermissions() {
 function m_fnViewResponseDocsToday() {
   window.open(
     Audit.Common.Utilities.GetSiteUrl() +
-      "/pages/AuditUnSubmittedResponseDocuments.aspx",
+      "/SitePages/AuditUnSubmittedResponseDocuments.aspx",
     "_blank"
   );
 }
 
 function m_fnViewReturnedDocs() {
   window.open(
-    Audit.Common.Utilities.GetSiteUrl() + "/pages/AuditReturnedResponses.aspx",
+    Audit.Common.Utilities.GetSiteUrl() +
+      "/SitePages/AuditReturnedResponses.aspx",
     "_blank"
   );
 }
@@ -2931,7 +2932,7 @@ function m_fnBulkAddResponse(id) {
   options.height = 800;
   options.url =
     Audit.Common.Utilities.GetSiteUrl() +
-    "/pages/AuditBulkAddResponse.aspx?ReqNum=" +
+    "/SitePages/AuditBulkAddResponse.aspx?ReqNum=" +
     id +
     GetSourceUrlForForms();
 
@@ -2964,7 +2965,7 @@ function m_fnBulkEditResponse(id) {
   };
   options.url =
     Audit.Common.Utilities.GetSiteUrl() +
-    "/pages/AuditBulkEditResponse.aspx?ReqNum=" +
+    "/SitePages/AuditBulkEditResponse.aspx?ReqNum=" +
     id +
     GetSourceUrlForForms();
 
@@ -3398,7 +3399,7 @@ function m_fnViewResponseDocFolder(title) {
   //if they delete a document in this window, we want them to return to the current page
   options.url =
     Audit.Common.Utilities.GetSiteUrl() +
-    "/pages/AuditResponseDocs.aspx?RootFolder=" +
+    "/SitePages/AuditResponseDocs.aspx?RootFolder=" +
     Audit.Common.Utilities.GetSiteUrl() +
     "/" +
     Audit.Common.Utilities.GetLibNameResponseDocs() +
@@ -3420,7 +3421,7 @@ function m_fnViewEmailHistoryFolder(reqNum) {
 
   options.url =
     Audit.Common.Utilities.GetSiteUrl() +
-    "/pages/AuditEmailHistory.aspx?RootFolder=" +
+    "/SitePages/AuditEmailHistory.aspx?RootFolder=" +
     Audit.Common.Utilities.GetSiteUrl() +
     "/Lists/" +
     Audit.Common.Utilities.GetListNameEmailHistory() +
