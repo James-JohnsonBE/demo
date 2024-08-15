@@ -34,15 +34,23 @@ await esbuild.build({
 
 const referenceFiles = [
   "pages/ao_db/AO_DB.txt",
+  "pages/ao_db/AO_DB_References.txt",
   "pages/bulk_add_response/BulkAddResponse.txt",
+  "pages/bulk_add_response/BulkAddResponse_References.txt",
   "pages/ia_db/IA_DB.txt",
-  "pages/ia_db/IA_DB_stage.txt",
+  "pages/ia_db/IA_DB_References.txt",
   "pages/home/Home.txt",
+  "pages/home/Home_References.txt",
   "pages/permissions/Permissions.txt",
+  "pages/permissions/Permissions_References.txt",
   "pages/qa_db/QA_DB.txt",
+  "pages/qa_db/QA_DB_References.txt",
   "pages/ro_db/RO_DB.txt",
+  "pages/ro_db/RO_DB_References.txt",
   "pages/sp_db/SP_DB.txt",
+  "pages/sp_db/SP_DB_References.txt",
   "pages/update_site_groups/UpdateSiteGroups.txt",
+  "pages/update_site_groups/UpdateSiteGroups_References.txt",
 ];
 
 referenceFiles.forEach(copyReferenceFiles);

@@ -61,12 +61,12 @@
 <link
   rel="stylesheet"
   type="text/css"
-  href="/sites/CGFS-Audits/Style Library/apps/audit/src/audit_styles.css"
+  href="/sites/CGFS-Audits/Style Library/apps/audit/dist/audit_styles.css"
 />
 
 <div id="app"></div>
 
 <script
   type="module"
-  src="/sites/CGFS-Audits/Style Library/apps/audit/src/pages/bulk_add_response/bulk_add_response.js"
+  src="/sites/CGFS-Audits/Style Library/apps/audit/dist/pages/bulk_add_response/bulk_add_response.js"
 ></script>

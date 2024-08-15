@@ -48,5 +48,5 @@
 
 <script
   type="text/javascript"
-  src="/sites/CGFS-Audits/Style Library/apps/audit/src/pages/response_docs_returned_today/response_docs_returned_today.js"
+  src="/sites/CGFS-Audits/Style Library/apps/audit/dist/pages/response_docs_returned_today/response_docs_returned_today.js"
 ></script>

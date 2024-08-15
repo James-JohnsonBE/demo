@@ -50,12 +50,12 @@
 <link
   rel="stylesheet"
   type="text/css"
-  href="/sites/CGFS-Audits/Style Library/apps/audit/src/audit_styles.css"
+  href="/sites/CGFS-Audits/Style Library/apps/audit/dist/audit_styles.css"
 />
 
 <div id="app"></div>
 
 <script
   type="module"
-  src="/sites/CGFS-Audits/Style Library/apps/audit/src/pages/sp_db/sp_db.js"
+  src="/sites/CGFS-Audits/Style Library/apps/audit/dist/pages/sp_db/sp_db.js"
 ></script>

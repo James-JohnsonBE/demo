@@ -142,5 +142,5 @@
 
 <script
   type="module"
-  src="/sites/CGFS-Audits/Style Library/apps/audit/src/pages/report_request_status/report_request_status.js"
+  src="/sites/CGFS-Audits/Style Library/apps/audit/dist/pages/report_request_status/report_request_status.js"
 ></script>
