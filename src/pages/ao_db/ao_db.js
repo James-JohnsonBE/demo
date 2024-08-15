@@ -5,6 +5,7 @@ import { TabsModule, Tab } from "../../components/tabs/tabs_module.js";
 import { setUrlParam } from "../../common/index.js";
 import { appContext } from "../../infrastructure/application_db_context.js";
 import { uploadResponseDocFile } from "../../services/index.js";
+import { getAllItems } from "../../services/legacy_helpers.js";
 
 import {
   addTask,
@@ -459,7 +460,7 @@ Audit.AOReport.NewReportPage = function () {
 
   LoadInfo();
 
-  function LoadInfo() {
+  async function LoadInfo() {
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
 
@@ -478,7 +479,7 @@ Audit.AOReport.NewReportPage = function () {
       m_requestItems,
       "Include(ID, Title, ReqSubject, ReqStatus, InternalDueDate, ActionOffice, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate)"
     );
-
+    /*
     var responseList = web
       .get_lists()
       .getByTitle(Audit.Common.Utilities.GetListTitleResponses());
@@ -505,6 +506,37 @@ Audit.AOReport.NewReportPage = function () {
       m_ResponseDocsItems,
       "Include(ID, Title, ReqNum, ResID, DocumentStatus, ReceiptDate, FileLeafRef, FileDirRef, File_x0020_Size, Modified, Editor)"
     );
+    */
+
+    await Promise.all([
+      getAllItems(Audit.Common.Utilities.GetListTitleResponses(), [
+        "ID",
+        "Title",
+        "ReqNum",
+        "ActionOffice",
+        "ReturnReason",
+        "SampleNumber",
+        "ResStatus",
+        "Comments",
+        "Modified",
+        "ClosedDate",
+        "ClosedBy",
+        "POC",
+      ]).then((result) => (m_responseItems = result)),
+      getAllItems(Audit.Common.Utilities.GetLibTitleResponseDocs(), [
+        "ID",
+        "Title",
+        "ReqNum",
+        "ResID",
+        "DocumentStatus",
+        "ReceiptDate",
+        "FileLeafRef",
+        "FileDirRef",
+        "File_x0020_Size",
+        "Modified",
+        "Editor",
+      ]).then((result) => (m_ResponseDocsItems = result)),
+    ]);
 
     var aoList = web
       .get_lists()
@@ -653,9 +685,10 @@ Audit.AOReport.NewReportPage = function () {
     m_arrResponses = new Array();
     var cnt = 0;
 
-    var listItemEnumerator = m_responseItems.getEnumerator();
-    while (listItemEnumerator.moveNext()) {
-      var oListItem = listItemEnumerator.get_current();
+    // var listItemEnumerator = m_responseItems.getEnumerator();
+    // while (listItemEnumerator.moveNext()) {
+    for (const oListItem of m_responseItems) {
+      // var oListItem = listItemEnumerator.get_current();
 
       var number = oListItem.get_item("ReqNum");
       if (number != null) {
@@ -732,9 +765,10 @@ Audit.AOReport.NewReportPage = function () {
   }
 
   function LoadResponseDocs() {
-    var listItemEnumerator = m_ResponseDocsItems.getEnumerator();
-    while (listItemEnumerator.moveNext()) {
-      var oListItem = listItemEnumerator.get_current();
+    // var listItemEnumerator = m_ResponseDocsItems.getEnumerator();
+    // while (listItemEnumerator.moveNext()) {
+    for (var oListItem of m_ResponseDocsItems) {
+      // var oListItem = listItemEnumerator.get_current();
 
       const responseDocID = oListItem.get_item("ID");
 
