@@ -1,4 +1,6 @@
-﻿var Audit = window.Audit || {};
+﻿import "../../common/utilities.js";
+
+var Audit = window.Audit || {};
 Audit.ResponseDocsReport = Audit.ResponseDocsReport || {};
 
 if (document.readyState === "ready" || document.readyState === "complete") {

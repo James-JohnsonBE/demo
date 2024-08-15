@@ -10,7 +10,7 @@ export class SitePage extends Entity {
   };
 
   static ListDef = {
-    name: "Site Pages",
+    name: "SitePages",
     title: "Site Pages",
   };
 }
