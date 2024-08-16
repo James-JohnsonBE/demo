@@ -1,7 +1,9 @@
 ﻿window.Audit = window.Audit || {};
 Audit.Common = Audit.Common || {};
 
+var loadStart;
 function InitReport() {
+  loadStart = new Date();
   Audit.Common.Utilities = new Audit.Common.NewUtilities();
   Audit.Common.Init();
 }
@@ -93,7 +95,12 @@ Audit.Common.NewUtilities = function () {
 
   function m_fnOnLoadDisplayTimeStamp() {
     var curDate = new Date();
-    $("#divLoading").text("Loaded at " + curDate.format("MM/dd/yyyy hh:mm tt"));
+    const loadTime = (curDate - loadStart) / 1000;
+    document.getElementById(
+      "divLoading"
+    ).innerHTML = `Loaded at ${curDate.format("MM/dd/yyyy hh:mm tt")}<br/>
+    Load time: ${loadTime + "s"}
+    `;
   }
 
   function m_fnOnLoadDisplayTabAndResponse() {
