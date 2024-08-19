@@ -1,24 +1,6 @@
 ﻿const html = String.raw;
 
 export const iaDbTemplate = html`
-  <link
-    href="${_spPageContextInfo.siteServerRelativeUrl}/Style Library/apps/audit/lib/quill@2.0.0-rc.2/dist/quill.snow.css"
-    rel="stylesheet"
-  />
-
-  <link
-    rel="stylesheet"
-    href="${_spPageContextInfo.siteServerRelativeUrl}/Style Library/apps/audit/lib/fontawesome-6.5.1/css/fontawesome.min.css"
-  />
-  <link
-    rel="stylesheet"
-    href="${_spPageContextInfo.siteServerRelativeUrl}/Style Library/apps/audit/lib/fontawesome-6.5.1/css/solid.min.css"
-  />
-  <link
-    rel="stylesheet"
-    type="text/css"
-    href="${_spPageContextInfo.siteServerRelativeUrl}/Style Library/apps/audit/lib/jquery-ui-1.13.2/jquery-ui.theme.min.css"
-  />
   <style>
     .o365cs-nav-leftAlign {
       display: revert !important;
