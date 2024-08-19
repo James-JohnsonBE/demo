@@ -29,7 +29,6 @@ export const AUDITREQUESTSTATES = {
 export const AUDITREQUESTTYPES = {
   TASKER: "Tasker",
   REQUEST: "Request",
-  NOTIFICATION: "Notification",
 };
 
 export class AuditRequest extends ConstrainedEntity {

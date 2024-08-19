@@ -407,14 +407,14 @@ Audit.Common.NewUtilities = function () {
     var itemCreateInfo = new SP.ListItemCreationInformation();
     itemCreateInfo.set_underlyingObjectType(SP.FileSystemObjectType.folder);
     itemCreateInfo.set_leafName(requestNumber);
-    oNewEmailFolder = list.addItem(itemCreateInfo);
+    const oNewEmailFolder = list.addItem(itemCreateInfo);
     oNewEmailFolder.set_item("Title", requestNumber);
     oNewEmailFolder.update();
 
-    this.currentUser = web.get_currentUser();
-    this.ownerGroup = web.get_associatedOwnerGroup();
-    this.memberGroup = web.get_associatedMemberGroup();
-    this.visitorGroup = web.get_associatedVisitorGroup();
+    const currentUser = web.get_currentUser();
+    const ownerGroup = web.get_associatedOwnerGroup();
+    const memberGroup = web.get_associatedMemberGroup();
+    const visitorGroup = web.get_associatedVisitorGroup();
 
     oNewEmailFolder.resetRoleInheritance();
     oNewEmailFolder.breakRoleInheritance(false, false);
