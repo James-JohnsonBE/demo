@@ -1,6 +1,53 @@
 import { executeQuery } from "../sal/infrastructure/index.js";
 
-export async function getAllItems(listTitle, fields = null) {
+export function getResponsesInitial(loader) {
+  return getAllItems(
+    Audit.Common.Utilities.GetListTitleResponses(),
+    [
+      "ID",
+      "Title",
+      "ReqNum",
+      "ActionOffice",
+      "ReturnReason",
+      "SampleNumber",
+      "ResStatus",
+      "ActiveViewers",
+      "Comments",
+      "Modified",
+      "ClosedDate",
+      "ClosedBy",
+      "POC",
+      "POCCC",
+    ],
+    loader
+  );
+}
+
+export function getResponseDocsInitial(loader) {
+  return getAllItems(
+    Audit.Common.Utilities.GetLibTitleResponseDocs(),
+    [
+      "ID",
+      "Title",
+      "ReqNum",
+      "ResID",
+      "DocumentStatus",
+      "RejectReason",
+      "ReceiptDate",
+      "FileLeafRef",
+      "FileDirRef",
+      "File_x0020_Size",
+      "ContentType",
+      "CheckoutUser",
+      "Modified",
+      "Editor",
+      "Created",
+    ],
+    loader
+  );
+}
+
+export async function getAllItems(listTitle, fields = null, loader = null) {
   let listItemsResults = [];
   let listItems;
 
@@ -31,10 +78,17 @@ export async function getAllItems(listTitle, fields = null) {
       console.warn(sender);
     });
 
+    const batchResults = [];
+
     const listEnumerator = listItems.getEnumerator();
     while (listEnumerator.moveNext()) {
-      listItemsResults.push(listEnumerator.get_current());
+      batchResults.push(listEnumerator.get_current());
     }
+
+    if (loader) {
+      loader(batchResults);
+    }
+    listItemsResults = listItemsResults.concat(batchResults);
 
     position = listItems.get_listItemCollectionPosition();
   }

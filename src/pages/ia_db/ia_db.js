@@ -48,7 +48,11 @@ import { ensureROEmailFolder } from "../../services/audit_email_service.js";
 import { sortByTitle } from "../../sal/infrastructure/index.js";
 import { BulkAddRequestForm } from "../../components/bulk_add_request/bulk_add_request.js";
 
-import { getAllItems } from "../../services/legacy_helpers.js";
+import {
+  getAllItems,
+  getResponseDocsInitial,
+  getResponsesInitial,
+} from "../../services/legacy_helpers.js";
 
 document.getElementById("app").innerHTML = iaDbTemplate;
 
@@ -196,12 +200,45 @@ function ViewModel() {
   self.arrRequestsThatNeedClosing = ko.observableArray(null);
   self.arrResponseDocsCheckedOut = ko.observableArray(null);
   self.arrResponsesWithUnsubmittedResponseDocs = ko.observableArray();
-  self.arrRequestsInternalAlmostDue = ko.observableArray(null);
-  self.arrRequestsInternalPastDue = ko.observableArray(null);
-  self.arrRequestsAlmostDue = ko.observableArray(null);
-  self.arrRequestsPastDue = ko.observableArray(null);
-  self.arrRequestsWithNoResponses = ko.observableArray(null);
-  self.arrRequestsWithNoEmailSent = ko.observableArray(null);
+
+  // self.arrRequestsInternalAlmostDue = ko.observableArray(null);
+  self.arrRequestsInternalAlmostDue = ko.pureComputed(() => {
+    return self
+      .arrRequests()
+      .filter((request) =>
+        m_fnIsRequestAlmostDue(request, request.internalDueDate)
+      );
+  });
+
+  // self.arrRequestsInternalPastDue = ko.observableArray(null);
+  self.arrRequestsInternalPastDue = ko.pureComputed(() => {
+    return self
+      .arrRequests()
+      .filter((request) =>
+        m_fnIsRequestPastDue(request, request.internalDueDate)
+      );
+  });
+
+  self.arrRequestsAlmostDue = ko.pureComputed(() => {
+    return self
+      .arrRequests()
+      .filter((request) => m_fnIsRequestAlmostDue(request, request.dueDate));
+  });
+
+  self.arrRequestsPastDue = ko.pureComputed(() => {
+    return self
+      .arrRequests()
+      .filter((request) => m_fnIsRequestPastDue(request, request.dueDate));
+  });
+
+  self.arrRequestsWithNoResponses = ko.pureComputed(() => {
+    return self.arrRequests().filter((request) => !request.responseCount);
+  });
+
+  self.arrRequestsWithNoEmailSent = ko.pureComputed(() => {
+    return self.arrRequests().filter((request) => !request.sentEmail);
+  });
+
   self.arrResponsesSubmittedByAO = ko.observableArray(null);
   self.arrResponsesReadyToClose = ko.observableArray();
 
@@ -611,63 +648,7 @@ async function LoadInfo() {
     "Include(ID, Title, ReqNum, InternalStatus, ActiveViewers)"
   );
 
-  // var responseList = web
-  //   .get_lists()
-  //   .getByTitle(Audit.Common.Utilities.GetListTitleResponses());
-  // var responseQuery = new SP.CamlQuery();
-  // responseQuery.set_viewXml(
-  //   "<View><Query>" +
-  //     '<Where><Neq><FieldRef Name="ResStatus"/><Value Type="Text">7-Closed</Value></Neq></Where>' +
-  //     '<OrderBy><FieldRef Name="ReqNum"/></OrderBy>' +
-  //     "</Query></View>"
-  // );
-  // // const m_responseItems = responseList.getItems(responseQuery);
-  // //need to check permissions because of granting/removing special perms
-  // // currCtx.load(
-  // //   m_responseItems,
-  // //   "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, Comments, Modified, ClosedDate, ClosedBy, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
-  // // );
-  // currCtx.load(
-  //   m_responseItems,
-  //   "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, ActiveViewers, Comments, Modified, ClosedDate, ClosedBy, POC, POCCC)"
-  // );
-
   let m_responseDocsItems, m_responseItems;
-
-  await Promise.all([
-    getAllItems(Audit.Common.Utilities.GetListTitleResponses(), [
-      "ID",
-      "Title",
-      "ReqNum",
-      "ActionOffice",
-      "ReturnReason",
-      "SampleNumber",
-      "ResStatus",
-      "ActiveViewers",
-      "Comments",
-      "Modified",
-      "ClosedDate",
-      "ClosedBy",
-      "POC",
-      "POCCC",
-    ]).then((result) => (m_responseItems = result)),
-    getAllItems(Audit.Common.Utilities.GetLibTitleResponseDocs(), [
-      "ID",
-      "Title",
-      "ReqNum",
-      "ResID",
-      "DocumentStatus",
-      "RejectReason",
-      "ReceiptDate",
-      "FileLeafRef",
-      "FileDirRef",
-      "File_x0020_Size",
-      "CheckoutUser",
-      "Modified",
-      "Editor",
-      "Created",
-    ]).then((result) => (m_responseDocsItems = result)),
-  ]);
 
   const m_groupColl = web.get_siteGroups();
   currCtx.load(m_groupColl);
@@ -803,8 +784,12 @@ function m_fnLoadData(
 ) {
   LoadRequests(m_requestItems);
   LoadRequestsInternal(m_requestInternalItems);
-  LoadResponses(m_responseItems);
-  LoadResponseDocs(m_ResponseDocsItems);
+  // LoadResponses(m_responseItems);
+  // LoadResponseDocs(m_ResponseDocsItems);
+
+  getResponsesInitial(LoadResponses);
+  getResponseDocsInitial(LoadResponseDocs);
+
   LoadResponseCounts();
 
   DisplayRequestsThatShouldClose();
@@ -818,85 +803,8 @@ export async function m_fnRefreshData(requestId = null) {
   await m_fnRequeryRequest(requestId);
 
   return;
-  // TODO: reload data without blocking entire page.
-  var currCtx = new SP.ClientContext.get_current();
-  var web = currCtx.get_web();
-
-  var requestList = web
-    .get_lists()
-    .getByTitle(Audit.Common.Utilities.GetListTitleRequests());
-  var requestQuery = new SP.CamlQuery();
-  requestQuery.set_viewXml(
-    '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
-  );
-  const m_requestItems = requestList.getItems(requestQuery);
-  //need to check permissions because of displaying special perms and granting special perms
-  //currCtx.load( m_requestItems, 'Include(ID, Title, ReqSubject, ReqStatus, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))');
-  currCtx.load(
-    m_requestItems,
-    "Include(ID, Title, ReqType, ReqSubject, ReqStatus, RequestingOffice, FiscalYear, IsSample, ReqDueDate, InternalDueDate, ActionOffice, EmailActionOffice, Reviewer, Owner, ReceiptDate, RelatedAudit, ActionItems, Comments, EmailSent, ClosedDate, ClosedBy, Modified, Sensitivity)"
-  );
-
-  var requestInternalList = web
-    .get_lists()
-    .getByTitle(Audit.Common.Utilities.GetListTitleRequestsInternal());
-  var requestInternalQuery = new SP.CamlQuery();
-  requestInternalQuery.set_viewXml(
-    '<View><Query><OrderBy><FieldRef Name="Title"/></OrderBy></Query></View>'
-  );
-  const m_requestInternalItems =
-    requestInternalList.getItems(requestInternalQuery);
-  currCtx.load(
-    m_requestInternalItems,
-    "Include(ID, Title, ReqNum, InternalStatus, ActiveViewers)"
-  );
-
-  var responseList = web
-    .get_lists()
-    .getByTitle(Audit.Common.Utilities.GetListTitleResponses());
-  var responseQuery = new SP.CamlQuery();
-  responseQuery.set_viewXml(
-    '<View><Query><OrderBy><FieldRef Name="ReqNum"/></OrderBy></Query></View>'
-  );
-  const m_responseItems = responseList.getItems(responseQuery);
-  //need to check permissions because of granting/removing special perms
-  //currCtx.load( m_responseItems, 'Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, Comments, Modified, ClosedDate, ClosedBy, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))' );
-  currCtx.load(
-    m_responseItems,
-    "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, ActiveViewers, Comments, Modified, ClosedDate, ClosedBy, POC, POCCC)"
-  );
-
-  //make sure to only pull documents (fsobjtype = 0)
-  var responseDocsLib = web
-    .get_lists()
-    .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
-  var responseDocsQuery = new SP.CamlQuery();
-  responseDocsQuery.set_viewXml(
-    '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="ReqNum"/><FieldRef Name="ResID"/></OrderBy><Where><Eq><FieldRef Name="ContentType"/><Value Type="Text">Document</Value></Eq></Where></Query></View>'
-  );
-  const m_ResponseDocsItems = responseDocsLib.getItems(responseDocsQuery);
-  currCtx.load(
-    m_ResponseDocsItems,
-    "Include(ID, Title, ReqNum, ResID, DocumentStatus, RejectReason, ReceiptDate, FileLeafRef, FileDirRef, File_x0020_Size, CheckoutUser, Modified, Editor, Created)"
-  );
-
-  await executeQuery(currCtx).catch(({ sender, args }) => {
-    const statusId = SP.UI.Status.addStatus(
-      "Request failed: " + args.get_message() + "\n" + args.get_stackTrace()
-    );
-    SP.UI.Status.setStatusPriColor(statusId, "red");
-  });
-
-  m_fnLoadData(
-    m_requestItems,
-    m_requestInternalItems,
-    m_responseItems,
-    m_ResponseDocsItems
-  );
-  // TODO: Update status reports and other data.
-  // LoadTabStatusReport1();
-  // LoadTabStatusReport2();
 }
+
 export async function m_fnRequeryRequest(requestId = null) {
   const refreshTask = addTask(taskDefs.refresh);
   var currCtx = new SP.ClientContext.get_current();
@@ -1630,13 +1538,14 @@ function LoadResponses(responseItemsColl) {
 }
 
 function LoadResponseDocs(m_ResponseDocsItems) {
-  _myViewModel.arrResponseDocsCheckedOut([]);
-  _myViewModel.arrResponseDocsCheckedOut.valueHasMutated();
+  // _myViewModel.arrResponseDocsCheckedOut([]);
+  // _myViewModel.arrResponseDocsCheckedOut.valueHasMutated();
   var arrResponseDocsCheckedOut = new Array();
 
   m_fnMapResponseDocs(m_ResponseDocsItems, m_bigMap);
 
   for (const oListItem of m_ResponseDocsItems) {
+    if (oListItem.get_item("FSObjType") == "1") continue;
     const checkedOutBy = Audit.Common.Utilities.GetFriendlyDisplayName(
       oListItem,
       "CheckoutUser"
@@ -1661,12 +1570,15 @@ function LoadResponseDocs(m_ResponseDocsItems) {
     arrResponseDocsCheckedOut
   );
   _myViewModel.arrResponseDocsCheckedOut.valueHasMutated();
+
+  LoadTabStatusReport1();
 }
 
 function m_fnMapResponseDocs(responseDocItemsColl, m_bigMap) {
   try {
     //var listItemEnumerator = responseDocItemsColl.getEnumerator();
     for (const oListItem of responseDocItemsColl) {
+      if (oListItem.get_item("FSObjType") == "1") continue;
       // var oListItem = listItemEnumerator.get_current();
 
       var responseDocID = oListItem.get_item("ID");
@@ -1843,82 +1755,9 @@ function LoadResponseDocFolders(m_ResponseDocsFoldersItems) {
         const oResponse = m_bigMap["response-" + itemName];
         if (!oResponse) continue;
         oResponse.responseFolderItem = oListItem;
-
-        // const oRequest = m_bigMap["request-" + oResponse.number];
-
-        // for (var x = 0; x < m_arrRequests.length; x++) {
-        //   var oRequest = m_arrRequests[x];
-        //   for (var y = 0; y < oRequest.responses.length; y++) {
-        //     if (oRequest.responses[y].title == itemName) {
-        //       oRequest.responses[y].responseFolderItem = oListItem;
-        //       m_bigMap["response-" + itemName].responseFolderItem = oListItem;
-        //       break;
-        //     }
-        //   }
-        // }
       }
     }
   } catch (err) {}
-}
-
-function LoadTabRequestInfoRequestDocs(oRequest) {
-  _myViewModel.arrCurrentRequestRequestDocs([]);
-  _myViewModel.arrCurrentRequestRequestDocs.valueHasMutated();
-  oRequest.requestDocs = new Array();
-
-  var arrRD = new Array();
-
-  var currCtx = new SP.ClientContext.get_current();
-  var web = currCtx.get_web();
-
-  var requestDocLib = web
-    .get_lists()
-    .getByTitle(Audit.Common.Utilities.GetLibTitleRequestDocs());
-  var requestDocQuery = new SP.CamlQuery();
-  requestDocQuery.set_viewXml(
-    '<View Scope="RecursiveAll"><Query><Where><Eq><FieldRef Name="ReqNum"/><Value Type="Text">' +
-      oRequest.number +
-      "</Value></Eq></Where></Query></View>"
-  );
-  var m_RequestDocItems = requestDocLib.getItems(requestDocQuery);
-  currCtx.load(
-    m_RequestDocItems,
-    "Include(ID, Title, ReqNum, FileLeafRef, FileDirRef)"
-  );
-
-  var data = { oRequest: oRequest };
-  function OnSuccess(sender, args) {
-    var listItemEnumerator = m_RequestDocItems.getEnumerator();
-
-    while (listItemEnumerator.moveNext()) {
-      var oListItem = listItemEnumerator.get_current();
-
-      var number = oListItem.get_item("ReqNum");
-      if (number != null) {
-        number = number.get_lookupValue();
-        if (number == oRequest.number) {
-          var requestDocObject = new Object();
-          requestDocObject["ID"] = oListItem.get_item("ID");
-          requestDocObject["title"] = oListItem.get_item("FileLeafRef");
-          requestDocObject["folder"] = oListItem.get_item("FileDirRef");
-          requestDocObject["requestStatus"] = oRequest.status;
-          oRequest.requestDocs.push(requestDocObject);
-        }
-      }
-    }
-
-    ko.utils.arrayPushAll(
-      _myViewModel.arrCurrentRequestRequestDocs(),
-      oRequest.requestDocs
-    );
-    _myViewModel.arrCurrentRequestRequestDocs.valueHasMutated();
-  }
-  function OnFailure(sender, args) {}
-
-  currCtx.executeQueryAsync(
-    Function.createDelegate(data, OnSuccess),
-    Function.createDelegate(data, OnFailure)
-  );
 }
 
 async function LoadTabRequestInfoCoverSheets(oRequest) {
@@ -2447,25 +2286,25 @@ function LoadTabStatusReport1() {
   const arr = m_getArrRequests();
 
   _myViewModel.arrRequests([]);
-  _myViewModel.arrRequests.valueHasMutated();
+  // _myViewModel.arrRequests.valueHasMutated();
 
-  _myViewModel.arrRequestsInternalAlmostDue([]);
-  _myViewModel.arrRequestsInternalAlmostDue.valueHasMutated();
+  // _myViewModel.arrRequestsInternalAlmostDue([]);
+  // _myViewModel.arrRequestsInternalAlmostDue.valueHasMutated();
 
-  _myViewModel.arrRequestsAlmostDue([]);
-  _myViewModel.arrRequestsAlmostDue.valueHasMutated();
+  // _myViewModel.arrRequestsAlmostDue([]);
+  // _myViewModel.arrRequestsAlmostDue.valueHasMutated();
 
-  _myViewModel.arrRequestsInternalPastDue([]);
-  _myViewModel.arrRequestsInternalPastDue.valueHasMutated();
+  // _myViewModel.arrRequestsInternalPastDue([]);
+  // _myViewModel.arrRequestsInternalPastDue.valueHasMutated();
 
-  _myViewModel.arrRequestsPastDue([]);
-  _myViewModel.arrRequestsPastDue.valueHasMutated();
+  // _myViewModel.arrRequestsPastDue([]);
+  // _myViewModel.arrRequestsPastDue.valueHasMutated();
 
-  _myViewModel.arrRequestsWithNoResponses([]);
-  _myViewModel.arrRequestsWithNoResponses.valueHasMutated();
+  // _myViewModel.arrRequestsWithNoResponses([]);
+  // _myViewModel.arrRequestsWithNoResponses.valueHasMutated();
 
-  _myViewModel.arrRequestsWithNoEmailSent([]);
-  _myViewModel.arrRequestsWithNoEmailSent.valueHasMutated();
+  // _myViewModel.arrRequestsWithNoEmailSent([]);
+  // _myViewModel.arrRequestsWithNoEmailSent.valueHasMutated();
 
   if (arr == null) return;
 
@@ -2487,56 +2326,57 @@ function LoadTabStatusReport1() {
     var dueDateStyle = "";
     if (m_fnIsRequestPastDue(oRequest, oRequest.internalDueDate)) {
       internalDueDateStyle = "past-due";
-      arrInternalPastDue.push({
-        title: oRequest.number,
-        number: oRequest.number,
-        internalDueDate: oRequest.internalDueDate,
-        dueDate: oRequest.dueDate,
-      });
+      // arrInternalPastDue.push({
+      //   title: oRequest.number,
+      //   number: oRequest.number,
+      //   internalDueDate: oRequest.internalDueDate,
+      //   dueDate: oRequest.dueDate,
+      // });
     } else if (m_fnIsRequestAlmostDue(oRequest, oRequest.internalDueDate)) {
       internalDueDateStyle = "almost-due";
-      arrInternalAlmostDue.push({
-        title: oRequest.number,
-        number: oRequest.number,
-        internalDueDate: oRequest.internalDueDate,
-        dueDate: oRequest.dueDate,
-      });
+      // arrInternalAlmostDue.push({
+      //   title: oRequest.number,
+      //   number: oRequest.number,
+      //   internalDueDate: oRequest.internalDueDate,
+      //   dueDate: oRequest.dueDate,
+      // });
     }
 
     if (m_fnIsRequestPastDue(oRequest, oRequest.dueDate)) {
       dueDateStyle = "past-due";
-      arrPastDue.push({
-        title: oRequest.number,
-        number: oRequest.number,
-        internalDueDate: oRequest.internalDueDate,
-        dueDate: oRequest.dueDate,
-      });
+      // arrPastDue.push({
+      //   title: oRequest.number,
+      //   number: oRequest.number,
+      //   internalDueDate: oRequest.internalDueDate,
+      //   dueDate: oRequest.dueDate,
+      // });
     } else if (m_fnIsRequestAlmostDue(oRequest, oRequest.dueDate)) {
       dueDateStyle = "almost-due";
-      arrAlmostDue.push({
-        title: oRequest.number,
-        number: oRequest.number,
-        internalDueDate: oRequest.internalDueDate,
-        dueDate: oRequest.dueDate,
-      });
+      // arrAlmostDue.push({
+      //   title: oRequest.number,
+      //   number: oRequest.number,
+      //   internalDueDate: oRequest.internalDueDate,
+      //   dueDate: oRequest.dueDate,
+      // });
     }
 
-    if (oRequest.responses.length == 0)
-      arrRequestsWithNoResponses.push({
-        title: oRequest.number,
-        number: oRequest.number,
-      });
+    // if (oRequest.responses.length == 0)
+    //   arrRequestsWithNoResponses.push({
+    //     title: oRequest.number,
+    //     number: oRequest.number,
+    //   });
 
-    if (!oRequest.emailSent)
-      arrRequestsWithNoEmailSent.push({
-        title: oRequest.number,
-        number: oRequest.number,
-      });
+    // if (!oRequest.emailSent)
+    //   arrRequestsWithNoEmailSent.push({
+    //     title: oRequest.number,
+    //     number: oRequest.number,
+    //   });
 
     var resCount = m_oRequestTitleAndDocCount[oRequest.number];
     if (!resCount) resCount = 0;
 
     var aRequest = {
+      title: oRequest.number,
       reqNumber: oRequest.number,
       subject: oRequest.subject,
       sensitivity: oRequest.sensitivity,
@@ -2566,37 +2406,37 @@ function LoadTabStatusReport1() {
   }
 
   ko.utils.arrayPushAll(_myViewModel.arrRequests, requestArr);
-  _myViewModel.arrRequests.valueHasMutated();
+  // _myViewModel.arrRequests.valueHasMutated();
 
-  ko.utils.arrayPushAll(
-    _myViewModel.arrRequestsInternalAlmostDue(),
-    arrInternalAlmostDue
-  );
-  _myViewModel.arrRequestsInternalAlmostDue.valueHasMutated();
+  // ko.utils.arrayPushAll(
+  //   _myViewModel.arrRequestsInternalAlmostDue(),
+  //   arrInternalAlmostDue
+  // );
+  // _myViewModel.arrRequestsInternalAlmostDue.valueHasMutated();
 
-  ko.utils.arrayPushAll(_myViewModel.arrRequestsAlmostDue(), arrAlmostDue);
-  _myViewModel.arrRequestsAlmostDue.valueHasMutated();
+  // ko.utils.arrayPushAll(_myViewModel.arrRequestsAlmostDue(), arrAlmostDue);
+  // _myViewModel.arrRequestsAlmostDue.valueHasMutated();
 
-  ko.utils.arrayPushAll(
-    _myViewModel.arrRequestsInternalPastDue(),
-    arrInternalPastDue
-  );
-  _myViewModel.arrRequestsInternalPastDue.valueHasMutated();
+  // ko.utils.arrayPushAll(
+  //   _myViewModel.arrRequestsInternalPastDue(),
+  //   arrInternalPastDue
+  // );
+  // _myViewModel.arrRequestsInternalPastDue.valueHasMutated();
 
-  ko.utils.arrayPushAll(_myViewModel.arrRequestsPastDue(), arrPastDue);
-  _myViewModel.arrRequestsPastDue.valueHasMutated();
+  // ko.utils.arrayPushAll(_myViewModel.arrRequestsPastDue(), arrPastDue);
+  // _myViewModel.arrRequestsPastDue.valueHasMutated();
 
-  ko.utils.arrayPushAll(
-    _myViewModel.arrRequestsWithNoResponses(),
-    arrRequestsWithNoResponses
-  );
-  _myViewModel.arrRequestsWithNoResponses.valueHasMutated();
+  // ko.utils.arrayPushAll(
+  //   _myViewModel.arrRequestsWithNoResponses(),
+  //   arrRequestsWithNoResponses
+  // );
+  // _myViewModel.arrRequestsWithNoResponses.valueHasMutated();
 
-  ko.utils.arrayPushAll(
-    _myViewModel.arrRequestsWithNoEmailSent(),
-    arrRequestsWithNoEmailSent
-  );
-  _myViewModel.arrRequestsWithNoEmailSent.valueHasMutated();
+  // ko.utils.arrayPushAll(
+  //   _myViewModel.arrRequestsWithNoEmailSent(),
+  //   arrRequestsWithNoEmailSent
+  // );
+  // _myViewModel.arrRequestsWithNoEmailSent.valueHasMutated();
 }
 
 function LoadTabStatusReport2() {
