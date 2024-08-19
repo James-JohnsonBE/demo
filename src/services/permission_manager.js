@@ -62,7 +62,7 @@ export function ensureDBPermissions() {
 
 async function ensurePagePerms(pageTitle, orgs) {
   const ensurePageTask = addTask(taskDefs.ensurePagePermissions(pageTitle));
-  const pageResults = await appContext.Pages.FindByColumnValue(
+  const pageResults = await appContext.SitePages.FindByColumnValue(
     [{ column: "FileLeafRef", value: pageTitle }],
     {},
     { count: 1, includePermissions: true }
@@ -129,7 +129,7 @@ async function ensurePagePerms(pageTitle, orgs) {
     });
 
     console.warn("Resetting Page Perms: ", pageTitle);
-    await appContext.Pages.SetItemPermissions(page, newPerms, true);
+    await appContext.SitePages.SetItemPermissions(page, newPerms, true);
     finishTask(resetPageTask);
   }
 

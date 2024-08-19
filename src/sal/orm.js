@@ -1,4 +1,4 @@
-import { Page } from "./entities/index.js";
+import { SitePage } from "./entities/index.js";
 import { SPList, copyFileAsync } from "./infrastructure/index.js";
 
 const DEBUG = false;
@@ -6,7 +6,7 @@ const DEBUG = false;
 export class DbContext {
   constructor() {}
 
-  Pages = new EntitySet(Page);
+  SitePages = new EntitySet(SitePage);
 
   utilities = {
     copyFileAsync,

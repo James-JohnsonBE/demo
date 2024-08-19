@@ -4,12 +4,12 @@ export const permissionsTemplate = html`
   <link
     rel="stylesheet"
     type="text/css"
-    href="/sites/CGFS/Style Library/apps/audit/lib/jquery-ui-1.13.2/jquery-ui.theme.min.css"
+    href="/sites/CGFS-Audits/Style Library/apps/audit/lib/jquery-ui-1.13.2/jquery-ui.theme.min.css"
   />
   <link
     rel="stylesheet"
     type="text/css"
-    href="/sites/CGFS/Style Library/apps/audit/lib/tablesorter-2.31.3/css/theme.default.min.css"
+    href="/sites/CGFS-Audits/Style Library/apps/audit/lib/tablesorter-2.31.3/css/theme.default.min.css"
   />
 
   <div class="audit">

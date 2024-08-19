@@ -1,5 +1,5 @@
 ﻿import { spDbTemplate } from "./SP_DB_Template.js";
-
+import { getAllItems } from "../../services/legacy_helpers.js";
 import "../../common/utilities.js";
 
 document.getElementById("app").innerHTML = spDbTemplate;
@@ -324,7 +324,7 @@ Audit.SPReport.NewReportPage = function () {
 
   LoadInfo();
 
-  function LoadInfo() {
+  async function LoadInfo() {
     var currCtx = new SP.ClientContext.get_current();
     var web = currCtx.get_web();
 
@@ -343,7 +343,7 @@ Audit.SPReport.NewReportPage = function () {
       m_requestItems,
       "Include(ID, Title, ReqSubject, ReqStatus, IsSample, InternalDueDate, ActionOffice, Comments, RelatedAudit, ActionItems, EmailSent, ClosedDate, Modified)"
     );
-
+    /*
     var responseList = web
       .get_lists()
       .getByTitle(Audit.Common.Utilities.GetListTitleResponses());
@@ -370,6 +370,36 @@ Audit.SPReport.NewReportPage = function () {
       m_ResponseDocsItems,
       "Include(ID, FSObjType, Title, ReqNum, ResID, DocumentStatus, RejectReason, ReceiptDate, FileLeafRef, FileDirRef, File_x0020_Size, CheckoutUser, Modified, Editor)"
     );
+    */
+    await Promise.all([
+      getAllItems(Audit.Common.Utilities.GetListTitleResponses(), [
+        "ID",
+        "Title",
+        "ReqNum",
+        "ActionOffice",
+        "ReturnReason",
+        "SampleNumber",
+        "ResStatus",
+        "Comments",
+        "Modified",
+        "ClosedDate",
+        "ClosedBy",
+        "POC",
+      ]).then((result) => (m_responseItems = result)),
+      getAllItems(Audit.Common.Utilities.GetLibTitleResponseDocs(), [
+        "ID",
+        "Title",
+        "ReqNum",
+        "ResID",
+        "DocumentStatus",
+        "ReceiptDate",
+        "FileLeafRef",
+        "FileDirRef",
+        "File_x0020_Size",
+        "Modified",
+        "Editor",
+      ]).then((result) => (m_ResponseDocsItems = result)),
+    ]);
 
     currCtx.executeQueryAsync(OnSuccess, OnFailure);
     function OnSuccess(sender, args) {
@@ -521,10 +551,11 @@ Audit.SPReport.NewReportPage = function () {
     m_arrResponses = new Array();
 
     var cnt = 0;
-    var listItemEnumerator = m_responseItems.getEnumerator();
-    while (listItemEnumerator.moveNext()) {
-      var oListItem = listItemEnumerator.get_current();
+    // var listItemEnumerator = m_responseItems.getEnumerator();
+    // while (listItemEnumerator.moveNext()) {
+    //   var oListItem = listItemEnumerator.get_current();
 
+    for (const oListItem of m_responseItems) {
       var number = oListItem.get_item("ReqNum");
       if (number != null) {
         number = number.get_lookupValue();
@@ -593,9 +624,10 @@ Audit.SPReport.NewReportPage = function () {
   }
 
   function LoadResponseDocs() {
-    var listItemEnumerator = m_ResponseDocsItems.getEnumerator();
-    while (listItemEnumerator.moveNext()) {
-      var oListItem = listItemEnumerator.get_current();
+    // var listItemEnumerator = m_ResponseDocsItems.getEnumerator();
+    // while (listItemEnumerator.moveNext()) {
+    //   var oListItem = listItemEnumerator.get_current();
+    for (var oListItem of m_ResponseDocsItems) {
       if (
         oListItem.get_item("DocumentStatus") == "Open" ||
         oListItem.get_item("DocumentStatus") == "Marked for Deletion" ||

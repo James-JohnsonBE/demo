@@ -46,6 +46,10 @@ div.cell-margin {
   margin: 0px;
 }
 
+.ms-webpartPage-root {
+  border-spacing: 0 !important;
+}
+
 /* Audit Styles applying to SharePoint Areas */
 #s4-titlerow {
   color: white;

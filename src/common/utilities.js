@@ -1,7 +1,9 @@
 ﻿window.Audit = window.Audit || {};
 Audit.Common = Audit.Common || {};
 
+var loadStart;
 function InitReport() {
+  loadStart = new Date();
   Audit.Common.Utilities = new Audit.Common.NewUtilities();
   Audit.Common.Init();
 }
@@ -93,7 +95,12 @@ Audit.Common.NewUtilities = function () {
 
   function m_fnOnLoadDisplayTimeStamp() {
     var curDate = new Date();
-    $("#divLoading").text("Loaded at " + curDate.format("MM/dd/yyyy hh:mm tt"));
+    const loadTime = (curDate - loadStart) / 1000;
+    document.getElementById(
+      "divLoading"
+    ).innerHTML = `Loaded at ${curDate.format("MM/dd/yyyy hh:mm tt")}<br/>
+    Load time: ${loadTime + "s"}
+    `;
   }
 
   function m_fnOnLoadDisplayTabAndResponse() {
@@ -400,14 +407,14 @@ Audit.Common.NewUtilities = function () {
     var itemCreateInfo = new SP.ListItemCreationInformation();
     itemCreateInfo.set_underlyingObjectType(SP.FileSystemObjectType.folder);
     itemCreateInfo.set_leafName(requestNumber);
-    oNewEmailFolder = list.addItem(itemCreateInfo);
+    const oNewEmailFolder = list.addItem(itemCreateInfo);
     oNewEmailFolder.set_item("Title", requestNumber);
     oNewEmailFolder.update();
 
-    this.currentUser = web.get_currentUser();
-    this.ownerGroup = web.get_associatedOwnerGroup();
-    this.memberGroup = web.get_associatedMemberGroup();
-    this.visitorGroup = web.get_associatedVisitorGroup();
+    const currentUser = web.get_currentUser();
+    const ownerGroup = web.get_associatedOwnerGroup();
+    const memberGroup = web.get_associatedMemberGroup();
+    const visitorGroup = web.get_associatedVisitorGroup();
 
     oNewEmailFolder.resetRoleInheritance();
     oNewEmailFolder.breakRoleInheritance(false, false);
@@ -833,11 +840,12 @@ Audit.Common.NewUtilities = function () {
     if (docType != null)
       options.url =
         Audit.Common.Utilities.GetSiteUrl() +
-        "/pages/AuditUserManuals.aspx?FilterField1=DocType&FilterValue1=" +
+        "/SitePages/AuditUserManuals.aspx?FilterField1=DocType&FilterValue1=" +
         docType;
     else
       options.url =
-        Audit.Common.Utilities.GetSiteUrl() + "/pages/AuditUserManuals.aspx";
+        Audit.Common.Utilities.GetSiteUrl() +
+        "/SitePages/AuditUserManuals.aspx";
 
     SP.UI.ModalDialog.showModalDialog(options);
   }

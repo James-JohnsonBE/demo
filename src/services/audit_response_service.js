@@ -23,7 +23,7 @@ export async function showBulkAddResponseModal(request) {
     height: 800,
     url:
       Audit.Common.Utilities.GetSiteUrl() +
-      "/pages/AuditBulkAddResponse.aspx?ReqNum=" +
+      "/SitePages/AuditBulkAddResponse.aspx?ReqNum=" +
       request.ReqNum.Value(),
   };
 

@@ -121,7 +121,10 @@ export async function ensureRequestAuditResponseDocsROFolder(
 ) {
   const roFolderResults =
     await appContext.AuditResponseDocsRO.FindByColumnValue(
-      [{ column: "FileLeafRef", value: reqNum }],
+      [
+        { column: "Title", value: reqNum },
+        { column: "ContentType", value: "Folder" },
+      ],
       {},
       { count: 1, includeFolders: true }
     );
