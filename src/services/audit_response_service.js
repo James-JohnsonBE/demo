@@ -7,6 +7,8 @@ import {
 
 import { appContext } from "../infrastructure/application_db_context.js";
 import { showModal } from "../sal/components/modal/index.js";
+import { ValidationError } from "../sal/primitives/validation_error.js";
+import { Result } from "../sal/shared/index.js";
 
 import {
   breakRequestPermissions,
@@ -61,10 +63,13 @@ export async function addResponse(request, response) {
     await appContext.AuditResponses.AddEntity(response);
   } catch (e) {
     console.error("Error adding Response: ", e);
-    alert(e.message);
-  } finally {
+
     finishTask(newResponseTask);
+    return Result.Failure(e);
   }
+
+  finishTask(newResponseTask);
+  return Result.Success();
 }
 
 export async function updateResponse(request, response) {

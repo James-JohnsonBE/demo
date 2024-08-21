@@ -63,16 +63,17 @@ export class BulkAddResponseForm {
 
       const response = bulkResponse.toResponse(request);
 
-      try {
-        await addResponse(request, response);
-      } catch (e) {
-        failedInserts.push([e, bulkResponse]);
+      const result = await addResponse(request, response);
+
+      if (result.isFailure) {
+        failedInserts.push([result.error, bulkResponse]);
         bulkResponseItem.status("failed");
-        bulkResponseItem.message(e.message);
+        bulkResponseItem.message(result.error);
         return;
       }
 
       bulkResponseItem.status("succeeded");
+      bulkResponseItem.message("Success!");
 
       await appContext.AuditBulkResponses.RemoveEntity(bulkResponse);
     });
