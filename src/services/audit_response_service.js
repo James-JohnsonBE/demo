@@ -7,6 +7,7 @@ import {
 
 import { appContext } from "../infrastructure/application_db_context.js";
 import { showModal } from "../sal/components/modal/index.js";
+import { ItemPermissions } from "../sal/infrastructure/sal.js";
 import { ValidationError } from "../sal/primitives/validation_error.js";
 import { Result } from "../sal/shared/index.js";
 
@@ -17,6 +18,7 @@ import {
   getRequestResponses,
 } from "./audit_request_service.js";
 import { breakRequestCoversheetPerms } from "./coversheet_manager.js";
+import { roleNames } from "./permission_manager.js";
 import { addTask, finishTask, taskDefs } from "./tasks.js";
 
 export async function showBulkAddResponseModal(request) {
@@ -70,6 +72,82 @@ export async function addResponse(request, response) {
 
   finishTask(newResponseTask);
   return Result.Success();
+}
+
+export async function onAddNewResponse(response) {
+  const folderResult = await ensureResponseDocFolder(response);
+  if (folderResult.isFailure) {
+    return folderResult;
+  }
+
+  const permissionsResult = await ensureResponseDocFolderPermissions(
+    request,
+    response,
+    folderResult.value
+  );
+}
+
+export async function ensureResponseDocFolder(response) {
+  const folderName = response.Title.toString();
+
+  const results = await appContext.AuditResponseDocs.FindByColumnValue(
+    [
+      { column: "Title", value: folderName },
+      { column: "ContentType", value: "Folder" },
+    ],
+    {},
+    { count: 1, includePermissions: true, includeFolders: true }
+  );
+
+  if (results.results.length) {
+    return Result.Success(results.results[0]);
+  }
+
+  // Else, we need to insert it
+  const newFolderId = await appContext.AuditResponseDocs.UpsertFolderPath(
+    folderName
+  );
+
+  const newFolder = await appContext.AuditResponseDocs.FindById(newFolderId);
+
+  if (newFolder) {
+    return Result.Success(newFolder);
+  }
+
+  return Result.Failure(`Folder not found and couldn't be created`);
+}
+
+export async function ensureResponseDocFolderPermissions(response, folder) {
+  const newItemPermissions = new ItemPermissions({
+    hasUniqueRoleAssignments: true,
+    roles: [],
+  });
+
+  const { owners, members, visitors } = await getSiteGroups();
+  const qaGroup = await getPeopleByUsername(
+    Audit.Common.Utilities.GetGroupNameQA()
+  );
+
+  newItemPermissions.addPrincipalRole(owners, roleNames.FullControl);
+  newItemPermissions.addPrincipalRole(members, roleNames.RestrictedContribute);
+  newItemPermissions.addPrincipalRole(visitors, roleNames.RestrictedRead);
+
+  newItemPermissions.addPrincipalRole(qaGroup, roleNames.RestrictedContribute);
+
+  const actionOffice = response.ActionOffice.Value();
+
+  newItemPermissions.addPrincipalRole(
+    actionOffice.UserGroup,
+    roleNames.RestrictedContribute
+  );
+
+  const result = await appContext.AuditResponseDocs.SetItemPermissions(
+    { ID: folder.ID },
+    newItemPermissions,
+    true
+  );
+
+  return result;
 }
 
 export async function updateResponse(request, response) {
