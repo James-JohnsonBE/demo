@@ -44,10 +44,17 @@ export const bulkAddResponseTemplate = html`
       <button
         class="btn btn-success"
         type="button"
-        data-bind="click: clickSubmitResponses, enable: bulkResponseItems().length"
+        data-bind="click: clickSubmitResponses, enable: enableCreate"
         title="Click here to Create the Responses"
       >
         Create Responses
+      </button>
+      <button
+        class="btn btn-success"
+        type="button"
+        data-bind="click: clickFinish, visible: showFinish"
+      >
+        Finish
       </button>
     </div>
   </div>

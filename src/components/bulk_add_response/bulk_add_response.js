@@ -15,6 +15,24 @@ export class BulkAddResponseForm {
   request;
   bulkResponseItems = ko.observableArray();
   working = ko.observable(false);
+  hasRun = ko.observable(false);
+
+  enableCreate = ko.pureComputed(() => {
+    const items = ko.unwrap(this.bulkResponseItems);
+    const len = items.length;
+
+    if (!len) return false;
+
+    // If not all items have been successfully inserted;
+    if (items.filter((item) => item.status() == "succeeded").length == len)
+      return false;
+
+    return true;
+  });
+
+  showFinish = ko.pureComputed(() => {
+    return this.hasRun();
+  });
 
   async Init() {
     this.fetchBulkResponses();
@@ -79,7 +97,13 @@ export class BulkAddResponseForm {
     });
 
     await Promise.all(insertPromises);
+
+    this.hasRun(true);
     this.working(false);
+  }
+
+  clickFinish() {
+    this.onComplete(SP.UI.DialogResult.OK);
   }
 
   componentName = componentName;
