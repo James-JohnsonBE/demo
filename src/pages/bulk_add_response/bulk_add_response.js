@@ -1,4 +1,6 @@
-﻿import { bulkAddResponseTemplate } from "./BulkAddResponse_Template.js";
+﻿import "../../common/utilities.js";
+
+import { bulkAddResponseTemplate } from "./BulkAddResponse_Template.js";
 var Audit = window.Audit || {};
 Audit.BulkAddResponse = Audit.BulkAddResponse || {};
 
