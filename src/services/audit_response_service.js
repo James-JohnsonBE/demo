@@ -35,6 +35,8 @@ export async function addResponse(request, response) {
   const newResponseTask = addTask(taskDefs.newResponse(responseTitle));
   // Update title
 
+  response.ReqNum.Value(request);
+
   response.Title.Value(responseTitle);
 
   response.ResStatus.Value(AuditResponseStates.Open);

@@ -49,6 +49,7 @@ import { sortByTitle } from "../../sal/infrastructure/index.js";
 import { BulkAddRequestForm } from "../../components/bulk_add_request/bulk_add_request.js";
 
 import { getAllItems } from "../../services/legacy_helpers.js";
+import { BulkAddResponseForm } from "../../components/bulk_add_response/bulk_add_response.js";
 
 document.getElementById("app").innerHTML = iaDbTemplate;
 
@@ -407,7 +408,7 @@ function ViewModel() {
 
   self.ClickBulkAddResponse = function () {
     var oRequest = self.currentRequest();
-    if (oRequest && oRequest.number) m_fnBulkAddResponse(oRequest.number);
+    if (oRequest && oRequest.number) m_fnBulkAddResponse(oRequest.ID);
   };
 
   self.ClickBulkEditResponse = function () {
@@ -2915,7 +2916,7 @@ async function m_fnEditCoverSheet(id, requestNum) {
   ModalDialog.showModalDialog(options);
 }
 
-function m_fnBulkAddResponse(id) {
+async function m_fnBulkAddResponse(id) {
   if (!m_bIsSiteOwner) {
     SP.UI.Notify.addNotification(
       "You do not have access to perform this action...",
@@ -2925,18 +2926,26 @@ function m_fnBulkAddResponse(id) {
   }
 
   m_bIsTransactionExecuting = true;
+  const request = await appContext.AuditRequests.FindById(id);
+  const bulkAddResponseForm = new BulkAddResponseForm({ request });
+  const options = {
+    title: `Bulk Add Responses (${request.Title.toString()})`,
+    form: bulkAddResponseForm,
+    dialogReturnValueCallback: OnCallbackFormBulkAddResponse,
+  };
+  ModalDialog.showModalDialog(options);
 
-  var options = SP.UI.$create_DialogOptions();
-  options.title = "Bulk Add Responses (" + id + ")";
-  options.dialogReturnValueCallback = OnCallbackFormBulkAddResponse;
-  options.height = 800;
-  options.url =
-    Audit.Common.Utilities.GetSiteUrl() +
-    "/SitePages/AuditBulkAddResponse.aspx?ReqNum=" +
-    id +
-    GetSourceUrlForForms();
+  // var options = SP.UI.$create_DialogOptions();
+  // options.title = "Bulk Add Responses (" + id + ")";
+  // options.dialogReturnValueCallback = OnCallbackFormBulkAddResponse;
+  // options.height = 800;
+  // options.url =
+  //   Audit.Common.Utilities.GetSiteUrl() +
+  //   "/SitePages/AuditBulkAddResponse.aspx?ReqNum=" +
+  //   id +
+  //   GetSourceUrlForForms();
 
-  SP.UI.ModalDialog.showModalDialog(options);
+  // SP.UI.ModalDialog.showModalDialog(options);
 }
 
 function m_fnBulkEditResponse(id) {
