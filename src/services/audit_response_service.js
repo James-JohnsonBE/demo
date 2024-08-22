@@ -154,26 +154,27 @@ export async function ensureResponseDocFolderPermissions(
   //   );
   // }
 
+  // TODO: Also Need to Ensure Special Perms based off status
+  // if (await requestHasSpecialPerms(request)) {
+  //   const { specialPermGroup1, specialPermGroup2 } =
+  //     await getSpecialPermGroups();
+
+  //   newItemPermissions.addPrincipalRole(
+  //     specialPermGroup1,
+  //     roleNames.RestrictedRead
+  //   );
+  //   newItemPermissions.addPrincipalRole(
+  //     specialPermGroup2,
+  //     roleNames.RestrictedRead
+  //   );
+  // }
+
   const actionOffice = response.ActionOffice.Value();
 
   newItemPermissions.addPrincipalRole(
     actionOffice.UserGroup,
     roleNames.RestrictedContribute
   );
-
-  if (await requestHasSpecialPerms(request)) {
-    const { specialPermGroup1, specialPermGroup2 } =
-      await getSpecialPermGroups();
-
-    newItemPermissions.addPrincipalRole(
-      specialPermGroup1,
-      roleNames.RestrictedRead
-    );
-    newItemPermissions.addPrincipalRole(
-      specialPermGroup2,
-      roleNames.RestrictedRead
-    );
-  }
 
   const result = await appContext.AuditResponseDocs.SetItemPermissions(
     { ID: folder.ID },
