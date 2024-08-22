@@ -18,6 +18,7 @@ import {
   closeResponseById,
   deleteResponseAndFolder,
   ensureResponseDocFolder,
+  onAddNewResponse,
   uploadResponseDocFile,
 } from "../../services/audit_response_service.js";
 import { Tab, TabsModule } from "../tabs/tabs_module.js";
@@ -499,7 +500,7 @@ class ResponseItem {
 
   ClickEnsureResponseDocFolder = async () => {
     const response = await appContext.AuditResponses.FindById(this.ID);
-    await ensureResponseDocFolder(response);
+    await onAddNewResponse(response);
     this.refreshData();
   };
 

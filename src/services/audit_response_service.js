@@ -18,6 +18,7 @@ import {
   getRequestResponses,
 } from "./audit_request_service.js";
 import { breakRequestCoversheetPerms } from "./coversheet_manager.js";
+import { getQAGroup, getSiteGroups } from "./people_manager.js";
 import { roleNames } from "./permission_manager.js";
 import { addTask, finishTask, taskDefs } from "./tasks.js";
 
@@ -81,7 +82,6 @@ export async function onAddNewResponse(response) {
   }
 
   const permissionsResult = await ensureResponseDocFolderPermissions(
-    request,
     response,
     folderResult.value
   );
@@ -124,9 +124,7 @@ export async function ensureResponseDocFolderPermissions(response, folder) {
   });
 
   const { owners, members, visitors } = await getSiteGroups();
-  const qaGroup = await getPeopleByUsername(
-    Audit.Common.Utilities.GetGroupNameQA()
-  );
+  const qaGroup = await getQAGroup();
 
   newItemPermissions.addPrincipalRole(owners, roleNames.FullControl);
   newItemPermissions.addPrincipalRole(members, roleNames.RestrictedContribute);

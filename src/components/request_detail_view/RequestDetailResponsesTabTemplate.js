@@ -239,7 +239,7 @@ export const requestDetailResponsesTabTemplate = html`
             <button
               type="button"
               class="btn btn-link"
-              title="Ensure Response Documents Folder"
+              title="Ensure Response Documents Folder and Permissions"
               data-bind="visible: resStatus != '7-Closed' && $parent.status != 'Closed' && $parent.status != 'Canceled', 
                 click: ClickEnsureResponseDocFolder"
             >
