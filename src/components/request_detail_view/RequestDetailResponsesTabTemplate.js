@@ -24,6 +24,7 @@ export const requestDetailResponsesTabTemplate = html`
             ><span class="fa-solid fa-circle-plus"></span>Bulk Add Responses</a
           >
         </div>
+        <!--
         <div data-bind="visible: currentRequestResponseItems().length > 0">
           <button
             type="button"
@@ -34,6 +35,7 @@ export const requestDetailResponsesTabTemplate = html`
             ><span class="fa-solid fa-pencil"></span>Bulk Edit Responses</a
           >
         </div>
+        -->
         <!-- /ko -->
         <div
           id="divResponsesShowHideFolderPerms"
@@ -236,6 +238,15 @@ export const requestDetailResponsesTabTemplate = html`
             </button>
           </td>
           <td class="response-responseDocs">
+            <button
+              type="button"
+              class="btn btn-link"
+              title="Ensure Response Documents Folder and Permissions"
+              data-bind="visible: resStatus != '7-Closed' && $parent.status != 'Closed' && $parent.status != 'Canceled', 
+                click: ClickEnsureResponseDocFolder"
+            >
+              <i class="fa-solid fa-check-double"></i>
+            </button>
             <button
               type="button"
               class="btn btn-link"

@@ -19,60 +19,37 @@ export function getSiteGroups() {
   return mappedGroups;
 }
 
-export async function getPeopleByUsername(userName) {
-  const user = await ensureUserByKeyAsync(userName);
-  if (!user) return null;
-  return new People(user);
-}
-
-let specialGroups = null;
-let specialGroupsLoading = ko.observable(false);
-export async function getSpecialPermGroups() {
-  if (specialGroups) return specialGroups;
-  if (specialGroupsLoading()) {
-    return new Promise((resolve) => {
-      const subscriber = specialGroupsLoading.subscribe(() => {
-        subscriber.dispose();
-        resolve(specialGroups);
-      });
-    });
+const _userPromiseMap = new Map();
+export function getPeopleByUsername(userName) {
+  if (!_userPromiseMap.has(userName)) {
+    _userPromiseMap.set(
+      userName,
+      new Promise(async (resolve) => {
+        const user = await ensureUserByKeyAsync(userName);
+        if (!user) resolve(null);
+        resolve(new People(user));
+      })
+    );
   }
-
-  specialGroupsLoading(true);
-  const specialPermGroup1 = await getPeopleByUsername(
-    groupNameSpecialPermName1
-  );
-  const specialPermGroup2 = await getPeopleByUsername(
-    groupNameSpecialPermName2
-  );
-
-  specialGroups = {
-    specialPermGroup1,
-    specialPermGroup2,
-  };
-
-  specialGroupsLoading(false);
-
-  return specialGroups;
+  return _userPromiseMap.get(userName);
 }
 
-let qaGroup = null;
-let qaGroupLoading = ko.observable(false);
-export async function getQAGroup() {
-  if (qaGroup) return qaGroup;
-  if (qaGroupLoading()) {
-    return new Promise((resolve) => {
-      const subscriber = qaGroupLoading.subscribe(() => {
-        subscriber.dispose();
-        resolve(qaGroup);
-      });
-    });
-  }
-  qaGroupLoading(true);
-  qaGroup = await getPeopleByUsername(groupNameQA);
-  qaGroupLoading(false);
-  return qaGroup;
+let _specialGroupsPromise = null;
+export function getSpecialPermGroups() {
+  if (_specialGroupsPromise) return _specialGroupsPromise;
+  _specialGroupsPromise = new Promise(async (resolve, reject) => {
+    const specialPermGroup1 = await getPeopleByUsername(
+      groupNameSpecialPermName1
+    );
+    const specialPermGroup2 = await getPeopleByUsername(
+      groupNameSpecialPermName2
+    );
+    resolve({ specialPermGroup1, specialPermGroup2 });
+  });
+  return _specialGroupsPromise;
 }
+
+export const getQAGroup = () => getPeopleByUsername(groupNameQA);
 
 class User extends People {
   constructor({
