@@ -24,6 +24,7 @@ export const requestDetailResponsesTabTemplate = html`
             ><span class="fa-solid fa-circle-plus"></span>Bulk Add Responses</a
           >
         </div>
+        <!--
         <div data-bind="visible: currentRequestResponseItems().length > 0">
           <button
             type="button"
@@ -34,6 +35,7 @@ export const requestDetailResponsesTabTemplate = html`
             ><span class="fa-solid fa-pencil"></span>Bulk Edit Responses</a
           >
         </div>
+        -->
         <!-- /ko -->
         <div
           id="divResponsesShowHideFolderPerms"
