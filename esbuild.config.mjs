@@ -20,7 +20,6 @@ await esbuild.build({
   entryPoints: [
     "./src/audit_styles.css",
     "./src/pages/ao_db/ao_db.js",
-    "./src/pages/bulk_add_response/bulk_add_response.js",
     "./src/pages/ia_db/ia_db.js",
     "./src/pages/permissions/permissions.js",
     "./src/pages/qa_db/qa_db.js",
@@ -38,8 +37,6 @@ await esbuild.build({
 const referenceFiles = [
   "pages/ao_db/AO_DB.txt",
   "pages/ao_db/AO_DB_References.txt",
-  "pages/bulk_add_response/BulkAddResponse.txt",
-  "pages/bulk_add_response/BulkAddResponse_References.txt",
   "pages/ia_db/IA_DB.txt",
   "pages/ia_db/IA_DB_References.txt",
   "pages/home/Home.txt",
