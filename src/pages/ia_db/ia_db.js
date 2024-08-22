@@ -5083,14 +5083,14 @@ async function m_fnBreakCoversheetPermissionsOnSpecialPerms(
   var currCtx2 = new SP.ClientContext.get_current();
 
   //add action offices
-  var arrActionOffice = this.oListItem.get_item("ActionOffice");
+  var arrActionOffice = oListItem.get_item("ActionOffice");
 
   if (arrActionOffice == null || arrActionOffice.length == 0) {
-    if (this.OnComplete) this.OnComplete(true);
+    if (OnComplete) OnComplete(true);
     return;
   }
 
-  var csID = this.oListItem.get_item("ID");
+  var csID = oListItem.get_item("ID");
   oCntCSAOAdd[csID + "toAdd"] = 0;
   oCntCSAOAdd[csID + "added"] = 0;
 
@@ -5123,6 +5123,7 @@ async function m_fnBreakCoversheetPermissionsOnSpecialPerms(
   }
 
   finishTask(breakCoversheetPermissionsTask);
+  OnComplete(true);
 }
 
 //This gets executed when on refresh if a response does not have broken permissions. When a new response is created from the list form, we
@@ -6137,7 +6138,7 @@ function m_fnGrantSpecialPermissions(requestNumber) {
                             false
                           );
                           setTimeout(function () {
-                            m_waitDialog();
+                            m_waitDialog.close();
                             m_fnRefreshData();
                           }, 200);
                         } else {
