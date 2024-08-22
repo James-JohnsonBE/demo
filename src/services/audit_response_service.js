@@ -69,6 +69,7 @@ export async function addResponse(request, response) {
     }
 
     await appContext.AuditResponses.AddEntity(response);
+    await onAddNewResponse(request, response);
   } catch (e) {
     console.error("Error adding Response: ", e);
 
@@ -144,13 +145,15 @@ export async function ensureResponseDocFolderPermissions(
   newItemPermissions.addPrincipalRole(members, roleNames.RestrictedContribute);
   newItemPermissions.addPrincipalRole(visitors, roleNames.RestrictedRead);
 
-  if (request.isRequest()) {
-    const qaGroup = await getQAGroup();
-    newItemPermissions.addPrincipalRole(
-      qaGroup,
-      roleNames.RestrictedContribute
-    );
-  }
+  // TODO: Need to ensure response should be shared with QA
+  // if (request.isRequest()) {
+  //   const qaGroup = await getQAGroup();
+  //   newItemPermissions.addPrincipalRole(
+  //     qaGroup,
+  //     roleNames.RestrictedContribute
+  //   );
+  // }
+
   const actionOffice = response.ActionOffice.Value();
 
   newItemPermissions.addPrincipalRole(
