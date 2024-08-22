@@ -19,10 +19,19 @@ export function getSiteGroups() {
   return mappedGroups;
 }
 
-export async function getPeopleByUsername(userName) {
-  const user = await ensureUserByKeyAsync(userName);
-  if (!user) return null;
-  return new People(user);
+const _userPromiseMap = new Map();
+export function getPeopleByUsername(userName) {
+  if (!_userPromiseMap.has(userName)) {
+    _userPromiseMap.set(
+      userName,
+      new Promise(async (resolve) => {
+        const user = await ensureUserByKeyAsync(userName);
+        if (!user) resolve(null);
+        resolve(new People(user));
+      })
+    );
+  }
+  return _userPromiseMap.get(userName);
 }
 
 let _specialGroupsPromise = null;
@@ -40,16 +49,7 @@ export function getSpecialPermGroups() {
   return _specialGroupsPromise;
 }
 
-let _qaGroupPomise = null;
-export async function getQAGroup() {
-  if (!_qaGroupPomise) {
-    _qaGroupPomise = new Promise(async (resolve) => {
-      const qaGroup = await getPeopleByUsername(groupNameQA);
-      resolve(qaGroup);
-    });
-  }
-  return _qaGroupPomise;
-}
+export const getQAGroup = () => getPeopleByUsername(groupNameQA);
 
 class User extends People {
   constructor({
