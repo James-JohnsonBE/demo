@@ -500,7 +500,7 @@ class ResponseItem {
 
   ClickEnsureResponseDocFolder = async () => {
     const response = await appContext.AuditResponses.FindById(this.ID);
-    await onAddNewResponse(response);
+    await onAddNewResponse(null, response);
     this.refreshData();
   };
 

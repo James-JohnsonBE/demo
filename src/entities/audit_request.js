@@ -64,6 +64,14 @@ export class AuditRequest extends ConstrainedEntity {
     }),
   });
 
+  isTasker = ko.pureComputed(() => {
+    return this.ReqType.Value() == AUDITREQUESTTYPES.TASKER;
+  });
+
+  isRequest = ko.pureComputed(() => {
+    return this.ReqType.Value() == AUDITREQUESTTYPES.REQUEST;
+  });
+
   ReqNum = new TextField({
     displayName: "Request Number",
     systemName: "Title",

@@ -25,35 +25,47 @@ export async function getPeopleByUsername(userName) {
   return new People(user);
 }
 
-let specialGroups = null;
+let _specialGroupsPromise = null;
 let specialGroupsLoading = ko.observable(false);
-export async function getSpecialPermGroups() {
-  if (specialGroups) return specialGroups;
-  if (specialGroupsLoading()) {
-    return new Promise((resolve) => {
-      const subscriber = specialGroupsLoading.subscribe(() => {
-        subscriber.dispose();
-        resolve(specialGroups);
-      });
-    });
-  }
+export function getSpecialPermGroups() {
+  if (_specialGroupsPromise) return _specialGroupsPromise;
+  _specialGroupsPromise = new Promise(async (resolve, reject) => {
+    const specialPermGroup1 = await getPeopleByUsername(
+      groupNameSpecialPermName1
+    );
+    const specialPermGroup2 = await getPeopleByUsername(
+      groupNameSpecialPermName2
+    );
+    resolve({ specialPermGroup1, specialPermGroup2 });
+  });
+  return _specialGroupsPromise;
 
-  specialGroupsLoading(true);
-  const specialPermGroup1 = await getPeopleByUsername(
-    groupNameSpecialPermName1
-  );
-  const specialPermGroup2 = await getPeopleByUsername(
-    groupNameSpecialPermName2
-  );
+  // if (specialGroups) return specialGroups;
+  // if (specialGroupsLoading()) {
+  //   return new Promise((resolve) => {
+  //     const subscriber = specialGroupsLoading.subscribe(() => {
+  //       subscriber.dispose();
+  //       resolve(specialGroups);
+  //     });
+  //   });
+  // }
 
-  specialGroups = {
-    specialPermGroup1,
-    specialPermGroup2,
-  };
+  // specialGroupsLoading(true);
+  // const specialPermGroup1 = await getPeopleByUsername(
+  //   groupNameSpecialPermName1
+  // );
+  // const specialPermGroup2 = await getPeopleByUsername(
+  //   groupNameSpecialPermName2
+  // );
 
-  specialGroupsLoading(false);
+  // specialGroups = {
+  //   specialPermGroup1,
+  //   specialPermGroup2,
+  // };
 
-  return specialGroups;
+  // specialGroupsLoading(false);
+
+  // return specialGroups;
 }
 
 let qaGroup = null;
