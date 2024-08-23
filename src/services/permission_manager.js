@@ -58,6 +58,8 @@ export function ensureDBPermissions() {
     (ao) => ao.Role == ORGROLES.SPECIALPERMISSIONS
   );
   ensurePagePerms("SP_DB.aspx", sps);
+
+  ensurePagePerms("IA_DB.aspx", []);
 }
 
 async function ensurePagePerms(pageTitle, orgs) {
