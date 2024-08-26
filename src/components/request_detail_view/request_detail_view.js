@@ -1,7 +1,7 @@
 import { appContext } from "../../infrastructure/application_db_context.js";
 import {
   directRegisterComponent,
-  registerComponent,
+  sortByField,
 } from "../../sal/infrastructure/index.js";
 
 import * as ModalDialog from "../../sal/components/modal/index.js";
@@ -117,9 +117,9 @@ export class RequestDetailView {
   currentRequestResponseItems = ko.pureComputed(() => {
     const request = ko.unwrap(this.currentRequest);
     return (
-      request?.responses.map(
-        (response) => new ResponseItem(request, response, this)
-      ) ?? []
+      request?.responses
+        .sort(sortByField("sample"))
+        .map((response) => new ResponseItem(request, response, this)) ?? []
     );
   });
 
