@@ -90,7 +90,7 @@ shuffleRequestingOfficesRest();
 async function shuffleResponseDocsRORest() {
   let uri =
     `../_api/web/GetListByTitle('AuditResponseDocsRO')/items` +
-    `?$select=ID,RequestNumber,ResponseID,ReqNum,ContentType/Name&$expand=ContentType` +
+    `?$select=ID,RequestNumber,RequestSubject,ResponseID,ReqNum,ContentType/Name&$expand=ContentType` +
     // `&$filter=(ContentType eq 'Document') and (ReqNum eq null)` +
     `&$top=5000&$skiptoken=`;
 
@@ -132,7 +132,7 @@ async function shuffleResponseDocsRORest() {
       start = Math.min(start + window, total);
       end = Math.min(end + window, total);
 
-      await sleep(400);
+      await sleep(4000);
       /*
         count++;
         console.log(`updating: ${result.ID} - ${count}/${total}`);
@@ -144,6 +144,8 @@ async function shuffleResponseDocsRORest() {
         */
     }
   }
+
+  console.log("Completed");
 }
 
 async function shuffleResponseDoc(doc) {
@@ -165,6 +167,7 @@ async function shuffleResponseDoc(doc) {
       },
       ReqNum: doc.RequestNumber,
       ResID: doc.ResponseID,
+      ReqSubject: doc.RequestSubject,
     }),
   }).then(async (response) => {
     if (!response.ok) {
