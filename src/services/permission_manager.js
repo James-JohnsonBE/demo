@@ -28,10 +28,10 @@ function ensureAllPagePerms() {
 
   // Reset Other Pages
   [
-    "AuditBulkAddResponse.aspx",
-    "AuditBulkEditResponse.aspx",
+    "AuditEmailHistory.aspx",
     "AuditPermissions.aspx",
     "AuditReport_RequestsStatus.aspx",
+    "AuditResponseDocs.aspx",
     "AuditReturnedResponses.aspx",
     "AuditUnSubmittedResponseDocuments.aspx",
     "AuditUpdateSiteGroups.aspx",
