@@ -39,6 +39,25 @@ export const iaDbTemplate = html`
     form
   </div>
   <div class="audit">
+    <!-- ko with: blockingTasks -->
+    <div
+      class="tasks blocking dimmer"
+      data-bind="css: {'active': $data.length}"
+    >
+      <span class="loader"></span>
+      <ul class="" data-bind="foreach: $data">
+        <li data-bind="text: msg + '... ' + Status()"></li>
+      </ul>
+    </div>
+    <!-- /ko -->
+
+    <!-- ko with: runningTasks -->
+    <div class="tasks running">
+      <ul class="" data-bind="foreach: $data">
+        <li data-bind="text: msg + '... ' + Status()"></li>
+      </ul>
+    </div>
+    <!-- /ko -->
     <!-- ko foreach: currentDialogs -->
     <div
       data-bind="component: { name: 'modal-dialog-component', params: $data }"
