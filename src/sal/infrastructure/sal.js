@@ -2281,7 +2281,7 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
       relFolderPath
     );
 
-    for (i = 2; i < totalBlocks; i++) {
+    for (let i = 2; i < totalBlocks; i++) {
       progress({ currentBlock: i, totalBlocks });
       currentPointer = await continueUpload(
         jobGuid,
