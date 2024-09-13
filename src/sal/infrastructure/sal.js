@@ -2569,6 +2569,34 @@ async function fetchSharePointData(
   }
 }
 
+async function getRequestDigest() {
+  const response = await fetch(sal.globalConfig.siteUrl + "/_api/contextinfo", {
+    method: "POST",
+    headers: {
+      Accept: "application/json; odata=verbose",
+    },
+  });
+
+  if (!response.ok) {
+    console.error("Cannot refresh token", response);
+    return;
+  }
+  const result = await response.json();
+  return result.d.GetContextWebInformation;
+}
+
+async function refreshDigestValue() {
+  const result = await getRequestDigest();
+
+  if (!result) return;
+
+  document.getElementById("__REQUESTDIGEST").value = result.FormDigestValue;
+
+  // Refresh before timeout
+  window.setTimeout(refreshDigestValue, result.FormDigestTimeoutSeconds * 900);
+}
+refreshDigestValue();
+
 window.fetchSharePointData = fetchSharePointData;
 
 /**
