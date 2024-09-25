@@ -1539,11 +1539,6 @@ export function SPList(listDef) {
   }
 
   function upsertFolderPathAsync(folderPath) {
-    if (self.config.def.isLib) {
-      return new Promise((resolve, reject) =>
-        upsertLibFolderByPath(folderPath, resolve)
-      );
-    }
     return new Promise((resolve, reject) =>
       upsertListFolderByPath(folderPath, resolve)
     );
@@ -1985,40 +1980,6 @@ export function SPList(listDef) {
     );
   }
 
-  function upsertLibFolderByPath(folderUrl, success) {
-    const currCtx = new SP.ClientContext.get_current();
-    const web = currCtx.get_web();
-    const oList = web.get_lists().getByTitle(self.config.def.title);
-
-    // TODO: Check if the folder exists before adding it
-
-    var createFolderInternal = function (parentFolder, folderUrl, success) {
-      var ctx = parentFolder.get_context();
-      var folderNames = folderUrl.split("/");
-      var folderName = folderNames[0];
-      var curFolder = parentFolder.get_folders().add(folderName);
-      ctx.load(curFolder);
-      ctx.executeQueryAsync(
-        function () {
-          if (folderNames.length > 1) {
-            var subFolderUrl = folderNames
-              .slice(1, folderNames.length)
-              .join("/");
-            createFolderInternal(curFolder, subFolderUrl, success);
-          } else {
-            success(curFolder);
-          }
-        },
-        function (sender, args) {
-          console.error("error creating new folder");
-          console.error(sender);
-          console.error(error);
-        }
-      );
-    };
-    createFolderInternal(oList.get_rootFolder(), folderUrl, success);
-  }
-
   function setFolderPermissionsAsync(folderPath, valuePairs, reset) {
     return new Promise((resolve, reject) => {
       setFolderPermissions(folderPath, valuePairs, resolve, reset);
@@ -2320,7 +2281,7 @@ https://learn.microsoft.com/en-us/previous-versions/office/developer/sharepoint-
       relFolderPath
     );
 
-    for (i = 2; i < totalBlocks; i++) {
+    for (let i = 2; i < totalBlocks; i++) {
       progress({ currentBlock: i, totalBlocks });
       currentPointer = await continueUpload(
         jobGuid,
@@ -2607,6 +2568,34 @@ async function fetchSharePointData(
     return;
   }
 }
+
+async function getRequestDigest() {
+  const response = await fetch(sal.globalConfig.siteUrl + "/_api/contextinfo", {
+    method: "POST",
+    headers: {
+      Accept: "application/json; odata=verbose",
+    },
+  });
+
+  if (!response.ok) {
+    console.error("Cannot refresh token", response);
+    return;
+  }
+  const result = await response.json();
+  return result.d.GetContextWebInformation;
+}
+
+async function refreshDigestValue() {
+  const result = await getRequestDigest();
+
+  if (!result) return;
+
+  document.getElementById("__REQUESTDIGEST").value = result.FormDigestValue;
+
+  // Refresh before timeout
+  window.setTimeout(refreshDigestValue, result.FormDigestTimeoutSeconds * 900);
+}
+refreshDigestValue();
 
 window.fetchSharePointData = fetchSharePointData;
 

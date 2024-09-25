@@ -1,7 +1,7 @@
 import { appContext } from "../../infrastructure/application_db_context.js";
 import {
   directRegisterComponent,
-  registerComponent,
+  sortByField,
 } from "../../sal/infrastructure/index.js";
 
 import * as ModalDialog from "../../sal/components/modal/index.js";
@@ -17,6 +17,8 @@ import {
 import {
   closeResponseById,
   deleteResponseAndFolder,
+  ensureResponseDocFolder,
+  onAddNewResponse,
   uploadResponseDocFile,
 } from "../../services/audit_response_service.js";
 import { Tab, TabsModule } from "../tabs/tabs_module.js";
@@ -115,9 +117,9 @@ export class RequestDetailView {
   currentRequestResponseItems = ko.pureComputed(() => {
     const request = ko.unwrap(this.currentRequest);
     return (
-      request?.responses.map(
-        (response) => new ResponseItem(request, response, this)
-      ) ?? []
+      request?.responses
+        .sort(sortByField("sample"))
+        .map((response) => new ResponseItem(request, response, this)) ?? []
     );
   });
 
@@ -494,6 +496,12 @@ class ResponseItem {
       await deleteResponseAndFolder(response);
       this.refreshData();
     }
+  };
+
+  ClickEnsureResponseDocFolder = async () => {
+    const response = await appContext.AuditResponses.FindById(this.ID);
+    await onAddNewResponse(null, response);
+    this.refreshData();
   };
 
   onCoversheetFilesAttachedHandler = async (files) => {

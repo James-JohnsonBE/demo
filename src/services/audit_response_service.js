@@ -7,14 +7,24 @@ import {
 
 import { appContext } from "../infrastructure/application_db_context.js";
 import { showModal } from "../sal/components/modal/index.js";
+import { ItemPermissions } from "../sal/infrastructure/sal.js";
+import { ValidationError } from "../sal/primitives/validation_error.js";
+import { Result } from "../sal/shared/index.js";
 
 import {
   breakRequestPermissions,
   getRequestById,
   getRequestResponseDocs,
   getRequestResponses,
+  requestHasSpecialPerms,
 } from "./audit_request_service.js";
 import { breakRequestCoversheetPerms } from "./coversheet_manager.js";
+import {
+  getQAGroup,
+  getSiteGroups,
+  getSpecialPermGroups,
+} from "./people_manager.js";
+import { roleNames } from "./permission_manager.js";
 import { addTask, finishTask, taskDefs } from "./tasks.js";
 
 export async function showBulkAddResponseModal(request) {
@@ -23,7 +33,7 @@ export async function showBulkAddResponseModal(request) {
     height: 800,
     url:
       Audit.Common.Utilities.GetSiteUrl() +
-      "/pages/AuditBulkAddResponse.aspx?ReqNum=" +
+      "/SitePages/AuditBulkAddResponse.aspx?ReqNum=" +
       request.ReqNum.Value(),
   };
 
@@ -34,6 +44,8 @@ export async function addResponse(request, response) {
   const responseTitle = getResponseTitle(request, response);
   const newResponseTask = addTask(taskDefs.newResponse(responseTitle));
   // Update title
+
+  response.ReqNum.Value(request);
 
   response.Title.Value(responseTitle);
 
@@ -57,12 +69,120 @@ export async function addResponse(request, response) {
     }
 
     await appContext.AuditResponses.AddEntity(response);
+    await onAddNewResponse(request, response);
   } catch (e) {
     console.error("Error adding Response: ", e);
-    alert(e.message);
-  } finally {
+
     finishTask(newResponseTask);
+    return Result.Failure(e);
   }
+
+  finishTask(newResponseTask);
+  return Result.Success();
+}
+
+export async function onAddNewResponse(request, response) {
+  if (!request) {
+    request = response.ReqNum.Value();
+    await appContext.AuditRequests.LoadEntity(request);
+  }
+
+  const folderResult = await ensureResponseDocFolder(response);
+  if (folderResult.isFailure) {
+    return folderResult;
+  }
+
+  const permissionsResult = await ensureResponseDocFolderPermissions(
+    request,
+    response,
+    folderResult.value
+  );
+}
+
+export async function ensureResponseDocFolder(response) {
+  const folderName = response.Title.toString();
+
+  const results = await appContext.AuditResponseDocs.FindByColumnValue(
+    [
+      { column: "Title", value: folderName },
+      { column: "ContentType", value: "Folder" },
+    ],
+    {},
+    { count: 1, includePermissions: true, includeFolders: true }
+  );
+
+  if (results.results.length) {
+    return Result.Success(results.results[0]);
+  }
+
+  // Else, we need to insert it
+  const newFolderId = await appContext.AuditResponseDocs.UpsertFolderPath(
+    folderName
+  );
+
+  const newFolder = await appContext.AuditResponseDocs.FindById(newFolderId);
+
+  if (newFolder) {
+    return Result.Success(newFolder);
+  }
+
+  return Result.Failure(`Folder not found and couldn't be created`);
+}
+
+export async function ensureResponseDocFolderPermissions(
+  request,
+  response,
+  folder
+) {
+  const newItemPermissions = new ItemPermissions({
+    hasUniqueRoleAssignments: true,
+    roles: [],
+  });
+
+  const { owners, members, visitors } = await getSiteGroups();
+
+  newItemPermissions.addPrincipalRole(owners, roleNames.FullControl);
+  newItemPermissions.addPrincipalRole(members, roleNames.RestrictedContribute);
+  newItemPermissions.addPrincipalRole(visitors, roleNames.RestrictedRead);
+
+  // TODO: Need to ensure response should be shared with QA
+  // if (request.isRequest()) {
+  //   const qaGroup = await getQAGroup();
+  //   newItemPermissions.addPrincipalRole(
+  //     qaGroup,
+  //     roleNames.RestrictedContribute
+  //   );
+  // }
+
+  // TODO: Also Need to Ensure Special Perms based off status
+  // if (await requestHasSpecialPerms(request)) {
+  //   const { specialPermGroup1, specialPermGroup2 } =
+  //     await getSpecialPermGroups();
+
+  //   newItemPermissions.addPrincipalRole(
+  //     specialPermGroup1,
+  //     roleNames.RestrictedRead
+  //   );
+  //   newItemPermissions.addPrincipalRole(
+  //     specialPermGroup2,
+  //     roleNames.RestrictedRead
+  //   );
+  // }
+
+  const actionOffice = response.ActionOffice.Value();
+
+  newItemPermissions.addPrincipalRole(
+    actionOffice.UserGroup,
+    roleNames.RestrictedContribute
+  );
+
+  const result = await appContext.AuditResponseDocs.SetItemPermissions(
+    { ID: folder.ID },
+    newItemPermissions,
+    true
+  );
+
+  return result;
 }
 
 export async function updateResponse(request, response) {

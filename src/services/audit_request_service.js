@@ -3,6 +3,7 @@ import {
   getPeopleByUsername,
   getQAGroup,
   getSiteGroups,
+  getSpecialPermGroups,
 } from "./people_manager.js";
 import { roleNames } from "./permission_manager.js";
 import { ItemPermissions } from "../sal/infrastructure/index.js";
@@ -121,7 +122,10 @@ export async function ensureRequestAuditResponseDocsROFolder(
 ) {
   const roFolderResults =
     await appContext.AuditResponseDocsRO.FindByColumnValue(
-      [{ column: "FileLeafRef", value: reqNum }],
+      [
+        { column: "Title", value: reqNum },
+        { column: "ContentType", value: "Folder" },
+      ],
       {},
       { count: 1, includeFolders: true }
     );
@@ -309,6 +313,16 @@ export async function breakRequestPermissions(request, responseStatus) {
     request,
     newRequestPermissions,
     true
+  );
+}
+
+export async function requestHasSpecialPerms(request) {
+  const curPerms = await appContext.AuditRequests.GetItemPermissions(request);
+  const { specialPermGroup1 } = await getSpecialPermGroups();
+
+  return curPerms.principalHasPermissionKind(
+    specialPermGroup1,
+    SP.PermissionKind.viewListItems
   );
 }
 

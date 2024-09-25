@@ -48,6 +48,9 @@ import { ensureROEmailFolder } from "../../services/audit_email_service.js";
 import { sortByTitle } from "../../sal/infrastructure/index.js";
 import { BulkAddRequestForm } from "../../components/bulk_add_request/bulk_add_request.js";
 
+import { getAllItems } from "../../services/legacy_helpers.js";
+import { BulkAddResponseForm } from "../../components/bulk_add_response/bulk_add_response.js";
+
 document.getElementById("app").innerHTML = iaDbTemplate;
 
 window.Audit = window.Audit || {};
@@ -151,13 +154,6 @@ function m_getArrRequests() {
 }
 var m_arrRequestsToClose = new Array();
 var m_arrPermissionsResponseFolders = new Array();
-
-// var m_requestItems = null;
-// var m_requestInternalItems = null;
-
-// var m_responseItems = null;
-// var m_ResponseDocsItems = null;
-// var m_ResponseDocsFoldersItems = null;
 
 var m_userPermissionAccess = null;
 var m_PageItems = null;
@@ -412,7 +408,7 @@ function ViewModel() {
 
   self.ClickBulkAddResponse = function () {
     var oRequest = self.currentRequest();
-    if (oRequest && oRequest.number) m_fnBulkAddResponse(oRequest.number);
+    if (oRequest && oRequest.number) m_fnBulkAddResponse(oRequest.ID);
   };
 
   self.ClickBulkEditResponse = function () {
@@ -583,7 +579,7 @@ function ViewModel() {
   });
 }
 
-function LoadInfo() {
+async function LoadInfo() {
   var currCtx = new SP.ClientContext.get_current();
   var web = currCtx.get_web();
 
@@ -616,34 +612,63 @@ function LoadInfo() {
     "Include(ID, Title, ReqNum, InternalStatus, ActiveViewers)"
   );
 
-  var responseList = web
-    .get_lists()
-    .getByTitle(Audit.Common.Utilities.GetListTitleResponses());
-  var responseQuery = new SP.CamlQuery();
-  responseQuery.set_viewXml(
-    '<View><Query><OrderBy><FieldRef Name="ReqNum"/></OrderBy></Query></View>'
-  );
-  const m_responseItems = responseList.getItems(responseQuery);
-  //need to check permissions because of granting/removing special perms
-  //currCtx.load( m_responseItems, 'Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, Comments, Modified, ClosedDate, ClosedBy, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))' );
-  currCtx.load(
-    m_responseItems,
-    "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, ActiveViewers, Comments, Modified, ClosedDate, ClosedBy, POC, POCCC)"
-  );
+  // var responseList = web
+  //   .get_lists()
+  //   .getByTitle(Audit.Common.Utilities.GetListTitleResponses());
+  // var responseQuery = new SP.CamlQuery();
+  // responseQuery.set_viewXml(
+  //   "<View><Query>" +
+  //     '<Where><Neq><FieldRef Name="ResStatus"/><Value Type="Text">7-Closed</Value></Neq></Where>' +
+  //     '<OrderBy><FieldRef Name="ReqNum"/></OrderBy>' +
+  //     "</Query></View>"
+  // );
+  // // const m_responseItems = responseList.getItems(responseQuery);
+  // //need to check permissions because of granting/removing special perms
+  // // currCtx.load(
+  // //   m_responseItems,
+  // //   "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, Comments, Modified, ClosedDate, ClosedBy, HasUniqueRoleAssignments, RoleAssignments, RoleAssignments.Include(Member, RoleDefinitionBindings))"
+  // // );
+  // currCtx.load(
+  //   m_responseItems,
+  //   "Include(ID, Title, ReqNum, ActionOffice, ReturnReason, SampleNumber, ResStatus, ActiveViewers, Comments, Modified, ClosedDate, ClosedBy, POC, POCCC)"
+  // );
 
-  //make sure to only pull documents (fsobjtype = 0)
-  var responseDocsLib = web
-    .get_lists()
-    .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocs());
-  var responseDocsQuery = new SP.CamlQuery();
-  responseDocsQuery.set_viewXml(
-    '<View Scope="RecursiveAll"><Query><OrderBy><FieldRef Name="ReqNum"/><FieldRef Name="ResID"/></OrderBy><Where><Eq><FieldRef Name="ContentType"/><Value Type="Text">Document</Value></Eq></Where></Query></View>'
-  );
-  const m_ResponseDocsItems = responseDocsLib.getItems(responseDocsQuery);
-  currCtx.load(
-    m_ResponseDocsItems,
-    "Include(ID, Title, ReqNum, ResID, DocumentStatus, RejectReason, ReceiptDate, FileLeafRef, FileDirRef, File_x0020_Size, CheckoutUser, Modified, Editor, Created)"
-  );
+  let m_responseDocsItems, m_responseItems;
+
+  await Promise.all([
+    getAllItems(Audit.Common.Utilities.GetListTitleResponses(), [
+      "ID",
+      "Title",
+      "ReqNum",
+      "ActionOffice",
+      "ReturnReason",
+      "SampleNumber",
+      "ResStatus",
+      "ActiveViewers",
+      "Comments",
+      "Modified",
+      "ClosedDate",
+      "ClosedBy",
+      "POC",
+      "POCCC",
+    ]).then((result) => (m_responseItems = result)),
+    getAllItems(Audit.Common.Utilities.GetLibTitleResponseDocs(), [
+      "ID",
+      "Title",
+      "ReqNum",
+      "ResID",
+      "DocumentStatus",
+      "RejectReason",
+      "ReceiptDate",
+      "FileLeafRef",
+      "FileDirRef",
+      "File_x0020_Size",
+      "CheckoutUser",
+      "Modified",
+      "Editor",
+      "Created",
+    ]).then((result) => (m_responseDocsItems = result)),
+  ]);
 
   const m_groupColl = web.get_siteGroups();
   currCtx.load(m_groupColl);
@@ -703,7 +728,7 @@ function LoadInfo() {
           m_requestItems,
           m_requestInternalItems,
           m_responseItems,
-          m_ResponseDocsItems
+          m_responseDocsItems
         );
         // m_fnResetAODBPerms(m_PageItems);
         ensureROEmailFolder();
@@ -717,7 +742,7 @@ function LoadInfo() {
           m_requestItems,
           m_requestInternalItems,
           m_responseItems,
-          m_ResponseDocsItems
+          m_responseDocsItems
         );
       }
       currCtx.executeQueryAsync(OnSuccessLoadPages, OnFailureLoadPages);
@@ -730,7 +755,7 @@ function LoadInfo() {
         m_requestItems,
         m_requestInternalItems,
         m_responseItems,
-        m_ResponseDocsItems
+        m_responseDocsItems
       );
     }
 
@@ -751,27 +776,6 @@ function LoadInfo() {
 function m_fnRefresh(requestNumber) {
   window.location.reload();
 }
-
-// function m_fnLoadInit(
-//   m_requestItems,
-//   m_requestInternalItems,
-//   m_responseItems,
-//   m_ResponseDocsItems
-// ) {
-//   Audit.Common.Utilities.LoadSiteGroups(m_groupColl);
-//   Audit.Common.Utilities.LoadActionOffices(m_aoItems);
-
-//   LoadRequests(m_requestItems);
-//   LoadRequestsInternal(m_requestInternalItems);
-//   LoadResponses(m_responseItems);
-//   LoadResponseDocs(m_ResponseDocsItems);
-//   LoadResponseCounts();
-
-//   DisplayRequestsThatShouldClose();
-
-//   LoadTabStatusReport1();
-//   LoadTabStatusReport2();
-// }
 
 function m_fnLoadInitialData(
   m_aoItems,
@@ -1538,10 +1542,7 @@ function LoadRequestsInternal(m_requestInternalItems) {
 
 function LoadResponses(responseItemsColl) {
   try {
-    var listItemEnumerator = responseItemsColl.getEnumerator();
-    while (listItemEnumerator.moveNext()) {
-      var oListItem = listItemEnumerator.get_current();
-
+    for (const oListItem of responseItemsColl) {
       var number = oListItem.get_item("ReqNum");
       if (number != null) {
         number = number.get_lookupValue();
@@ -1636,10 +1637,7 @@ function LoadResponseDocs(m_ResponseDocsItems) {
 
   m_fnMapResponseDocs(m_ResponseDocsItems, m_bigMap);
 
-  var listItemEnumerator = m_ResponseDocsItems.getEnumerator();
-  while (listItemEnumerator.moveNext()) {
-    var oListItem = listItemEnumerator.get_current();
-
+  for (const oListItem of m_ResponseDocsItems) {
     const checkedOutBy = Audit.Common.Utilities.GetFriendlyDisplayName(
       oListItem,
       "CheckoutUser"
@@ -1668,9 +1666,9 @@ function LoadResponseDocs(m_ResponseDocsItems) {
 
 function m_fnMapResponseDocs(responseDocItemsColl, m_bigMap) {
   try {
-    var listItemEnumerator = responseDocItemsColl.getEnumerator();
-    while (listItemEnumerator.moveNext()) {
-      var oListItem = listItemEnumerator.get_current();
+    //var listItemEnumerator = responseDocItemsColl.getEnumerator();
+    for (const oListItem of responseDocItemsColl) {
+      // var oListItem = listItemEnumerator.get_current();
 
       var responseDocID = oListItem.get_item("ID");
 
@@ -2157,7 +2155,13 @@ async function LoadTabRequestInfoResponses(oRequest) {
     return;
   });
 
-  LoadResponses(m_subsetResponseItems);
+  var listItemEnumerator = m_subsetResponseItems.getEnumerator();
+  const m_subsetResponseItemsArr = [];
+  while (listItemEnumerator.moveNext()) {
+    m_subsetResponseItemsArr.push(listItemEnumerator.get_current());
+  }
+
+  LoadResponses(m_subsetResponseItemsArr);
 
   var listItemEnumerator = m_subsetResponseItems.getEnumerator();
   while (listItemEnumerator.moveNext()) {
@@ -2325,9 +2329,14 @@ async function LoadTabRequestInfoResponseDocs(oRequest) {
   await new Promise((resolve, reject) =>
     currCtx.executeQueryAsync(resolve, reject)
   );
+  const responseDocItemsArray = [];
+  const responseDocItemsEnumerator = requestResponseDocsItems.getEnumerator();
+  while (responseDocItemsEnumerator.moveNext()) {
+    responseDocItemsArray.push(responseDocItemsEnumerator.get_current());
+  }
 
   oRequest.responses.map((response) => (response.responseDocs = []));
-  m_fnMapResponseDocs(requestResponseDocsItems, m_bigMap);
+  m_fnMapResponseDocs(responseDocItemsArray, m_bigMap);
 
   currCtx = new SP.ClientContext.get_current();
   web = currCtx.get_web();
@@ -2721,14 +2730,14 @@ function LoadTabStatusReport2() {
 function m_fnViewLateRequests() {
   window.open(
     Audit.Common.Utilities.GetSiteUrl() +
-      "/pages/AuditReport_RequestsStatus.aspx",
+      "/SitePages/AuditReport_RequestsStatus.aspx",
     "_blank"
   );
 }
 
 function m_fnViewPermissions() {
   window.open(
-    Audit.Common.Utilities.GetSiteUrl() + "/pages/AuditPermissions.aspx",
+    Audit.Common.Utilities.GetSiteUrl() + "/SitePages/AuditPermissions.aspx",
     "_blank"
   );
 }
@@ -2736,14 +2745,15 @@ function m_fnViewPermissions() {
 function m_fnViewResponseDocsToday() {
   window.open(
     Audit.Common.Utilities.GetSiteUrl() +
-      "/pages/AuditUnSubmittedResponseDocuments.aspx",
+      "/SitePages/AuditUnSubmittedResponseDocuments.aspx",
     "_blank"
   );
 }
 
 function m_fnViewReturnedDocs() {
   window.open(
-    Audit.Common.Utilities.GetSiteUrl() + "/pages/AuditReturnedResponses.aspx",
+    Audit.Common.Utilities.GetSiteUrl() +
+      "/SitePages/AuditReturnedResponses.aspx",
     "_blank"
   );
 }
@@ -2906,7 +2916,7 @@ async function m_fnEditCoverSheet(id, requestNum) {
   ModalDialog.showModalDialog(options);
 }
 
-function m_fnBulkAddResponse(id) {
+async function m_fnBulkAddResponse(id) {
   if (!m_bIsSiteOwner) {
     SP.UI.Notify.addNotification(
       "You do not have access to perform this action...",
@@ -2916,18 +2926,26 @@ function m_fnBulkAddResponse(id) {
   }
 
   m_bIsTransactionExecuting = true;
+  const request = await appContext.AuditRequests.FindById(id);
+  const bulkAddResponseForm = new BulkAddResponseForm({ request });
+  const options = {
+    title: `Bulk Add Responses (${request.Title.toString()})`,
+    form: bulkAddResponseForm,
+    dialogReturnValueCallback: OnCallbackFormBulkAddResponse,
+  };
+  ModalDialog.showModalDialog(options);
 
-  var options = SP.UI.$create_DialogOptions();
-  options.title = "Bulk Add Responses (" + id + ")";
-  options.dialogReturnValueCallback = OnCallbackFormBulkAddResponse;
-  options.height = 800;
-  options.url =
-    Audit.Common.Utilities.GetSiteUrl() +
-    "/pages/AuditBulkAddResponse.aspx?ReqNum=" +
-    id +
-    GetSourceUrlForForms();
+  // var options = SP.UI.$create_DialogOptions();
+  // options.title = "Bulk Add Responses (" + id + ")";
+  // options.dialogReturnValueCallback = OnCallbackFormBulkAddResponse;
+  // options.height = 800;
+  // options.url =
+  //   Audit.Common.Utilities.GetSiteUrl() +
+  //   "/SitePages/AuditBulkAddResponse.aspx?ReqNum=" +
+  //   id +
+  //   GetSourceUrlForForms();
 
-  SP.UI.ModalDialog.showModalDialog(options);
+  // SP.UI.ModalDialog.showModalDialog(options);
 }
 
 function m_fnBulkEditResponse(id) {
@@ -2956,7 +2974,7 @@ function m_fnBulkEditResponse(id) {
   };
   options.url =
     Audit.Common.Utilities.GetSiteUrl() +
-    "/pages/AuditBulkEditResponse.aspx?ReqNum=" +
+    "/SitePages/AuditBulkEditResponse.aspx?ReqNum=" +
     id +
     GetSourceUrlForForms();
 
@@ -3390,7 +3408,7 @@ function m_fnViewResponseDocFolder(title) {
   //if they delete a document in this window, we want them to return to the current page
   options.url =
     Audit.Common.Utilities.GetSiteUrl() +
-    "/pages/AuditResponseDocs.aspx?RootFolder=" +
+    "/SitePages/AuditResponseDocs.aspx?RootFolder=" +
     Audit.Common.Utilities.GetSiteUrl() +
     "/" +
     Audit.Common.Utilities.GetLibNameResponseDocs() +
@@ -3412,7 +3430,7 @@ function m_fnViewEmailHistoryFolder(reqNum) {
 
   options.url =
     Audit.Common.Utilities.GetSiteUrl() +
-    "/pages/AuditEmailHistory.aspx?RootFolder=" +
+    "/SitePages/AuditEmailHistory.aspx?RootFolder=" +
     Audit.Common.Utilities.GetSiteUrl() +
     "/Lists/" +
     Audit.Common.Utilities.GetListNameEmailHistory() +
@@ -5065,14 +5083,14 @@ async function m_fnBreakCoversheetPermissionsOnSpecialPerms(
   var currCtx2 = new SP.ClientContext.get_current();
 
   //add action offices
-  var arrActionOffice = this.oListItem.get_item("ActionOffice");
+  var arrActionOffice = oListItem.get_item("ActionOffice");
 
   if (arrActionOffice == null || arrActionOffice.length == 0) {
-    if (this.OnComplete) this.OnComplete(true);
+    if (OnComplete) OnComplete(true);
     return;
   }
 
-  var csID = this.oListItem.get_item("ID");
+  var csID = oListItem.get_item("ID");
   oCntCSAOAdd[csID + "toAdd"] = 0;
   oCntCSAOAdd[csID + "added"] = 0;
 
@@ -5105,6 +5123,7 @@ async function m_fnBreakCoversheetPermissionsOnSpecialPerms(
   }
 
   finishTask(breakCoversheetPermissionsTask);
+  OnComplete(true);
 }
 
 //This gets executed when on refresh if a response does not have broken permissions. When a new response is created from the list form, we
@@ -6119,7 +6138,7 @@ function m_fnGrantSpecialPermissions(requestNumber) {
                             false
                           );
                           setTimeout(function () {
-                            m_waitDialog();
+                            m_waitDialog.close();
                             m_fnRefreshData();
                           }, 200);
                         } else {
@@ -6917,7 +6936,10 @@ function OnCallbackFormCoverSheet(result, value) {
 
 function OnCallbackFormBulkAddResponse(result, value) {
   //this is a field on this page that gets updated by the bulkupdate page if a bulk update operation has run
-  if ($("#divRanBulkUpdate").text() == 1) m_fnRefreshData();
+  if (result !== SP.UI.DialogResult.OK) {
+    return;
+  }
+  m_fnRefreshData();
 }
 
 function OnCallbackFormBulkEditResponse(result, value) {

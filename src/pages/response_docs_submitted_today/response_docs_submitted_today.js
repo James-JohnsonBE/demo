@@ -1,4 +1,6 @@
-﻿var Audit = window.Audit || {};
+﻿import "../../common/utilities.js";
+
+var Audit = window.Audit || {};
 Audit.ResponseDocsReport = Audit.ResponseDocsReport || {};
 
 if (document.readyState === "ready" || document.readyState === "complete") {
@@ -120,7 +122,7 @@ Audit.ResponseDocsReport.NewReportPage = function () {
           var responseLink =
             "<a href='" +
             Audit.Common.Utilities.GetSiteUrl() +
-            "/pages/IA_DB.aspx?Tab=request-detail&request-detail-tab=response-docs&ReqNum=" +
+            "/SitePages/IA_DB.aspx?Tab=request-detail&request-detail-tab=response-docs&ReqNum=" +
             oResponse.requestNumber +
             "' target='_blank'>" +
             oResponse.title +

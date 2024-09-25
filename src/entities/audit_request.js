@@ -29,7 +29,6 @@ export const AUDITREQUESTSTATES = {
 export const AUDITREQUESTTYPES = {
   TASKER: "Tasker",
   REQUEST: "Request",
-  NOTIFICATION: "Notification",
 };
 
 export class AuditRequest extends ConstrainedEntity {
@@ -63,6 +62,14 @@ export class AuditRequest extends ConstrainedEntity {
         default:
       }
     }),
+  });
+
+  isTasker = ko.pureComputed(() => {
+    return this.ReqType.Value() == AUDITREQUESTTYPES.TASKER;
+  });
+
+  isRequest = ko.pureComputed(() => {
+    return this.ReqType.Value() == AUDITREQUESTTYPES.REQUEST;
   });
 
   ReqNum = new TextField({

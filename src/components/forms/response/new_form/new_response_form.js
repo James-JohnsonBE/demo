@@ -24,12 +24,12 @@ export class NewResponseForm extends BaseForm {
 
     const response = ko.unwrap(this.entity);
 
-    try {
-      await addResponse(response.ReqNum.Value(), response);
-      this.onComplete(SP.UI.DialogResult.OK);
-    } catch (e) {
-      alert(e);
+    const result = await addResponse(response.ReqNum.Value(), response);
+    if (result.isFailure) {
+      alert(result.error);
+      return;
     }
+    this.onComplete(SP.UI.DialogResult.OK);
   }
 
   clearForm() {}
