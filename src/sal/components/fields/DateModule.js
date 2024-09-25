@@ -36,15 +36,6 @@ export class DateModule extends BaseFieldModule {
     super(params);
   }
 
-  // toInputDateString = () => {
-  //   const d = this.Value();
-  //   return [
-  //     d.getUTCFullYear().toString().padStart(4, "0"),
-  //     (d.getUTCMonth() + 1).toString().padStart(2, "0"),
-  //     d.getUTCDate().toString().padStart(2, "0"),
-  //   ].join("-");
-  // };
-
   toInputDateString = () => this.Value().format("yyyy-MM-dd");
 
   toInputDateTimeString = () => this.Value().format("yyyy-MM-ddThh:mm");
