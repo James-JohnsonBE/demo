@@ -156,6 +156,7 @@ export class AuditRequest extends ConstrainedEntity {
       "1 Day Past Due",
       "3 Days Past Due",
       "7 Days Past Due",
+      "7 Days Recurring",
     ],
     multiple: true,
   });

@@ -53,7 +53,24 @@ export default class NewRequestFormModule extends BaseForm {
     const reqType = configurationsStore["default-req-type"];
     request.ReqType.Value(reqType);
 
-    request.Reminders.Value(request.Reminders.Options());
+    request.Reminders.Value([
+      "3 Days Before Due",
+      "1 Day Before Due",
+      "1 Day Past Due",
+      "3 Days Past Due",
+      "7 Days Past Due",
+    ]);
+
+    const remindersText = configurationsStore["default-reminders"];
+    if (remindersText) {
+      try {
+        const reminders = JSON.parse(remindersText);
+        request.Reminders.Value(reminders);
+      } catch (e) {
+        console.warn("Error parsing reminders default", remindersText);
+      }
+    }
+
     request.ReqStatus.Value(AUDITREQUESTSTATES.OPEN);
   }
 
