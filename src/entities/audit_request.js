@@ -16,6 +16,7 @@ import {
   allActionOfficesFilter,
   allRequestingOfficesFilter,
   auditOrganizationStore,
+  configurationsStore,
 } from "../infrastructure/store.js";
 import { appContext } from "../infrastructure/application_db_context.js";
 
@@ -29,6 +30,35 @@ export const AUDITREQUESTSTATES = {
 export const AUDITREQUESTTYPES = {
   TASKER: "Tasker",
   REQUEST: "Request",
+};
+
+// export const requestDefaultReminders = [
+//   "3 Days Before Due",
+//   "1 Day Before Due",
+//   "1 Day Past Due",
+//   "3 Days Past Due",
+//   "7 Days Past Due",
+//   "7 Days Recurring",
+// ];
+
+export const getRequestDefaultReminders = () => {
+  let reminders = [
+    "3 Days Before Due",
+    "1 Day Before Due",
+    "1 Day Past Due",
+    "3 Days Past Due",
+    "7 Days Past Due",
+    "7 Days Recurring",
+  ];
+  const remindersText = configurationsStore["default-reminders"];
+  if (remindersText) {
+    try {
+      reminders = JSON.parse(remindersText);
+    } catch (e) {
+      console.warn("Error parsing reminders default", remindersText);
+    }
+  }
+  return reminders;
 };
 
 export class AuditRequest extends ConstrainedEntity {

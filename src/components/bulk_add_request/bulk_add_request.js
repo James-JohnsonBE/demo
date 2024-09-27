@@ -4,6 +4,7 @@ import { toggle } from "../../sal/components/modal/modalDialog.js";
 
 import { directRegisterComponent } from "../../sal/infrastructure/index.js";
 import { bulkAddRequestTemplate } from "./BulkAddRequestTemplate.js";
+import { getRequestDefaultReminders } from "../../entities/index.js";
 
 const componentName = "bulk-add-request-form";
 export class BulkAddRequestForm {
@@ -61,7 +62,8 @@ export class BulkAddRequestForm {
       const bulkRequest = bulkRequestItem.bulkRequest;
 
       const newRequest = bulkRequest.toRequest();
-      newRequest.Reminders.Value(newRequest.Reminders.Options());
+      const requestDefaultReminders = getRequestDefaultReminders();
+      newRequest.Reminders.Value(requestDefaultReminders);
 
       // a. Insert new Request
       try {
