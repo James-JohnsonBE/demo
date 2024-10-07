@@ -1,6 +1,7 @@
 import {
   AUDITREQUESTSTATES,
   AuditRequest,
+  getRequestDefaultReminders,
 } from "../../../../entities/index.js";
 
 import { addNewRequest } from "../../../../services/index.js";
@@ -53,7 +54,9 @@ export default class NewRequestFormModule extends BaseForm {
     const reqType = configurationsStore["default-req-type"];
     request.ReqType.Value(reqType);
 
-    request.Reminders.Value(request.Reminders.Options());
+    const defaultReminders = getRequestDefaultReminders();
+    request.Reminders.Value(defaultReminders);
+
     request.ReqStatus.Value(AUDITREQUESTSTATES.OPEN);
   }
 

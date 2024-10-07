@@ -101,6 +101,7 @@ export async function onAddNewResponse(request, response) {
 
 export async function ensureResponseDocFolder(response) {
   const folderName = response.Title.toString();
+  const task = addTask(taskDefs.ensureResponseDocFolder(folderName));
 
   const results = await appContext.AuditResponseDocs.FindByColumnValue(
     [
@@ -108,10 +109,12 @@ export async function ensureResponseDocFolder(response) {
       { column: "ContentType", value: "Folder" },
     ],
     {},
-    { count: 1, includePermissions: true, includeFolders: true }
+    { count: 1, includePermissions: true, includeFolders: true },
+    ["ID", "Title", "ContentType"]
   );
 
   if (results.results.length) {
+    finishTask(task);
     return Result.Success(results.results[0]);
   }
 
@@ -122,6 +125,7 @@ export async function ensureResponseDocFolder(response) {
 
   const newFolder = await appContext.AuditResponseDocs.FindById(newFolderId);
 
+  finishTask(task);
   if (newFolder) {
     return Result.Success(newFolder);
   }
@@ -134,6 +138,9 @@ export async function ensureResponseDocFolderPermissions(
   response,
   folder
 ) {
+  const task = addTask(
+    taskDefs.permissionsResponseFolder(response.Title.Value())
+  );
   const newItemPermissions = new ItemPermissions({
     hasUniqueRoleAssignments: true,
     roles: [],
@@ -182,6 +189,7 @@ export async function ensureResponseDocFolderPermissions(
     true
   );
 
+  finishTask(task);
   return result;
 }
 

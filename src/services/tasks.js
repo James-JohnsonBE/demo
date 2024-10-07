@@ -35,7 +35,13 @@ export const taskDefs = {
   },
   permissionsResponseFolder: (responseTitle) => {
     return {
-      msg: "Updating Response Folder Item Permissions: " + responseTitle,
+      msg: "Ensuring Response Folder Item Permissions: " + responseTitle,
+      blocking: true,
+    };
+  },
+  ensureResponseDocFolder: (folderName) => {
+    return {
+      msg: "Ensuring Response Folder: " + folderName,
       blocking: true,
     };
   },

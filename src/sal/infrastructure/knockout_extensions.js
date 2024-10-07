@@ -38,6 +38,8 @@ ko.bindingHandlers.searchSelect = {
     function populateOpts() {
       const optionItems = ko.unwrap(options);
 
+      const selectedOpts = ko.unwrap(selectedOptions) ?? [];
+
       const optionElements = optionItems.map((option) => {
         const optionElement = document.createElement("option");
         ko.selectExtensions.writeValue(optionElement, ko.unwrap(option));
@@ -45,9 +47,11 @@ ko.bindingHandlers.searchSelect = {
         optionElement.innerText = optionsText(option);
 
         if (
-          ko
-            .unwrap(selectedOptions)
-            ?.find((selectedOption) => selectedOption.ID == option.ID)
+          selectedOpts?.find((selectedOption) => {
+            if (option.ID && selectedOption.ID == option.ID) return true;
+            if (option == selectedOption) return true;
+            return false;
+          })
         ) {
           optionElement.setAttribute("selected", "");
         }

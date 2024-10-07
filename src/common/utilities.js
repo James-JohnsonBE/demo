@@ -31,8 +31,8 @@ Audit.Common.NewUtilities = function () {
   var m_libTitleResponseDocs = "AuditResponseDocs";
   var m_libNameResponseDocs = "AuditResponseDocs";
 
-  var m_libTitleResponseDocsEA = "AuditResponseDocsEA";
-  var m_libNameResponseDocsEA = "AuditResponseDocsEA";
+  var m_libTitleResponseDocsEA = "AuditResponseDocsRO";
+  var m_libNameResponseDocsEA = "AuditResponseDocsRO";
 
   var m_listTitleActionOffices = "AuditOrganizations";
   var m_listNameActionOffices = "AuditOrganizations";
