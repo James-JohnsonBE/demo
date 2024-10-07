@@ -265,6 +265,20 @@ export class RequestDetailView {
       ?.highlightResponse();
   };
 
+  clickEnsureAllResponses = async () => {
+    const request = ko.unwrap(this.request);
+
+    const response = await appContext.AuditResponses.FindByColumnValue(
+      [{ column: "ReqNumId", value: request.ID }],
+      {},
+      {}
+    );
+
+    await Promise.all(
+      response.results.map((response) => onAddNewResponse(request, response))
+    );
+  };
+
   // ResponseDocs
   clickHelpResponseDocs = () => {
     var helpDlg =

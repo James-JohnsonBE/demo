@@ -4153,15 +4153,12 @@ async function m_fnUpdateSensitivityOnRequest(
     .getByTitle(Audit.Common.Utilities.GetLibTitleResponseDocsEA());
   var earesponseDocsQuery = new SP.CamlQuery();
   earesponseDocsQuery.set_viewXml(
-    '<View Scope="RecursiveAll"><Query><Where><And><Eq><FieldRef Name="RequestNumber"/><Value Type="Text">' +
+    '<View Scope="RecursiveAll"><Query><Where><And><Eq><FieldRef Name="ReqNum"/><Value Type="Text">' +
       requestNumber +
       '</Value></Eq><Eq><FieldRef Name="ContentType"/><Value Type="Text">Document</Value></Eq></And></Where></Query></View>'
   );
   const earesponseDocsItems = earesponseDocsLib.getItems(earesponseDocsQuery);
-  currCtx.load(
-    earesponseDocsItems,
-    "Include(ID, RequestNumber, ResponseID, FileLeafRef)"
-  );
+  currCtx.load(earesponseDocsItems, "Include(ID, ReqNum, ResID, FileLeafRef)");
 
   var requestDocLib = web
     .get_lists()
@@ -4270,7 +4267,7 @@ async function m_fnUpdateSensitivityOnRequest(
     var curDocExt = curDocFileNameAndExt.replace(curDocFileName, "");
 
     //var curDocRequest = oListItem.get_item("RequestNumber");
-    var curDocResponseTitle = oListItem.get_item("ResponseID");
+    var curDocResponseTitle = oListItem.get_item("ResID");
     var dateStamp = curDocFileName.replace(curDocResponseTitle + "_", "");
     if (dateStamp.indexOf("_") >= 0) {
       //then it had some sensitivity

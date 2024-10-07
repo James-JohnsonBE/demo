@@ -24,6 +24,15 @@ export const requestDetailResponsesTabTemplate = html`
             ><span class="fa-solid fa-circle-plus"></span>Bulk Add Responses</a
           >
         </div>
+        <!-- <div>
+        <button
+          type="button"
+          class="btn btn-link"
+          title="Ensure All Response Permissions"
+          data-bind="click: clickEnsureAllResponses"
+          ><span class="fa-solid fa-lock"></span>Ensure All Response Permissions</a
+        >
+        </div> -->
         <!--
         <div data-bind="visible: currentRequestResponseItems().length > 0">
           <button
