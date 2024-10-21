@@ -55,15 +55,14 @@ export class BulkAddRequestForm {
     const bulkRequestItems = this.bulkRequestItems();
 
     const failedInserts = [];
+
     // 2. Create new AuditRequests
     const insertPromises = bulkRequestItems.map(async (bulkRequestItem) => {
       bulkRequestItem.status("pending");
       // Map the bulk request to a an AuditRequest
       const bulkRequest = bulkRequestItem.bulkRequest;
 
-      const newRequest = bulkRequest.toRequest();
-      const requestDefaultReminders = getRequestDefaultReminders();
-      newRequest.Reminders.Value(requestDefaultReminders);
+      const newRequest = bulkRequest.toNewRequest();
 
       // a. Insert new Request
       try {

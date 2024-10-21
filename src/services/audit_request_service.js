@@ -225,7 +225,7 @@ async function ensureRequestPermissions(request) {
 }
 
 async function ensureRequestInternalItem(request) {
-  const requestInternalResult = getRequestInternalItem(request);
+  const requestInternalResult = await getRequestInternalItem(request);
   if (requestInternalResult) return requestInternalResult;
 
   const requestInternal = new AuditRequestsInternal();
