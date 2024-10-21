@@ -77,13 +77,13 @@ AuditPermissions
 https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool@latest/dist/pages/permissions/Permissions.txt
 
 AuditReport_RequestsStatus
-/sites/CGFS/Style Library/apps/audit/src/Pages/Report_RequestStatus/Report_RequestStatus_References.txt
+/sites/CGFS-Audits/Style%20Library/apps/audit/dist/pages/report_request_status/Report_RequestStatus_References.txt
 
 AuditReturnedResponses
-/sites/CGFS/Style Library/apps/audit/src/Pages/ResponseDocsReturnedToday/ResponseDocsReturnedToday_References.txt
+/sites/CGFS-Audits/Style Library/apps/audit/dist/Pages/response_docs_returned_today/ResponseDocsReturnedToday_References.txt
 
 AuditUnSubmittedResponseDocuments
-/sites/CGFS/Style Library/apps/audit/src/Pages/ResponseDocsSubmittedToday/ResponseDocsSubmittedToday_References.txt
+/sites/CGFS-Audits/Style Library/apps/audit/dist/Pages/response_docs_submitted_today/ResponseDocsSubmittedToday_References.txt
 
 AuditUpdateSiteGroups
 https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool@latest/dist/pages/update_site_groups/UpdateSiteGroups.txt
