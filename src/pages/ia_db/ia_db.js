@@ -2929,7 +2929,7 @@ async function m_fnBulkAddResponse(id) {
   const request = await appContext.AuditRequests.FindById(id);
   const bulkAddResponseForm = new BulkAddResponseForm({ request });
   const options = {
-    title: `Bulk Add Responses (${request.Title.toString()})`,
+    title: `Bulk Add Responses (Request Number:${request.Title.toString()})`,
     form: bulkAddResponseForm,
     dialogReturnValueCallback: OnCallbackFormBulkAddResponse,
   };
@@ -3019,7 +3019,7 @@ async function m_fnAddResponse(id, reqNum) {
   const options = {
     form: newResponseForm,
   };
-  options.title = "Add Response to (Request Number:" + id + ")";
+  options.title = "Add Response to (Request Number:" + reqNum + ")";
   options.dialogReturnValueCallback = OnCallbackFormNewResponse;
 
   ModalDialog.showModalDialog(options);
