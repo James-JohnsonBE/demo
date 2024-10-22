@@ -2982,7 +2982,7 @@ function m_fnBulkEditResponse(id) {
 }
 
 function m_fnGetNextSampleNumber(requestNumber) {
-  var sampleNumber = 0;
+  var sampleNumber = 1;
   const oRequest = m_fnGetRequestByNumber(requestNumber);
 
   for (var y = 0; y < oRequest.responses.length; y++) {
