@@ -30,24 +30,24 @@
 
 <link
   rel="stylesheet"
-  href="/sites/CGFS-Audits/Style Library/apps/audit/lib/fontawesome-6.5.1/css/fontawesome.min.css"
+  href="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool@latest/lib/fontawesome-6.5.1/css/fontawesome.min.css"
 />
 <link
   rel="stylesheet"
-  href="/sites/CGFS-Audits/Style Library/apps/audit/lib/fontawesome-6.5.1/css/solid.min.css"
+  href="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool@latest/lib/fontawesome-6.5.1/css/solid.min.css"
 />
 
 <script
   type="text/javascript"
-  src="/sites/CGFS-Audits/Style Library/apps/audit/lib/jquery-3.7.1.min.js"
+  src="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool@latest/lib/jquery-3.7.1.min.js"
 ></script>
 
 <link
-  href="/sites/CGFS-Audits/Style Library/apps/audit/lib/quill@2.0.0-rc.2/dist/quill.snow.css"
+  href="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool@latest/lib/quill@2.0.0-rc.2/dist/quill.snow.css"
   rel="stylesheet"
 />
 
-<script src="/sites/CGFS-Audits/Style Library/apps/audit/lib/quill@2.0.0-rc.2/dist/quill.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool@latest/lib/quill@2.0.0-rc.2/dist/quill.js"></script>
 
 <!-- to remove -->
 <!-- Still referenced in pages: 
@@ -58,26 +58,26 @@
 <link
   rel="stylesheet"
   type="text/css"
-  href="/sites/CGFS-Audits/Style Library/apps/audit/lib/jquery-ui-1.13.2/jquery-ui.theme.min.css"
+  href="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool@latest/lib/jquery-ui-1.13.2/jquery-ui.theme.min.css"
 />
 <link
   rel="stylesheet"
   type="text/css"
-  href="/sites/CGFS-Audits/Style Library/apps/audit/lib/tablesorter-2.31.3/css/theme.default.min.css"
+  href="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool@latest/lib/tablesorter-2.31.3/css/theme.default.min.css"
 />
 
 <script
   type="text/javascript"
-  src="/sites/CGFS-Audits/Style Library/apps/audit/lib/jquery-ui-1.13.2/jquery-ui.min.js"
+  src="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool@latest/lib/jquery-ui-1.13.2/jquery-ui.min.js"
 ></script>
 
 <script
   type="text/javascript"
-  src="/sites/CGFS-Audits/Style Library/apps/audit/lib/tablesorter-2.31.3/js/jquery.tablesorter.min.js"
+  src="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool@latest/lib/tablesorter-2.31.3/js/jquery.tablesorter.min.js"
 ></script>
 <!-- /to remove -->
 
 <script
   type="text/javascript"
-  src="/sites/CGFS-Audits/Style Library/apps/audit/lib/knockout-3.5.1.js"
+  src="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool@latest/lib/knockout-3.5.1.js"
 ></script>
