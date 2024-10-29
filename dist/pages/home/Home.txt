@@ -1,27 +1,18 @@
 <link
   rel="stylesheet"
   type="text/css"
-  href="/sites/CGFS-Audits/Style Library/apps/audit/src/audit_styles.css"
+  href="https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool@latest/dist/audit_styles.css"
 />
-<link
-  rel="stylesheet"
-  type="text/css"
-  href="/sites/CGFS-Audits/Style Library/apps/audit/src/audit_page_reports.css"
-/>
-<link
-  rel="stylesheet"
-  type="text/css"
-  href="/sites/CGFS-Audits/Style Library/apps/audit/src/audit_styles_hide_ribbon.css"
-/>
+
 <div class="audit">
   <div class="container">
-    <h1>​​Bureau of the Comptroller and Global Financial Services</h1>
+    <h1>Bureau of the Comptroller and Global Financial Services</h1>
     <hr />
     <p>
       Welcome to the Bureau of the Comptroller and Global Financial Services
       (CGFS) Audit Tracking Tool SharePoint site. This site is dedicated to
       requesting and monitoring the audit requests from the independent auditors
-      conducting the audit of the Department’s financial statements.
+      conducting the audit of the Department's financial statements.
     </p>
     <p>
       This audit tracking tool allows us to generate group emails to multiple

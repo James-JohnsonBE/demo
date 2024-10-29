@@ -7,17 +7,6 @@
   var html = String.raw;
   var _a;
   var qaDbTemplate = html(_a || (_a = __template([`
-  <link
-    rel="stylesheet"
-    type="text/css"
-    href="/sites/CGFS-Audits/Style Library/apps/audit/lib/jquery-ui-1.13.2/jquery-ui.theme.min.css"
-  />
-  <link
-    rel="stylesheet"
-    type="text/css"
-    href="/sites/CGFS-Audits/Style Library/apps/audit/lib/tablesorter-2.31.3/css/theme.default.min.css"
-  />
-
   <iframe id="CsvExpFrame" style="display: none"></iframe>
 
   <div
@@ -2157,7 +2146,7 @@
       `<View Scope="RecursiveAll"><Query></Query><RowLimit>5000</RowLimit>${viewFields}</View>`
     );
     let position = new SP.ListItemCollectionPosition();
-    position.set_pagingInfo("Paged=TRUE&p_ID=1");
+    position.set_pagingInfo("Paged=TRUE");
     while (position != null) {
       console.log("Legacy Helper - getAllItems", listTitle, position);
       camlQuery.set_listItemCollectionPosition(position);

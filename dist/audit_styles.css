@@ -45,24 +45,28 @@ div.cell-margin {
   background:
     linear-gradient(
       45deg,
-      #3bbfc3,
-      #3bbfc3 75%,
+      var(--primary-color),
+      var(--primary-color) 75%,
       #1d2b36 75%);
-  background-color: #3bbfc3;
+  background-color: var(--primary-color);
   padding-bottom: 1rem;
 }
 #s4-titlerow #DeltaPlaceHolderPageTitleInTitleArea {
   color: white;
 }
-#s4-titlerow .menu-item-text {
+#s4-titlerow a.static.menu-item {
+  color: var(--primary-muted-color);
 }
-#zz11_RootAspMenu .static.menu-item {
+#s4-titlerow a.static.menu-item.selected {
+  color: var(--text-primary);
+}
+#zz12_RootAspMenu .static.menu-item {
   color: white;
 }
-#zz11_RootAspMenu .static.menu-item.selected {
+#zz12_RootAspMenu .static.menu-item.selected {
   font-weight: bold;
 }
-#zz11_RootAspMenu .static.menu-item:hover {
+#zz12_RootAspMenu .static.menu-item:hover {
   color: #1e2a36;
 }
 #contentRow {
@@ -296,7 +300,7 @@ div.cell-margin {
   padding-block-end: 0.75rem;
 }
 .audit .emphasized-section {
-  background-color: #d7f0f0;
+  background-color: var(--bg-very-light-color);
   color: var(--primary-color);
   box-sizing: border-box;
   width: 100%;

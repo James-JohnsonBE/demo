@@ -4196,14 +4196,24 @@
   var AuditBulkRequest;
   var init_audit_bulk_request = __esm({
     "src/entities/audit_bulk_request.js"() {
+      init_store();
       init_audit_request();
       AuditBulkRequest = class extends AuditRequest {
         constructor(params) {
           super(params);
         }
-        toRequest() {
+        toNewRequest() {
           const newReq = new AuditRequest(this);
           newReq.fromJSON(this.toJSON());
+          newReq.ReqStatus.Value(AUDITREQUESTSTATES.OPEN);
+          const requestDefaultReminders = getRequestDefaultReminders();
+          newReq.Reminders.Value(requestDefaultReminders);
+          const requestDefaultType = configurationsStore["default-req-type"];
+          if (requestDefaultType)
+            newReq.ReqType.Value(requestDefaultType);
+          const defaultFy = configurationsStore["current-fy"];
+          if (defaultFy)
+            newReq.FiscalYear.Value(defaultFy);
           return newReq;
         }
         static Views = {
@@ -4214,36 +4224,15 @@
             "FiscalYear",
             "InternalDueDate",
             "ReqDueDate",
-            "ReqStatus",
             "IsSample",
             "ReceiptDate",
             "RelatedAudit",
             "ActionItems",
             "Comments",
             "Reminders",
-            "EmailSent",
             "Sensitivity",
             "ActionOffice",
-            "EmailActionOffice",
-            "EmailActionOffice",
-            "ClosedDate",
-            "ClosedBy"
-          ],
-          New: [
-            "Title",
-            "ReqSubject",
-            "FiscalYear",
-            "InternalDueDate",
-            "ReqDueDate",
-            "ReqStatus",
-            "IsSample",
-            "ReceiptDate",
-            "RelatedAudit",
-            "ActionItems",
-            "Comments",
-            "Reminders",
-            "Sensitivity",
-            "ActionOffice"
+            "RequestingOffice"
           ]
         };
         static ListDef = {
@@ -5665,8 +5654,7 @@
   // src/pages/ia_db/IA_DB_Template.js
   var html = String.raw;
   var _a;
-  var iaDbTemplate = html(_a || (_a = __template(['\n  <link\n    href="', '/Style Library/apps/audit/lib/quill@2.0.0-rc.2/dist/quill.snow.css"\n    rel="stylesheet"\n  />\n\n  <link\n    rel="stylesheet"\n    href="', '/Style Library/apps/audit/lib/fontawesome-6.5.1/css/fontawesome.min.css"\n  />\n  <link\n    rel="stylesheet"\n    href="', '/Style Library/apps/audit/lib/fontawesome-6.5.1/css/solid.min.css"\n  />\n  <link\n    rel="stylesheet"\n    type="text/css"\n    href="', `/Style Library/apps/audit/lib/jquery-ui-1.13.2/jquery-ui.theme.min.css"
-  />
+  var iaDbTemplate = html(_a || (_a = __template([`
   <style>
     .o365cs-nav-leftAlign {
       display: revert !important;
@@ -6531,7 +6519,7 @@
   <\/script>
 
   <div id="divTest"></div>
-`])), _spPageContextInfo.siteServerRelativeUrl, _spPageContextInfo.siteServerRelativeUrl, _spPageContextInfo.siteServerRelativeUrl, _spPageContextInfo.siteServerRelativeUrl);
+`])));
 
   // src/common/utilities.js
   window.Audit = window.Audit || {};
@@ -9785,7 +9773,7 @@
     }
   }
   async function ensureRequestInternalItem(request2) {
-    const requestInternalResult = getRequestInternalItem(request2);
+    const requestInternalResult = await getRequestInternalItem(request2);
     if (requestInternalResult)
       return requestInternalResult;
     const requestInternal = new AuditRequestsInternal();
@@ -12715,9 +12703,7 @@
       const insertPromises = bulkRequestItems.map(async (bulkRequestItem) => {
         bulkRequestItem.status("pending");
         const bulkRequest = bulkRequestItem.bulkRequest;
-        const newRequest = bulkRequest.toRequest();
-        const requestDefaultReminders = getRequestDefaultReminders();
-        newRequest.Reminders.Value(requestDefaultReminders);
+        const newRequest = bulkRequest.toNewRequest();
         try {
           await addNewRequest(newRequest);
           await onAddNewRequest(newRequest);
@@ -12754,7 +12740,7 @@
       `<View Scope="RecursiveAll"><Query></Query><RowLimit>5000</RowLimit>${viewFields}</View>`
     );
     let position = new SP.ListItemCollectionPosition();
-    position.set_pagingInfo("Paged=TRUE&p_ID=1");
+    position.set_pagingInfo("Paged=TRUE");
     while (position != null) {
       console.log("Legacy Helper - getAllItems", listTitle, position);
       camlQuery.set_listItemCollectionPosition(position);
@@ -14866,7 +14852,7 @@
     const request2 = await appContext.AuditRequests.FindById(id2);
     const bulkAddResponseForm = new BulkAddResponseForm({ request: request2 });
     const options = {
-      title: `Bulk Add Responses (${request2.Title.toString()})`,
+      title: `Bulk Add Responses (Request Number:${request2.Title.toString()})`,
       form: bulkAddResponseForm,
       dialogReturnValueCallback: OnCallbackFormBulkAddResponse
     };
@@ -14898,7 +14884,7 @@
     SP.UI.ModalDialog.showModalDialog(options);
   }
   function m_fnGetNextSampleNumber(requestNumber) {
-    var sampleNumber = 0;
+    var sampleNumber = 1;
     const oRequest = m_fnGetRequestByNumber(requestNumber);
     for (var y = 0; y < oRequest.responses.length; y++) {
       if (oRequest.responses[y].sample > sampleNumber)
@@ -14926,7 +14912,7 @@
     const options = {
       form: newResponseForm
     };
-    options.title = "Add Response to (Request Number:" + id2 + ")";
+    options.title = "Add Response to (Request Number:" + reqNum + ")";
     options.dialogReturnValueCallback = OnCallbackFormNewResponse;
     showModalDialog(options);
   }

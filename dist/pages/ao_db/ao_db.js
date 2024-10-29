@@ -12,10 +12,11 @@
   var __template = (cooked, raw) => __freeze(__defProp(cooked, "raw", { value: __freeze(raw || cooked.slice()) }));
 
   // src/infrastructure/store.js
-  var auditOrganizationStore, allActionOfficesFilter, allRequestingOfficesFilter;
+  var configurationsStore, auditOrganizationStore, allActionOfficesFilter, allRequestingOfficesFilter;
   var init_store = __esm({
     "src/infrastructure/store.js"() {
       init_entities2();
+      configurationsStore = {};
       auditOrganizationStore = ko.observableArray();
       allActionOfficesFilter = (org) => ORGROLES.ACTIONOFFICE == org.Role;
       allRequestingOfficesFilter = (org) => ORGROLES.REQUESTINGOFFICE == org.Role;
@@ -3856,7 +3857,7 @@
   });
 
   // src/entities/audit_request.js
-  var AUDITREQUESTSTATES, AUDITREQUESTTYPES, AuditRequest;
+  var AUDITREQUESTSTATES, AUDITREQUESTTYPES, getRequestDefaultReminders, AuditRequest;
   var init_audit_request = __esm({
     "src/entities/audit_request.js"() {
       init_audit_organization();
@@ -3874,6 +3875,25 @@
       AUDITREQUESTTYPES = {
         TASKER: "Tasker",
         REQUEST: "Request"
+      };
+      getRequestDefaultReminders = () => {
+        let reminders = [
+          "3 Days Before Due",
+          "1 Day Before Due",
+          "1 Day Past Due",
+          "3 Days Past Due",
+          "7 Days Past Due",
+          "7 Days Recurring"
+        ];
+        const remindersText = configurationsStore["default-reminders"];
+        if (remindersText) {
+          try {
+            reminders = JSON.parse(remindersText);
+          } catch (e) {
+            console.warn("Error parsing reminders default", remindersText);
+          }
+        }
+        return reminders;
       };
       AuditRequest = class extends ConstrainedEntity {
         constructor(params) {
@@ -4094,14 +4114,24 @@
   var AuditBulkRequest;
   var init_audit_bulk_request = __esm({
     "src/entities/audit_bulk_request.js"() {
+      init_store();
       init_audit_request();
       AuditBulkRequest = class extends AuditRequest {
         constructor(params) {
           super(params);
         }
-        toRequest() {
+        toNewRequest() {
           const newReq = new AuditRequest(this);
           newReq.fromJSON(this.toJSON());
+          newReq.ReqStatus.Value(AUDITREQUESTSTATES.OPEN);
+          const requestDefaultReminders = getRequestDefaultReminders();
+          newReq.Reminders.Value(requestDefaultReminders);
+          const requestDefaultType = configurationsStore["default-req-type"];
+          if (requestDefaultType)
+            newReq.ReqType.Value(requestDefaultType);
+          const defaultFy = configurationsStore["current-fy"];
+          if (defaultFy)
+            newReq.FiscalYear.Value(defaultFy);
           return newReq;
         }
         static Views = {
@@ -4112,36 +4142,15 @@
             "FiscalYear",
             "InternalDueDate",
             "ReqDueDate",
-            "ReqStatus",
             "IsSample",
             "ReceiptDate",
             "RelatedAudit",
             "ActionItems",
             "Comments",
             "Reminders",
-            "EmailSent",
             "Sensitivity",
             "ActionOffice",
-            "EmailActionOffice",
-            "EmailActionOffice",
-            "ClosedDate",
-            "ClosedBy"
-          ],
-          New: [
-            "Title",
-            "ReqSubject",
-            "FiscalYear",
-            "InternalDueDate",
-            "ReqDueDate",
-            "ReqStatus",
-            "IsSample",
-            "ReceiptDate",
-            "RelatedAudit",
-            "ActionItems",
-            "Comments",
-            "Reminders",
-            "Sensitivity",
-            "ActionOffice"
+            "RequestingOffice"
           ]
         };
         static ListDef = {
@@ -6324,36 +6333,6 @@
   var html = String.raw;
   var _a;
   var aoDbTemplate = html(_a || (_a = __template([`
-  <link
-    rel="stylesheet"
-    type="text/css"
-    href="/sites/CGFS-Audits/Style Library/apps/audit/lib/jquery-ui-1.13.2/jquery-ui.theme.min.css"
-  />
-  <link
-    rel="stylesheet"
-    type="text/css"
-    href="/sites/CGFS-Audits/Style Library/apps/audit/lib/tablesorter-2.31.3/css/theme.default.min.css"
-  />
-  <!--
-  <script
-    type="text/javascript"
-    src="/sites/CGFS-Audits/Style Library/apps/audit/lib/jquery-3.7.1.min.js"
-  ><\/script>
-  <script
-    type="text/javascript"
-    src="/sites/CGFS-Audits/Style Library/apps/audit/lib/jquery-ui-1.13.2/jquery-ui.min.js"
-  ><\/script>
-
-  <script
-    type="text/javascript"
-    src="/sites/CGFS-Audits/Style Library/apps/audit/lib/tablesorter-2.31.3/js/jquery.tablesorter.min.js"
-  ><\/script>
-  <script
-    type="text/javascript"
-    src="/sites/CGFS-Audits/Style Library/apps/audit/lib/knockout-3.5.1.js"
-  ><\/script>
-  -->
-
   <iframe id="CsvExpFrame" style="display: none"></iframe>
 
   <div
@@ -7388,7 +7367,7 @@
       `<View Scope="RecursiveAll"><Query></Query><RowLimit>5000</RowLimit>${viewFields}</View>`
     );
     let position = new SP.ListItemCollectionPosition();
-    position.set_pagingInfo("Paged=TRUE&p_ID=1");
+    position.set_pagingInfo("Paged=TRUE");
     while (position != null) {
       console.log("Legacy Helper - getAllItems", listTitle, position);
       camlQuery.set_listItemCollectionPosition(position);

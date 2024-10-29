@@ -1870,7 +1870,7 @@
       `<View Scope="RecursiveAll"><Query></Query><RowLimit>5000</RowLimit>${viewFields}</View>`
     );
     let position = new SP.ListItemCollectionPosition();
-    position.set_pagingInfo("Paged=TRUE&p_ID=1");
+    position.set_pagingInfo("Paged=TRUE");
     while (position != null) {
       console.log("Legacy Helper - getAllItems", listTitle, position);
       camlQuery.set_listItemCollectionPosition(position);
