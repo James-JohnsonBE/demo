@@ -1,36 +1,6 @@
 ﻿const html = String.raw;
 
 export const aoDbTemplate = html`
-  <link
-    rel="stylesheet"
-    type="text/css"
-    href="/sites/CGFS-Audits/Style Library/apps/audit/lib/jquery-ui-1.13.2/jquery-ui.theme.min.css"
-  />
-  <link
-    rel="stylesheet"
-    type="text/css"
-    href="/sites/CGFS-Audits/Style Library/apps/audit/lib/tablesorter-2.31.3/css/theme.default.min.css"
-  />
-  <!--
-  <script
-    type="text/javascript"
-    src="/sites/CGFS-Audits/Style Library/apps/audit/lib/jquery-3.7.1.min.js"
-  ></script>
-  <script
-    type="text/javascript"
-    src="/sites/CGFS-Audits/Style Library/apps/audit/lib/jquery-ui-1.13.2/jquery-ui.min.js"
-  ></script>
-
-  <script
-    type="text/javascript"
-    src="/sites/CGFS-Audits/Style Library/apps/audit/lib/tablesorter-2.31.3/js/jquery.tablesorter.min.js"
-  ></script>
-  <script
-    type="text/javascript"
-    src="/sites/CGFS-Audits/Style Library/apps/audit/lib/knockout-3.5.1.js"
-  ></script>
-  -->
-
   <iframe id="CsvExpFrame" style="display: none"></iframe>
 
   <div

@@ -17,7 +17,7 @@ export async function getAllItems(listTitle, fields = null) {
   );
 
   let position = new SP.ListItemCollectionPosition();
-  position.set_pagingInfo("Paged=TRUE&p_ID=1");
+  position.set_pagingInfo("Paged=TRUE");
 
   while (position != null) {
     console.log("Legacy Helper - getAllItems", listTitle, position);
