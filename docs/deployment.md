@@ -67,12 +67,6 @@ quality assurance
 AO_DB
 https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool@latest/dist/pages/ao_db/AO_DB.txt
 
-AuditBulkAddResponse
-https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool@latest/dist/pages/bulk_add_response/BulkAddResponse.txt
-
-AuditBulkEditResponse
-https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool@latest/dist/pages/bulk_edit_response/BulkEditResponse_References.txt
-
 AuditPermissions
 https://cdn.jsdelivr.net/gh/usdos-cgfs/audit-tool@latest/dist/pages/permissions/Permissions.txt
 
